@@ -1,0 +1,553 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+import { loadCallups, countrySlug } from "../../../lib/callups";
+import { tournamentTopUrl } from "../../../lib/urls";
+import { loadGroups, getGroupsList } from "../../../lib/tournamentGroups";
+
+// --------------------
+// getStaticPaths：callups に存在する edition を自動列挙
+// --------------------
+export async function getStaticPaths() {
+  const rows = loadCallups();
+  const years = new Set(
+    rows
+      .filter((r) => String(r.competition ?? "") === "WC")
+      .map((r) => String(r.edition ?? "").trim())
+      .filter(Boolean),
+  );
+
+  return [...years].map((year) => ({
+    params: { year },
+  }));
+}
+
+const year = Astro.params.year;
+
+// URLs（urls.ts 組み込み）
+const topHref = tournamentTopUrl({ tournament: "wc", year });
+const listHref = (conf?: string) =>
+  conf ? `${topHref}?continent=${encodeURIComponent(conf)}` : topHref;
+
+// team 側の getStaticPaths と「同じ slug」
+const teamHref = (country: string) => `${topHref}/team/${countrySlug(country)}`;
+
+const rows = loadCallups();
+
+// WC + year だけ絞る
+const filtered = rows.filter(
+  (r) => r.competition === "WC" && String(r.edition) === year,
+);
+
+// ===== 状態別セット =====
+const statusMap = {
+  qualified: new Set<string>(),
+  playoff: new Set<string>(),
+  eliminated: new Set<string>(),
+};
+
+for (const r of filtered) {
+  const b = String(r.confederation_bucket ?? "").toUpperCase();
+
+  if (!b || b === "QUALIFIED") {
+    statusMap.qualified.add(r.country);
+  } else if (b.includes("PO")) {
+    statusMap.playoff.add(r.country);
+  } else if (b.includes("ELIM")) {
+    statusMap.eliminated.add(r.country);
+  }
+}
+
+// confederation -> countries
+const map = new Map<string, string[]>();
+
+// country -> count（人数）
+const countryCount = new Map<string, number>();
+
+for (const r of filtered) {
+  const conf = r.confederation || "OTHER";
+
+  if (!map.has(conf)) map.set(conf, []);
+  const list = map.get(conf)!;
+  if (!list.includes(r.country)) list.push(r.country);
+
+  countryCount.set(r.country, (countryCount.get(r.country) ?? 0) + 1);
+}
+
+// 表示順
+const confOrder = [
+  "AFC",
+  "CAF",
+  "CONCACAF",
+  "CONMEBOL",
+  "OFC",
+  "UEFA",
+  "OTHER",
+];
+const confs = [...map.keys()].sort((a, b) => {
+  const ia = confOrder.indexOf(a);
+  const ib = confOrder.indexOf(b);
+  return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+});
+
+// ===== グループ =====
+const groupRows = loadGroups("WC", String(year));
+const groups = getGroupsList(groupRows);
+
+const groupSets: Record<
+  string,
+  { name: string; slug: string; is_placeholder: boolean }[]
+> = {};
+
+for (const r of groupRows as any[]) {
+  const g = String(r.group ?? "").trim();
+  if (!g) continue;
+
+  const name = String((r.country_name_ja || r.country_key || "") ?? "").trim();
+  if (!name) continue;
+
+  const is_placeholder = String(r.is_placeholder ?? "0") === "1";
+
+  const rawForSlug = String(
+    (r.route_param || r.country_key || name) ?? "",
+  ).trim();
+  const slug = countrySlug(rawForSlug || name);
+
+  if (!groupSets[g]) groupSets[g] = [];
+  groupSets[g].push({ name, slug, is_placeholder });
+}
+---
+
+<BaseLayout
+  title={`WC${year} 出場国一覧（大陸別）`}
+  description={`WC${year} 出場国一覧（大陸別）`}
+  bodyClass="page-nt"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[{ label: "トップ", href: "/" }, { label: `WC${year}` }]}
+  heading={`WC${year} 出場国一覧（大陸別）`}
+>
+  {/* ★JS生成DOMにスタイルを当てるのでglobal推奨 */}
+  <style is:global>
+    .page-nt .quick-links {
+      margin: 10px 0 14px;
+      padding: 12px 12px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-nt .quick-title {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted, #666);
+    }
+
+    .page-nt .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-nt .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border, #e6e6e6);
+      background: #fff;
+      color: #111;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease;
+    }
+
+    .page-nt .pill:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    }
+
+    .page-nt .pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #111;
+      opacity: 0.35;
+    }
+
+    .page-nt .pill.is-active {
+      font-weight: 700;
+      border-color: #111;
+    }
+
+    .page-nt .pill.is-active .dot {
+      opacity: 1;
+    }
+
+    /* WC theme */
+    .page-nt h2,
+    .page-nt h3 {
+      color: #3b82f6;
+    }
+
+    .page-nt section a {
+      color: #2563eb;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt section a:hover {
+      color: #1d4ed8;
+      background: #eef6fd;
+    }
+
+    .page-nt section ul {
+      line-height: 1.8;
+    }
+
+    .page-nt .pill {
+      border-color: #6baed6;
+    }
+
+    .page-nt .pill:hover {
+      background: #eef6fd;
+    }
+
+    .page-nt .pill .dot {
+      background: #2b6cb0;
+      opacity: 0.6;
+    }
+
+    .page-nt .country-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px 18px;
+      list-style: none;
+      padding-left: 0;
+      line-height: 1.8;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt .country-list {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+    }
+
+    .page-nt .country-list a:link,
+    .page-nt .country-list a:visited {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt .country-list a:hover {
+      color: #1d4ed8;
+      background: #eef6fd;
+    }
+
+    /* グループピル用 */
+    /* グループピル用（枠の中に入ったので margin は不要） */
+    .page-nt .group-pills {
+      margin: 0;
+    }
+    .page-nt .group-pills .pill.is-active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+    .page-nt .group-pills .pill.clear {
+      background: #f3f4f6;
+    }
+
+    .page-nt .group-pills .pill.is-active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+    .page-nt .group-pills .pill.clear {
+      background: #f3f4f6;
+    }
+    .page-nt #group-view-list .placeholder {
+      color: #666;
+      text-decoration: none;
+    }
+    .page-nt .status-legend {
+      margin: 6px 0 14px;
+      font-size: 13px;
+      color: var(--muted, #666);
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .page-nt .status-legend .lg {
+      white-space: nowrap;
+    }
+  </style>
+
+  <div class="quick-links">
+    <p class="quick-title">大陸から探す</p>
+    <div class="pills">
+      <a class="pill" href={listHref("UEFA")} data-conf-pill="UEFA"
+        ><span class="dot" aria-hidden="true"></span>欧州</a
+      >
+      <a class="pill" href={listHref("CONMEBOL")} data-conf-pill="CONMEBOL"
+        ><span class="dot" aria-hidden="true"></span>南米</a
+      >
+      <a class="pill" href={listHref("CONCACAF")} data-conf-pill="CONCACAF"
+        ><span class="dot" aria-hidden="true"></span>北中米</a
+      >
+      <a class="pill" href={listHref("AFC")} data-conf-pill="AFC"
+        ><span class="dot" aria-hidden="true"></span>アジア</a
+      >
+      <a class="pill" href={listHref("CAF")} data-conf-pill="CAF"
+        ><span class="dot" aria-hidden="true"></span>アフリカ</a
+      >
+      <a class="pill" href={listHref("OFC")} data-conf-pill="OFC"
+        ><span class="dot" aria-hidden="true"></span>オセアニア</a
+      >
+      <a class="pill" href={listHref()}
+        ><span class="dot" aria-hidden="true"></span>全大陸</a
+      >
+    </div>
+
+    <p class="quick-title" style="margin-top:12px;">グループから探す</p>
+    <div class="pills group-pills">
+      {
+        groups.map((g) => (
+          <a
+            class="pill"
+            href={`${topHref}?group=${encodeURIComponent(g)}`}
+            data-group-pill={g}
+          >
+            {g}
+          </a>
+        ))
+      }
+    </div>
+  </div>
+
+  <div id="group-view" class="quick-links" style="display:none;">
+    <p id="group-view-title" class="quick-title">グループ</p>
+    <ul id="group-view-list" class="country-list"></ul>
+  </div>
+
+  <p
+    id="conf-filter-notfound"
+    style="margin: 10px 0 16px; color:#b00; display:none;"
+  >
+    指定大陸「<b id="conf-filter-notfound-name"></b>」が見つかりませんでした。{
+      " "
+    }
+    <a href={listHref()}>全大陸表示に戻す</a>
+  </p>
+  <p id="status-legend" class="status-legend">
+    <span class="lg q">🟢 出場</span>
+    <span class="lg p">🟡 PO</span>
+    <span class="lg e">🔴 敗退</span>
+  </p>
+
+  {
+    confs.map((conf) =>
+      (() => {
+        const countries = map.get(conf)!;
+
+        const qualified = countries.filter((c) => statusMap.qualified.has(c));
+        const playoff = countries.filter((c) => statusMap.playoff.has(c));
+        const eliminated = countries.filter((c) => statusMap.eliminated.has(c));
+
+        const renderList = (list: string[], mark: string) => (
+          <ul class="country-list">
+            {list.map((country) => (
+              <li>
+                {mark}{" "}
+                <a
+                  href={`${teamHref(country)}?from=conf-${encodeURIComponent(conf)}&anchor=conf-${encodeURIComponent(conf)}`}
+                >
+                  {country} ({countryCount.get(country) ?? 0})
+                </a>
+              </li>
+            ))}
+          </ul>
+        );
+
+        return (
+          <section id={`conf-${conf}`} data-conf={conf} style="margin: 18px 0;">
+            <h2>
+              {conf} ({countries.length})
+            </h2>
+
+            {qualified.length > 0 && renderList(qualified, "🟢")}
+
+            {playoff.length > 0 && renderList(playoff, "🟡")}
+
+            {eliminated.length > 0 && renderList(eliminated, "🔴")}
+          </section>
+        );
+      })(),
+    )
+  }
+
+  <script
+    is:inline
+    data-top={topHref}
+    data-groupsets={JSON.stringify(groupSets)}
+  >
+    function safeJSON(v, fallback) {
+      try {
+        return JSON.parse(v || "");
+      } catch {
+        return fallback;
+      }
+    }
+    function byId(id) {
+      return document.getElementById(id);
+    }
+    function qsa(sel) {
+      return Array.from(document.querySelectorAll(sel));
+    }
+
+    const __SCRIPT_DATA__ = {
+      top: document.currentScript?.dataset.top || "",
+      groupSets: safeJSON(document.currentScript?.dataset.groupsets, {}),
+    };
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const params = new URLSearchParams(window.location.search);
+
+      const group = (params.get("group") || "").trim();
+      const raw = params.get("continent");
+      const conf = raw ? decodeURIComponent(raw).trim() : null;
+
+      const baseTitle = document.title;
+
+      const top = __SCRIPT_DATA__.top || location.pathname.replace(/\/$/, "");
+      const groupSets = __SCRIPT_DATA__.groupSets;
+
+      const legend = byId("status-legend");
+
+      const mode = group ? "group" : conf ? "continent" : "default";
+
+      resetUI();
+
+      if (mode === "group") applyGroupMode(group);
+      else if (mode === "continent") applyContinentMode(conf);
+
+      function applyGroupMode(group) {
+        if (legend) legend.style.display = "none";
+
+        qsa("section[data-conf]").forEach(
+          (sec) => (sec.style.display = "none"),
+        );
+
+        const box = byId("group-view");
+        const listEl = byId("group-view-list");
+        const titleEl = byId("group-view-title");
+
+        if (box) box.style.display = "";
+        if (titleEl)
+          titleEl.textContent = group ? `グループ${group}` : "グループ";
+
+        if (listEl) {
+          listEl.innerHTML = "";
+          const items = groupSets[group] || [];
+
+          items.forEach((it) => {
+            const li = document.createElement("li");
+            li.appendChild(document.createTextNode("• "));
+
+            const name = String(it?.name || "").trim();
+            if (!name) return;
+
+            const isPlaceholder = !!it?.is_placeholder;
+
+            if (isPlaceholder) {
+              const span = document.createElement("span");
+              span.className = "placeholder";
+              span.textContent = name;
+              li.appendChild(span);
+              listEl.appendChild(li);
+              return;
+            }
+
+            const slug = String(it?.slug || "").trim();
+            if (!slug) {
+              const span = document.createElement("span");
+              span.className = "placeholder";
+              span.textContent = name;
+              li.appendChild(span);
+              listEl.appendChild(li);
+              return;
+            }
+
+            const a = document.createElement("a");
+            a.href = `${top}/team/${slug}?from=group-${encodeURIComponent(group)}&anchor=group-view`;
+            a.textContent = name;
+            li.appendChild(a);
+            listEl.appendChild(li);
+          });
+        }
+
+        qsa("[data-group-pill]").forEach((a) => {
+          a.classList.toggle("is-active", a.dataset.groupPill === group);
+        });
+
+        document.title = `${baseTitle.replace(/\s*\(.+\)\s*$/, "")}（Group ${group}）`;
+      }
+
+      function applyContinentMode(conf) {
+        const sections = qsa("section[data-conf]");
+        const exists = sections.some(
+          (s) => s.getAttribute("data-conf") === conf,
+        );
+
+        qsa("[data-conf-pill]").forEach((a) => {
+          const v = a.getAttribute("data-conf-pill");
+          a.classList.toggle("is-active", v === conf);
+        });
+
+        if (legend) legend.style.display = "";
+
+        if (exists) {
+          sections.forEach((s) => {
+            s.style.display =
+              s.getAttribute("data-conf") === conf ? "" : "none";
+          });
+
+          const banner = byId("conf-filter-banner");
+          const bannerName = byId("conf-filter-name");
+          if (banner) banner.style.display = "";
+          if (bannerName) bannerName.textContent = conf;
+
+          document.title = `${baseTitle.replace(/\s*\(.+\)\s*$/, "")}（${conf}）`;
+        } else {
+          const notfound = byId("conf-filter-notfound");
+          const notfoundName = byId("conf-filter-notfound-name");
+          if (notfound) notfound.style.display = "";
+          if (notfoundName) notfoundName.textContent = conf;
+        }
+      }
+
+      function resetUI() {
+        qsa("section[data-conf]").forEach((sec) => (sec.style.display = ""));
+
+        const box = byId("group-view");
+        if (box) box.style.display = "none";
+
+        const banner = byId("conf-filter-banner");
+        if (banner) banner.style.display = "none";
+        const notfound = byId("conf-filter-notfound");
+        if (notfound) notfound.style.display = "none";
+
+        qsa(".pill.is-active").forEach((el) =>
+          el.classList.remove("is-active"),
+        );
+
+        document.title = baseTitle;
+      }
+    });
+  </script>
+</BaseLayout>

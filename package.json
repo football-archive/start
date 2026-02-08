@@ -1,0 +1,22 @@
+{
+  "name": "soccer-db",
+  "type": "module",
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "node src/scripts/check_routes.mjs && node src/scripts/check_links.mjs"
+  },
+  "dependencies": {
+    "astro": "^5.17.1",
+    "papaparse": "^5.4.1",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1"
+  }
+}

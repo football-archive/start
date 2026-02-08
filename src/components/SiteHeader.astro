@@ -1,0 +1,242 @@
+---
+type Crumb = { label: string; href?: string };
+const { crumbs = [] as Crumb[], variant = "boxed" } = Astro.props;
+const isSlim = variant === "slim";
+const hasSlot = Astro.slots.has("default");
+---
+
+<style is:global>
+  :root {
+    --border: #e6e6e6;
+    --muted: #666;
+  }
+
+  .header {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 12px 14px;
+    margin: 0 0 12px;
+  }
+
+  .crumbs {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .crumbs a {
+    text-decoration: none;
+    color: inherit;
+  }
+  .crumbs a:hover {
+    text-decoration: underline;
+  }
+
+  .sep {
+    margin: 0 6px;
+    opacity: 0.6;
+  }
+
+  .sub {
+    margin-top: 10px;
+  }
+
+  .sub:empty {
+    display: none;
+  }
+
+  /* ▼ ピル（全ページ共通） */
+  .pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1;
+    transition:
+      transform 0.06s ease,
+      box-shadow 0.06s ease;
+    user-select: none;
+  }
+
+  .pill:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  }
+
+  .pill .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #111;
+    opacity: 0.35;
+  }
+
+  .pill.is-active {
+    font-weight: 700;
+    border-color: #111;
+  }
+
+  .pill.is-active .dot {
+    opacity: 1;
+  }
+
+  /* =========================
+  クラブページ（club）配色：黄色テーマ
+  ※ default は黒基調のまま、クラブだけ黄色に寄せる
+  ========================= */
+  .page-club .pill {
+    border-color: #f1c40f;
+  }
+
+  .page-club .pill:hover {
+    background: #fff7cc;
+  }
+
+  /* 現在地ピル（is-active 統一） */
+  .page-club .pill.is-active {
+    background: #f1c40f;
+    color: #000;
+  }
+
+  .page-club .pill.is-active .dot {
+    opacity: 1;
+  }
+
+  /* パンくず（クラブだけ黄色寄り） */
+  .page-club .crumbs a {
+    color: #b58900;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* 更新日（共通で赤） */
+  .updated-date {
+    color: #c0392b;
+    font-weight: 600;
+  }
+
+  /* クラブ：テーブルヘッダーも薄黄色に */
+  .page-club .roster-block {
+    --roster-head-bg: #fff7cc;
+    --roster-head-border: #f1c40f;
+  }
+
+  /* =========================
+   代表ページ（NT）配色
+   ========================= */
+  .page-nt .pill {
+    border-color: #6baed6; /* 薄ブルー */
+  }
+
+  .page-nt .pill:hover {
+    background: #eef6fd;
+  }
+
+  .page-nt .pill.is-active {
+    background: #6baed6;
+    color: #fff;
+  }
+
+  .page-nt .pill .dot {
+    background: #2b6cb0;
+  }
+
+  /* パンくず（代表ページだけ青寄り） */
+  .page-nt .crumbs a {
+    color: #2b6cb0;
+  }
+
+  /* ===== 代表ページ：テーブルヘッダーを薄ブルーに ===== */
+  .page-nt .roster-block {
+    --roster-head-bg: #eef5ff;
+    --roster-head-border: #cfe3f7;
+  }
+
+  /* =========================
+  slim：パンくずは枠なし／ピルなどは枠あり
+========================= */
+
+  .header-slim {
+    margin: 0 0 12px;
+  }
+
+  /* パンくず：枠なしで自然に */
+  .crumbs--slim {
+    font-size: 13px;
+    color: var(--muted);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0;
+    margin: 2px 0 10px;
+  }
+
+  /* slot側だけ枠（ピルをまとめる箱） */
+  .sub--boxed {
+    margin-top: 0;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+  }
+
+  :root {
+    --border: #e6e6e6;
+    --muted: #666;
+
+    /* ✅ 注目選手枠：基準色（クラブ側の見た目を採用） */
+    --star-bg: #f7f3f8;
+    --star-border: #eadff0;
+  }
+</style>
+
+{
+  isSlim ? (
+    <div class="header-slim">
+      <nav class="crumbs crumbs--slim" aria-label="breadcrumb">
+        {crumbs.map((c, i) => (
+          <>
+            {i > 0 && <span class="sep">›</span>}
+            {c.href ? <a href={c.href}>{c.label}</a> : <span>{c.label}</span>}
+          </>
+        ))}
+      </nav>
+
+      {hasSlot && (
+        <div class="sub sub--boxed">
+          <slot />
+        </div>
+      )}
+    </div>
+  ) : (
+    <div class="header">
+      <nav class="crumbs" aria-label="breadcrumb">
+        {crumbs.map((c, i) => (
+          <>
+            {i > 0 && <span class="sep">›</span>}
+            {c.href ? <a href={c.href}>{c.label}</a> : <span>{c.label}</span>}
+          </>
+        ))}
+      </nav>
+
+      <div class="sub">
+        <slot />
+      </div>
+    </div>
+  )
+}

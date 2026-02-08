@@ -1,0 +1,616 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+import { loadClubSquads, sortClubRoster } from "../../../lib/clubSquads";
+import { loadClubMaster } from "../../../lib/clubMaster";
+import { loadLeagueMaster } from "../../../lib/leagueMaster";
+
+import { loadCallups } from "../../../lib/callups";
+import { buildRepLabelFromCallups } from "../../../lib/repCandidate";
+
+import RosterView from "../../../components/RosterView.astro";
+
+import { buildClubColumns } from "../../../lib/rosterColumns";
+import { toYMD } from "../../../lib/rosterFormat";
+
+// ★ URLヘルパー
+import { clubsListUrl } from "../../../lib/urls";
+
+// --------------------
+// getStaticPaths：keyで生成
+// --------------------
+export async function getStaticPaths() {
+  const rows = loadClubSquads();
+  const keys = new Set(rows.map((r) => `${r.league_key}|||${r.club_key}`));
+
+  return [...keys].map((k) => {
+    const [league_key, club_key] = k.split("|||");
+    return { params: { league_key, club_key } }; // ★encodeしない
+  });
+}
+
+const league_key = Astro.params.league_key!;
+const club_key = Astro.params.club_key!;
+
+// --------------------
+// master 参照：表示名（日本語）をここで確定
+// --------------------
+const clubMaster = loadClubMaster();
+const leagueMaster = loadLeagueMaster();
+
+const clubInfo = clubMaster.find((c) => c.club_key === club_key);
+const leagueInfo = leagueMaster.find((l) => l.league_key === league_key);
+
+const clubInMaster = !!clubInfo;
+const leagueInMaster = !!leagueInfo;
+
+const clubLabel = clubInfo?.club_display_ja ?? club_key;
+const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
+
+// --------------------
+// roster：keyで抽出（window/snapshot/season を扱う）
+// --------------------
+const allRows = loadClubSquads().filter(
+  (r) => r.league_key === league_key && r.club_key === club_key,
+);
+
+// window 正規化（想定外は summer 扱いで落ちないようにする）
+const normWindow = (v) => {
+  const s = String(v ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "winter" ? "winter" : "summer";
+};
+
+// season の “新しさ” 比較用（"2025-26" → 2025）
+const seasonStart = (seasonStr) => {
+  const s = String(seasonStr ?? "").trim();
+  const m = s.match(/^(\d{4})/);
+  return m ? Number(m[1]) : 0;
+};
+
+// snapshot の max（window内で最新1枚を作る）
+const maxSnapIn = (rows) => {
+  let max = "";
+  for (const r of rows) {
+    const s = toYMD(String(r.snapshot_date ?? ""));
+    if (s && s > max) max = s;
+  }
+  return max;
+};
+
+// 対象season（最新seasonだけに絞る：今後の運用に合う）
+const seasonCandidates = new Set(
+  allRows.map((r) => String(r.season ?? "").trim()).filter(Boolean),
+);
+
+let season = "";
+if (seasonCandidates.size === 1) {
+  season = [...seasonCandidates][0];
+} else if (seasonCandidates.size > 1) {
+  season = [...seasonCandidates].sort(
+    (a, b) => seasonStart(b) - seasonStart(a),
+  )[0];
+}
+
+// 最新seasonに絞った行（season空なら全行を対象）
+const seasonRows = season
+  ? allRows.filter((r) => String(r.season ?? "").trim() === season)
+  : allRows;
+
+// window別に分割
+const summerRows = seasonRows.filter((r) => normWindow(r.window) === "summer");
+const winterRows = seasonRows.filter((r) => normWindow(r.window) === "winter");
+
+// windowごとに “最新snapshot_date だけ” 残す
+const summerSnapMax = maxSnapIn(summerRows);
+const winterSnapMax = maxSnapIn(winterRows);
+
+const summerLatest = sortClubRoster(
+  summerRows.filter(
+    (r) => toYMD(String(r.snapshot_date ?? "")) === summerSnapMax,
+  ),
+);
+
+const winterLatest = sortClubRoster(
+  winterRows.filter(
+    (r) => toYMD(String(r.snapshot_date ?? "")) === winterSnapMax,
+  ),
+);
+
+// デフォルト表示 window（winter優先）
+const defaultWindow = winterLatest.length > 0 ? "winter" : "summer";
+
+// “クラブの最新” 判定（年齢表示などに使う）
+const latestWindow = defaultWindow;
+const latestSnap = latestWindow === "winter" ? winterSnapMax : summerSnapMax;
+
+// 表示に使うロスター（各windowで固定）
+const rosterSummer = summerLatest;
+const rosterWinter = winterLatest;
+
+// URLの window=summer/winter を初期表示に反映（JSの挙動と合わせる）
+const url = new URL(Astro.request.url);
+const qWin = String(url.searchParams.get("window") ?? "").toLowerCase();
+const initialWindow =
+  qWin === "winter" || qWin === "summer" ? qWin : defaultWindow;
+
+const starRowsSummer = rosterSummer
+  .filter((r) => String((r as any).is_star ?? "").trim() === "1")
+  .slice(0, 3);
+
+const starRowsWinter = rosterWinter
+  .filter((r) => String((r as any).is_star ?? "").trim() === "1")
+  .slice(0, 3);
+
+const hasRoster = rosterSummer.length > 0 || rosterWinter.length > 0;
+
+// ===== title =====
+const pageTitleBase = season
+  ? `${clubLabel}｜${leagueLabel}（${season}）`
+  : `${clubLabel}｜${leagueLabel}`;
+
+const title = `${pageTitleBase} スカッド`;
+
+// heading（H1表示）… 以前の h1 と同じ文言
+const heading = `${clubLabel} スカッド${season ? `（${season}）` : ""}`;
+
+// 各windowが “最新view” か（年齢等の表示切替）
+const isLatestViewSummer = latestWindow === "summer" && rosterSummer.length > 0;
+const isLatestViewWinter = latestWindow === "winter" && rosterWinter.length > 0;
+
+// ===== 代表（候補）表示：WC2026の最新スナップショットだけを参照 =====
+const callups = loadCallups();
+const {
+  repLabel,
+  repLinks,
+  maxSnapshot: repMaxSnapshot,
+} = buildRepLabelFromCallups(callups, { competition: "WC", edition: 2026 });
+
+// columns（windowごとに isLatestView を変える）
+const columnsSummer = buildClubColumns({
+  isLatestView: isLatestViewSummer,
+  repLabel,
+  repLinks,
+  showStats: false,
+});
+
+const columnsWinter = buildClubColumns({
+  isLatestView: isLatestViewWinter,
+  repLabel,
+  repLinks,
+  showStats: false,
+});
+
+// pills 用：公開対象リーグのみ + sort_rank順
+const leaguePills = leagueMaster
+  .filter((l: any) => (l.is_public ?? true) === true)
+  .filter((l) => (l.league_key ?? "").trim().length > 0)
+  .map((l: any) => {
+    const n = Number(String(l.sort_rank ?? "").trim());
+    const sort_rank = Number.isFinite(n) ? n : 999;
+
+    return {
+      key: l.league_key,
+      label: l.league_display_ja || l.league_key,
+      sort_rank,
+    };
+  })
+  .sort((a, b) => {
+    if (a.sort_rank !== b.sort_rank) return a.sort_rank - b.sort_rank;
+    return a.label.localeCompare(b.label, "ja");
+  });
+
+// UI用：存在するwindowだけ活性化
+const hasSummer = rosterSummer.length > 0;
+const hasWinter = rosterWinter.length > 0;
+
+// 表示用の “更新日”（window別）
+const updatedSummer = summerSnapMax ? toYMD(summerSnapMax) : "";
+const updatedWinter = winterSnapMax ? toYMD(winterSnapMax) : "";
+
+// 検索テキスト共通
+const searchTextFn = (r) =>
+  `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
+---
+
+<BaseLayout
+  title={title}
+  description={title}
+  bodyClass="page-club"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "クラブ", href: "/clubs" },
+    { label: leagueLabel, href: clubsListUrl({ leagueKey: league_key }) },
+    { label: clubLabel },
+  ]}
+  heading={heading}
+>
+  {
+    /* ✅ H1直下に「リーグピル＋同リーグ一覧＋全リーグ」を配置（共通化の流れ） */
+  }
+  <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
+    {
+      leaguePills.map((p) => (
+        <a
+          class={`pill ${p.key === league_key ? "is-active" : ""}`}
+          href={clubsListUrl({ leagueKey: p.key })}
+        >
+          <span class="dot" aria-hidden="true" />
+          {p.label}
+        </a>
+      ))
+    }
+
+    <a class="pill" href={clubsListUrl({ leagueKey: league_key })}>
+      <span class="dot" aria-hidden="true"></span>同リーグのクラブ一覧
+    </a>
+
+    <a class="pill" href="/clubs">
+      <span class="dot" aria-hidden="true"></span>全リーグ
+    </a>
+  </div>
+
+  <section
+    class="star-section"
+    data-star-window="summer"
+    style={`display:${initialWindow === "summer" ? "" : "none"}`}
+    aria-label="注目選手（夏）"
+  >
+    <h2 class="star-title">⭐ 注目選手</h2>
+
+    {
+      starRowsSummer.length > 0 ? (
+        <div class="star-grid">
+          {starRowsSummer.map((r) => (
+            <div class="star-card">
+              <div class="star-name">
+                {r.name_ja || r.name_en || r.name}
+                <span class="star-pos">
+                  （{r.position_primary || r.position}）
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="star-empty">準備中</div>
+      )
+    }
+  </section>
+
+  <section
+    class="star-section"
+    data-star-window="winter"
+    style={`display:${initialWindow === "winter" ? "" : "none"}`}
+    aria-label="注目選手（冬）"
+  >
+    <h2 class="star-title">⭐ 注目選手</h2>
+
+    {
+      starRowsWinter.length > 0 ? (
+        <div class="star-grid">
+          {starRowsWinter.map((r) => (
+            <div class="star-card">
+              <div class="star-name">
+                {r.name_ja || r.name_en || r.name}
+                <span class="star-pos">
+                  （{r.position_primary || r.position}）
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="star-empty">準備中</div>
+      )
+    }
+  </section>
+
+  {/* ここは BaseLayout が page-wrap を持つので <main padding:16px> は不要 */}
+  <div class="meta-top">
+    <div class="meta-line">
+      <span class="meta-item">
+        クラブスカッド更新日：
+        <span class="updated-date" data-updated="summer"
+          >{updatedSummer || "—"}</span
+        >
+        <span class="updated-date" data-updated="winter"
+          >{updatedWinter || "—"}</span
+        >
+      </span>
+      <span class="meta-sep">／</span>
+      <span class="meta-item">
+        代表招集更新日：
+        <span class="updated-date">{toYMD(repMaxSnapshot) || "—"}</span>
+      </span>
+    </div>
+
+    {/* summer / winter toggle */}
+    <div class="window-toggle" data-default={defaultWindow}>
+      <button
+        type="button"
+        class={`wt-btn ${defaultWindow === "summer" ? "is-active" : ""}`}
+        data-window="summer"
+        disabled={!hasSummer}
+        title={!hasSummer ? "データなし" : ""}
+      >
+        夏（summer）
+      </button>
+      <button
+        type="button"
+        class={`wt-btn ${defaultWindow === "winter" ? "is-active" : ""}`}
+        data-window="winter"
+        disabled={!hasWinter}
+        title={!hasWinter ? "データなし" : ""}
+      >
+        冬（winter）
+      </button>
+
+      <span class="wt-hint">※ 表示切替（シーズン前半 / 後半）</span>
+    </div>
+  </div>
+
+  {
+    !clubInMaster || !leagueInMaster || !hasRoster ? (
+      <div class="empty">
+        <h2>データが見つかりません</h2>
+        <p>
+          {!leagueInMaster
+            ? "リーグが辞書に未登録です。"
+            : !clubInMaster
+              ? "クラブが辞書に未登録です。"
+              : "指定されたクラブのデータがありません。"}
+        </p>
+        <div class="empty-actions">
+          <a class="btn" href="/clubs">
+            クラブ一覧へ戻る
+          </a>
+        </div>
+      </div>
+    ) : (
+      <>
+        {/* Summer */}
+        <section
+          data-window="summer"
+          style={`display:${defaultWindow === "summer" ? "" : "none"}`}
+        >
+          <RosterView
+            tableId="club-roster-summer"
+            rows={rosterSummer}
+            minWidthPx={920}
+            borderColor="var(--border, #e6e6e6)"
+            placeholder="検索：選手名 / 国名 / 国籍"
+            searchText={searchTextFn}
+            columns={columnsSummer}
+          />
+        </section>
+
+        {/* Winter */}
+        <section
+          data-window="winter"
+          style={`display:${defaultWindow === "winter" ? "" : "none"}`}
+        >
+          <RosterView
+            tableId="club-roster-winter"
+            rows={rosterWinter}
+            minWidthPx={920}
+            borderColor="var(--border, #e6e6e6)"
+            placeholder="検索：選手名 / 国名 / 国籍"
+            searchText={searchTextFn}
+            columns={columnsWinter}
+          />
+        </section>
+      </>
+    )
+  }
+
+  <script is:inline>
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const root = document.querySelector(".window-toggle");
+        if (!root) return;
+
+        const btns = Array.from(root.querySelectorAll("button[data-window]"));
+        const defaultWindow = root.getAttribute("data-default") || "summer";
+
+        const sections = Array.from(
+          document.querySelectorAll("section[data-window]"),
+        );
+        const updatedDates = Array.from(
+          document.querySelectorAll("[data-updated]"),
+        );
+
+        const params = new URLSearchParams(location.search);
+        const q = (params.get("window") || "").toLowerCase();
+        const initial = q === "winter" || q === "summer" ? q : defaultWindow;
+
+        function setActive(win) {
+          // show/hide sections
+          sections.forEach((sec) => {
+            sec.style.display =
+              sec.getAttribute("data-window") === win ? "" : "none";
+          });
+
+          // active button
+          btns.forEach((b) => {
+            b.classList.toggle(
+              "is-active",
+              b.getAttribute("data-window") === win,
+            );
+          });
+
+          // updated date line: show selected only
+          updatedDates.forEach((el) => {
+            const w = el.getAttribute("data-updated");
+            el.style.display = w === win ? "" : "none";
+          });
+
+          // star section: show selected only
+          const starSections = Array.from(
+            document.querySelectorAll("[data-star-window]"),
+          );
+          starSections.forEach((sec) => {
+            sec.style.display =
+              sec.getAttribute("data-star-window") === win ? "" : "none";
+          });
+
+          // update query (without reload)
+          const u = new URL(location.href);
+          u.searchParams.set("window", win);
+          history.replaceState(null, "", u.toString());
+        }
+
+        // bind clicks
+        btns.forEach((b) => {
+          b.addEventListener("click", () => {
+            if (b.disabled) return;
+            const win = b.getAttribute("data-window");
+            if (!win) return;
+            setActive(win);
+          });
+        });
+
+        // init
+        setActive(initial);
+      } catch (e) {
+        console.error("window toggle init failed:", e);
+      }
+    });
+  </script>
+
+  <style is:global>
+    .page-club .meta-top {
+      margin: 6px 0 12px;
+    }
+
+    .page-club .meta-line {
+      font-size: 12px;
+      opacity: 0.78;
+      margin-bottom: 8px;
+    }
+    .page-club .meta-item {
+      display: inline-block;
+    }
+    .page-club .meta-sep {
+      margin: 0 6px;
+      opacity: 0.6;
+    }
+    .page-club .updated-date {
+      font-weight: 700;
+    }
+
+    .page-club .window-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .page-club .wt-btn {
+      appearance: none;
+      border: 1px solid var(--border, #e6e6e6);
+      background: #fff;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease;
+    }
+    .page-club .wt-btn:hover {
+      background: #ffe58a; /* ホバーでちゃんと変化 */
+      transform: translateY(-1px);
+    }
+    .page-club .wt-btn.is-active {
+      font-weight: 700; /* 強すぎない */
+      background: #fff3b0; /* 少し淡く */
+      border-color: #d4a700;
+      cursor: pointer; /* ← 押せる印象を明確に */
+    }
+    .page-club .wt-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.45;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .page-club .wt-hint {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-left: 6px;
+    }
+
+    @media (max-width: 640px) {
+      .page-club .wt-hint {
+        width: 100%;
+        margin-left: 0;
+      }
+    }
+
+    /* ===== 注目選手（クラブ）：代表と同じトーンに統一 ===== */
+    .star-section {
+      margin: 12px 0 16px;
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      background: #f3e5f5;
+    }
+
+    .star-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 650;
+      opacity: 1;
+    }
+
+    .star-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 900px) {
+      .star-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .star-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .star-card {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+    }
+
+    .star-name {
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .star-pos {
+      font-weight: 500;
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    .star-empty {
+      font-size: 13px;
+      opacity: 0.65;
+      padding: 8px 4px;
+    }
+  </style>
+</BaseLayout>

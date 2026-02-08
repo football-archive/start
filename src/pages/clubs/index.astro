@@ -1,0 +1,458 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+import { loadClubSquads } from "../../lib/clubSquads";
+import { loadClubMaster } from "../../lib/clubMaster";
+import { loadLeagueMaster } from "../../lib/leagueMaster";
+import { clubsListUrl, clubUrl } from "../../lib/urls";
+
+// ★重要：/clubs は静的生成なのでクエリはビルド時に取れない
+// → フロントマター側ではクエリで絞り込まない（常に全表示を生成）
+// → ブラウザ側JSで ?league=... を見て絞り込み＆active切替をする
+
+const rows = loadClubSquads();
+
+const clubs = loadClubMaster().filter((c: any) => {
+  if ((c.status ?? "active") === "inactive") return false;
+  // ✅ 非公開クラブは /clubs 一覧から除外
+  if ((c.is_public ?? true) !== true) return false;
+  return true;
+});
+
+const leaguesAll = loadLeagueMaster();
+const leagues = leaguesAll.filter((l: any) => (l.is_public ?? true) === true);
+
+const clubByKey = new Map(clubs.map((c: any) => [c.club_key, c]));
+
+// 表示名やラベル取得は「公開対象」だけでOK
+const leagueByKey = new Map(leagues.map((l: any) => [l.league_key, l]));
+
+// rankは公開対象のみ
+const rankByLeagueKey = new Map(
+  leagues.map((l: any) => {
+    const key = String(l.league_key ?? "").trim();
+    const raw = String(l.sort_rank ?? "").trim();
+    const n = Number(raw);
+    const rank = Number.isFinite(n) ? n : 999;
+    return [key, rank] as const;
+  }),
+);
+
+// 正規化辞書（alias）は全件から作るのが安全
+const leagueAliasToKey = new Map<string, string>();
+
+for (const l of leaguesAll as any[]) {
+  const key = String(l.league_key ?? "").trim();
+  if (!key) continue;
+
+  const aliases = [
+    l.league_key,
+    l.league,
+    l.league_display_ja,
+    l.league_display_en,
+  ];
+
+  for (const a of aliases) {
+    const s = String(a ?? "").trim();
+    if (!s) continue;
+    leagueAliasToKey.set(s, key);
+    leagueAliasToKey.set(s.toLowerCase(), key);
+  }
+}
+
+function normalizeLeagueKey(v: any): string {
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  return leagueAliasToKey.get(s) ?? leagueAliasToKey.get(s.toLowerCase()) ?? s;
+}
+
+function leagueSort(a: string, b: string) {
+  const ra = rankByLeagueKey.get(a) ?? 999;
+  const rb = rankByLeagueKey.get(b) ?? 999;
+  if (ra !== rb) return ra - rb;
+
+  const da = leagueByKey.get(a)?.league_display_ja ?? a;
+  const db = leagueByKey.get(b)?.league_display_ja ?? b;
+  return da.localeCompare(db, "ja");
+}
+
+/**
+ * season の比較キーを作る
+ * - "2025-26" / "2025/26" / "2025" などを想定し、先頭の年(開始年)を主に使う
+ * - 取れなければ 0 扱い
+ */
+function seasonStartYear(season: any): number {
+  const s = String(season ?? "").trim();
+  if (!s) return 0;
+  const m = s.match(/(\d{4})/);
+  if (!m) return 0;
+  const y = Number(m[1]);
+  return Number.isFinite(y) ? y : 0;
+}
+
+/**
+ * window の優先度
+ * - 仕様: summer / winter の2値のみ。winter が新
+ * - 欠損時は summer 扱い（古い方）
+ */
+function windowRank(w: any): number {
+  const s = String(w ?? "").trim().toLowerCase();
+  if (s === "winter") return 2;
+  return 1; // summer or empty
+}
+
+/**
+ * (season, window, snapshot_date) の “新しさ” 比較
+ * - season が大きいほど新
+ * - 同seasonなら winter が新
+ * - 同season+windowなら snapshot_date が新
+ */
+function isNewerMeta(a: any, b: any): boolean {
+  // a が b より新しければ true
+  const ay = seasonStartYear(a?.season);
+  const by = seasonStartYear(b?.season);
+  if (ay !== by) return ay > by;
+
+  const aw = windowRank(a?.window);
+  const bw = windowRank(b?.window);
+  if (aw !== bw) return aw > bw;
+
+  const as = String(a?.snapshot_date ?? "").trim();
+  const bs = String(b?.snapshot_date ?? "").trim();
+  return as > bs;
+}
+
+// league_key -> Set<club_key>
+const leagueClubs = new Map<string, Set<string>>();
+
+// league_key|||club_key -> count（最新の season+window+snapshot の行だけ数える）
+const clubCount = new Map<string, number>();
+
+// 1) league|||club ごとの最新メタ（season/window/snapshot_date）を作る
+type LatestMeta = {
+  season: string;
+  window: string; // "summer" | "winter" | ""
+  snapshot_date: string; // "YYYY-MM-DD" etc
+};
+
+const latestMetaByClub = new Map<string, LatestMeta>();
+
+for (const r of rows as any[]) {
+  const league_key = normalizeLeagueKey(r.league_key ?? r.league);
+  const club_key = String(r.club_key || "").trim();
+  if (!league_key || !club_key) continue;
+
+  // 公開リーグ以外は対象外
+  if (!leagueByKey.has(league_key)) continue;
+  // 公開クラブ以外は対象外
+  if (!clubByKey.has(club_key)) continue;
+
+  const meta: LatestMeta = {
+    season: String(r.season ?? "").trim(),
+    window: String(r.window ?? "").trim().toLowerCase(),
+    snapshot_date: String(r.snapshot_date ?? "").trim(),
+  };
+
+  // window の値が変でも、比較上は summer 扱いに落ちるだけにしておく
+  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
+
+  const k = `${league_key}|||${club_key}`;
+  const prev = latestMetaByClub.get(k);
+  if (!prev || isNewerMeta(meta, prev)) latestMetaByClub.set(k, meta);
+}
+
+// 2) 最新メタに一致する行だけ count / leagueClubs に入れる
+for (const r of rows as any[]) {
+  const league_key = normalizeLeagueKey(r.league_key ?? r.league);
+  const club_key = String(r.club_key || "").trim();
+  if (!league_key || !club_key) continue;
+
+  if (!leagueByKey.has(league_key)) continue;
+  if (!clubByKey.has(club_key)) continue;
+
+  const meta: LatestMeta = {
+    season: String(r.season ?? "").trim(),
+    window: String(r.window ?? "").trim().toLowerCase(),
+    snapshot_date: String(r.snapshot_date ?? "").trim(),
+  };
+  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
+
+  const k = `${league_key}|||${club_key}`;
+  const latest = latestMetaByClub.get(k);
+
+  if (!latest) continue;
+  if (
+    meta.season !== latest.season ||
+    meta.window !== latest.window ||
+    meta.snapshot_date !== latest.snapshot_date
+  ) {
+    continue;
+  }
+
+  if (!leagueClubs.has(league_key)) leagueClubs.set(league_key, new Set());
+  leagueClubs.get(league_key)!.add(club_key);
+
+  clubCount.set(k, (clubCount.get(k) ?? 0) + 1);
+}
+
+// pills（リーグ一覧）… sort_rank優先で並ぶ
+const pillLeagues = [...leagueClubs.keys()].sort(leagueSort).map((lk) => ({
+  league_key: lk,
+  label: leagueByKey.get(lk)?.league_display_ja ?? lk,
+  href: clubsListUrl({ leagueKey: lk }),
+}));
+
+// 表示セクション（リーグごとのクラブ一覧）をフロントマターで組み立てる（常に全リーグ）
+let leagueKeys = [...leagueClubs.keys()];
+leagueKeys.sort(leagueSort);
+
+const sections = leagueKeys.map((lk) => {
+  const leagueLabel = leagueByKey.get(lk)?.league_display_ja ?? lk;
+
+  const clubKeys = [...(leagueClubs.get(lk) ?? new Set<string>())];
+
+  // クラブは表示名（日本語）で安定ソート
+  clubKeys.sort((a, b) => {
+    const ca: any = clubByKey.get(a);
+    const cb: any = clubByKey.get(b);
+    const sa = (ca?.club_display_ja ?? a) as string;
+    const sb = (cb?.club_display_ja ?? b) as string;
+    return sa.localeCompare(sb, "ja");
+  });
+
+  const items = clubKeys
+    .map((ck) => {
+      const c: any = clubByKey.get(ck);
+      if (!c) return null;
+
+      const name = (c.club_display_ja ?? ck) as string;
+      const count = clubCount.get(`${lk}|||${ck}`) ?? 0;
+
+      return {
+        club_key: ck,
+        name,
+        count,
+        href: clubUrl({ leagueKey: lk, clubKey: ck }),
+      };
+    })
+    .filter(Boolean) as {
+    club_key: string;
+    name: string;
+    count: number;
+    href: string;
+  }[];
+
+  return { league_key: lk, leagueLabel, count: items.length, items };
+});
+---
+
+<BaseLayout
+  title="クラブ"
+  description="主要リーグのクラブ一覧（登録人数付き）"
+  bodyClass="page-club"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[{ label: "トップ", href: "/" }, { label: "クラブ" }]}
+  heading="クラブ"
+>
+  {/* パンくず＆H1の直下に “リーグピル” を差し込む */}
+  <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
+    {pillLeagues.map((p) => (
+      <a class="pill" data-league={p.league_key} href={p.href}>
+        <span class="dot" aria-hidden="true" />
+        {p.label}
+      </a>
+    ))}
+    <a class="pill" data-league="__all__" href="/clubs">
+      <span class="dot" aria-hidden="true"></span>全リーグ
+    </a>
+  </div>
+
+  {sections.map((s) => (
+    <section data-league={s.league_key} style="margin: 18px 0;">
+      <h2 style="margin: 0 0 6px;">
+        {s.leagueLabel} ({s.count})
+      </h2>
+
+      <ul class="clubGrid">
+        {s.items.map((it) => (
+          <li class="clubRow">
+            <a class="clubLink" href={it.href}>
+              {it.name}　<span class="cnt">({it.count})</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    </section>
+  ))}
+
+  {/* 静的でもクエリで絞り込みできるようにする（安定版） */}
+  <script is:inline>
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const params = new URLSearchParams(location.search);
+        const league = params.get("league");
+
+        const filterLine = document.getElementById("filterLine");
+        const filterLabel = document.getElementById("filterLabel");
+
+        const sections = Array.from(document.querySelectorAll("section[data-league]"));
+        const pills = Array.from(document.querySelectorAll(".pills .pill[data-league]"));
+
+        function setActive(target) {
+          pills.forEach((a) =>
+            a.classList.toggle("is-active", a.dataset.league === target),
+          );
+        }
+
+        function getLabelFromPill(key) {
+          try {
+            const a = document.querySelector(
+              `.pills .pill[data-league="${CSS.escape(key)}"]`,
+            );
+            if (!a) return key;
+            return (a.textContent || key).trim();
+          } catch {
+            const a = document.querySelector(
+              `.pills .pill[data-league="${key}"]`,
+            );
+            if (!a) return key;
+            return (a.textContent || key).trim();
+          }
+        }
+
+        if (league) {
+          if (filterLine && filterLabel) {
+            filterLabel.textContent = getLabelFromPill(league);
+            filterLine.style.display = "";
+          }
+
+          sections.forEach((sec) => {
+            sec.style.display = sec.dataset.league === league ? "" : "none";
+          });
+
+          setActive(league);
+        } else {
+          sections.forEach((sec) => (sec.style.display = ""));
+          if (filterLine) filterLine.style.display = "none";
+          setActive("__all__");
+        }
+      } catch (e) {
+        console.error("clubs filter script failed:", e);
+      }
+    });
+  </script>
+
+  {/* ここは「JSでclass付替」もあるので is:global 推奨（見た目の揺れ防止） */}
+  <style is:global>
+    .page-club .clubGrid {
+      list-style: none;
+      padding-left: 0;
+      margin: 10px 0 0;
+
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 32px;
+    }
+
+    @media (max-width: 640px) {
+      .page-club .clubGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .page-club .clubGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px 36px;
+      }
+    }
+
+    @media (min-width: 1500px) {
+      .page-club .clubGrid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px 40px;
+      }
+    }
+
+    .page-club .clubRow {
+      min-width: 0;
+    }
+
+    .page-club .clubLink {
+      display: inline-block;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-club .cnt {
+      opacity: 0.55;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    /* =========================
+      クラブ：テーマ（薄イエロー）
+      ========================= */
+
+    .page-club h2,
+    .page-club h3 {
+      color: #8a6d00;
+    }
+
+    .page-club section a {
+      color: #6f5a00;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club section a:hover {
+      color: #5a4700;
+      background: #fff7cc;
+    }
+
+    .page-club .pill {
+      border-color: #f1c40f;
+    }
+
+    .page-club .pill:hover {
+      background: #fff7cc;
+    }
+
+    .page-club .pill .dot {
+      background: #b58900;
+      opacity: 0.6;
+    }
+
+    .page-club .pill.is-active {
+      border-color: #b58900;
+      background: #fff7cc;
+      font-weight: 700;
+    }
+
+    .page-club .pill.is-active .dot {
+      opacity: 1;
+    }
+
+    .page-club section ul {
+      line-height: 1.8;
+    }
+
+    /* =========================
+      クラブ一覧：リンクを黒字で安定させる
+      ========================= */
+    .page-club section a:link,
+    .page-club section a:visited {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club section a:hover {
+      color: #8a6d00;
+      background: #fff7cc;
+    }
+  </style>
+</BaseLayout>

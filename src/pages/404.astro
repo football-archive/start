@@ -1,0 +1,30 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+
+const path = Astro.url?.pathname ?? "";
+const pathDecoded = (() => {
+  try { return decodeURIComponent(path); } catch { return path; }
+})();
+---
+
+<BaseLayout title="ページが見つかりません（404）">
+  <SiteHeader crumbs={[{ label: "トップ", href: "/" }, { label: "404" }]} />
+
+  <main style="padding: 16px;">
+    <div class="empty">
+      <h2>ページが見つかりません（404）</h2>
+      <p>URLが間違っているか、ページが削除された可能性があります。</p>
+
+      <p style="opacity: 0.7; margin-top: 8px;">
+        Path: <code>{pathDecoded}</code>
+      </p>
+
+      <div class="empty-actions" style="margin-top: 12px;">
+        <a class="btn" href="/">トップへ戻る</a>
+        <a class="btn" href="/clubs">クラブ一覧へ</a>
+        <a class="btn" href="/wc/2026">WC2026へ</a>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

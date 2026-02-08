@@ -1,0 +1,114 @@
+---
+import RosterTable from "./RosterTable.astro";
+
+export type Column<T> = {
+  key: string;
+  header: string;
+  align?: "left" | "center" | "right";
+  render: (row: T, index: number) => any;
+  show?: boolean;
+  html?: boolean;
+};
+
+type Props<T> = {
+  tableId: string;
+  title?: string;
+  rows: T[];
+
+  // ✅ optional にする
+  searchText?: (row: T) => string;
+
+  columns: Column<T>[];
+
+  minWidthPx?: number;
+  maxHeight?: string;
+  borderColor?: string;
+  placeholder?: string;
+  showSearch?: boolean;
+
+  showStats?: boolean;
+};
+
+const {
+  tableId,
+  rows,
+  searchText: searchTextProp,
+  columns,
+  minWidthPx = 920,
+  maxHeight = "70vh",
+  borderColor = "var(--border, #e6e6e6)",
+  placeholder = "検索：選手名（日本語/英語）",
+  showSearch = true,
+} = Astro.props as Props<any>;
+
+// ✅ 未指定なら適当に全文検索できるデフォルトを使う
+const searchText =
+  searchTextProp ??
+  ((row: any) =>
+    [
+      row?.name_ja,
+      row?.name_en,
+      row?.current_club,
+      row?.position_primary,
+      row?.position_secondary,
+      row?.country,
+    ]
+      .filter(Boolean)
+      .join(" "));
+
+const visibleColumns = columns.filter((c) => c.show ?? true);
+
+const thClass = (c: any) =>
+  c.align === "center" ? "center" : c.align === "right" ? "right" : "";
+---
+
+
+<RosterTable
+  tableId={tableId}
+  total={rows.length}
+  minWidthPx={minWidthPx}
+  maxHeight={maxHeight}
+  borderColor={borderColor}
+  placeholder={placeholder}
+  showSearch={showSearch}
+>
+  <table class="roster-table">
+    <thead>
+      <tr>
+        {visibleColumns.map((c) => <th class={thClass(c)}>{c.header}</th>)}
+      </tr>
+    </thead>
+
+    <tbody>
+      {
+        rows.map((row: any, i: number) => (
+          <tr data-search={searchText(row).toLowerCase()}>
+            {visibleColumns.map((c) => {
+              const v = c.render(row, i);
+
+              // ✅ html:true の列だけ set:html（安全のため rosterColumns 側で escape 済み前提）
+              if (c.html && typeof v === "string") {
+                return (
+                  <td class={thClass(c)}>
+                    <Fragment set:html={v} />
+                  </td>
+                );
+              }
+
+              return <td class={thClass(c)}>{v}</td>;
+            })}
+          </tr>
+        ))
+      }
+    </tbody>
+  </table>
+</RosterTable>
+
+<style>
+  .center {
+    text-align: center;
+  }
+  .right {
+    text-align: right;
+  }
+</style>

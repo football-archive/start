@@ -1,0 +1,59 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getUclSeasons } from "../../lib/ucl";
+
+const seasons = getUclSeasons().map((s) => String(s).trim()).sort().reverse();
+const latest = seasons[0] ?? "2025-26";
+
+const title = "UEFA Champions League｜シーズン一覧";
+---
+
+<BaseLayout
+  title={title}
+  description={title}
+  bodyClass="page-ucl"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[{ label: "トップ", href: "/" }, { label: "UCL" }]}
+  heading="UEFA Champions League"
+>
+  <div slot="under-title" class="ucl-top">
+    <p class="muted">リーグフェーズ（新形式）を中心に、シーズン別の最終順位表を掲載します。</p>
+
+    <div class="pills">
+      <a class="pill is-active" href={`/ucl/${encodeURIComponent(latest)}`}>
+        <span class="dot" aria-hidden="true"></span>最新：{latest}
+      </a>
+    </div>
+  </div>
+
+  <div class="box">
+    <div class="muted">シーズン一覧</div>
+    <ul>
+      {seasons.map((s) => (
+        <li><a href={`/ucl/${encodeURIComponent(s)}`}>UEFA CL {s}（順位表）</a></li>
+      ))}
+    </ul>
+  </div>
+
+  <style is:global>
+    .page-ucl .muted { color:#666; font-size:12.5px; margin: 6px 0 10px; }
+    .page-ucl .box { background:#fff; border:1px solid #e6e6e6; border-radius:12px; padding:14px; }
+    .page-ucl ul { margin: 8px 0 0; padding-left: 18px; }
+    .page-ucl li { margin: 6px 0; }
+    .page-ucl a { color:#111; text-decoration: underline; text-underline-offset: 2px; }
+    .page-ucl a:hover { background:#eef6fd; }
+
+    .page-ucl .pills { display:flex; flex-wrap:wrap; gap:8px; }
+    .page-ucl .pill {
+      display:inline-flex; align-items:center; gap:6px;
+      padding:7px 10px; border-radius:999px;
+      border:1px solid #cfe0ff; background:#fff; color:#111; text-decoration:none;
+      font-size:13px; line-height:1;
+    }
+    .page-ucl .pill:hover { background:#eef6fd; }
+    .page-ucl .pill .dot { width:7px; height:7px; border-radius:999px; background:#2563eb; opacity:.6; }
+    .page-ucl .pill.is-active { font-weight:800; border-color:#2563eb; }
+    .page-ucl .pill.is-active .dot { opacity:1; }
+  </style>
+</BaseLayout>

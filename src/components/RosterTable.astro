@@ -1,0 +1,331 @@
+---
+type Props = {
+  tableId?: string;
+  total?: number;
+  placeholder?: string;
+  showSearch?: boolean;
+
+  // 見た目調整
+  minWidthPx?: number;
+  maxHeight?: string; // "70vh" など
+  borderColor?: string; // "#ddd" など
+};
+
+const {
+  tableId = "roster",
+  total = 0,
+  placeholder = "検索：選手名（日本語/英語）",
+  showSearch = true,
+  minWidthPx = 920,
+  maxHeight = "70vh",
+  borderColor = "var(--border, #e6e6e6)",
+} = Astro.props as Props;
+
+const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight};--roster-border:${borderColor};`;
+---
+
+<section id={tableId} class="roster-block" style={vars}>
+  {
+    showSearch ? (
+      <div class="table-tools">
+        <input
+          id={`${tableId}-search`}
+          class="search"
+          type="search"
+          placeholder={placeholder}
+          autocomplete="off"
+        />
+        <div class="meta">
+          <span>表示：</span>
+          <strong id={`${tableId}-match`} />
+          <span>/</span>
+          <span id={`${tableId}-total`}>{total}</span>
+          <button id={`${tableId}-clear`} type="button" class="clear">
+            クリア
+          </button>
+        </div>
+      </div>
+    ) : null
+  }
+
+  <div
+    class="table-wrap"
+    style={`max-height:${maxHeight}; border-color:${borderColor};`}
+  >
+    <slot />
+  </div>
+</section>
+
+<script is:inline data-tableid={tableId}>
+  (() => {
+    const tableId = document.currentScript?.dataset.tableid || "roster";
+
+    const root = document.getElementById(tableId);
+    if (!root) return;
+
+    const input = document.getElementById(tableId + "-search");
+    const btn = document.getElementById(tableId + "-clear");
+    const matchEl = document.getElementById(tableId + "-match");
+    const totalEl = document.getElementById(tableId + "-total");
+
+    const rows = Array.from(root.querySelectorAll("tbody tr"));
+    const total = rows.length;
+
+    if (totalEl) totalEl.textContent = String(total);
+
+    const apply = () => {
+      const q = (input && input.value ? input.value : "").trim().toLowerCase();
+      let shown = 0;
+
+      for (const tr of rows) {
+        const hay = tr.getAttribute("data-search") || "";
+        const ok = !q || hay.includes(q);
+        tr.classList.toggle("is-hidden", !ok);
+        if (ok) shown++;
+      }
+      if (matchEl) matchEl.textContent = String(shown);
+    };
+
+    if (input) input.addEventListener("input", apply);
+    if (btn)
+      btn.addEventListener("click", () => {
+        if (input) input.value = "";
+        apply();
+        input && input.focus();
+      });
+
+    apply();
+  })();
+</script>
+
+<style is:global>
+  /* ===== RosterTable shared styles ===== */
+
+  /* ★ ヘッダー色は CSS変数で統一（クラブ=黄 / 代表=青に上書き） */
+  .roster-block {
+    --roster-head-bg: #fff7cc; /* デフォ：薄い黄 */
+    --roster-head-border: #f1e3a0; /* デフォ：黄系の境界 */
+  }
+
+  .roster-block .table-wrap {
+    width: 100%;
+    max-height: var(--roster-max-height);
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--roster-border);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .roster-block .roster-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: var(--roster-min-width);
+    font-size: 14px;
+  }
+
+  .roster-block .roster-table th,
+  .roster-block .roster-table td {
+    box-sizing: border-box;
+    padding: 10px 12px;
+    vertical-align: middle;
+    white-space: nowrap;
+
+    /* 縦線（stickyでも消えない） */
+    box-shadow: inset -1px 0 0 var(--roster-border);
+    border-bottom: 1px solid var(--roster-border);
+  }
+
+  .roster-block .roster-table th:last-child,
+  .roster-block .roster-table td:last-child {
+    box-shadow: none;
+  }
+
+  /* ===== thead ===== */
+  .roster-block .roster-table thead th {
+    position: sticky;
+    top: 0;
+    background: var(--roster-head-bg);
+    z-index: 5;
+    border-bottom: 1px solid var(--roster-head-border);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  }
+
+  .roster-block .roster-table tbody tr:hover td {
+    background: rgba(0, 0, 0, 0.03);
+  }
+
+  .roster-block .roster-table tbody tr.pos-break td {
+    border-top: 2px solid var(--roster-border);
+  }
+
+  .roster-block .center {
+    text-align: center;
+  }
+  .roster-block .right {
+    text-align: right;
+  }
+
+  /* 左2列固定（# と Pos） */
+  .roster-block .roster-table th:nth-child(1),
+  .roster-block .roster-table td:nth-child(1) {
+    position: sticky;
+    left: 0;
+    background: #fff;
+    z-index: 6;
+    width: 56px;
+    min-width: 56px;
+    max-width: 56px;
+    text-align: right;
+  }
+
+  .roster-block .roster-table th:nth-child(2),
+  .roster-block .roster-table td:nth-child(2) {
+    position: sticky;
+    left: 56px;
+    background: #fff;
+    z-index: 5;
+    width: 64px;
+    min-width: 64px;
+    max-width: 64px;
+    text-align: center;
+    box-shadow: 1px 0 0 var(--roster-border);
+  }
+
+  /* ★ thead の左固定2列も “ヘッダー色” に合わせる（ここが重要） */
+  .roster-block .roster-table thead th:nth-child(1),
+  .roster-block .roster-table thead th:nth-child(2) {
+    background: var(--roster-head-bg);
+    border-bottom: 1px solid var(--roster-head-border);
+  }
+
+  .roster-block .roster-table thead th:nth-child(1),
+  .roster-block .roster-table thead th:nth-child(2) {
+    z-index: 7;
+  }
+
+  /* 検索UI */
+  .roster-block .table-tools {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin: 10px 0 12px;
+  }
+  .roster-block .search {
+    width: min(520px, 100%);
+    padding: 10px 12px;
+    border: 1px solid var(--roster-border);
+    border-radius: 10px;
+  }
+  .roster-block .meta {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    font-size: 13px;
+    color: #444;
+  }
+  .roster-block .clear {
+    margin-left: 8px;
+    padding: 8px 10px;
+    border: 1px solid var(--roster-border);
+    border-radius: 10px;
+    background: #fff;
+    cursor: pointer;
+  }
+  .roster-block .is-hidden {
+    display: none !important;
+  }
+
+  @media (max-width: 520px) {
+    .roster-block .roster-table {
+      font-size: 13px;
+    }
+    .roster-block .roster-table th,
+    .roster-block .roster-table td {
+      padding: 9px 10px;
+    }
+    .roster-block .table-wrap {
+      max-height: 75vh;
+    }
+  }
+
+  .name2 {
+    line-height: 1.15;
+  }
+  .name2-ja {
+    font-weight: 600;
+  }
+  .name2-en {
+    font-size: 12px;
+    opacity: 0.7;
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .rep2 {
+    line-height: 1.15;
+  }
+  .rep2-team {
+    font-weight: 600;
+  }
+  .rep2-links {
+    margin-top: 2px;
+    font-size: 12px;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+  .rep2-ed {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .rep2-sep {
+    margin: 0 4px;
+    opacity: 0.6;
+  }
+
+  .club-link {
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  /* ✅ 備考（赤字に戻す） */
+  .note-red {
+    color: #c00;
+    font-weight: 600;
+  }
+
+  .table-wrap {
+    overflow: auto;
+    border: 1px solid var(--border, #e6e6e6);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  /* テーブルが横に長い時に効く */
+  .roster-table {
+    border-collapse: separate; /* sticky+境界線が安定 */
+    border-spacing: 0;
+    width: 100%;
+  }
+
+  /* ✅ ヘッダー固定 */
+  .roster-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff; /* 背景が透けないように */
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06); /* うっすら境界 */
+  }
+
+  /* 罫線があるなら（任意） */
+  .roster-table th,
+  .roster-table td {
+    border-bottom: 1px solid var(--border, #e6e6e6);
+    padding: 8px 10px;
+    white-space: nowrap; /* 崩れ防止（好みで） */
+  }
+</style>

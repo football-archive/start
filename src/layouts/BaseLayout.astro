@@ -1,0 +1,152 @@
+---
+import TitleBar from "../components/TitleBar.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+
+type Crumb = { label: string; href?: string };
+
+type Props = {
+  title: string;
+  description?: string;
+  bodyStyle?: string;
+  bodyClass?: string;
+  showPageHeader?: boolean;
+  crumbs?: Crumb[];
+  heading?: string;
+  showTitleBarPageTitle?: boolean;
+};
+
+const {
+  title,
+  description,
+  bodyStyle = "margin:0; font-family: system-ui;",
+  bodyClass = "",
+  showPageHeader = false,
+  crumbs = [],
+  heading,
+  showTitleBarPageTitle = true,
+} = Astro.props as Props;
+
+const hasUnderTitle = Astro.slots.has("under-title");
+
+const siteNameBar = "World Football Archive｜海外サッカーDB";
+const barPageTitle = showTitleBarPageTitle ? title : "";
+
+// ✅ TitleBarが2段かどうか（padding出し分け用）
+const hasBar2 = !!barPageTitle;
+
+const siteNameSeo = "World Football Archive";
+const seoTitle = title ? `${title}｜${siteNameSeo}` : siteNameSeo;
+
+const metaDescription =
+  description && String(description).trim() ? description : seoTitle;
+
+const pageHeading = heading || title;
+---
+
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8" />
+    <title>{seoTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={metaDescription} />
+    {/*
+      canonical / og:url
+      クエリ文字列を除いたURLを正規URLとして扱う
+    */}
+    <link rel="canonical" href={Astro.url.origin + Astro.url.pathname} />
+    <meta property="og:url" content={Astro.url.origin + Astro.url.pathname} />
+
+    <meta property="og:title" content={seoTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content="/ogp.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
+
+    <style is:global>
+      :root {
+        --container-max: 1100px;
+        --container-pad: 16px;
+        --border: #e6e6e6;
+        --muted: #666;
+      }
+
+      /* ✅ TitleBar分の押し下げ：2段/1段で出し分け */
+      .has-titlebar-2 .app-main {
+        padding-top: 56px; /* 旧 76px */
+      }
+      .has-titlebar-1 .app-main {
+        padding-top: 40px; /* 1段のときはさらに詰める */
+      }
+
+      .page-wrap {
+        max-width: var(--container-max);
+        margin: 0 auto;
+        padding: var(--container-pad);
+      }
+
+      .empty {
+        margin-top: 16px;
+        padding: 16px;
+        border: 1px solid var(--border, #e6e6e6);
+        border-radius: 12px;
+        background: #fff;
+      }
+      .empty h2 {
+        margin: 0 0 8px;
+        font-size: 18px;
+      }
+      .empty p {
+        margin: 0 0 12px;
+        opacity: 0.8;
+        line-height: 1.6;
+      }
+      .empty-actions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .empty-actions .btn {
+        display: inline-block;
+        padding: 8px 12px;
+        border: 1px solid var(--border, #e6e6e6);
+        border-radius: 10px;
+        text-decoration: none;
+        color: inherit;
+        background: #fff;
+      }
+      .empty-actions .btn:hover {
+        background: #f7f7f7;
+      }
+    </style>
+  </head>
+
+  <body
+    class={`${bodyClass} ${hasBar2 ? "has-titlebar-2" : "has-titlebar-1"}`}
+    style={bodyStyle}
+  >
+    <TitleBar siteTitle={siteNameBar} pageTitle={barPageTitle} homeHref="/" />
+
+    <main class="app-main">
+      <div class="page-wrap">
+        {
+          showPageHeader && (
+            <SiteHeader
+              crumbs={crumbs}
+              variant={
+                /\b(page-nt|page-club)\b/.test(bodyClass) ? "slim" : "boxed"
+              }
+            >
+              {hasUnderTitle && <slot name="under-title" />}
+            </SiteHeader>
+          )
+        }
+
+        <slot />
+      </div>
+    </main>
+  </body>
+</html>

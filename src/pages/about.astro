@@ -1,0 +1,158 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
+---
+
+<BaseLayout
+  title="About | World Football Archive"
+  description="Wikiより整理され、Transfermarktより軽い。代表とクラブの“その瞬間”を切り取った世界サッカーDB。"
+>
+  <SiteHeader
+    crumbs={[
+      { label: "トップ", href: "/" },
+      { label: "About", href: "/about" },
+    ]}
+  />
+
+  <main class="about">
+    <h1>World Football Archive について</h1>
+
+    <p class="lead">
+      <strong>World Football Archive（ワールド・フットボール・アーカイブ）</strong
+      >は、代表チームとクラブの「その瞬間」を切り取って見られる、世界サッカーのデータベースサイトです。
+    </p>
+
+    <p>
+      サッカーの情報は世の中にたくさんありますが、情報が散らばっていて探しづらかったり、データは詳しいけれどページが重かったり、
+      欲しいのは「今のメンバー」なのに過去情報が多すぎて迷ったり──そんな不便さを感じたことから、このサイトは生まれました。
+    </p>
+
+    <p>
+      World Football Archive では、<strong>「今この時点の代表メンバー」</strong>と<strong>「今シーズンのクラブスカッド」</strong
+      >にフォーカスし、できるだけ軽く・見やすく整理して掲載しています。
+    </p>
+
+    <h2>このサイトでできること</h2>
+
+    <h3>🌍 代表チーム</h3>
+    <p>
+      WC2026に向けた各国代表の招集メンバーを、ポジション順・背番号付きで一覧表示します。クラブ所属もあわせて確認できるため、
+      「この選手いまどこでプレーしてるんだっけ？」がすぐに分かります。
+    </p>
+
+    <h3>🏟 クラブスカッド</h3>
+    <p>
+      主要リーグのクラブについて、そのシーズン時点の登録選手を一覧で確認できます。背番号・ポジション・国籍・加入日など、
+      試合観戦や移籍情報のチェックにちょうどいい粒度のデータをまとめています。
+    </p>
+
+    <h2>World Football Archive の目指す形</h2>
+    <p class="tagline">
+      <strong>Wikiより整理され、Transfermarktより軽い。</strong><br />
+      <strong>代表とクラブの“その瞬間”を行き来できるサッカーDB。</strong>
+    </p>
+    <p>
+      細かすぎる統計よりも、「今のチームを把握するための実用的な情報」をストレスなく見られることを大切にしています。
+    </p>
+
+    <h2>アーカイブとしての広がり</h2>
+    <p>
+      World Football Archive は「今この時点のチーム」を見られることを出発点としていますが、将来的には過去の代表メンバーやクラブスカッドも順次追加し、
+      <strong>「あの大会のとき」「あのシーズンのあのチーム」</strong>といったサッカーの記憶をたどれるアーカイブへと広げていくことを目指しています。
+    </p>
+    <p>
+      現在はまだ限られた大会・シーズンの掲載ですが、時間の積み重ねとともに、世界サッカーの“その時々”を振り返られる場所になっていく予定です。
+    </p>
+
+    <h2>データについて</h2>
+    <p>
+      掲載している選手情報・所属情報は、公開されている各種サッカー情報をもとに整理しています。内容は可能な限り正確さを心がけていますが、
+      移籍・登録変更などにより実際の状況と差が出る場合があります。最新の公式情報については、各クラブ・各協会の発表をご確認ください。
+    </p>
+
+    <h2>運営について</h2>
+    <p>
+      World Football Archive は個人により運営されています。サッカー観戦や情報整理をもっと楽しく、快適にすることを目的として制作しています。
+      誤りのご指摘や改善のご提案などがありましたら、今後設置予定の連絡手段よりお知らせいただけると嬉しいです。
+    </p>
+
+    <h2>最後に</h2>
+    <p>
+      代表戦のときに。移籍市場が動いたときに。「あの選手いまどこだっけ？」と思ったときに。<br />
+      このサイトが、サッカーを楽しむ時間のちょっとした助けになれば幸いです。
+    </p>
+
+    <p class="signature">
+      ✦ <strong>World Football Archive</strong><br />
+      世界サッカーの「いま」と「いつか」を、軽く・見やすく。
+    </p>
+  </main>
+
+  <style>
+    .about {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+      line-height: 1.85;
+    }
+
+    .about h1 {
+      font-size: 28px;
+      margin: 10px 0 14px;
+      letter-spacing: 0.2px;
+    }
+
+    .about h2 {
+      font-size: 20px;
+      margin-top: 34px;
+      margin-bottom: 10px;
+      border-left: 4px solid #222;
+      padding-left: 10px;
+    }
+
+    .about h3 {
+      font-size: 16px;
+      margin-top: 18px;
+      margin-bottom: 6px;
+    }
+
+    .about p {
+      margin: 10px 0;
+      font-size: 15px;
+    }
+
+    .about .lead {
+      font-size: 16px;
+      margin-top: 0;
+      margin-bottom: 16px;
+    }
+
+    .about .tagline {
+      margin: 12px 0 10px;
+      padding: 12px 14px;
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      background: #fafafa;
+      line-height: 1.6;
+    }
+
+    .about .signature {
+      margin-top: 26px;
+      padding-top: 16px;
+      border-top: 1px solid #eee;
+      opacity: 0.9;
+    }
+
+    @media (max-width: 600px) {
+      .about {
+        padding: 14px 12px 48px;
+      }
+      .about h1 {
+        font-size: 24px;
+      }
+      .about h2 {
+        font-size: 18px;
+      }
+    }
+  </style>
+</BaseLayout>

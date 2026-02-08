@@ -1,0 +1,9 @@
+﻿league,league_key,league_display_ja,sort_rank,league_display_en,is_public,notes
+Bundesliga,bundesliga,ブンデスリーガ,30,Bundesliga,TRUE,
+Eredivisie,eredivisie,エールディヴィジ,60,Eredivisie,TRUE,
+LaLiga,laliga,ラ・リーガ,20,LaLiga,TRUE,
+Ligue1,ligue-1,リーグ・アン,50,Ligue1,TRUE,
+Premier League,premier-league,プレミアリーグ,10,Premier League,TRUE,
+Primeira Liga,primeira-liga,プリメイラ・リーガ,70,Primeira Liga,TRUE,
+SerieA,serie-a,セリエA,40,SerieA,TRUE,
+Scottish Premiership,scottish-premiership,スコティッシュ・プレミアシップ,80,Scottish Premiership,TRUE,

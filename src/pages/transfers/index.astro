@@ -1,0 +1,298 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import SiteHeader from "../../components/SiteHeader.astro";
+import { loadTransfers } from "../../lib/transfers";
+
+// URL params
+const url = new URL(Astro.request.url);
+const seasonParam = (url.searchParams.get("season") ?? "").trim();
+const windowParam = (url.searchParams.get("window") ?? "").trim();
+
+// 全件ロード（※正規化は loadTransfers 側で実施）
+const all = loadTransfers();
+
+// season / window 候補
+const seasons = Array.from(
+  new Set(all.map((x) => String(x.season || "").trim()).filter(Boolean)),
+);
+seasons.sort((a, b) => b.localeCompare(a)); // 文字列比較（"2025-26" など想定）
+
+const windows = Array.from(
+  new Set(all.map((x) => String(x.window || "").trim()).filter(Boolean)),
+);
+windows.sort((a, b) => a.localeCompare(b));
+
+// default: seasonは最新、windowは winter（なければ先頭）
+const defaultSeason = seasons[0] ?? "";
+const defaultWindow = windows.includes("winter")
+  ? "winter"
+  : (windows[0] ?? "winter");
+
+const season = seasonParam || defaultSeason;
+const window = windowParam || defaultWindow;
+
+// 絞り込み
+const rows = loadTransfers({ season, window });
+
+// 更新日（表示用）
+const maxIso = (list) => {
+  let max = "";
+  for (const r of list) {
+    const v = String(r.date_iso || "");
+    if (v && v > max) max = v;
+  }
+  return max;
+};
+const updatedIso = maxIso(rows) || maxIso(all) || "";
+const updatedJa = updatedIso ? updatedIso.replaceAll("-", "/") : "—";
+
+// move_type 表示名（最小）
+const moveLabel = (t) => {
+  const s = String(t || "").toLowerCase();
+  if (s === "transfer") return "移籍";
+  if (s === "loan") return "レンタル";
+  if (s === "free") return "フリー";
+  if (s === "retired") return "引退";
+  if (s === "release") return "契約解除";
+  if (s === "return_loan") return "復帰";
+  return s || "—";
+};
+
+// ピルURL生成
+const pageHref = (nextSeason, nextWindow) =>
+  `/transfers?season=${encodeURIComponent(nextSeason)}&window=${encodeURIComponent(nextWindow)}`;
+
+// クラブ表示（masterにあれば ja/en が入ってる。無ければ値そのまま）
+const clubText = (r, which) =>
+  which === "from"
+    ? r.from_club_display_ja || "—"
+    : r.to_club_display_ja || "—";
+const clubHref = (r, which) =>
+  which === "from" ? r.from_club_href || "" : r.to_club_href || "";
+
+// 表示用日付（ISOがあればそれ、なければ raw）
+const dateText = (r) => {
+  const iso = String(r.date_iso || "");
+  if (iso) return iso.replaceAll("-", "/");
+  const raw = String(r.date_raw || "");
+  return raw || "—";
+};
+---
+
+<BaseLayout
+  title={`移籍一覧 ${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}｜海外サッカーDB`}
+  description="主要な移籍イベント（簡易一覧）"
+  bodyClass="page-club"
+>
+  <SiteHeader
+    crumbs={[
+      { label: "トップ", href: "/" },
+      { label: "移籍", href: "/transfers" },
+      {
+        label: `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}`,
+      },
+    ]}
+  >
+    <div class="toprow">
+      <div class="meta">
+        更新：<span class="date-red">{updatedJa}</span>
+        <span class="sep">/</span>
+        件数：{rows.length}
+      </div>
+    </div>
+
+    <div class="pills" style="margin-top:10px;">
+      {
+        seasons.map((s) => (
+          <a
+            class={`pill ${s === season ? "is-active" : ""}`}
+            href={pageHref(s, window)}
+            aria-label={`${s} の移籍一覧へ`}
+          >
+            <span class="dot" aria-hidden="true" />
+            {s}
+          </a>
+        ))
+      }
+    </div>
+
+    <div class="pills" style="margin-top:8px;">
+      {
+        ["winter", "summer"]
+          .filter((w) => windows.includes(w))
+          .map((w) => (
+            <a
+              class={`pill ${w === window ? "is-active" : ""}`}
+              href={pageHref(season, w)}
+              aria-label={`${w} の移籍一覧へ`}
+            >
+              <span class="dot" aria-hidden="true" />
+              {w === "winter" ? "冬" : "夏"}
+            </a>
+          ))
+      }
+      {
+        !windows.includes("winter") &&
+          !windows.includes("summer") &&
+          windows.map((w) => (
+            <a
+              class={`pill ${w === window ? "is-active" : ""}`}
+              href={pageHref(season, w)}
+            >
+              <span class="dot" aria-hidden="true" />
+              {w}
+            </a>
+          ))
+      }
+    </div>
+  </SiteHeader>
+
+  <style>
+    .meta {
+      font-size: 13px;
+      color: #666;
+    }
+    .date-red {
+      color: #e11d48;
+      font-weight: 700;
+    }
+    .sep {
+      margin: 0 6px;
+      opacity: 0.6;
+    }
+
+    .table-wrap {
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+
+      /* 追加ここから */
+      max-height: 70vh; /* 画面内でスクロールさせる */
+      overflow: auto; /* 横＋縦スクロール両対応 */
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      font-size: 13px;
+      min-width: 880px;
+    }
+
+    thead th {
+      position: sticky;
+      top: 0;
+      z-index: 5; /* 1→5くらいに上げる */
+      background: var(--roster-head-bg, #fff7cc);
+      border-bottom: 1px solid var(--roster-head-border, #f1c40f);
+      padding: 10px 10px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    thead th:first-child {
+      border-top-left-radius: 14px;
+    }
+    thead th:last-child {
+      border-top-right-radius: 14px;
+    }
+
+    tbody td {
+      padding: 10px 10px;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+      white-space: nowrap;
+    }
+
+    tbody tr:hover td {
+      background: #fffdf3;
+    }
+
+    .mono {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .note {
+      color: #e11d48;
+      font-weight: 700;
+      white-space: normal;
+      min-width: 220px;
+    }
+
+    a.link {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .type {
+      font-weight: 700;
+    }
+
+    .empty {
+      margin-top: 16px;
+    }
+  </style>
+
+  {
+    rows.length === 0 ? (
+      <div class="empty">
+        <h2>データがありません</h2>
+        <p>
+          transfers.csv の <code>season</code> と <code>window</code>{" "}
+          を確認してください。
+        </p>
+        <div class="empty-actions">
+          <a class="btn" href="/transfers">
+            /transfers を開く
+          </a>
+        </div>
+      </div>
+    ) : (
+      <div class="table-wrap roster-block">
+        <table>
+          <thead>
+            <tr>
+              <th class="mono">移籍日</th>
+              <th>選手</th>
+              <th>from</th>
+              <th>to</th>
+              <th>種別</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r) => (
+              <tr>
+                <td class="mono">{dateText(r)}</td>
+                <td>{r.player_name}</td>
+
+                <td>
+                  {clubHref(r, "from") ? (
+                    <a class="link" href={clubHref(r, "from")}>
+                      {clubText(r, "from")}
+                    </a>
+                  ) : (
+                    clubText(r, "from")
+                  )}
+                </td>
+
+                <td>
+                  {clubHref(r, "to") ? (
+                    <a class="link" href={clubHref(r, "to")}>
+                      {clubText(r, "to")}
+                    </a>
+                  ) : (
+                    clubText(r, "to") || "—"
+                  )}
+                </td>
+
+                <td class="type">{moveLabel(r.move_type)}</td>
+                <td class="note">{r.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+</BaseLayout>

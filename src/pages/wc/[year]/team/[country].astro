@@ -1,0 +1,330 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import RosterView from "../../../../components/RosterView.astro";
+
+import { loadCallups, sortForRoster } from "../../../../lib/callups";
+import { buildNtColumns } from "../../../../lib/rosterColumns";
+import { loadClubMaster } from "../../../../lib/clubMaster";
+
+import { loadGroups } from "../../../../lib/tournamentGroups";
+
+
+// ====================
+// getStaticPaths
+// 重要：params.country は「未エンコードの国名」を返す
+// ====================
+export async function getStaticPaths() {
+  const rows = loadCallups().filter((r) => String(r.competition) === "WC");
+  const seen = new Set<string>();
+  const paths: { params: { year: string; country: string } }[] = [];
+
+  for (const r of rows as any[]) {
+    const year = String(r.edition ?? "").trim();
+    const country = String(r.country ?? "").trim(); // ← 未エンコード（日本語）
+    if (!year || !country) continue;
+
+    const key = `${year}__${country}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+
+    paths.push({ params: { year, country } });
+  }
+
+  return paths;
+}
+
+// ====================
+// page data
+// ====================
+const { year, country } = Astro.params;
+
+// Astro.params.country は「未エンコードの国名」が入る想定
+const countryName = String(country ?? "").trim();
+
+const rowsAll = loadCallups(year)
+  .filter(Boolean)
+  .filter((r: any) => String(r.country ?? "").trim() === countryName);
+
+const groups = loadGroups("WC", String(year), "group");
+
+
+// その国のグループ（groups.csv から探す）
+const norm = (s: any) =>
+  String(s ?? "").trim().replace(/　/g, " ").replace(/\s+/g, " ");
+
+const group =
+  groups.find((g: any) => norm(g.route_param) === norm(countryName))?.group ??
+  groups.find((g: any) => norm(g.country_name_ja) === norm(countryName))?.group ??
+  "";
+
+// その国の大陸（callupsの最初の行から取れる想定）
+const continent = rowsAll[0]?.confederation ?? "";
+
+const rows = rowsAll.sort(sortForRoster);
+const starRows = rows
+  .filter((r) => String((r as any).is_star ?? "").trim() === "1")
+  .slice(0, 3);
+
+// クラブリンク解決（club_master.csv を使う）
+const normalize = (s: string) =>
+  String(s || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/　/g, " ")
+    .toLowerCase();
+
+const parseAliases = (aliases: string) =>
+  String(aliases || "")
+    .split(/[|,、/]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+const clubMaster = loadClubMaster();
+
+const clubHref = (clubName: string) => {
+  const raw = String(clubName || "").trim();
+  if (!raw) return "";
+
+  const key = normalize(raw);
+
+  const c = clubMaster.find((x: any) => {
+    const ja = normalize(x.club_display_ja || "");
+    const en = normalize(x.club_display_en || "");
+    if (key === ja || key === en) return true;
+
+    const als = parseAliases(x.aliases);
+    return als.some((a) => normalize(a) === key);
+  });
+
+  return c ? `/clubs/${c.league_key}/${c.club_key}` : "";
+};
+
+const columns = buildNtColumns({
+  isLatestView: true,
+  showStats: false,
+  clubHref,
+});
+
+const topHref = `/wc/${year}`;
+
+// <title> 用（共通ヘッダーのページ名にも出る）
+const title = `WC${year} ${countryName}代表`;
+const heading = `${countryName}代表`;
+---
+
+<BaseLayout
+  title={title}
+  description={title}
+  bodyClass="page-nt"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: `WC${year}`, href: topHref },
+    { label: countryName },
+  ]}
+  heading={heading}
+>
+
+  {
+    (continent || group) && (
+      <div class="nt-nav-pills">
+        {continent && (
+          <a
+            class="pill"
+            href={`/wc/${year}?continent=${encodeURIComponent(continent)}`}
+          >
+            🌍 {continent}
+          </a>
+        )}
+        {group && (
+          <a
+            class="pill"
+            href={`/wc/${year}?group=${encodeURIComponent(group)}`}
+          >
+            🔠 グループ {group}
+          </a>
+        )}
+      </div>
+    )
+  }
+
+  {/* ✅ H1直下に “戻るリンク” を寄せる（共通化の流れ） */}
+  <section class="star-section" aria-label="注目選手">
+    <h2 class="star-title">⭐ 注目選手</h2>
+
+    {
+      starRows.length > 0 ? (
+        <div class="star-grid">
+          {starRows.map((r) => (
+            <div class="star-card">
+              <div class="star-name">
+                {r.name_ja || r.name_en || r.name}
+                <span class="star-pos">
+                  （{r.position_primary || r.position}）
+                </span>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div class="star-empty">準備中</div>
+      )
+    }
+  </section>
+
+  <RosterView {rows} {columns} />
+
+  <script is:inline>
+    const TOP = topHref;
+
+    function updateBackLink() {
+      const a = document.getElementById("back-link-anchor");
+      if (!a) return false;
+
+      const params = new URLSearchParams(location.search);
+      const from = (params.get("from") || "").trim();
+      const anchor = (params.get("anchor") || "").trim();
+
+      // デフォルト
+      let href = TOP;
+      let label = "WC一覧へ戻る";
+
+      // from=group-A
+      const mGroup = from.match(/^group-(.+)$/);
+      if (mGroup) {
+        const g = mGroup[1];
+        href = `${TOP}?group=${encodeURIComponent(g)}`;
+        label = `グループ${g}へ戻る`;
+      }
+
+      // from=conf-UEFA
+      const mConf = from.match(/^conf-(.+)$/);
+      if (mConf) {
+        const conf = mConf[1];
+        href = `${TOP}?continent=${encodeURIComponent(conf)}`;
+        label = `${conf}へ戻る`;
+      }
+
+      // 位置も戻す（例: #group-view）
+      if (anchor) href = `${href}#${anchor}`;
+
+      a.href = href;
+      a.textContent = `← ${label}`;
+      return true;
+    }
+
+    function boot() {
+      // まず1回試す
+      if (updateBackLink()) return;
+
+      // ✅ まだDOMに無いなら、短時間リトライ（最大2秒）
+      let tries = 0;
+      const timer = setInterval(() => {
+        tries++;
+        if (updateBackLink() || tries >= 40) clearInterval(timer);
+      }, 50);
+    }
+
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", boot);
+    } else {
+      boot();
+    }
+  </script>
+
+  {/* JSで文言差し替えもあるので global 推奨 */}
+  <style is:global>
+    .page-nt .back-link {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: #374151;
+    }
+    .page-nt .back-link a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    .page-nt .back-link a:hover {
+      opacity: 0.85;
+    }
+
+    .star-section {
+      margin: 12px 0 16px;
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      background: #f3e5f5;
+    }
+
+    .star-title {
+      margin: 0 0 8px;
+      font-size: 13px; /* 少し小さく */
+      font-weight: 650; /* 少し弱く（700→） */
+      opacity: 1;
+    }
+
+    .star-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* タブレット */
+    @media (max-width: 900px) {
+      .star-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    /* スマホ */
+    @media (max-width: 640px) {
+      .star-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .star-card {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      padding: 8px 10px; /* 少し薄く */
+      display: flex;
+      align-items: center;
+    }
+
+    .star-name {
+      font-weight: 600; /* 700→600 */
+      font-size: 13px; /* ここで確実に小さく */
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    .star-pos {
+      font-weight: 500;
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+
+    .star-empty {
+      font-size: 13px;
+      opacity: 0.65;
+      padding: 8px 4px;
+    }
+
+    .page-nt .star-section {
+      background: #f3e5f5 !important;
+      border-color: rgba(0, 0, 0, 0.08) !important;
+      opacity: 1;
+    }
+
+    /* ===== 代表ページ：大陸・グループナビ ===== */
+    .nt-nav-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 4px 0 14px;
+    }
+  </style>
+</BaseLayout>

@@ -1,0 +1,109 @@
+---
+type Props = {
+  /** 旧: title だけ渡していた頃との互換用 */
+  title?: string;
+
+  /** 新: サイト名（左上のメイン） */
+  siteTitle?: string;
+
+  /** 新: ページ名（小さく表示。不要なら空でOK） */
+  pageTitle?: string;
+
+  /** サイト名クリック時のリンク（デフォルト / ） */
+  homeHref?: string;
+};
+
+const {
+  title,
+  siteTitle,
+  pageTitle = "",
+  homeHref = "/",
+} = Astro.props as Props;
+
+// 互換：title が渡っていたら siteTitle 扱いにする
+const resolvedSiteTitle = siteTitle ?? title ?? "";
+---
+
+<header class="titlebar" role="banner">
+  <div class="titlebar__inner">
+    <div class="titlebar__titles">
+      <a class="titlebar__site" href={homeHref}>{resolvedSiteTitle}</a>
+      {pageTitle && <div class="titlebar__page">{pageTitle}</div>}
+    </div>
+  </div>
+</header>
+
+<style>
+  .titlebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 2000;
+    background: #2f2f2f; /* 濃いグレー */
+  }
+
+  /* 上下の細いライン */
+  .titlebar::before,
+  .titlebar::after {
+    content: "";
+    display: block;
+    height: 2px;
+    background: #bfbfbf;
+  }
+
+  .titlebar__inner {
+    max-width: var(--container-max);
+    margin: 0 auto;
+    padding: 10px var(--container-pad);
+    position: relative;
+  }
+
+  /* タイトル下の青ライン */
+  .titlebar__inner::after {
+    content: "";
+    position: absolute;
+    left: var(--container-pad);
+    right: var(--container-pad);
+    bottom: 0;
+    height: 2px;
+    background: #2563eb;
+    opacity: 0.9;
+  }
+
+  .titlebar__titles {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .titlebar__site {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 900;
+    color: #ffffff;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    line-height: 1.12;
+  }
+
+  .titlebar__site:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  .titlebar__page {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.86);
+    line-height: 1.25;
+  }
+
+  @media (max-width: 520px) {
+    .titlebar__site {
+      font-size: 20px;
+    }
+    .titlebar__page {
+      font-size: 13px;
+    }
+  }
+</style>

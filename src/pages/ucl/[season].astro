@@ -1,0 +1,266 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../../lib/ucl";
+import { loadClubMaster } from "../../lib/clubMaster";
+
+// ✅ 静的生成
+export function getStaticPaths() {
+  const seasons = getUclSeasons().map((s) => String(s).trim());
+  return seasons.map((season) => ({ params: { season } }));
+}
+
+const season = String(Astro.params.season ?? "").trim();
+
+const rows = loadUclLeaguePhaseBySeason(season);
+const clubMaster = loadClubMaster();
+const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
+
+const clubUrl = (clubKey: string) => {
+  const c: any = clubMap.get(clubKey);
+  if (!c) return "";
+  // clubs側は encode しても安全（キーに空白など入らない前提でも保険）
+  return `/clubs/${encodeURIComponent(c.league_key)}/${encodeURIComponent(c.club_key)}`;
+};
+
+const fmt = (v: any) => ((v ?? v === 0) ? String(v) : "—");
+
+const updated = rows[0]?.updated_at
+  ? String(rows[0].updated_at).replaceAll("-", "/")
+  : "—";
+
+const title = `UEFA Champions League ${season}｜リーグフェーズ最終順位表`;
+
+// under-title に “シーズンピル” を出す
+const seasons = getUclSeasons()
+  .map((s) => String(s).trim())
+  .sort()
+  .reverse();
+---
+
+<BaseLayout
+  title={title}
+  description={title}
+  bodyClass="page-ucl"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "UCL", href: "/ucl" },
+    { label: season },
+  ]}
+  heading={title}
+>
+  <div slot="under-title" class="ucl-top">
+    <div class="ucl-meta">
+      <span>クラブ数：{rows.length}</span>
+      <span>更新：{updated}</span>
+    </div>
+
+    <div class="pills">
+      {
+        seasons.map((s) => (
+          <a
+            class={`pill ${s === season ? "is-active" : ""}`}
+            href={`/ucl/${encodeURIComponent(s)}`}
+          >
+            <span class="dot" aria-hidden="true" />
+            {s}
+          </a>
+        ))
+      }
+      <a class="pill" href="/ucl">
+        <span class="dot" aria-hidden="true"></span>シーズン一覧
+      </a>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th style="text-align:center;">クラブ</th>
+          <th>試</th><th>勝</th><th>分</th><th>敗</th>
+          <th>得</th><th>失</th><th>差</th><th>点</th>
+          <th>枠</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((r: any) => {
+            const href = r.club_key ? clubUrl(String(r.club_key)) : "";
+            return (
+              <tr>
+                <td>{fmt(r.rank)}</td>
+                <td class="left">
+                  {href ? (
+                    <a
+                      href={`${href}?from=${encodeURIComponent(`/ucl/${season}`)}`}
+                    >
+                      {r.club_name_raw ?? r.club_key}
+                    </a>
+                  ) : (
+                    (r.club_name_raw ?? "—")
+                  )}
+                </td>
+                <td>{fmt(r.played)}</td>
+                <td>{fmt(r.won)}</td>
+                <td>{fmt(r.draw)}</td>
+                <td>{fmt(r.lost)}</td>
+                <td>{fmt(r.gf)}</td>
+                <td>{fmt(r.ga)}</td>
+                <td>{fmt(r.gd)}</td>
+                <td>{fmt(r.pts)}</td>
+                <td>
+                  <span class="pill small">{fmt(r.qualified)}</span>
+                </td>
+              </tr>
+            );
+          })
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <style is:global>
+    /* ===== UCL theme（ニュートラル寄り） ===== */
+    .page-ucl .ucl-top {
+      margin: 6px 0 12px;
+    }
+    .page-ucl .ucl-meta {
+      color: #666;
+      font-size: 12.5px;
+      margin: 0 0 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-ucl .table-wrap {
+      /* ✅ この箱の中で縦スクロールさせる（stickyを安定させる） */
+      overflow: auto; /* 横も縦もここでスクロール */
+      max-height: calc(
+        100vh - 260px
+      ); /* だいたい: TitleBar + crumbs + pills分 */
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .page-ucl table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 760px;
+    }
+
+    .page-ucl thead th {
+      position: sticky;
+      top: 0; /* ✅ “箱”の先頭に張り付くのでオフセット不要 */
+      z-index: 3; /* ✅ 行より前に出す */
+      background: #f7f7f7; /* ✅ 透け防止 */
+      border-bottom: 1px solid #e6e6e6;
+      padding: 10px 10px;
+      font-size: 12.5px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ✅ TitleBar の高さ分だけ sticky を下げる（BaseLayout の padding-top と同値） */
+    .has-titlebar-2.page-ucl thead th {
+      top: 56px;
+    }
+    .has-titlebar-1.page-ucl thead th {
+      top: 40px;
+    }
+
+    .page-ucl tbody td {
+      border-bottom: 1px solid #f0f0f0;
+      padding: 9px 10px;
+      font-size: 13px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-ucl tbody tr:hover {
+      background: #fafafa;
+    }
+    .page-ucl td.left {
+      text-align: left;
+    }
+
+    .page-ucl a {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .page-ucl a:hover {
+      background: #eef6fd;
+    }
+
+    /* pills（既存の見た目に寄せつつ UCL らしく青寄せ） */
+    .page-ucl .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .page-ucl .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #cfe0ff;
+      background: #fff;
+      color: #111;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .page-ucl .pill:hover {
+      background: #eef6fd;
+    }
+    .page-ucl .pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #2563eb;
+      opacity: 0.6;
+    }
+    .page-ucl .pill.is-active {
+      font-weight: 800;
+      border-color: #2563eb;
+    }
+    .page-ucl .pill.is-active .dot {
+      opacity: 1;
+    }
+
+    .page-ucl .pill.small {
+      padding: 2px 8px;
+      font-size: 12px;
+      border-color: #e6e6e6;
+    }
+    
+    /* ✅ UCL表：箱内で上に詰める（謎の空白対策） */
+    .page-ucl .table-wrap {
+      padding: 0; /* ← まずpaddingをゼロに固定 */
+    }
+
+    .page-ucl .table-wrap table {
+      margin: 0; /* ← tableのデフォmargin除去 */
+      border-collapse: separate;
+      border-spacing: 0; /* ← 余計な隙間を消す */
+    }
+
+    /* ✅ theadの高さがズレる環境対策（特にSafari/Chromium差分） */
+    .page-ucl .table-wrap thead {
+      transform: translateZ(0);
+    }
+
+    /* ✅ stickyヘッダーが最上部にピタッと来るように */
+    .page-ucl .table-wrap thead th {
+      top: 0; /* 念押し（他CSSの上書き防止） */
+    }
+  </style>
+</BaseLayout>
