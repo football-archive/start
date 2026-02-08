@@ -22,3 +22,22 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# work / temp / backup (never commit)
+_work/
+_backup/
+_history/
+tmp/
+
+# editor / OS
+.vscode/
+.DS_Store
+Thumbs.db
+
