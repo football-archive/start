@@ -50,11 +50,16 @@ const pageHeading = heading || title;
     <title>{seoTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={metaDescription} />
-    {/*
+    {
+      /*
       canonical / og:url
       クエリ文字列を除いたURLを正規URLとして扱う
-    */}
-    <meta name="google-site-verification" content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84" />
+    */
+    }
+    <meta
+      name="google-site-verification"
+      content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84"
+    />
     <link rel="canonical" href={Astro.url.origin + Astro.url.pathname} />
     <meta property="og:url" content={Astro.url.origin + Astro.url.pathname} />
 
@@ -75,12 +80,8 @@ const pageHeading = heading || title;
         --muted: #666;
       }
 
-      /* ✅ TitleBar分の押し下げ：2段/1段で出し分け */
-      .has-titlebar-2 .app-main {
-        padding-top: 56px; /* 旧 76px */
-      }
-      .has-titlebar-1 .app-main {
-        padding-top: 40px; /* 1段のときはさらに詰める */
+      .app-main {
+        padding-top: 0;
       }
 
       .page-wrap {
