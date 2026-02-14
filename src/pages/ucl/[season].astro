@@ -28,7 +28,7 @@ const updated = rows[0]?.updated_at
   ? String(rows[0].updated_at).replaceAll("-", "/")
   : "—";
 
-const title = `UEFA Champions League ${season}｜リーグフェーズ最終順位表`;
+const title = `UEFA CL（UEFAチャンピオンズリーグ） ${season}｜リーグフェーズ最終順位表`;
 
 // under-title に “シーズンピル” を出す
 const seasons = getUclSeasons()
@@ -45,7 +45,7 @@ const seasons = getUclSeasons()
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "UCL", href: "/ucl" },
+    { label: "UEFACL", href: "/ucl" },
     { label: season },
   ]}
   heading={title}

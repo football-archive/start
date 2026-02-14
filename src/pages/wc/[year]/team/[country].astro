@@ -8,7 +8,6 @@ import { loadClubMaster } from "../../../../lib/clubMaster";
 
 import { loadGroups } from "../../../../lib/tournamentGroups";
 
-
 // ====================
 // getStaticPaths
 // 重要：params.country は「未エンコードの国名」を返す
@@ -41,20 +40,23 @@ const { year, country } = Astro.params;
 // Astro.params.country は「未エンコードの国名」が入る想定
 const countryName = String(country ?? "").trim();
 
-const rowsAll = loadCallups(year)
-  .filter(Boolean)
+const rowsAll = loadCallups()
+  .filter((r: any) => String(r.edition ?? "") === String(year))
   .filter((r: any) => String(r.country ?? "").trim() === countryName);
 
 const groups = loadGroups("WC", String(year), "group");
 
-
 // その国のグループ（groups.csv から探す）
 const norm = (s: any) =>
-  String(s ?? "").trim().replace(/　/g, " ").replace(/\s+/g, " ");
+  String(s ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
 
 const group =
   groups.find((g: any) => norm(g.route_param) === norm(countryName))?.group ??
-  groups.find((g: any) => norm(g.country_name_ja) === norm(countryName))?.group ??
+  groups.find((g: any) => norm(g.country_name_ja) === norm(countryName))
+    ?.group ??
   "";
 
 // その国の大陸（callupsの最初の行から取れる想定）
@@ -108,13 +110,14 @@ const columns = buildNtColumns({
 const topHref = `/wc/${year}`;
 
 // <title> 用（共通ヘッダーのページ名にも出る）
-const title = `WC${year} ${countryName}代表`;
+const title = `FIFAワールドカップ${year}（WC${year}）${countryName}代表メンバー`;
+const description = `${countryName}代表の招集メンバー（WC${year} / FIFAワールドカップ${year}）。ポジション、所属クラブ、代表デビュー、生年月日など。`;
 const heading = `${countryName}代表`;
 ---
 
 <BaseLayout
   title={title}
-  description={title}
+  description={description}
   bodyClass="page-nt"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
@@ -125,14 +128,13 @@ const heading = `${countryName}代表`;
   ]}
   heading={heading}
 >
-
   {
     (continent || group) && (
       <div class="nt-nav-pills">
         {continent && (
           <a
             class="pill"
-            href={`/wc/${year}?continent=${encodeURIComponent(continent)}`}
+            href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
           >
             🌍 {continent}
           </a>
@@ -140,7 +142,7 @@ const heading = `${countryName}代表`;
         {group && (
           <a
             class="pill"
-            href={`/wc/${year}?group=${encodeURIComponent(group)}`}
+            href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
           >
             🔠 グループ {group}
           </a>
@@ -175,7 +177,7 @@ const heading = `${countryName}代表`;
 
   <RosterView {rows} {columns} />
 
-  <script is:inline>
+  <script is:inline define:vars={{ topHref }}>
     const TOP = topHref;
 
     function updateBackLink() {
@@ -206,7 +208,6 @@ const heading = `${countryName}代表`;
         label = `${conf}へ戻る`;
       }
 
-      // 位置も戻す（例: #group-view）
       if (anchor) href = `${href}#${anchor}`;
 
       a.href = href;
@@ -215,10 +216,8 @@ const heading = `${countryName}代表`;
     }
 
     function boot() {
-      // まず1回試す
       if (updateBackLink()) return;
 
-      // ✅ まだDOMに無いなら、短時間リトライ（最大2秒）
       let tries = 0;
       const timer = setInterval(() => {
         tries++;

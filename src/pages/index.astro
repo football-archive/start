@@ -278,7 +278,7 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
 
 <BaseLayout
   title="World Football Archive｜海外サッカーDB"
-  description="Wikiよりサッと見れて、Transfermarktより軽い。代表とクラブの “今 / あの時” を行き来する、世界サッカーDB"
+  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。 FIFAワールドカップの代表チームや、海外クラブ登録メンバーの 『今 / あの時』 を行き来する、『世界サッカーDB』。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
 >
   <style>
@@ -346,14 +346,32 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         align-items: stretch;
       }
 
-      .grid-nt-main { grid-column: 1; grid-row: 1; }
-      .grid-club-main { grid-column: 2; grid-row: 1; }
+      .grid-nt-main {
+        grid-column: 1;
+        grid-row: 1;
+      }
+      .grid-club-main {
+        grid-column: 2;
+        grid-row: 1;
+      }
 
-      .grid-nt-sub1 { grid-column: 1; grid-row: 2; }
-      .grid-club-sub1 { grid-column: 2; grid-row: 2; }
+      .grid-nt-sub1 {
+        grid-column: 1;
+        grid-row: 2;
+      }
+      .grid-club-sub1 {
+        grid-column: 2;
+        grid-row: 2;
+      }
 
-      .grid-nt-sub2 { grid-column: 1; grid-row: 3; }
-      .grid-club-sub2 { grid-column: 2; grid-row: 3; }
+      .grid-nt-sub2 {
+        grid-column: 1;
+        grid-row: 3;
+      }
+      .grid-club-sub2 {
+        grid-column: 2;
+        grid-row: 3;
+      }
     }
 
     .card {
@@ -637,13 +655,51 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
     .card-nt .pill-group:hover {
       background: var(--nt-pill-hover-bg);
     }
+    .wc-card {
+      background: linear-gradient(135deg, #0a3d62, #1e5799);
+      color: white;
+      border-radius: 14px;
+      padding: 20px;
+    }
+
+    .wc-card h2 {
+      margin: 0 0 12px;
+      font-size: 1.3rem;
+    }
+
+    .wc-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .wc-btn {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: white;
+      font-size: 0.9rem;
+      transition: 0.2s;
+    }
+
+    .wc-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .wc-main {
+      background: #ffd700;
+      color: #222;
+      font-weight: bold;
+    }
   </style>
 
   <div class="container">
     <div class="hero">
       <p class="subtitle">
-        Wikiよりサッと見れて、Transfermarktより軽い。　代表とクラブの “今 /
-        あの時” を行き来する、世界サッカーDB。
+        Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
+        />
+        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。
       </p>
 
       <section class="updates">
@@ -665,67 +721,26 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
       </section>
 
       <div class="grid">
-        <!-- row1 col1: NT main -->
-        <div class="card card-nt grid-nt-main">
-          <div class="card-title">
-            <h2>WC2026 代表招集メンバー</h2>
-            <span class="badge">グループ別/大陸別 → 国別代表選手</span>
-          </div>
+        <!-- 🏆 WCポータルカード -->
+        <div class="card wc-card">
+          <h2>🏆 FIFAワールドカップ2026</h2>
 
-          <p class="card-desc">
-            各国の最新招集メンバーを、国別・大陸別・グループ別に。
-          </p>
-
-          <div class="card-meta">
-            <span>代表更新：<span class="date-red">{updatedNt}</span></span>
-            <span>WC2026：{countries.size}か国 / {callups.length}人</span>
-          </div>
-
-          <div class="card-shortcuts">
-            <div class="shortcut-head">
-              <p class="quick-title">ショートカット：大陸から探す</p>
-              <a class="see-now" href="/wc/2026">→ いますぐ見る</a>
-            </div>
-
-            <div class="pills">
-              {
-                continentShortcuts.map((x) => (
-                  <a
-                    class="pill"
-                    href={continentHref(x.key)}
-                    aria-label={`${x.label}から探す`}
-                  >
-                    <span class="dot" aria-hidden="true" />
-                    {x.label}
-                  </a>
-                ))
-              }
-            </div>
-
-            <p class="quick-title" style="margin-top:10px;">ショートカット：グループから探す</p>
-            <div class="pills pills-groups">
-              {
-                Array.from({ length: 12 }, (_, i) =>
-                  String.fromCharCode(65 + i),
-                ).map((g) => (
-                  <a
-                    class="pill pill-group"
-                    href={`${wcTopHref}?group=${g}`}
-                    aria-label={`グループ${g}から探す`}
-                  >
-                    {g}
-                  </a>
-                ))
-              }
-            </div>
+          <div class="wc-links">
+            <a href="/wc/2026/#groups" class="wc-btn">グループ勝敗表（グループステージ）</a>
+            <a href="/wc/2026/#teams" class="wc-btn">出場国・代表メンバー一覧</a>
+            <a href="/wc/2026/#rankings" class="wc-btn"
+              >得点・アシストランキング</a
+            >
+            <a href="/wc/2026/#schedule" class="wc-btn">日程・試合結果（マッチスケジュール）</a>
+            <a href="/wc/2026/#awards" class="wc-btn wc-main">表彰（個人賞・ベストイレブン）</a>
           </div>
         </div>
 
         <!-- row1 col2: CLUB main -->
         <div class="card card-club grid-club-main">
           <div class="card-title">
-            <h2>2025-26 主要クラブスカッド</h2>
-            <span class="badge">リーグ別 → クラブ別スカッド一覧</span>
+            <h2>2025-26 主要クラブ 登録メンバー(スカッド)</h2>
+            <span class="badge">リーグ別 → クラブ別メンバー</span>
           </div>
 
           <p class="card-desc">
@@ -733,9 +748,13 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
           </p>
 
           <div class="card-meta">
-            <span>クラブ更新：<span class="date-red">{updatedAtClub}</span></span>
+            <span
+              >クラブ更新：<span class="date-red">{updatedAtClub}</span></span
+            >
             <span>
-              クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {clubsPlayerCount}人
+              クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
+                clubsPlayerCount
+              }人
             </span>
           </div>
 
@@ -769,7 +788,7 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         <!-- row2 col1: Japan -->
         <div class="subcard subcard-nt jp-box grid-nt-sub1">
           <div style="font-size:13px; font-weight:600;">
-            <a href={japanHref}>SAMURAI BLUE（日本代表）</a>
+            <a href={japanHref}>SAMURAI BLUE（日本代表/ワールドカップ）</a>
           </div>
           <div class="jp-sub">
             日本代表はコチラから（WC2026メンバー一覧へ）<br />
@@ -780,11 +799,13 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         <!-- row2 col2: UCL -->
         <div class="subcard subcard-club ucl-box grid-club-sub1">
           <div style="font-size:13px; font-weight:600;">
-            <a href={uclHref}>UEFA CL {uclSeason}（順位表）</a>
+            <a href={uclHref}>UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）</a>
           </div>
           <div class="ucl-sub">
             リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
-            更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{uclClubCount}クラブ
+            更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{
+              uclClubCount
+            }クラブ
           </div>
         </div>
 
@@ -813,7 +834,9 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         ※ 各更新日は、代表・クラブそれぞれの最新データ反映日を示しています。
       </div>
 
-      <div style="margin-top:28px; text-align:center; font-size:13px; color:#666;">
+      <div
+        style="margin-top:28px; text-align:center; font-size:13px; color:#666;"
+      >
         <a href="/about">World Football Archive について（このサイトの概要）</a>
       </div>
     </div>

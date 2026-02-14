@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "node src/scripts/generate_sitemap.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "node src/scripts/check_routes.mjs && node src/scripts/check_links.mjs"
