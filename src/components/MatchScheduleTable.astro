@@ -59,7 +59,6 @@ for (const st of stages) {
 ---
 
 <section id="schedule" class="match-schedule" style="margin: 18px 0;">
-
   {
     /*
   <h2>{heading}</h2>
@@ -242,6 +241,38 @@ for (const st of stages) {
     .match-schedule table.schedule {
       min-width: 720px;
     }
+    /* ✅ 被りの根治：セルからはみ出さない */
+    .page-nt td.col-match {
+      overflow: hidden; /* これが効く */
+    }
+
+    /* ✅ スマホ時だけ “対戦” を縦積み（被りを絶対起こさない） */
+    .page-nt td.col-match {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      white-space: normal; /* 1行縛り解除 */
+    }
+
+    .page-nt td.col-match .vs {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    /* ✅ 長いチーム名があっても安全に */
+    .page-nt td.col-match .team {
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* ✅ スコア列はセンターの方が安定 */
+    .page-nt .col-score {
+      text-align: center;
+      white-space: nowrap;
+    }
   }
 
   /* アンカーのズレ対策（ヘッダー固定用） */
@@ -249,4 +280,3 @@ for (const st of stages) {
     scroll-margin-top: 72px;
   }
 </style>
-
