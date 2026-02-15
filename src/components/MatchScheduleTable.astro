@@ -230,48 +230,71 @@ for (const st of stages) {
 
   /* モバイル：列を減らして読みやすく */
   @media (max-width: 640px) {
-    .match-schedule .col-st {
+    /* 使わない列は非表示（既存方針のまま） */
+    .page-nt .col-st {
       display: none;
     }
-    .match-schedule .col-sec {
+    .page-nt .col-sec {
       display: none;
     }
+    .page-nt .col-dt {
+      display: none;
+    } /* ← スマホは日時も隠すならON（不要なら消してOK） */
 
-    /* 横スク前提で“最低幅”を与える（崩れ防止） */
-    .match-schedule table.schedule {
-      min-width: 720px;
-    }
-    /* ✅ 被りの根治：セルからはみ出さない */
-    .page-nt td.col-match {
-      overflow: hidden; /* これが効く */
+    /* ✅ スマホは “表を横スクさせない” 方針に寄せる */
+    .page-nt table.schedule {
+      min-width: 0 !important;
+      table-layout: auto !important; /* fixedを解除 */
     }
 
-    /* ✅ スマホ時だけ “対戦” を縦積み（被りを絶対起こさない） */
+    /* 余白を少し詰める */
+    .page-nt table.schedule th,
+    .page-nt table.schedule td {
+      padding: 10px 8px;
+      font-size: 13px;
+      white-space: normal !important; /* ← ここ重要：nowrapを打ち消す */
+    }
+
+    /* 列幅（3列で安定させる） */
+    .page-nt .col-gr {
+      width: 54px;
+    }
+    .page-nt .col-score {
+      width: 64px;
+      text-align: center !important;
+    }
+
+    /* ✅ 対戦セル：縦積み（2段表示） */
     .page-nt td.col-match {
-      display: flex;
+      display: flex !important;
       flex-direction: column;
       align-items: center;
       gap: 2px;
-      white-space: normal; /* 1行縛り解除 */
+      white-space: normal !important;
+      overflow: visible !important; /* ← ellipsis対策で入れたhiddenを解除 */
+    }
+
+    /* ✅ 国名：切らずに折り返し（必要なら2行まで） */
+    .page-nt td.col-match .team {
+      max-width: 100%;
+      overflow: visible !important;
+      text-overflow: clip !important;
+      white-space: normal !important;
+      word-break: break-word; /* 長い英字にも対応 */
+      line-height: 1.25;
+      font-weight: 700;
+      text-align: center !important;
+
+      /* 2行までに抑えたいなら（好みでON） */
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
     }
 
     .page-nt td.col-match .vs {
       font-size: 11px;
       opacity: 0.7;
-    }
-
-    /* ✅ 長いチーム名があっても安全に */
-    .page-nt td.col-match .team {
-      max-width: 100%;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    /* ✅ スコア列はセンターの方が安定 */
-    .page-nt .col-score {
-      text-align: center;
-      white-space: nowrap;
+      line-height: 1;
     }
   }
 
