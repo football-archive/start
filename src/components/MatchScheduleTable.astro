@@ -240,12 +240,20 @@ for (const st of stages) {
     background: #fffdf3;
   }
 
-  @media (max-width: 760px) {
+  @media (max-width:640px) {
     .page-nt .col-st {
       display: none;
     }
     .page-nt .col-sec {
       display: none;
+    }
+    table.schedule {
+      min-width: 720px; /* ここは好みで 680〜820 くらいで調整 */
+    }
+
+    table.schedule th,
+    table.schedule td {
+      white-space: nowrap; /* これで “A—” みたいな見え方がほぼ消える */
     }
   }
 
@@ -268,8 +276,8 @@ for (const st of stages) {
   /* テーブルが潰れて崩れるのを防ぐ */
   table.schedule {
     width: 100%;
-    min-width: 760px; /* ここが肝。列数/文字量に応じて 700〜900 で調整 */
-    border-collapse: collapse; /* 既存に合わせてOK */
+    border-collapse: separate;
+    border-spacing: 0;
   }
 
   /* 列が勝手に折り返して高さが崩れるのを防ぐ */
