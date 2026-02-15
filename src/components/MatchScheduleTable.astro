@@ -252,4 +252,29 @@ for (const st of stages) {
   .page-nt section[id] {
     scroll-margin-top: 72px;
   }
+
+  /* 縦スクロールは既にある前提。横スクも許可する */
+  .matches-wrap {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* “スクロールする版” のときは縦も横もOKにする（好みで） */
+  .matches-wrap.is-scroll {
+    overflow-y: auto;
+    overflow-x: auto;
+  }
+
+  /* テーブルが潰れて崩れるのを防ぐ */
+  table.schedule {
+    width: 100%;
+    min-width: 760px; /* ここが肝。列数/文字量に応じて 700〜900 で調整 */
+    border-collapse: collapse; /* 既存に合わせてOK */
+  }
+
+  /* 列が勝手に折り返して高さが崩れるのを防ぐ */
+  table.schedule th,
+  table.schedule td {
+    white-space: nowrap;
+  }
 </style>
