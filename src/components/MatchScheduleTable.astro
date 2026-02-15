@@ -58,7 +58,8 @@ for (const st of stages) {
 }
 ---
 
-<section id="schedule" style="margin: 18px 0;">
+<section id="schedule" class="match-schedule" style="margin: 18px 0;">
+
   {
     /*
   <h2>{heading}</h2>
@@ -129,160 +130,123 @@ for (const st of stages) {
 </section>
 
 <style is:global>
-  .page-nt .matches-wrap {
+  /* ========= MatchScheduleTable (scoped by .match-schedule) ========= */
+
+  .match-schedule .matches-wrap {
     border: 1px solid var(--border, #e6e6e6);
     border-radius: 14px;
     background: #fff;
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
   }
 
-  /* ✅ 内部スクロールしたい場合だけ縦スクロール */
-  .page-nt .matches-wrap.is-scroll {
+  /* 内部スクロールしたい場合だけ縦スクロール */
+  .match-schedule .matches-wrap.is-scroll {
     overflow-y: auto;
   }
 
-  /* ✅ stickyが安定しやすい設定 */
-  .page-nt table.schedule {
+  .match-schedule table.schedule {
     width: 100%;
-    table-layout: fixed; /* 列幅のズレを減らす（任意だけどおすすめ） */
+    table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
   }
 
-  .page-nt table.schedule th,
-  .page-nt table.schedule td {
+  .match-schedule table.schedule th,
+  .match-schedule table.schedule td {
     border-top: 1px solid var(--border, #e6e6e6);
     padding: 10px 12px;
     font-size: 13px;
     vertical-align: middle;
     background: #fff;
-    text-align: center; /* ← thのデフォルトcenterを潰す */
+    text-align: center;
+    white-space: nowrap;
   }
 
-  /* 罫線（必要なら） */
-  table.schedule tbody td {
-    border-top: 1px solid var(--border, #e6e6e6);
-  }
-
-  /* ✅ ここが本丸：sticky */
-  .page-nt table.schedule thead th {
+  /* sticky header */
+  .match-schedule table.schedule thead th {
     position: sticky;
     top: 0;
     z-index: 3;
     background: #f7fbff;
     color: #2563eb;
     font-weight: 800;
-    white-space: nowrap;
     border-top: none;
     border-bottom: 1px solid var(--border, #e6e6e6);
   }
 
   /* 列幅 */
-  .page-nt .col-dt {
+  .match-schedule .col-dt {
     width: 120px;
-    white-space: nowrap;
-    font-variant-numeric: tabular-nums;
-    text-align: center; /* ← 日時は左寄せで header と値が一致 */
-  }
-  .page-nt .col-sec {
-    width: 70px;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .page-nt .col-gr {
-    width: 70px;
-    text-align: center;
-    white-space: nowrap;
-  }
-  .page-nt .col-score {
-    width: 120px;
-    text-align: left; /* ← PK表記が伸びるので左寄せが綺麗 */
-    white-space: nowrap;
     font-variant-numeric: tabular-nums;
   }
-  .page-nt .col-st {
+  .match-schedule .col-sec {
+    width: 70px;
+  }
+  .match-schedule .col-gr {
+    width: 70px;
+  }
+  .match-schedule .col-score {
+    width: 110px;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+  }
+  .match-schedule .col-st {
     width: 240px;
   }
 
-  /* 対戦セル：home / vs / away を縦に揃える */
-  .page-nt td.col-match {
-    white-space: nowrap;
+  /* 対戦セル */
+  .match-schedule td.col-match {
     display: grid;
     grid-template-columns: 1fr 34px 1fr;
     align-items: center;
     gap: 6px;
   }
-  .page-nt td.col-match .team {
+  .match-schedule td.col-match .team {
     font-weight: 700;
   }
-  .page-nt td.col-match .team.home {
+  .match-schedule td.col-match .team.home {
     text-align: right;
   }
-  .page-nt td.col-match .vs {
+  .match-schedule td.col-match .vs {
     text-align: center;
     color: var(--muted, #666);
     font-size: 12px;
   }
-  .page-nt td.col-match .team.away {
+  .match-schedule td.col-match .team.away {
     text-align: left;
   }
 
-  /* ステージ区切り行 */
-  .page-nt tr.stage-row td {
+  /* ステージ行 */
+  .match-schedule tr.stage-row td {
     background: #f8fafc;
-    border-top: 1px solid var(--border, #e6e6e6);
     font-weight: 800;
     color: #3b82f6;
   }
 
   /* 試合済み */
-  .page-nt tr.played td {
+  .match-schedule tr.played td {
     background: #fffdf3;
   }
 
-  @media (max-width:640px) {
-    .page-nt .col-st {
+  /* モバイル：列を減らして読みやすく */
+  @media (max-width: 640px) {
+    .match-schedule .col-st {
       display: none;
     }
-    .page-nt .col-sec {
+    .match-schedule .col-sec {
       display: none;
-    }
-    table.schedule {
-      min-width: 720px; /* ここは好みで 680〜820 くらいで調整 */
     }
 
-    table.schedule th,
-    table.schedule td {
-      white-space: nowrap; /* これで “A—” みたいな見え方がほぼ消える */
+    /* 横スク前提で“最低幅”を与える（崩れ防止） */
+    .match-schedule table.schedule {
+      min-width: 720px;
     }
   }
 
-  .page-nt section[id] {
+  /* アンカーのズレ対策（ヘッダー固定用） */
+  .match-schedule {
     scroll-margin-top: 72px;
   }
-
-  /* 縦スクロールは既にある前提。横スクも許可する */
-  .matches-wrap {
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-  }
-
-  /* “スクロールする版” のときは縦も横もOKにする（好みで） */
-  .matches-wrap.is-scroll {
-    overflow-y: auto;
-    overflow-x: auto;
-  }
-
-  /* テーブルが潰れて崩れるのを防ぐ */
-  table.schedule {
-    width: 100%;
-    border-collapse: separate;
-    border-spacing: 0;
-  }
-
-  /* 列が勝手に折り返して高さが崩れるのを防ぐ */
-  table.schedule th,
-  table.schedule td {
-    white-space: nowrap;
-  }
 </style>
+
