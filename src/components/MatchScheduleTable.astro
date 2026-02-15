@@ -238,8 +238,11 @@ for (const st of stages) {
       display: none;
     }
     .page-nt .col-dt {
-      display: none;
-    } /* ← スマホは日時も隠すならON（不要なら消してOK） */
+      width: 92px; /* 90〜110で好み */
+      font-size: 12px;
+      white-space: nowrap !important;
+      font-variant-numeric: tabular-nums;
+    }
 
     /* ✅ スマホは “表を横スクさせない” 方針に寄せる */
     .page-nt table.schedule {
