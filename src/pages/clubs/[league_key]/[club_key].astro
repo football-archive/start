@@ -506,13 +506,14 @@ const searchTextFn = (r) =>
       display: flex;
       align-items: center;
       gap: 8px;
+      margin: 8px 0 6px;
       flex-wrap: wrap;
     }
 
     .page-club .wt-btn {
       appearance: none;
       border: 1px solid var(--border, #e6e6e6);
-      background: #fff;
+      background: #f3f4f6; /* ← グレー */
       border-radius: 999px;
       padding: 6px 10px;
       font-size: 12px;
@@ -521,19 +522,21 @@ const searchTextFn = (r) =>
         transform 0.06s ease,
         box-shadow 0.06s ease;
     }
-    .page-club .wt-btn:hover {
-      background: #ffe58a; /* ホバーでちゃんと変化 */
-      transform: translateY(-1px);
+    /* hover */
+    .page-club .wt-btn:hover:not(:disabled) {
+      background: #e5e7eb;
     }
+
     .page-club .wt-btn.is-active {
       font-weight: 700; /* 強すぎない */
-      background: #fff3b0; /* 少し淡く */
-      border-color: #d4a700;
+      background: #111;
+      color: #fff;
+      border-color: #111;
       cursor: pointer; /* ← 押せる印象を明確に */
     }
     .page-club .wt-btn:disabled {
-      cursor: not-allowed;
-      opacity: 0.45;
+      opacity: 0.35;
+      cursor: default;
       transform: none;
       box-shadow: none;
     }
@@ -542,6 +545,7 @@ const searchTextFn = (r) =>
       font-size: 12px;
       opacity: 0.6;
       margin-left: 6px;
+      color: #6b7280;
     }
 
     @media (max-width: 640px) {

@@ -46,38 +46,96 @@ const pageHeading = heading || title;
 <!doctype html>
 <html lang="ja">
   <head>
-    <meta charset="utf-8" />
-    <title>{seoTitle}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={metaDescription} />
-    {
-      /*
-      canonical / og:url
-      クエリ文字列を除いたURLを正規URLとして扱う
-    */
-    }
-    <meta
-      name="google-site-verification"
-      content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84"
-    />
-    <link rel="canonical" href={Astro.url.origin + Astro.url.pathname} />
-    <meta property="og:url" content={Astro.url.origin + Astro.url.pathname} />
-
-    <meta property="og:title" content={seoTitle} />
-    <meta property="og:description" content={metaDescription} />
-    <meta property="og:image" content="/ogp.png" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta name="twitter:card" content="summary_large_image" />
-
-    <link rel="icon" type="image/png" href="/favicon.png" />
-
     <style is:global>
       :root {
         --container-max: 1100px;
         --container-pad: 16px;
         --border: #e6e6e6;
         --muted: #666;
+
+        /* ===== Palette (司令塔) ===== */
+        --color-ucl: #0a1f44; /* CL：紺 */
+        --color-wc: #7a1f2b; /* WC：ワインレッド（暫定） */
+        --color-japan: #1f4fa3; /* 日本：SAMURAI BLUE */
+        --color-club: #6b7280; /* クラブ：無所属グレー */
+        --color-awards: #c9a227; /* 表彰：金 */
+        --color-euro: #1f7a3a; /* EURO：緑（暫定） */
+
+        /* ★ default theme（未指定時の基準） */
+        --theme-color: var(--color-club);
+
+        /* ===== Derived tokens ===== */
+        --theme-link: var(--theme-color);
+        --theme-soft-bg: color-mix(in srgb, var(--theme-color) 64%, #ffffff);
+        --theme-soft-border: color-mix(
+          in srgb,
+          var(--theme-color) 82%,
+          var(--border)
+        );
+      }
+
+      body {
+        --theme-table-head-bg: color-mix(
+          in srgb,
+          var(--theme-color) 18%,
+          #ffffff
+        );
+        --theme-table-head-border: color-mix(
+          in srgb,
+          var(--theme-color) 28%,
+          var(--border)
+        );
+      }
+
+      /* ===== Theme switch by page ===== */
+      body.page-wc {
+        --theme-color: var(--color-wc);
+      }
+      body.page-ucl {
+        --theme-color: var(--color-ucl);
+      }
+      body.page-japan {
+        --theme-color: var(--color-japan);
+      }
+      body.page-awards {
+        --theme-color: var(--color-awards);
+      }
+      body.page-club {
+        --theme-color: var(--color-club);
+      }
+      body.page-euro {
+        --theme-color: var(--color-euro);
+      }
+
+      /* ===== Theme switch by scope (home cards etc.) ===== */
+      .theme-wc {
+        --theme-color: var(--color-wc);
+      }
+      .theme-ucl {
+        --theme-color: var(--color-ucl);
+      }
+      .theme-japan {
+        --theme-color: var(--color-japan);
+      }
+      .theme-awards {
+        --theme-color: var(--color-awards);
+      }
+      .theme-club {
+        --theme-color: var(--color-club);
+      }
+      .theme-euro {
+        --theme-color: var(--color-euro);
+      }
+
+      body.page-ucl table thead th {
+        background: color-mix(in srgb, var(--theme-color) 22%, #ffffff);
+        border-color: color-mix(in srgb, var(--theme-color) 45%, var(--border));
+      }
+
+      body.page-ucl .pill.is-active {
+        background: var(--theme-color);
+        color: #fff;
+        border-color: var(--theme-color);
       }
 
       .app-main {
@@ -123,7 +181,121 @@ const pageHeading = heading || title;
       .empty-actions .btn:hover {
         background: #f7f7f7;
       }
+      /* CLと日本だけ、もう一段濃くして“アイコン色”に寄せる */
+      .subcard.theme-ucl,
+      .subcard.theme-japan {
+        --theme-soft-bg: color-mix(in srgb, var(--theme-color) 70%, #ffffff);
+        --theme-soft-border: color-mix(
+          in srgb,
+          var(--theme-color) 88%,
+          var(--border)
+        );
+        color: #fff;
+        border-color: rgba(0, 0, 0, 0.25);
+      }
+      /* リンク色 */
+      .subcard.theme-ucl a,
+      .subcard.theme-japan a {
+        color: #fff;
+        text-decoration-color: rgba(255, 255, 255, 0.7);
+      }
+
+      .subcard.theme-ucl a:hover,
+      .subcard.theme-japan a:hover {
+        text-decoration-color: #fff;
+      }
+
+      /* 更新日など補助テキスト */
+      .subcard.theme-ucl .ucl-sub,
+      .subcard.theme-japan .jp-sub {
+        color: rgba(255, 255, 255, 0.85);
+      }
+
+      /* トップの通常カード（右上クラブなど）も少し濃く */
+      .card {
+        --theme-soft-bg: color-mix(in srgb, var(--theme-color) 38%, #ffffff);
+        --theme-soft-border: color-mix(
+          in srgb,
+          var(--theme-color) 62%,
+          var(--border)
+        );
+      }
+
+      .card h2 {
+        font-size: 18px;
+      }
+      .subcard h2 {
+        font-size: 18px;
+      }
+
+      .theme-japan,
+      .theme-ucl {
+        color: #fff;
+      }
+
+      .title-white {
+        color: #fff;
+      }
+      /* ===== Anchor jump offset (for sticky TitleBar) ===== */
+      body.has-titlebar-1 {
+        --titlebar-offset: 4px; /* 1段タイトル */
+      }
+      body.has-titlebar-2 {
+        --titlebar-offset: 22px; /* 2段タイトル */
+      }
+
+      /* ブラウザのアンカー移動 / scrollIntoView をまとめて補正 */
+      html {
+        scroll-padding-top: var(--titlebar-offset, 72px);
+      }
+
+      /* 念のため：id持ち要素側にも補正（見出し/sectionに効く） */
+      :where(section[id], [id]) {
+        scroll-margin-top: var(--titlebar-offset, 72px);
+      }
+
+      /* ===== UCLページ：紺をより濃く ===== */
+      body.page-ucl {
+        --theme-color: #071a3a; /* ← 少し深い紺 */
+      }
+
+      /* ヘッダー下の枠やカード背景をさらに引き締め */
+      body.page-ucl .box,
+      body.page-ucl .subcard,
+      body.page-ucl .section {
+        --theme-soft-bg: color-mix(in srgb, var(--theme-color) 16%, #ffffff);
+        --theme-soft-border: color-mix(
+          in srgb,
+          var(--theme-color) 38%,
+          var(--border)
+        );
+      }
     </style>
+    <meta charset="utf-8" />
+    <title>{seoTitle}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={metaDescription} />
+    {
+      /*
+      canonical / og:url
+      クエリ文字列を除いたURLを正規URLとして扱う
+    */
+    }
+    <meta
+      name="google-site-verification"
+      content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84"
+    />
+    <link rel="canonical" href={Astro.url.origin + Astro.url.pathname} />
+    <meta property="og:url" content={Astro.url.origin + Astro.url.pathname} />
+
+    <meta property="og:title" content={seoTitle} />
+    <meta property="og:description" content={metaDescription} />
+    <meta property="og:image" content="/ogp.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+
+    <link rel="icon" type="image/png" href="/favicon.png" />
   </head>
 
   <body

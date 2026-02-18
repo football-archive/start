@@ -1,0 +1,764 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { parseCsv } from "../../../lib/csvSimple";
+
+import fs from "node:fs";
+import path from "node:path";
+
+import { loadCallups } from "../../../lib/callups";
+import { loadClubMaster } from "../../../lib/clubMaster";
+
+import {
+  getTeamCareerGA,
+  getTeamEditionSubtotals,
+  getTeamEventsByEdition,
+} from "../../../lib/matchEvents";
+
+type NtMasterRow = {
+  team_slug: string;
+  country_name_ja: string;
+  country_name_en?: string;
+  confederation?: string;
+  is_enabled?: string;
+  notes?: string;
+};
+
+type NtTournamentMetaRow = {
+  competition: string;
+  edition: string;
+  team_slug: string;
+  coach_ja?: string;
+  result_ja?: string;
+  host_ja?: string;
+  comment_ja?: string;
+};
+
+// ====================
+// getStaticPaths：ここだけ「完全直書き」で安定化
+// ====================
+export async function getStaticPaths() {
+  const p = path.join(process.cwd(), "src", "data", "nt_master.csv");
+  const text = fs.readFileSync(p, "utf-8");
+  const rows = parseCsv(text);
+
+  const enabled = rows.filter((r: any) => {
+    const v = String(r.is_enabled ?? "")
+      .trim()
+      .toLowerCase();
+    return v === "1" || v === "true" || v === "yes";
+  });
+
+  return enabled
+    .map((r: any) => String(r.team_slug ?? "").trim())
+    .filter(Boolean)
+    .map((team) => ({ params: { team } }));
+}
+
+// ====================
+// 以降：ページ側（ここは関数使ってOK）
+// ====================
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+const { team } = Astro.params;
+const teamSlug = String(team ?? "").trim();
+
+// nt_master
+const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
+  team_slug: String(r.team_slug ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  country_name_en: String(r.country_name_en ?? "").trim(),
+  confederation: String(r.confederation ?? "").trim(),
+  is_enabled: String(r.is_enabled ?? "").trim(),
+  notes: String(r.notes ?? "").trim(),
+}));
+
+const me = ntMaster.find((r) => r.team_slug === teamSlug);
+if (!me)
+  throw new Error(`nt_master.csv に team_slug=${teamSlug} が見つかりません`);
+
+const countryJa = me.country_name_ja;
+const competition = "WC";
+const teamName = countryJa; // match_events の team は表示名で揃える前提
+const gaCareer = getTeamCareerGA(competition, teamName);
+const gaByEdition = getTeamEditionSubtotals(competition, teamName);
+const showGA = gaCareer.length > 0;
+
+// nt_tournament_meta
+const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
+  (r: any) => ({
+    competition: String(r.competition ?? "").trim(),
+    edition: String(r.edition ?? "").trim(),
+    team_slug: String(r.team_slug ?? "").trim(),
+    coach_ja: String(r.coach_ja ?? "").trim(),
+    result_ja: String(r.result_ja ?? "").trim(),
+    host_ja: String(r.host_ja ?? "").trim(),
+    comment_ja: String(r.comment_ja ?? "").trim(),
+  }),
+);
+
+const metaWC = metaAll
+  .filter((m) => m.team_slug === teamSlug)
+  .filter((m) => String(m.competition).toUpperCase() === "WC");
+
+// callups から大会年
+const callups = loadCallups()
+  .filter((r: any) => String(r.competition ?? "").toUpperCase() === "WC")
+  .filter((r: any) => String(r.country ?? "").trim() === countryJa);
+
+const editionsFromCallups = Array.from(
+  new Set(
+    callups.map((r: any) => String(r.edition ?? "").trim()).filter(Boolean),
+  ),
+);
+
+const editions = Array.from(
+  new Set([
+    ...editionsFromCallups,
+    ...metaWC.map((m) => String(m.edition ?? "").trim()).filter(Boolean),
+  ]),
+).sort((a, b) => Number(a) - Number(b));
+
+const metaByEdition = new Map<string, NtTournamentMetaRow>();
+for (const m of metaWC) {
+  const ed = String(m.edition ?? "").trim();
+  if (!ed) continue;
+  metaByEdition.set(ed, m);
+}
+
+// 1表用：全大会まとめ
+const eventsAll = editions.flatMap((ed) =>
+  getTeamEventsByEdition("WC", teamName, String(ed)).map((e) => ({
+    ...e,
+    edition: String(ed),
+  })),
+);
+
+const toNum = (v: any) => {
+  const n = Number(String(v ?? "").replace(/[^\d]/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+eventsAll.sort((a: any, b: any) => {
+  const ed = toNum(a.edition) - toNum(b.edition);
+  if (ed !== 0) return ed;
+  const ra = String(a.round ?? "");
+  const rb = String(b.round ?? "");
+  if (ra !== rb) return ra.localeCompare(rb, "ja");
+  return toNum(a.minute) - toNum(b.minute);
+});
+
+
+// 表の表示条件（1件でもあれば表示）
+const showGAList = eventsAll.length > 0;
+
+// ⑤ 海外/国内（暫定：club_masterにヒットすれば海外扱い）
+const clubMaster = loadClubMaster();
+const normalize = (s: string) =>
+  String(s || "")
+    .trim()
+    .replace(/\s+/g, " ")
+    .replace(/　/g, " ")
+    .toLowerCase();
+
+const parseAliases = (aliases: string) =>
+  String(aliases || "")
+    .split(/[|,、/]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+function resolveClub(clubName: string) {
+  const raw = String(clubName || "").trim();
+  if (!raw) return null;
+  const key = normalize(raw);
+
+  const c = clubMaster.find((x: any) => {
+    const ja = normalize(x.club_display_ja || "");
+    const en = normalize(x.club_display_en || "");
+    if (key === ja || key === en) return true;
+    const als = parseAliases(x.aliases);
+    return als.some((a) => normalize(a) === key);
+  });
+
+  return c ?? null;
+}
+
+function buildOverseasSummary(edition: string) {
+  const rows = callups.filter(
+    (r: any) => String(r.edition ?? "").trim() === edition,
+  );
+  let domestic = 0;
+  let total = 0;
+
+  const seen = new Set<string>();
+
+  for (const r of rows) {
+    const key = String(r.name_en ?? "").trim();
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+
+    const club = String(r.current_club ?? "").trim();
+    if (!club) continue;
+
+    const hit: any = resolveClub(club);
+
+    // 国内クラブのみカウント
+    if (hit && String(hit.league_key ?? "") === "J") {
+      domestic++;
+    }
+
+    total++;
+  }
+  const overseas = total - domestic;
+
+  return { overseas, domestic, total };
+}
+
+const heading = `${countryJa}代表 ワールドカップの歩み`;
+const title = `${countryJa}代表 ワールドカップの歩み | World Football Archive`;
+const description = `${countryJa}代表のワールドカップ出場大会を一覧で。各大会の監督・成績・メンバーをサクッと切り替えて閲覧できます。`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-nt-hub"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: `${countryJa}代表`, href: "/#jp" },
+    { label: "ワールドカップの歩み" },
+  ]}
+  heading={heading}
+>
+  <div class="lead">
+    <p>
+      {
+        countryJa
+      }代表のワールドカップ出場大会を一覧でまとめました。各大会のカードから、歴代メンバー一覧へすぐ移動できます。
+    </p>
+  </div>
+
+  <section class="cards" aria-label="大会一覧">
+    {
+      editions.map((ed) => {
+        const m = metaByEdition.get(ed);
+        const coach = String(m?.coach_ja ?? "").trim();
+        const result = String(m?.result_ja ?? "").trim();
+        const host = String(m?.host_ja ?? "").trim();
+        const comment = String(m?.comment_ja ?? "").trim();
+
+        const summary = buildOverseasSummary(ed);
+        const hasRoster = summary.total > 0;
+
+        const href = `/wc/${ed}/team/${encodeURIComponent(countryJa)}`;
+
+        return (
+          <a class={`card ${!hasRoster ? "is-empty" : ""}`} href={href}>
+            <div class="card-top">
+              <div class="ed">
+                <span class="ed-year">{ed}</span>
+                <span class="ed-badge">WC</span>
+              </div>
+              {host && <div class="host">{host}</div>}
+            </div>
+
+            <div class="meta">
+              <div class="row">
+                <span class="k">監督</span>
+                <span class="v">{coach || "—"}</span>
+              </div>
+              <div class="row">
+                <span class="k">成績</span>
+                <span class="v">{result || "—"}</span>
+              </div>
+            </div>
+
+            <div class="stats">
+              <div class="chip">
+                <span class="k">メンバー</span>
+                <span class="v">
+                  {hasRoster ? `${summary.total}人` : "未投入"}
+                </span>
+              </div>
+
+              {hasRoster && (
+                <div class="chip">
+                  <span class="k">海外/国内</span>
+                  <span class="v">
+                    {summary.overseas}/{summary.domestic}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {comment && <div class="comment">💬 {comment}</div>}
+            <div class="go">メンバーを見る →</div>
+          </a>
+        );
+      })
+    }
+  </section>
+
+  <section class="stats-wrap">
+    {
+      showGAList && (
+        <>
+          <h2 class="sec-title">大会別得点・アシスト</h2>
+          <div class="block">
+            <div class="table-wrap">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th class="num">大会</th>
+                    <th class="round">フェーズ</th>
+                    <th>vs</th>
+                    <th class="num">分</th>
+                    <th>得点者</th>
+                    <th>アシスト</th>
+                    <th>備考</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {eventsAll.map((e) => (
+                    <tr>
+                      <td class="num">{e.edition}</td>
+                      <td class="round">{String(e.round ?? "").trim() || "—"}</td>
+                      <td>{e.vs || "—"}</td>
+                      <td class="num">{e.minute ?? "—"}</td>
+                      <td>{e.player || "—"}</td>
+                      <td>{e.assist || "—"}</td>
+                      <td>{e.note || ""}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </>
+      )
+    }
+
+    {
+      showGA && (
+        <>
+          <h2 class="sec-title">得点・アシスト（W杯通算）</h2>
+
+          <div class="block">
+            <div class="ga-grid">
+              <div class="ga-box">
+                <h3 class="ga-h">大会別（中計）</h3>
+                <div class="table-wrap ga-wrap">
+                  <table class="tbl ga-tbl ga-edition">
+                    <thead>
+                      <tr>
+                        <th>大会</th>
+                        <th class="num">得点</th>
+                        <th class="num">アシスト</th>
+                        <th class="num">G+A</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gaByEdition.map((r) => (
+                        <tr>
+                          <td>{r.edition}</td>
+                          <td class="num">{r.goals}</td>
+                          <td class="num">{r.assists}</td>
+                          <td class="num">{r.ga}</td>
+                        </tr>
+                      ))}
+                      <tr class="total">
+                        <td>通算</td>
+                        <td class="num">
+                          {gaByEdition.reduce((s, r) => s + r.goals, 0)}
+                        </td>
+                        <td class="num">
+                          {gaByEdition.reduce((s, r) => s + r.assists, 0)}
+                        </td>
+                        <td class="num">
+                          {gaByEdition.reduce((s, r) => s + r.ga, 0)}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="ga-box">
+                <h3 class="ga-h">選手別（通算）</h3>
+                <div class="table-wrap ga-wrap">
+                  <table class="tbl ga-tbl ga-player">
+                    <thead>
+                      <tr>
+                        <th class="num">#</th>
+                        <th>選手</th>
+                        <th class="num">得点</th>
+                        <th class="num">アシスト</th>
+                        <th class="num">G+A</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {gaCareer.map((r, i) => (
+                        <tr>
+                          <td class="num">{i + 1}</td>
+                          <td>{r.player}</td>
+                          <td class="num">{r.goals}</td>
+                          <td class="num">{r.assists}</td>
+                          <td class="num">{r.ga}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <p class="muted ga-note">※他強豪国Verもデータ準備中</p>
+          </div>
+        </>
+      )
+    }
+  </section>
+
+  <style is:global>
+    .page-nt-hub .lead {
+      margin: 6px 0 14px;
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .page-nt-hub .cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1100px) {
+      .page-nt-hub .cards {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+    @media (max-width: 820px) {
+      .page-nt-hub .cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 560px) {
+      .page-nt-hub .cards {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .page-nt-hub .card {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #fff;
+      border-radius: 14px;
+      padding: 12px 12px 10px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease;
+    }
+    .page-nt-hub .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+    }
+    .page-nt-hub .card.is-empty {
+      opacity: 0.65;
+    }
+
+    .page-nt-hub .card-top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .page-nt-hub .ed {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .page-nt-hub .ed-year {
+      font-size: 18px;
+      font-weight: 750;
+      letter-spacing: 0.2px;
+    }
+    .page-nt-hub .ed-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.12);
+      color: #1d4ed8;
+    }
+    .page-nt-hub .host {
+      font-size: 12px;
+      opacity: 0.75;
+      white-space: nowrap;
+    }
+
+    .page-nt-hub .meta {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 10px;
+    }
+    .page-nt-hub .row {
+      display: flex;
+      gap: 10px;
+      align-items: baseline;
+    }
+    .page-nt-hub .row .k {
+      font-size: 12px;
+      opacity: 0.7;
+      min-width: 34px;
+    }
+    .page-nt-hub .row .v {
+      font-size: 13px;
+      font-weight: 600;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-nt-hub .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 8px 0 10px;
+    }
+    .page-nt-hub .chip {
+      display: inline-flex;
+      gap: 6px;
+      align-items: baseline;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 999px;
+      padding: 4px 10px;
+      background: #fafafa;
+      font-size: 12px;
+    }
+    .page-nt-hub .chip .k {
+      opacity: 0.7;
+    }
+    .page-nt-hub .chip .v {
+      font-weight: 700;
+    }
+
+    .page-nt-hub .comment {
+      font-size: 12px;
+      opacity: 0.8;
+      line-height: 1.5;
+      margin: 6px 0 8px;
+    }
+    .page-nt-hub .go {
+      margin-top: 6px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
+    .page-nt-hub .ga-title {
+      margin: 0 0 10px;
+    }
+
+    @media (max-width: 820px) {
+      .page-nt-hub .ga-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    .page-nt-hub .ga-box {
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fafafa;
+      min-width: 0;
+    }
+    .page-nt-hub .ga-h {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+    .page-nt-hub .ga-note {
+      margin: 8px 2px 0;
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    .page-nt-hub .events {
+      margin: 14px 0 20px;
+      padding: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .page-nt-hub .events-title,
+    .page-nt-hub .ga-title {
+      margin-left: -12px;
+      font-size: 15px;
+      font-weight: 850;
+    }
+
+    .page-nt-hub .events-all {
+      margin: 14px 0 22px;
+    }
+
+    /* =========================
+   stats / tables（整理版）
+   ========================= */
+
+    .stats-wrap {
+      max-width: 1100px;
+      margin: 24px auto;
+    }
+
+    /* セクション見出し（箱の外に置く） */
+    .page-nt-hub .sec-title {
+      margin: 18px 0 10px;
+      font-size: 16px;
+      font-weight: 850;
+    }
+
+    /* stats-wrap 内の共通“箱” */
+    .page-nt-hub .block {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      margin-bottom: 18px;
+    }
+
+    /* 共通の表ラッパ（基本は横スクロール許可） */
+    .page-nt-hub .table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    /* 共通テーブル（デフォルトは“広め”前提） */
+    .page-nt-hub .tbl {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 720px;
+    }
+
+    .page-nt-hub .tbl thead th {
+      position: sticky;
+      top: 0;
+      background: rgba(0, 0, 0, 0.03);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 10px;
+      white-space: nowrap;
+    }
+
+    .page-nt-hub .tbl tbody td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 10px 10px;
+      font-size: 13px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .page-nt-hub .tbl tbody tr:hover td {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .page-nt-hub .tbl .num {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      width: 72px;
+    }
+
+    .page-nt-hub .tbl .round {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      width: 72px;
+    }
+
+    /* -------------------------
+   GA（下の2表）は “箱に収める”
+   → 横スクロール禁止＆セルは省略表示
+   ------------------------- */
+
+    .page-nt-hub .ga-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
+
+    @media (max-width: 720px) {
+      .page-nt-hub .ga-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .page-nt-hub .ga-box {
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      padding: 10px;
+      background: #fafafa;
+      min-width: 0;
+    }
+
+    .page-nt-hub .ga-h {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .page-nt-hub .ga-note {
+      margin: 10px 2px 0;
+      font-size: 12px;
+      opacity: 0.75;
+    }
+
+    /* GAだけ table-wrap をスクロールさせない */
+    .page-nt-hub .ga-wrap {
+      overflow: hidden;
+    }
+
+    /* GAテーブルは min-width を解除し、箱幅に収める */
+    .page-nt-hub .ga-tbl {
+      min-width: 0;
+      table-layout: fixed;
+    }
+
+    /* GA内は省略表示（特に選手名が長い将来に備える） */
+    .page-nt-hub .ga-tbl th,
+    .page-nt-hub .ga-tbl td {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 左：大会列は“見切れない”ように最低幅確保 */
+    .page-nt-hub .ga-edition th:first-child,
+    .page-nt-hub .ga-edition td:first-child {
+      width: 76px;
+      min-width: 76px;
+      overflow: visible;
+      text-overflow: clip;
+      white-space: nowrap;
+    }
+
+    /* 右：選手名列を少し広めに（好みで 50〜60%） */
+    .page-nt-hub .ga-player th:nth-child(2),
+    .page-nt-hub .ga-player td:nth-child(2) {
+      width: 55%;
+    }
+  </style>
+</BaseLayout>

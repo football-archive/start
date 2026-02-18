@@ -167,8 +167,8 @@ for (const st of stages) {
     position: sticky;
     top: 0;
     z-index: 3;
-    background: #f7fbff;
-    color: #2563eb;
+    background: var(--theme-table-head-bg, #f7fbff);
+    color: var(--theme-color, #2563eb);
     font-weight: 800;
     border-top: none;
     border-bottom: 1px solid var(--border, #e6e6e6);
@@ -218,9 +218,9 @@ for (const st of stages) {
 
   /* ステージ行 */
   .match-schedule tr.stage-row td {
-    background: #f8fafc;
+    background: var(--theme-soft-bg-2, #f8fafc);
     font-weight: 800;
-    color: #3b82f6;
+    color: var(--theme-color, #3b82f6);
   }
 
   /* 試合済み */
@@ -229,15 +229,15 @@ for (const st of stages) {
   }
 
   /* モバイル：列を減らして読みやすく */
-  @media (max-width: 640px) {
+  @media (max-width: 900px) {
     /* 使わない列は非表示（既存方針のまま） */
-    .page-nt .col-st {
+    .match-schedule .col-st {
       display: none;
     }
-    .page-nt .col-sec {
+    .match-schedule .col-sec {
       display: none;
     }
-    .page-nt .col-dt {
+    .match-schedule .col-dt {
       width: 92px; /* 90〜110で好み */
       font-size: 12px;
       white-space: nowrap !important;
@@ -245,42 +245,45 @@ for (const st of stages) {
     }
 
     /* ✅ スマホは “表を横スクさせない” 方針に寄せる */
-    .page-nt table.schedule {
+    .match-schedule table.schedule {
       min-width: 0 !important;
       table-layout: auto !important; /* fixedを解除 */
     }
 
     /* 余白を少し詰める */
-    .page-nt table.schedule th,
-    .page-nt table.schedule td {
+    .match-schedule table.schedule th,
+    .match-schedule table.schedule td {
       padding: 10px 8px;
       font-size: 13px;
       white-space: normal !important; /* ← ここ重要：nowrapを打ち消す */
     }
 
     /* 列幅（3列で安定させる） */
-    .page-nt .col-gr {
+    .match-schedule .col-gr {
       width: 54px;
     }
-    .page-nt .col-score {
+    .match-schedule .col-score {
       width: 64px;
       text-align: center !important;
     }
 
     /* ✅ 対戦セル：縦積み（2段表示） */
-    .page-nt td.col-match {
+    .match-schedule td.col-match {
       display: flex !important;
       flex-direction: column;
       align-items: center;
-      gap: 2px;
+      gap: 4px;
       white-space: normal !important;
       overflow: visible !important; /* ← ellipsis対策で入れたhiddenを解除 */
     }
 
     /* ✅ 国名：切らずに折り返し（必要なら2行まで） */
-    .page-nt td.col-match .team {
+    .match-schedule td.col-match .team {
       max-width: 100%;
-      overflow: visible !important;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
       text-overflow: clip !important;
       white-space: normal !important;
       word-break: break-word; /* 長い英字にも対応 */
@@ -294,9 +297,9 @@ for (const st of stages) {
       -webkit-box-orient: vertical;
     }
 
-    .page-nt td.col-match .vs {
+    .match-schedule td.col-match .vs {
       font-size: 11px;
-      opacity: 0.7;
+      opacity: 0.65;
       line-height: 1;
     }
   }

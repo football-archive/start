@@ -241,7 +241,7 @@ const seasons = getUclSeasons()
       font-size: 12px;
       border-color: #e6e6e6;
     }
-    
+
     /* ✅ UCL表：箱内で上に詰める（謎の空白対策） */
     .page-ucl .table-wrap {
       padding: 0; /* ← まずpaddingをゼロに固定 */
@@ -261,6 +261,11 @@ const seasons = getUclSeasons()
     /* ✅ stickyヘッダーが最上部にピタッと来るように */
     .page-ucl .table-wrap thead th {
       top: 0; /* 念押し（他CSSの上書き防止） */
+    }
+
+    /* CL順位表ヘッダー */
+    .page-ucl table thead th {
+      background: color-mix(in srgb, var(--color-ucl) 28%, white);
     }
   </style>
 </BaseLayout>

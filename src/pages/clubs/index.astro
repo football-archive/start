@@ -96,7 +96,9 @@ function seasonStartYear(season: any): number {
  * - 欠損時は summer 扱い（古い方）
  */
 function windowRank(w: any): number {
-  const s = String(w ?? "").trim().toLowerCase();
+  const s = String(w ?? "")
+    .trim()
+    .toLowerCase();
   if (s === "winter") return 2;
   return 1; // summer or empty
 }
@@ -149,7 +151,9 @@ for (const r of rows as any[]) {
 
   const meta: LatestMeta = {
     season: String(r.season ?? "").trim(),
-    window: String(r.window ?? "").trim().toLowerCase(),
+    window: String(r.window ?? "")
+      .trim()
+      .toLowerCase(),
     snapshot_date: String(r.snapshot_date ?? "").trim(),
   };
 
@@ -172,7 +176,9 @@ for (const r of rows as any[]) {
 
   const meta: LatestMeta = {
     season: String(r.season ?? "").trim(),
-    window: String(r.window ?? "").trim().toLowerCase(),
+    window: String(r.window ?? "")
+      .trim()
+      .toLowerCase(),
     snapshot_date: String(r.snapshot_date ?? "").trim(),
   };
   if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
@@ -257,34 +263,38 @@ const sections = leagueKeys.map((lk) => {
 >
   {/* パンくず＆H1の直下に “リーグピル” を差し込む */}
   <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
-    {pillLeagues.map((p) => (
-      <a class="pill" data-league={p.league_key} href={p.href}>
-        <span class="dot" aria-hidden="true" />
-        {p.label}
-      </a>
-    ))}
+    {
+      pillLeagues.map((p) => (
+        <a class="pill" data-league={p.league_key} href={p.href}>
+          <span class="dot" aria-hidden="true" />
+          {p.label}
+        </a>
+      ))
+    }
     <a class="pill" data-league="__all__" href="/clubs">
       <span class="dot" aria-hidden="true"></span>全リーグ
     </a>
   </div>
 
-  {sections.map((s) => (
-    <section data-league={s.league_key} style="margin: 18px 0;">
-      <h2 style="margin: 0 0 6px;">
-        {s.leagueLabel} ({s.count})
-      </h2>
+  {
+    sections.map((s) => (
+      <section data-league={s.league_key} style="margin: 18px 0;">
+        <h2 style="margin: 0 0 6px;">
+          {s.leagueLabel} ({s.count})
+        </h2>
 
-      <ul class="clubGrid">
-        {s.items.map((it) => (
-          <li class="clubRow">
-            <a class="clubLink" href={it.href}>
-              {it.name}　<span class="cnt">({it.count})</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </section>
-  ))}
+        <ul class="clubGrid">
+          {s.items.map((it) => (
+            <li class="clubRow">
+              <a class="clubLink" href={it.href}>
+                {it.name}　<span class="cnt">({it.count})</span>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
 
   {/* 静的でもクエリで絞り込みできるようにする（安定版） */}
   <script is:inline>
@@ -296,8 +306,12 @@ const sections = leagueKeys.map((lk) => {
         const filterLine = document.getElementById("filterLine");
         const filterLabel = document.getElementById("filterLabel");
 
-        const sections = Array.from(document.querySelectorAll("section[data-league]"));
-        const pills = Array.from(document.querySelectorAll(".pills .pill[data-league]"));
+        const sections = Array.from(
+          document.querySelectorAll("section[data-league]"),
+        );
+        const pills = Array.from(
+          document.querySelectorAll(".pills .pill[data-league]"),
+        );
 
         function setActive(target) {
           pills.forEach((a) =>
@@ -394,65 +408,44 @@ const sections = leagueKeys.map((lk) => {
     }
 
     /* =========================
-      クラブ：テーマ（薄イエロー）
-      ========================= */
+  クラブ：Theme Engine準拠（直書き撤去）
+  ========================= */
 
     .page-club h2,
     .page-club h3 {
-      color: #8a6d00;
+      color: var(--theme-color);
     }
 
-    .page-club section a {
-      color: #6f5a00;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
-    .page-club section a:hover {
-      color: #5a4700;
-      background: #fff7cc;
-    }
-
-    .page-club .pill {
-      border-color: #f1c40f;
-    }
-
-    .page-club .pill:hover {
-      background: #fff7cc;
-    }
-
-    .page-club .pill .dot {
-      background: #b58900;
-      opacity: 0.6;
-    }
-
-    .page-club .pill.is-active {
-      border-color: #b58900;
-      background: #fff7cc;
-      font-weight: 700;
-    }
-
-    .page-club .pill.is-active .dot {
-      opacity: 1;
-    }
-
-    .page-club section ul {
-      line-height: 1.8;
-    }
-
-    /* =========================
-      クラブ一覧：リンクを黒字で安定させる
-      ========================= */
+    /* クラブ一覧のリンク（黒字維持しつつ hover はテーマ） */
     .page-club section a:link,
     .page-club section a:visited {
       color: #111;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-
     .page-club section a:hover {
-      color: #8a6d00;
-      background: #fff7cc;
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
+    }
+
+    /* pills */
+    .page-club .pill {
+      border-color: var(--theme-soft-border);
+    }
+    .page-club .pill:hover {
+      background: var(--theme-soft-bg);
+    }
+    .page-club .pill .dot {
+      background: var(--theme-color);
+      opacity: 0.6;
+    }
+    .page-club .pill.is-active {
+      border-color: var(--theme-color);
+      background: var(--theme-soft-bg);
+      font-weight: 700;
+    }
+    .page-club .pill.is-active .dot {
+      opacity: 1;
     }
   </style>
 </BaseLayout>

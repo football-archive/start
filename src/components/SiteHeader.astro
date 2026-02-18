@@ -48,7 +48,7 @@ const hasSlot = Astro.slots.has("default");
     display: none;
   }
 
-  /* ▼ ピル（全ページ共通） */
+  /* ▼ ピル（全ページ共通 / Theme Engine） */
   .pills {
     display: flex;
     flex-wrap: wrap;
@@ -61,7 +61,7 @@ const hasSlot = Astro.slots.has("default");
     gap: 6px;
     padding: 7px 10px;
     border-radius: 999px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--theme-pill-border, var(--border));
     background: #fff;
     color: #111;
     text-decoration: none;
@@ -69,57 +69,40 @@ const hasSlot = Astro.slots.has("default");
     line-height: 1;
     transition:
       transform 0.06s ease,
-      box-shadow 0.06s ease;
+      box-shadow 0.06s ease,
+      background 0.06s ease,
+      border-color 0.06s ease;
     user-select: none;
   }
 
   .pill:hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+    background: var(--theme-pill-hover-bg, #f7f7f7);
   }
 
   .pill .dot {
     width: 7px;
     height: 7px;
     border-radius: 999px;
-    background: #111;
+    background: var(--theme-color, #111);
     opacity: 0.35;
   }
 
   .pill.is-active {
-    font-weight: 700;
-    border-color: #111;
+    font-weight: 800;
+    border-color: var(--theme-pill-active-bg, #111);
+    background: var(--theme-pill-active-bg, #111);
+    color: var(--theme-pill-active-text, #fff);
   }
 
   .pill.is-active .dot {
     opacity: 1;
   }
 
-  /* =========================
-  クラブページ（club）配色：黄色テーマ
-  ※ default は黒基調のまま、クラブだけ黄色に寄せる
-  ========================= */
-  .page-club .pill {
-    border-color: #f1c40f;
-  }
-
-  .page-club .pill:hover {
-    background: #fff7cc;
-  }
-
-  /* 現在地ピル（is-active 統一） */
-  .page-club .pill.is-active {
-    background: #f1c40f;
-    color: #000;
-  }
-
-  .page-club .pill.is-active .dot {
-    opacity: 1;
-  }
-
-  /* パンくず（クラブだけ黄色寄り） */
-  .page-club .crumbs a {
-    color: #b58900;
+  /* パンくず：テーマ色に寄せる（色の直書き撤廃） */
+  .crumbs a {
+    color: var(--theme-crumb-link, inherit);
     text-decoration: underline;
     text-underline-offset: 2px;
   }
@@ -130,43 +113,11 @@ const hasSlot = Astro.slots.has("default");
     font-weight: 600;
   }
 
-  /* クラブ：テーブルヘッダーも薄黄色に */
-  .page-club .roster-block {
-    --roster-head-bg: #fff7cc;
-    --roster-head-border: #f1c40f;
+  /* テーブルヘッダー配色（RosterTable側で参照） */
+  .roster-block {
+    --roster-head-bg: var(--theme-table-head-bg, #f5f5f5);
+    --roster-head-border: var(--theme-table-head-border, var(--border));
   }
-
-  /* =========================
-   代表ページ（NT）配色
-   ========================= */
-  .page-nt .pill {
-    border-color: #6baed6; /* 薄ブルー */
-  }
-
-  .page-nt .pill:hover {
-    background: #eef6fd;
-  }
-
-  .page-nt .pill.is-active {
-    background: #6baed6;
-    color: #fff;
-  }
-
-  .page-nt .pill .dot {
-    background: #2b6cb0;
-  }
-
-  /* パンくず（代表ページだけ青寄り） */
-  .page-nt .crumbs a {
-    color: #2b6cb0;
-  }
-
-  /* ===== 代表ページ：テーブルヘッダーを薄ブルーに ===== */
-  .page-nt .roster-block {
-    --roster-head-bg: #eef5ff;
-    --roster-head-border: #cfe3f7;
-  }
-
   /* =========================
   slim：パンくずは枠なし／ピルなどは枠あり
 ========================= */

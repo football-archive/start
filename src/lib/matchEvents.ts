@@ -13,6 +13,7 @@ export type MatchEvent = {
   assist?: string;
   minute?: string;
   period?: string; // 1H / 2H / ET / PSO(想定)
+  vs?: string; // ★追加：対戦国（表示用）
   note?: string; // PK / (将来) PK戦 など
 };
 
@@ -27,6 +28,11 @@ function isShootout(e: MatchEvent) {
   const n = norm(e.note);
   // PK戦の結果は入れない方針：将来 period=PSO 等で入ったら除外
   return p === "PSO" || p === "PKSO" || n.includes("PK戦");
+}
+
+function isGoalEvent(e: MatchEvent) {
+  const t = upper(e.event_type);
+  return t === "GOAL" || t === "PK";
 }
 
 export function loadMatchEvents(): MatchEvent[] {
@@ -44,6 +50,8 @@ export function loadMatchEvents(): MatchEvent[] {
     assist: norm(r.assist),
     minute: norm(r.minute),
     period: norm(r.period),
+    round: norm(r.round),
+    vs: norm(r.vs), // ★追加
     note: norm(r.note),
   }));
 }
@@ -63,7 +71,7 @@ export function getGoalRanking(
     if (isShootout(e)) continue;
 
     // GOALだけ集計（OGは除外）
-    if (e.event_type !== "GOAL") continue;
+    if (!isGoalEvent(e)) continue;
 
     if (!e.player || !e.team) continue;
 
@@ -91,7 +99,7 @@ export function getAssistRanking(
     if (isShootout(e)) continue;
 
     // 今のCSVは assist 列に入ってるので、GOAL行のassistを拾う
-    if (e.event_type !== "GOAL") continue;
+    if (!isGoalEvent(e)) continue;
 
     const a = norm(e.assist);
     if (!a) continue;
@@ -103,6 +111,170 @@ export function getAssistRanking(
   }
 
   return [...map.values()].sort((a, b) => b.assists - a.assists);
+}
+
+/** ★追加：その大会の match_events に含まれる team のユニーク数（ゴールイベントのみ） */
+export function getEventTeamCount(
+  competition: string,
+  edition: string,
+): number {
+  const events = loadMatchEvents();
+  const set = new Set<string>();
+
+  for (const e of events) {
+    if (norm(e.competition) !== competition) continue;
+    if (norm(e.edition) !== edition) continue;
+    if (isShootout(e)) continue;
+    if (!isGoalEvent(e)) continue;
+
+    const team = norm(e.team);
+    if (team) set.add(team);
+  }
+  return set.size;
+}
+
+export type PlayerGARow = {
+  player: string;
+  goals: number;
+  assists: number;
+  ga: number;
+};
+export type EditionSubtotalRow = {
+  edition: string;
+  goals: number;
+  assists: number;
+  ga: number;
+};
+
+/** ★追加：通算（選手別）G/A：データがある分だけ集計 */
+export function getTeamCareerGA(
+  competition: string,
+  team: string,
+): PlayerGARow[] {
+  const events = loadMatchEvents();
+  const map = new Map<string, PlayerGARow>();
+
+  for (const e of events) {
+    if (norm(e.competition) !== competition) continue;
+    if (norm(e.team) !== team) continue;
+    if (isShootout(e)) continue;
+    if (!isGoalEvent(e)) continue;
+
+    const p = norm(e.player);
+    if (!p) continue;
+
+    if (!map.has(p)) map.set(p, { player: p, goals: 0, assists: 0, ga: 0 });
+    map.get(p)!.goals += 1;
+
+    const a = norm(e.assist);
+    if (a) {
+      if (!map.has(a)) map.set(a, { player: a, goals: 0, assists: 0, ga: 0 });
+      map.get(a)!.assists += 1;
+    }
+  }
+
+  const rows = [...map.values()].map((r) => ({
+    ...r,
+    ga: r.goals + r.assists,
+  }));
+  rows.sort(
+    (x, y) =>
+      y.goals - x.goals ||
+      y.assists - x.assists ||
+      x.player.localeCompare(y.player, "ja"),
+  );
+  return rows;
+}
+
+export type TeamEventRow = {
+  edition: string;
+  match_id: string;
+  event_id: number;
+  event_type: string;
+  player: string;
+  assist?: string;
+  minute?: number;
+  round?: string;
+  vs?: string;
+  note?: string;
+};
+
+export function getTeamEventsByEdition(
+  competition: string,
+  team: string,
+  edition: string,
+): TeamEventRow[] {
+  const events = loadMatchEvents();
+
+  const rows: TeamEventRow[] = [];
+  for (const e of events) {
+    if (norm(e.competition) !== competition) continue;
+    if (norm(e.team) !== team) continue;
+    if (norm(e.edition) !== edition) continue;
+
+    // PK戦は除外（あなたの方針どおり）
+    if (isShootout(e)) continue;
+
+    // “得点イベントだけ”に絞る（GOAL/PK）
+    if (!isGoalEvent(e)) continue;
+
+    rows.push({
+      edition: norm(e.edition),
+      match_id: norm(e.match_id),
+      event_id: Number(e.event_id ?? 0),
+      event_type: norm(e.event_type),
+      player: norm(e.player),
+      assist: norm(e.assist),
+      minute: e.minute != null ? Number(e.minute) : undefined,
+      round: norm(e.round),
+      vs: norm(e.vs),
+      note: norm(e.note),
+    });
+  }
+
+  // match_id → event_id の順で安定ソート
+  rows.sort(
+    (a, b) =>
+      a.match_id.localeCompare(b.match_id) ||
+      a.event_id - b.event_id ||
+      a.player.localeCompare(b.player, "ja"),
+  );
+
+  return rows;
+}
+
+/** ★追加：大会別中計（チーム×大会）：データがある分だけ集計 */
+export function getTeamEditionSubtotals(
+  competition: string,
+  team: string,
+): EditionSubtotalRow[] {
+  const events = loadMatchEvents();
+  const map = new Map<string, { goals: number; assists: number }>();
+
+  for (const e of events) {
+    if (norm(e.competition) !== competition) continue;
+    if (norm(e.team) !== team) continue;
+    if (isShootout(e)) continue;
+    if (!isGoalEvent(e)) continue;
+
+    const ed = norm(e.edition);
+    if (!ed) continue;
+
+    if (!map.has(ed)) map.set(ed, { goals: 0, assists: 0 });
+    map.get(ed)!.goals += 1;
+
+    const a = norm(e.assist);
+    if (a) map.get(ed)!.assists += 1;
+  }
+
+  return [...map.entries()]
+    .map(([edition, v]) => ({
+      edition,
+      goals: v.goals,
+      assists: v.assists,
+      ga: v.goals + v.assists,
+    }))
+    .sort((a, b) => Number(a.edition) - Number(b.edition));
 }
 
 // 同順位：1,1,3方式

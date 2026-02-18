@@ -7,6 +7,7 @@ import { buildNtColumns } from "../../../../lib/rosterColumns";
 import { loadClubMaster } from "../../../../lib/clubMaster";
 
 import { loadGroups } from "../../../../lib/tournamentGroups";
+import { loadClubSquads } from "../../../../lib/clubSquads";
 
 // ====================
 // getStaticPaths
@@ -43,6 +44,18 @@ const countryName = String(country ?? "").trim();
 const rowsAll = loadCallups()
   .filter((r: any) => String(r.edition ?? "") === String(year))
   .filter((r: any) => String(r.country ?? "").trim() === countryName);
+
+// その国が出場したWCの年（callupsに存在する edition を列挙）
+// ※大会ページのグループ/結果が未投入でも、チームページは成立する
+const yearsForCountry = Array.from(
+  new Set(
+    loadCallups()
+      .filter((r: any) => String(r.competition ?? "") === "WC")
+      .filter((r: any) => String(r.country ?? "").trim() === countryName)
+      .map((r: any) => String(r.edition ?? "").trim())
+      .filter(Boolean),
+  ),
+).sort((a, b) => Number(a) - Number(b));
 
 const groups = loadGroups("WC", String(year), "group");
 
@@ -83,6 +96,25 @@ const parseAliases = (aliases: string) =>
 
 const clubMaster = loadClubMaster();
 
+// club_squads の存在判定（season + league_key + club_key）
+const clubSquadKeySet = new Set(
+  loadClubSquads().map((r) => `${r.season}|||${r.league_key}|||${r.club_key}`),
+);
+
+// WCのedition → クラブ側の season/window へ寄せる
+function mapWcToClubSeason(edition: string) {
+  const y = Number(String(edition || "").trim());
+  if (!Number.isFinite(y) || y < 1900) return null;
+
+  // 例外：WC2022（12月開催）→ 2022-23 夏
+  if (y === 2022) return { season: "2022-23", window: "summer" as const };
+
+  // 通常：WCは6月（シーズンオフ）→ 前シーズン冬（例：2018→2017-18）
+  const prev = y - 1;
+  const season = `${prev}-${String(y).slice(2)}`;
+  return { season, window: "winter" as const };
+}
+
 const clubHref = (clubName: string) => {
   const raw = String(clubName || "").trim();
   if (!raw) return "";
@@ -98,8 +130,19 @@ const clubHref = (clubName: string) => {
     return als.some((a) => normalize(a) === key);
   });
 
-  return c ? `/clubs/${c.league_key}/${c.club_key}` : "";
+  if (!c) return "";
+
+  // ✅ 過去大会：該当seasonのclub_squadsが無ければリンクしない
+  const mapped = mapWcToClubSeason(String(year));
+  if (!mapped) return "";
+
+  const exists = clubSquadKeySet.has(
+    `${mapped.season}|||${c.league_key}|||${c.club_key}`,
+  );
+
+  return exists ? `/clubs/${c.league_key}/${c.club_key}` : "";
 };
+
 
 const columns = buildNtColumns({
   isLatestView: true,
@@ -118,7 +161,7 @@ const heading = `${countryName}代表`;
 <BaseLayout
   title={title}
   description={description}
-  bodyClass="page-nt"
+  bodyClass="page-wc"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[
@@ -128,6 +171,22 @@ const heading = `${countryName}代表`;
   ]}
   heading={heading}
 >
+  {
+    yearsForCountry.length > 1 && (
+      <div class="pills nt-year-pills" aria-label="大会年切替">
+        {yearsForCountry.map((y) => (
+          <a
+            class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
+            href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
+          >
+            <span class="dot" aria-hidden="true" />
+            {y}
+          </a>
+        ))}
+      </div>
+    )
+  }
+
   {
     (continent || group) && (
       <div class="nt-nav-pills">
@@ -234,17 +293,22 @@ const heading = `${countryName}代表`;
 
   {/* JSで文言差し替えもあるので global 推奨 */}
   <style is:global>
-    .page-nt .back-link {
+    /* 年ピル（代表ページ上部） */
+    .nt-year-pills {
+      margin: 2px 0 10px;
+    }
+
+    .page-wc .back-link {
       margin: 0 0 10px;
       font-size: 13px;
       color: #374151;
     }
-    .page-nt .back-link a {
+    .page-wc .back-link a {
       color: inherit;
       text-decoration: underline;
       text-underline-offset: 3px;
     }
-    .page-nt .back-link a:hover {
+    .page-wc .back-link a:hover {
       opacity: 0.85;
     }
 
@@ -312,7 +376,7 @@ const heading = `${countryName}代表`;
       padding: 8px 4px;
     }
 
-    .page-nt .star-section {
+    .page-wc .star-section {
       background: #f3e5f5 !important;
       border-color: rgba(0, 0, 0, 0.08) !important;
       opacity: 1;
@@ -324,6 +388,11 @@ const heading = `${countryName}代表`;
       flex-wrap: wrap;
       gap: 8px;
       margin: 4px 0 14px;
+    }
+
+    .page-nt h2,
+    .page-nt h3.section-title {
+      color: var(--theme-color);
     }
   </style>
 </BaseLayout>

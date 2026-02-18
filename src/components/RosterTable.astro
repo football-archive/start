@@ -103,8 +103,11 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
 
   /* ★ ヘッダー色は CSS変数で統一（クラブ=黄 / 代表=青に上書き） */
   .roster-block {
-    --roster-head-bg: #fff7cc; /* デフォ：薄い黄 */
-    --roster-head-border: #f1e3a0; /* デフォ：黄系の境界 */
+    --roster-head-bg: var(--theme-table-head-bg, #f5f5f5);
+    --roster-head-border: var(
+      --theme-table-head-border,
+      var(--border, #e6e6e6)
+    );
   }
 
   .roster-block .table-wrap {
@@ -167,9 +170,8 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
     text-align: right;
   }
 
-  /* 左2列固定（# と Pos） */
-  .roster-block .roster-table th:nth-child(1),
-  .roster-block .roster-table td:nth-child(1) {
+  /* 左2列固定（# と Pos）: tbody は白、thead はヘッダー色 */
+  .roster-block .roster-table tbody td:nth-child(1) {
     position: sticky;
     left: 0;
     background: #fff;
@@ -180,8 +182,7 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
     text-align: right;
   }
 
-  .roster-block .roster-table th:nth-child(2),
-  .roster-block .roster-table td:nth-child(2) {
+  .roster-block .roster-table tbody td:nth-child(2) {
     position: sticky;
     left: 56px;
     background: #fff;
@@ -193,11 +194,27 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
     box-shadow: 1px 0 0 var(--roster-border);
   }
 
-  /* ★ thead の左固定2列も “ヘッダー色” に合わせる（ここが重要） */
-  .roster-block .roster-table thead th:nth-child(1),
-  .roster-block .roster-table thead th:nth-child(2) {
+  .roster-block .roster-table thead th:nth-child(1) {
+    position: sticky;
+    left: 0;
     background: var(--roster-head-bg);
-    border-bottom: 1px solid var(--roster-head-border);
+    z-index: 7;
+    width: 56px;
+    min-width: 56px;
+    max-width: 56px;
+    text-align: right;
+  }
+
+  .roster-block .roster-table thead th:nth-child(2) {
+    position: sticky;
+    left: 56px;
+    background: var(--roster-head-bg);
+    z-index: 7;
+    width: 64px;
+    min-width: 64px;
+    max-width: 64px;
+    text-align: center;
+    box-shadow: 1px 0 0 var(--roster-border);
   }
 
   .roster-block .roster-table thead th:nth-child(1),
@@ -296,36 +313,5 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
   .note-red {
     color: #c00;
     font-weight: 600;
-  }
-
-  .table-wrap {
-    overflow: auto;
-    border: 1px solid var(--border, #e6e6e6);
-    border-radius: 12px;
-    background: #fff;
-  }
-
-  /* テーブルが横に長い時に効く */
-  .roster-table {
-    border-collapse: separate; /* sticky+境界線が安定 */
-    border-spacing: 0;
-    width: 100%;
-  }
-
-  /* ✅ ヘッダー固定 */
-  .roster-table thead th {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: #fff; /* 背景が透けないように */
-    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.06); /* うっすら境界 */
-  }
-
-  /* 罫線があるなら（任意） */
-  .roster-table th,
-  .roster-table td {
-    border-bottom: 1px solid var(--border, #e6e6e6);
-    padding: 8px 10px;
-    white-space: nowrap; /* 崩れ防止（好みで） */
   }
 </style>

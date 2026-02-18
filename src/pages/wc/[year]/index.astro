@@ -16,6 +16,7 @@ import {
 import {
   getGoalRanking,
   getAssistRanking,
+  getEventTeamCount,
   addRank,
 } from "../../../lib/matchEvents";
 
@@ -38,8 +39,15 @@ export async function getStaticPaths() {
 
 const year = String(Astro.params.year ?? "").trim();
 
-const goalRank = addRank(getGoalRanking("WC", String(year)), "goals");
-const assistRank = addRank(getAssistRanking("WC", String(year)), "assists");
+const teamCount = getEventTeamCount("WC", String(year));
+const showGARank = teamCount >= 20;
+
+const goalRank = showGARank
+  ? addRank(getGoalRanking("WC", String(year)), "goals")
+  : [];
+const assistRank = showGARank
+  ? addRank(getAssistRanking("WC", String(year)), "assists")
+  : [];
 
 const all = loadCompetitionSchedule();
 const matches = filterMatches(all, "WC", String(year)).sort(
@@ -190,41 +198,42 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
 <BaseLayout
   title={pageTitle}
   description={pageDesc}
-  bodyClass="page-nt"
+  bodyClass="page-wc"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[{ label: "トップ", href: "/" }, { label: wcTitle }]}
   heading={wcTitle}
 >
   <style is:global>
-    .page-nt .quick-title {
+    .page-wc .quick-title {
       margin: 0 0 10px;
       font-size: 13px;
       color: var(--muted, #666);
     }
 
-    .page-nt h2,
-    .page-nt h3 {
-      color: #3b82f6;
+    /* headings / labels: theme-driven */
+    .page-wc h2,
+    .page-wc h3 {
+      color: var(--theme-link);
     }
 
-    .page-nt section a {
-      color: #2563eb;
+    .page-wc section a {
+      color: var(--theme-color);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .page-nt section a:hover {
-      color: #1d4ed8;
-      background: #eef6fd;
+    .page-wc section a:hover {
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
     }
 
     /* pills */
-    .page-nt .pills {
+    .page-wc .pills {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
-    .page-nt .pill {
+    .page-wc .pill {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -241,48 +250,48 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
         box-shadow 0.06s ease;
       user-select: none;
     }
-    .page-nt .pill:hover {
+    .page-wc .pill:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-      background: #eef6fd;
+      background: var(--theme-soft-bg);
     }
-    .page-nt .pill .dot {
+    .page-wc .pill .dot {
       width: 7px;
       height: 7px;
       border-radius: 999px;
-      background: #2b6cb0;
+      background: var(--theme-color);
       opacity: 0.6;
     }
     /* ✅ active pill: 白背景のまま強調（見えなくならない） */
-    .page-nt .pill.is-active {
+    .page-wc .pill.is-active {
       background: #fff;
       color: #111;
       border-color: #111;
       font-weight: 800;
     }
-    .page-nt .pill.is-active .dot {
+    .page-wc .pill.is-active .dot {
       opacity: 1;
     }
-    .page-nt .pill.clear {
+    .page-wc .pill.clear {
       background: #f3f4f6;
       border-style: dashed;
     }
     /* clear（全〜）が active になっても視認性キープ */
-    .page-nt .pill.clear.is-active {
+    .page-wc .pill.clear.is-active {
       background: #f3f4f6;
       color: #111;
       border-color: #111;
     }
 
     /* filterbar */
-    .page-nt .filterbar {
+    .page-wc .filterbar {
       margin: 10px 0 12px;
       padding: 12px;
       border: 1px solid var(--border, #e6e6e6);
       border-radius: 14px;
       background: #fff;
     }
-    .page-nt .filterbar .row {
+    .page-wc .filterbar .row {
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -290,12 +299,12 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
       flex-wrap: wrap;
       margin-bottom: 10px;
     }
-    .page-nt .filterbar .count {
+    .page-wc .filterbar .count {
       font-size: 13px;
       color: var(--muted, #666);
       white-space: nowrap;
     }
-    .page-nt .filterbar input[type="search"] {
+    .page-wc .filterbar input[type="search"] {
       width: min(420px, 100%);
       padding: 8px 10px;
       border-radius: 12px;
@@ -303,23 +312,25 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
       font-size: 14px;
       outline: none;
     }
-    .page-nt .filterbar input[type="search"]:focus {
-      border-color: #93c5fd;
-      box-shadow: 0 0 0 3px rgba(147, 197, 253, 0.35);
+    .page-wc .filterbar input[type="search"]:focus {
+      border-color: var(--theme-color);
+      box-shadow: 0 0 0 3px
+        color-mix(in srgb, var(--theme-color) 25%, transparent);
     }
-    .page-nt .filterbar .subttl {
+    .page-wc .filterbar .subttl {
       margin: 10px 0 8px;
       font-size: 13px;
-      color: var(--muted, #666);
+      font-weight: 800;
+      color: color-mix(in srgb, var(--theme-color) 70%, #111);
     }
 
     /* team cards */
-    .page-nt .team-grid {
+    .page-wc .team-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
       gap: 10px;
     }
-    .page-nt .team-card {
+    .page-wc .team-card {
       display: block;
       border: 1px solid var(--border, #e6e6e6);
       border-radius: 14px;
@@ -331,18 +342,18 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
         transform 0.06s ease,
         box-shadow 0.06s ease;
     }
-    .page-nt .team-card:hover {
+    .page-wc .team-card:hover {
       transform: translateY(-1px);
       box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
-      background: #eef6fd;
+      background: var(--theme-soft-bg);
     }
-    .page-nt .team-card .row1 {
+    .page-wc .team-card .row1 {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
     }
-    .page-nt .team-card .name {
+    .page-wc .team-card .name {
       font-weight: 800;
       display: inline-flex;
       align-items: center;
@@ -351,7 +362,7 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     }
 
     /* ✅ status dot (確実に見える版) */
-    .page-nt .status-dot {
+    .page-wc .status-dot {
       width: 11px;
       height: 11px;
       border-radius: 999px;
@@ -361,22 +372,22 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
       box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1) inset;
       margin-top: 1px;
     }
-    .page-nt .status-dot.q {
+    .page-wc .status-dot.q {
       background: #22c55e;
     }
-    .page-nt .status-dot.p {
+    .page-wc .status-dot.p {
       background: #f59e0b;
     }
-    .page-nt .status-dot.e {
+    .page-wc .status-dot.e {
       background: #ef4444;
     }
 
-    .page-nt .team-card .name {
+    .page-wc .team-card .name {
       display: inline-flex;
       align-items: center;
       gap: 8px;
     }
-    .page-nt .team-card .meta {
+    .page-wc .team-card .meta {
       margin-top: 8px;
       font-size: 12px;
       color: var(--muted, #666);
@@ -384,7 +395,7 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
       gap: 8px;
       flex-wrap: wrap;
     }
-    .page-nt .badge {
+    .page-wc .badge {
       display: inline-flex;
       align-items: center;
       padding: 2px 8px;
@@ -398,51 +409,51 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     }
 
     /* group grid */
-    .page-nt .group-grid {
+    .page-wc .group-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 12px;
       margin: 10px 0 18px;
     }
-    .page-nt .group-card {
+    .page-wc .group-card {
       border: 1px solid var(--border, #e6e6e6);
       border-radius: 14px;
       background: #fff;
       padding: 12px;
     }
-    .page-nt .group-card h3 {
+    .page-wc .group-card h3 {
       margin: 0 0 8px;
       font-size: 16px;
-      color: #3b82f6;
+      color: var(--theme-link);
     }
-    .page-nt .group-card ul {
+    .page-wc .group-card ul {
       margin: 0;
       padding-left: 18px;
       line-height: 1.7;
     }
-    .page-nt .group-card .placeholder {
+    .page-wc .group-card .placeholder {
       color: #666;
     }
 
-    .page-nt .mini-standings {
+    .page-wc .mini-standings {
       width: 100%;
       border-collapse: collapse;
       margin-top: 10px;
       font-size: 12px;
     }
-    .page-nt .mini-standings th,
-    .page-nt .mini-standings td {
+    .page-wc .mini-standings th,
+    .page-wc .mini-standings td {
       border-top: 1px solid var(--border, #e6e6e6);
       padding: 6px 6px;
       text-align: center;
       white-space: nowrap;
     }
-    .page-nt .mini-standings th:first-child,
-    .page-nt .mini-standings td:first-child {
+    .page-wc .mini-standings th:first-child,
+    .page-wc .mini-standings td:first-child {
       text-align: left;
     }
-    .page-nt .mini-standings thead th {
-      color: #3b82f6;
+    .page-wc .mini-standings thead th {
+      color: var(--theme-link);
       font-weight: 800;
     }
 
@@ -450,7 +461,7 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     /* ===== schedule（試合日程） ===== */
 
     /* スクロール枠（ここが scroll container になるので sticky が安定） */
-    .page-nt .matches-wrap {
+    .page-wc .matches-wrap {
       overflow: auto;
       border: 1px solid var(--border, #e6e6e6);
       border-radius: 14px;
@@ -459,15 +470,15 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     }
 
     /* sticky が崩れやすい環境向け（collapseを避ける） */
-    .page-nt .matches-wrap table.schedule {
+    .page-wc .matches-wrap table.schedule {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
     }
 
     /* これがないと「詰まって見える」「表っぽくない」になりがち */
-    .page-nt .matches-wrap table.schedule th,
-    .page-nt .matches-wrap table.schedule td {
+    .page-wc .matches-wrap table.schedule th,
+    .page-wc .matches-wrap table.schedule td {
       padding: 10px 12px;
       border-bottom: 1px solid var(--border, #e6e6e6);
       font-size: 13px;
@@ -476,7 +487,7 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     }
 
     /* ヘッダ固定 */
-    .page-nt .matches-wrap table.schedule thead th {
+    .page-wc .matches-wrap table.schedule thead th {
       position: sticky;
       top: 0;
       z-index: 5;
@@ -485,126 +496,126 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     }
 
     /* zebra（任意：見やすさUP。不要なら消してOK） */
-    .page-nt .matches-wrap table.schedule tbody tr:nth-child(even) td {
+    .page-wc .matches-wrap table.schedule tbody tr:nth-child(even) td {
       background: #fcfcfd;
     }
 
     /* 対戦表示（あなたの “home / vs / away” 版のまま） */
-    .page-nt .matches-wrap td.col-match {
+    .page-wc .matches-wrap td.col-match {
       display: grid;
       grid-template-columns: 1fr 34px 1fr;
       align-items: center;
       gap: 6px;
     }
-    .page-nt .matches-wrap td.col-match .team.home {
+    .page-wc .matches-wrap td.col-match .team.home {
       text-align: right;
       font-weight: 700;
     }
-    .page-nt .matches-wrap td.col-match .vs {
+    .page-wc .matches-wrap td.col-match .vs {
       text-align: center;
       color: var(--muted, #666);
       font-size: 12px;
     }
-    .page-nt .matches-wrap td.col-match .team.away {
+    .page-wc .matches-wrap td.col-match .team.away {
       text-align: left;
       font-weight: 700;
     }
 
-    .page-nt td.col-match {
+    .page-wc td.col-match {
       white-space: nowrap;
     }
 
-    .page-nt td.col-match {
+    .page-wc td.col-match {
       display: grid;
       grid-template-columns: 1fr 34px 1fr; /* 真ん中を固定幅に */
       align-items: center;
       gap: 6px;
     }
 
-    .page-nt td.col-match .team.home {
+    .page-wc td.col-match .team.home {
       text-align: right;
       font-weight: 700;
     }
 
-    .page-nt td.col-match .vs {
+    .page-wc td.col-match .vs {
       text-align: center;
       color: var(--muted, #666);
       font-size: 12px;
     }
 
-    .page-nt td.col-match .team.away {
+    .page-wc td.col-match .team.away {
       text-align: left;
       font-weight: 700;
     }
 
-    .page-nt .rank-grid {
+    .page-wc .rank-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 12px;
       margin: 10px 0 18px;
     }
-    .page-nt .rank-card {
+    .page-wc .rank-card {
       border: 1px solid var(--border, #e6e6e6);
       border-radius: 14px;
       background: #fff;
       padding: 12px;
     }
-    .page-nt .rank-card h3 {
+    .page-wc .rank-card h3 {
       margin: 0 0 8px;
       font-size: 16px;
-      color: #3b82f6;
+      color: var(--theme-link);
     }
-    .page-nt table.rank {
+    .page-wc table.rank {
       width: 100%;
       border-collapse: collapse;
       font-size: 13px;
     }
-    .page-nt table.rank th,
-    .page-nt table.rank td {
+    .page-wc table.rank th,
+    .page-wc table.rank td {
       border-top: 1px solid var(--border, #e6e6e6);
       padding: 8px 8px;
       text-align: left;
       white-space: nowrap;
     }
-    .page-nt table.rank thead th {
-      color: #3b82f6;
+    .page-wc table.rank thead th {
+      color: var(--theme-link);
       font-weight: 800;
     }
-    .page-nt table.rank td.num,
-    .page-nt table.rank th.num {
+    .page-wc table.rank td.num,
+    .page-wc table.rank th.num {
       text-align: right;
     }
-    .page-nt table.rank td.rank,
-    .page-nt table.rank th.rank {
+    .page-wc table.rank td.rank,
+    .page-wc table.rank th.rank {
       width: 54px;
       text-align: center;
     }
-    .page-nt .rank-muted {
+    .page-wc .rank-muted {
       margin: 6px 0 0;
       font-size: 12px;
       color: var(--muted, #666);
     }
 
     /* グループ勝敗表の国名リンクだけ黒に */
-    .page-nt .mini-standings td:first-child a {
+    .page-wc .mini-standings td:first-child a {
       color: #111;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
 
-    .page-nt .mini-standings td:first-child a:hover {
+    .page-wc .mini-standings td:first-child a:hover {
       color: #000;
       background: #f3f4f6;
     }
 
     /* グループカード内の国名リンクも黒に */
-    .page-nt .group-card ul a {
+    .page-wc .group-card ul a {
       color: #111;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
 
-    .page-nt .group-card ul a:hover {
+    .page-wc .group-card ul a:hover {
       color: #000;
       background: #f3f4f6;
     }
@@ -623,10 +634,32 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     .group-standings td {
       white-space: nowrap; /* 数字列を折り返さない */
     }
+
+    /* WCテーマの見出し */
+    .page-wc h2,
+    .page-wc h3.section-title {
+      color: var(--theme-color);
+    }
+
+    /* グループカードタイトル */
+    .page-wc .group-card h3 {
+      color: var(--theme-color);
+    }
+
+    /* 表ヘッダ */
+    .page-wc thead th {
+      color: var(--theme-color);
+      font-weight: 600;
+    }
+
+    /* 絞り込みリンク */
+    .page-wc .filter-link {
+      color: var(--theme-color);
+    }
   </style>
 
   <p class="quick-title" style="margin: 6px 0 10px;">
-    FIFAワールドカップ（World Cup / WC）{year} の出場国・代表メンバー、グループ、試合日程、得点ランキングを一覧できます。。
+    FIFAワールドカップ（World Cup / WC）{year} の出場国・代表メンバー、グループ、試合日程、得点ランキングを一覧できます。
   </p>
   {
     /* =========================
@@ -784,7 +817,8 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
           class="pill"
           href={`${topHref}?continent=CONCACAF#teams`}
           data-teams-conf="CONCACAF"
-          ><span class="dot" aria-hidden="true"></span>CONCACAF(北中米・カリブ海)</a
+          ><span class="dot" aria-hidden="true"
+          ></span>CONCACAF(北中米・カリブ海)</a
         >
         <a
           class="pill"
@@ -947,88 +981,87 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
     <p class="quick-title" style="margin: 6px 0 10px;">
       試合結果・得点・アシストから自動集計しています。
     </p>
-
-    <div class="rank-grid">
-      <div class="rank-card">
-        <h3>🥇 得点ランキング</h3>
-        {
-          goalRank.length === 0 ? (
-            <p class="rank-muted">まだイベントが登録されていません。</p>
-          ) : (
-            <table class="rank" aria-label={`WC${year} goal ranking`}>
-              <thead>
-                <tr>
-                  <th class="rank">順位</th>
-                  <th>選手</th>
-                  <th>国</th>
-                  <th class="num">得点</th>
-                </tr>
-              </thead>
-              <tbody>
-                {goalRank.slice(0, 30).map((r) => (
+    {
+      showGARank ? (
+        <div class="rank-grid">
+          <div class="rank-card">
+            <h3>🥇 得点ランキング</h3>
+            {goalRank.length === 0 ? (
+              <p class="rank-muted">まだイベントが登録されていません。</p>
+            ) : (
+              <table class="rank" aria-label={`WC${year} goal ranking`}>
+                <thead>
                   <tr>
-                    <td class="rank">
-                      <b>{r.rank}</b>
-                    </td>
-                    <td>{r.player}</td>
-                    <td>
-                      <a
-                        href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
-                      >
-                        {r.team}
-                      </a>
-                    </td>
-                    <td class="num">
-                      <b>{r.goals}</b>
-                    </td>
+                    <th class="rank">順位</th>
+                    <th>選手</th>
+                    <th>国</th>
+                    <th class="num">得点</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )
-        }
-      </div>
+                </thead>
+                <tbody>
+                  {goalRank.slice(0, 30).map((r) => (
+                    <tr>
+                      <td class="rank">
+                        <b>{r.rank}</b>
+                      </td>
+                      <td>{r.player}</td>
+                      <td>
+                        <a
+                          href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
+                        >
+                          {r.team}
+                        </a>
+                      </td>
+                      <td class="num">
+                        <b>{r.goals}</b>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
 
-      <div class="rank-card">
-        <h3>🎯 アシストランキング</h3>
-        {
-          assistRank.length === 0 ? (
-            <p class="rank-muted">まだイベントが登録されていません。</p>
-          ) : (
-            <table class="rank" aria-label={`WC${year} assist ranking`}>
-              <thead>
-                <tr>
-                  <th class="rank">順位</th>
-                  <th>選手</th>
-                  <th>国</th>
-                  <th class="num">アシスト</th>
-                </tr>
-              </thead>
-              <tbody>
-                {assistRank.slice(0, 30).map((r) => (
+          <div class="rank-card">
+            <h3>🎯 アシストランキング</h3>
+            {assistRank.length === 0 ? (
+              <p class="rank-muted">まだイベントが登録されていません。</p>
+            ) : (
+              <table class="rank" aria-label={`WC${year} assist ranking`}>
+                <thead>
                   <tr>
-                    <td class="rank">
-                      <b>{r.rank}</b>
-                    </td>
-                    <td>{r.player}</td>
-                    <td>
-                      <a
-                        href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
-                      >
-                        {r.team}
-                      </a>
-                    </td>
-                    <td class="num">
-                      <b>{r.assists}</b>
-                    </td>
+                    <th class="rank">順位</th>
+                    <th>選手</th>
+                    <th>国</th>
+                    <th class="num">アシスト</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )
-        }
-      </div>
-    </div>
+                </thead>
+                <tbody>
+                  {assistRank.slice(0, 30).map((r) => (
+                    <tr>
+                      <td class="rank">
+                        <b>{r.rank}</b>
+                      </td>
+                      <td>{r.player}</td>
+                      <td>
+                        <a
+                          href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
+                        >
+                          {r.team}
+                        </a>
+                      </td>
+                      <td class="num">
+                        <b>{r.assists}</b>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      ) : null
+    }
   </section>
 
   {
@@ -1039,7 +1072,7 @@ const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、�
   <section id="schedule" style="margin: 18px 0;">
     <h2>日程・試合結果（マッチスケジュール）</h2>
     <p class="quick-title" style="margin: 6px 0 10px;">
-      全104試合の日程はコチラから（結果は随時反映していきます）
+      全試合の日程・結果はコチラから（結果は随時更新）
     </p>
     <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
   </section>

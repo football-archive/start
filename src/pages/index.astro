@@ -6,7 +6,7 @@ import { loadCallups } from "../lib/callups";
 import { loadClubSquads } from "../lib/clubSquads";
 import { loadLeagueMaster } from "../lib/leagueMaster";
 import { loadClubMaster } from "../lib/clubMaster";
-import { loadUpdates, latestUpdateDate, fmtJP } from "../lib/updates";
+import { loadUpdates } from "../lib/updates";
 import {
   clubsListUrl,
   tournamentTopUrl,
@@ -31,23 +31,29 @@ const maxYmd = (rows: any[], key: string) => {
 // 表示用（yyyy/mm/dd）
 const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 
-// 件数サマリ（代表）
+// --------------------
+// 更新情報
+// --------------------
+const updates = loadUpdates(6);
+
+// --------------------
+// 代表（WC2026 / 日本）
+// --------------------
 const callupsAll = loadCallups();
-const callups = callupsAll.filter(
+const callupsWc2026 = callupsAll.filter(
   (r: any) => r.competition === "WC" && String(r.edition) === "2026",
 );
-const countries = new Set(callups.map((r: any) => r.country));
 
-// ✅ 更新日（snapshot_date 最大値）
-const callupsSnapMax = maxYmd(callups, "snapshot_date");
-const updatedAtCallups = ymdToJa(callupsSnapMax);
+const japanHref = "/wc/2026/team/日本";
+const japanNames = new Set(["日本", "日本代表", "Japan"]);
+const callupsJapan = callupsWc2026.filter((r: any) =>
+  japanNames.has(String(r.country ?? "").trim()),
+);
+const japanUpdatedAt = ymdToJa(maxYmd(callupsJapan, "snapshot_date"));
 
-// 更新情報
-const updates = loadUpdates(4);
-const updatedNt = fmtJP(latestUpdateDate("nt"));
-const updatedClubs = fmtJP(latestUpdateDate("clubs"));
-
-// 主要リーグ（/clubs 側の league_key に合わせる）
+// --------------------
+// クラブ（公開リーグ×公開クラブ、最新だけ集計）
+// --------------------
 const leagueShortcuts = [
   { label: "プレミアリーグ", league: "premier-league" },
   { label: "ラ・リーガ", league: "laliga" },
@@ -57,7 +63,7 @@ const leagueShortcuts = [
   { label: "エールディヴィジ", league: "eredivisie" },
 ];
 
-// ✅ is_publicの型ブレ（boolean / "TRUE" / "true" / "1"）を吸収
+// ✅ is_publicの型ブレ吸収
 const isTrue = (v: any) => {
   if (typeof v === "boolean") return v;
   const s = String(v ?? "")
@@ -66,23 +72,18 @@ const isTrue = (v: any) => {
   return s === "true" || s === "1" || s === "yes" || s === "y" || s === "t";
 };
 
-// -------------
 // league_key 正規化（/clubs と同じ思想）
-// -------------
-const leagueMasterRows = loadLeagueMaster(); // 全件（alias辞書用）
-
+const leagueMasterRows = loadLeagueMaster();
 const leagueAliasToKey = new Map<string, string>();
 for (const l of leagueMasterRows as any[]) {
   const key = String(l.league_key ?? "").trim();
   if (!key) continue;
-
   const aliases = [
     l.league_key,
     l.league,
     l.league_display_ja,
     l.league_display_en,
   ];
-
   for (const a of aliases) {
     const s = String(a ?? "").trim();
     if (!s) continue;
@@ -90,7 +91,6 @@ for (const l of leagueMasterRows as any[]) {
     leagueAliasToKey.set(s.toLowerCase(), key);
   }
 }
-
 function normalizeLeagueKey(v: any): string {
   const s = String(v ?? "").trim();
   if (!s) return "";
@@ -104,7 +104,7 @@ const publicLeagueKeys = new Set(
     .map((l) => normalizeLeagueKey(l.league_key)),
 );
 
-// ✅ 公開クラブ（/clubs と同じ：inactive / is_public=false を除外）
+// 公開クラブ（inactive / is_public=false を除外）
 const clubMasterRows = loadClubMaster();
 const publicClubKeys = new Set(
   (clubMasterRows as any[])
@@ -117,7 +117,6 @@ const publicClubKeys = new Set(
     .filter(Boolean),
 );
 
-// 件数サマリ（クラブ）
 const clubRowsAll = loadClubSquads();
 
 // 公開リーグ × 公開クラブの行だけ
@@ -132,26 +131,17 @@ const clubRowsPublic = clubRowsAll.filter((r: any) => {
 
 function seasonStartYear(season: any): number {
   const s = String(season ?? "").trim();
-  if (!s) return 0;
   const m = s.match(/(\d{4})/);
-  if (!m) return 0;
-  const y = Number(m[1]);
-  return Number.isFinite(y) ? y : 0;
+  return m ? Number(m[1]) : 0;
 }
-
 function windowRank(w: any): number {
   const s = String(w ?? "")
     .trim()
     .toLowerCase();
-  if (s === "winter") return 2;
-  return 1; // summer or empty
+  return s === "winter" ? 2 : 1; // summer or empty
 }
 
-type LatestMeta = {
-  season: string;
-  window: string;
-  snapshot_date: string;
-};
+type LatestMeta = { season: string; window: string; snapshot_date: string };
 
 function isNewerMeta(a: LatestMeta, b: LatestMeta): boolean {
   const ay = seasonStartYear(a.season);
@@ -224,6 +214,7 @@ const clubSnapMax =
         .map((m) => m.snapshot_date)
         .reduce((a, b) => (a > b ? a : b))
     : null;
+
 const updatedAtClub = ymdToJa(clubSnapMax);
 
 const leaguesInData = new Set(
@@ -236,24 +227,11 @@ const leagueShortcutsVisible = leagueShortcuts.filter(
   (x) => publicLeagueKeys.has(x.league) && leaguesInData.has(x.league),
 );
 
-const wcTopHref = tournamentTopUrl({
-  tournament: DEFAULTS.currentWcTournament,
-  year: DEFAULTS.currentWcYear,
-});
-
 const leagueHref = (leagueKey: string) => clubsListUrl({ leagueKey });
-const continentHref = (key: string) =>
-  `${wcTopHref}?continent=${encodeURIComponent(key)}`;
 
-const continentShortcuts = [
-  { label: "欧州", key: "UEFA" },
-  { label: "南米", key: "CONMEBOL" },
-  { label: "北中米", key: "CONCACAF" },
-  { label: "アジア", key: "AFC" },
-  { label: "アフリカ", key: "CAF" },
-  { label: "オセアニア", key: "OFC" },
-];
-
+// --------------------
+// UCL
+// --------------------
 const uclSeasons = getUclSeasons();
 const uclSeason = uclSeasons?.[0] ? String(uclSeasons[0]).trim() : "2025-26";
 const uclHref = competitionSeasonUrl("ucl", uclSeason);
@@ -263,80 +241,60 @@ const uclUpdatedAt = uclRows?.[0]?.updated_at
   : "—";
 const uclClubCount = uclRows?.length ?? 0;
 
+// --------------------
+// Transfers
+// --------------------
 const transfersAll = loadTransfers();
-const transfersSnapMax = maxYmd(transfersAll, "date_iso");
-const transfersUpdatedAt = ymdToJa(transfersSnapMax);
+const transfersUpdatedAt = ymdToJa(maxYmd(transfersAll, "date_iso"));
 
-const japanHref = "/wc/2026/team/日本";
-const japanNames = new Set(["日本", "日本代表", "Japan"]);
-const callupsJapan = callups.filter((r: any) =>
-  japanNames.has(String(r.country ?? "").trim()),
-);
-const japanSnapMax = maxYmd(callupsJapan, "snapshot_date");
-const japanUpdatedAt = ymdToJa(japanSnapMax);
+// WC Top（リンクに必要な場合用。現状 index では未使用でもOK）
+const wcTopHref = tournamentTopUrl({
+  tournament: DEFAULTS.currentWcTournament,
+  year: DEFAULTS.currentWcYear,
+});
 ---
 
 <BaseLayout
   title="World Football Archive｜海外サッカーDB"
-  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。 FIFAワールドカップの代表チームや、海外クラブ登録メンバーの 『今 / あの時』 を行き来する、『世界サッカーDB』。"
+  bodyClass="page-home"
+  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。 FIFAワールドカップの代表チームや、海外クラブ登録メンバーの『今 / あの時』を行き来する、『世界サッカーDB』。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
 >
-  <style>
+  <style is:global>
     :root {
       --border: #e6e6e6;
       --muted: #666;
       --bg: #fafafa;
       --date-red: #e11d48;
-
-      --nt-border: #7db7e6;
-      --nt-bg: #f3f9ff;
-
-      --club-border: #f2cf62;
-      --club-bg: #fff9e6;
-
-      --nt-pill-border: #6baed6;
-      --nt-pill-hover-bg: #eef6fd;
-      --nt-pill-dot: #2b6cb0;
-
-      --club-pill-border: #f1c40f;
-      --club-pill-hover-bg: #fff7cc;
-      --club-pill-dot: #b58900;
-
-      --jp-bg: #fff5f5;
     }
 
-    /* ✅ ヘッダー下の空白を詰める（上paddingを減らす） */
+    /* ==========================
+       Layout
+    ========================== */
     .container {
       max-width: var(--container-max);
       margin: 0 auto;
-      padding: 12px var(--container-pad) 48px; /* 22 → 12 */
+      padding: 12px var(--container-pad) 48px;
     }
-
-    /* ✅ heroも少し詰める */
     .hero {
-      background: white;
+      background: #fff;
       border: 1px solid var(--border);
       border-radius: 14px;
-      padding: 14px 18px; /* 18 → 14 */
+      padding: 14px 18px;
     }
-
     .subtitle {
       margin: 0;
       color: var(--muted);
       line-height: 1.6;
     }
 
-    /* ==========================
-       ✅ 2列×3行グリッド
-       rowごとに左右の高さが揃う（目的①）
-    ========================== */
+    /* 2列×3行（PC） */
     .grid {
       display: grid;
       grid-template-columns: 1fr;
       gap: 12px;
-      margin-top: 12px; /* 14 → 12（少し詰める） */
+      margin-top: 12px;
     }
-
     @media (min-width: 760px) {
       .grid {
         grid-template-columns: 1fr 1fr;
@@ -345,7 +303,6 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         row-gap: 12px;
         align-items: stretch;
       }
-
       .grid-nt-main {
         grid-column: 1;
         grid-row: 1;
@@ -354,7 +311,6 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         grid-column: 2;
         grid-row: 1;
       }
-
       .grid-nt-sub1 {
         grid-column: 1;
         grid-row: 2;
@@ -363,7 +319,6 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         grid-column: 2;
         grid-row: 2;
       }
-
       .grid-nt-sub2 {
         grid-column: 1;
         grid-row: 3;
@@ -374,79 +329,49 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
       }
     }
 
-    .card {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 16px;
-      text-decoration: none;
-      color: inherit;
-      display: block;
-      transition:
-        transform 0.06s ease,
-        box-shadow 0.06s ease;
-      cursor: default;
-    }
-    .card:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
-    }
-
-    .card-nt {
-      border: 2px solid var(--nt-border);
-      background: var(--nt-bg);
-    }
-    .card-club {
-      border: 2px solid var(--club-border);
-      background: var(--club-bg);
-    }
-
-    .card-title {
-      display: flex;
-      align-items: baseline;
-      justify-content: space-between;
-      gap: 10px;
-      margin: 0 0 6px;
-    }
-    .card-title h2 {
-      font-size: 18px;
-      margin: 0;
-    }
-
-    .badge {
-      font-size: 12px;
-      color: #222;
-      border: 1px solid var(--border);
-      padding: 3px 8px;
-      border-radius: 999px;
-      background: #fff;
-      white-space: nowrap;
-    }
-
-    .card-desc {
-      margin: 0;
-      color: #555;
-      line-height: 1.6;
-    }
-
-    .card-meta {
-      margin-top: 10px;
-      color: var(--muted);
-      font-size: 12px;
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
+    /* ==========================
+       Common UI
+    ========================== */
     .date-red {
       color: var(--date-red);
       font-weight: 700;
     }
 
-    .card-shortcuts {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
+    .updates {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
+    .updates h2 {
+      margin: 0 0 6px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .updates ul {
+      margin: 0;
+      padding-left: 16px;
+    }
+    .updates li {
+      margin: 4px 0;
+      line-height: 1.5;
+      font-size: 12.5px;
+    }
+    .updates .date {
+      display: inline-block;
+      min-width: 86px;
+      color: var(--date-red);
+      font-variant-numeric: tabular-nums;
+      margin-right: 8px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .updates .title {
+      font-weight: 400;
+      font-size: 14px;
     }
 
     .quick-title {
@@ -455,31 +380,11 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
       color: var(--muted);
     }
 
-    .shortcut-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 12px;
-      margin: 0 0 10px;
-      flex-wrap: wrap;
-    }
-
-    .see-now {
-      font-size: 13px;
-      color: #111;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-    .see-now:hover {
-      text-decoration: underline;
-    }
-
     .pills {
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
     }
-
     .pill {
       display: inline-flex;
       align-items: center;
@@ -508,130 +413,201 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
       opacity: 0.35;
     }
 
-    .card-nt {
-      --pill-border: var(--nt-pill-border);
-      --pill-hover-bg: var(--nt-pill-hover-bg);
-      --pill-dot: var(--nt-pill-dot);
-    }
-    .card-club {
-      --pill-border: var(--club-pill-border);
-      --pill-hover-bg: var(--club-pill-hover-bg);
-      --pill-dot: var(--club-pill-dot);
-    }
-
-    .card-nt .pill,
-    .card-club .pill {
-      border-color: var(--pill-border);
-      color: #333;
-      background: #fff;
-    }
-    .card-nt .pill:hover,
-    .card-club .pill:hover {
-      background: var(--pill-hover-bg);
-    }
-    .card-nt .pill .dot,
-    .card-club .pill .dot {
-      background: var(--pill-dot);
-      opacity: 0.65;
-    }
-
-    .card-nt .badge {
-      background: #eef6fd;
-      border: 1px solid #cfe3f7;
-    }
-    .card-club .badge {
-      background: #fff7cc;
-      border: 1px solid #f1e3a0;
-    }
-
-    .updates {
-      margin-top: 10px; /* 12 → 10 ちょい詰め */
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      background: #fff;
-    }
-    .updates h2 {
-      margin: 0 0 6px;
-      font-size: 15px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .updates ul {
-      margin: 0;
-      padding-left: 16px;
-    }
-    .updates li {
-      margin: 4px 0;
-      line-height: 1.5;
-      font-size: 12.5px;
-    }
-    .updates .date {
-      display: inline-block;
-      min-width: 86px;
-      color: #e11d48;
-      font-variant-numeric: tabular-nums;
-      margin-right: 8px;
+    .see-now {
       font-size: 13px;
-      font-weight: 700;
+      color: #111;
+      text-decoration: none;
+      white-space: nowrap;
     }
-    .updates .title {
-      font-weight: 400;
-      font-size: 14px;
+    .see-now:hover {
+      text-decoration: underline;
     }
 
-    /* ✅ サブBOX（同格の箱） */
-    .subcard {
-      background: white;
+    .badge {
+      font-size: 12px;
+      color: #222;
       border: 1px solid var(--border);
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #fff;
+      white-space: nowrap;
+    }
+
+    /* ==========================
+       Cards (main)
+    ========================== */
+    .card {
+      background: var(--theme-soft-bg);
+      border: 2px solid var(--theme-soft-border);
       border-radius: 14px;
       padding: 16px;
+      color: inherit;
+      display: block;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease;
+      cursor: default;
     }
-    .subcard-nt {
-      border: 1px solid #cfe3f7;
-      background: #f7fbff;
-    }
-    .subcard-club {
-      border: 1px solid #f1e3a0;
-      background: #fffdf3;
-    }
-
-    /* 既存boxの余計な margin-top を打ち消し */
-    .ucl-box,
-    .transfer-box,
-    .jp-box,
-    .euro-box {
-      margin-top: 0;
+    .card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
     }
 
-    .ucl-box a,
-    .transfer-box a,
-    .jp-box a {
+    .card-title {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 0 0 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ✅ タイトル統一（WC/クラブ/サブすべて 18px） */
+    body.page-home .card h2,
+    body.page-home .subcard-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      line-height: 1.25;
+    }
+
+    .card-desc {
+      margin: 0;
+      color: #555;
+      line-height: 1.6;
+    }
+    .card-meta {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .card-shortcuts {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px dashed var(--border);
+    }
+    .shortcut-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin: 0 0 10px;
+      flex-wrap: wrap;
+    }
+
+    /* ==========================
+       WC portal (dark face)
+    ========================== */
+    .card-portal {
+      color: #fff;
+      border-color: color-mix(in srgb, var(--theme-color) 70%, #111);
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--theme-color) 85%, #000),
+        color-mix(in srgb, var(--theme-color) 75%, #ffffff)
+      );
+      border-radius: 14px;
+      padding: 20px;
+    }
+    .card-portal h2 {
+      margin: 0 0 12px;
+      font-size: 1.3rem; /* 見出しの存在感だけはWCポータル特別 */
+    }
+    .portal-links {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .portal-btn {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 8px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #fff;
+      font-size: 0.9rem;
+      transition: 0.2s;
+    }
+    .portal-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    .portal-main {
+      background: #fff;
       color: #111;
+      font-weight: bold;
+    }
+
+    /* ==========================
+       Subcards
+    ========================== */
+    .subcard {
+      background: var(--theme-soft-bg);
+      border: 1px solid var(--theme-soft-border);
+      border-radius: 14px;
+      padding: 16px;
+
+      /* サブカードは少し濃い目に（差が出るように） */
+      --theme-soft-bg: color-mix(in srgb, var(--theme-color) 28%, #ffffff);
+      --theme-soft-border: color-mix(
+        in srgb,
+        var(--theme-color) 48%,
+        var(--border)
+      );
+    }
+
+    /* ✅ タイトルは h3 + a で統一（下線は必要なので標準でON） */
+    .subcard-title a {
+      color: inherit;
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .ucl-box .ucl-sub,
-    .transfer-box .transfer-sub,
-    .jp-box .jp-sub {
+
+    /* 補助文 */
+    .ucl-sub,
+    .jp-sub,
+    .transfer-sub,
+    .euro-sub {
       margin-top: 6px;
       font-size: 12px;
-      color: var(--muted);
       line-height: 1.5;
+      color: var(--muted);
     }
 
-    .euro-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: #374151;
+    /* EURO（リンク無し）も同じ見た目にするため、タイトル用クラスを廃止して subcard-title に寄せる */
+    /* ※HTML側で subcard-title の中身を単なるテキストにしてOK */
+
+    /* ==========================
+       Dark subcards (UCL / Japan)
+    ========================== */
+    .subcard.theme-ucl,
+    .subcard.theme-japan {
+      color: #fff;
+      border-color: rgba(0, 0, 0, 0.25);
+      /* もう一段濃く */
+      --theme-soft-bg: color-mix(in srgb, var(--theme-color) 70%, #ffffff);
+      --theme-soft-border: color-mix(
+        in srgb,
+        var(--theme-color) 88%,
+        var(--border)
+      );
     }
-    .euro-sub {
-      margin-top: 4px;
-      font-size: 12px;
-      color: #6b7280;
+    .subcard.theme-ucl .ucl-sub,
+    .subcard.theme-japan .jp-sub {
+      color: rgba(255, 255, 255, 0.85);
+    }
+    /* 濃色カード内リンクの下線色 */
+    .subcard.theme-ucl .subcard-title a,
+    .subcard.theme-japan .subcard-title a {
+      text-decoration-color: rgba(255, 255, 255, 0.75);
+    }
+    .subcard.theme-ucl .subcard-title a:hover,
+    .subcard.theme-japan .subcard-title a:hover {
+      text-decoration-color: #fff;
     }
 
+    /* Footer */
     .footer {
       margin-top: 18px;
       font-size: 12px;
@@ -639,58 +615,24 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
       color: #111;
     }
 
-    .pills-groups {
-      gap: 6px;
-    }
-    .pill-group {
-      padding: 6px 10px;
-      font-size: 12.5px;
-      border-style: dashed;
-      background: transparent;
-    }
-    .card-nt .pill-group {
-      border-color: var(--nt-pill-border);
-      color: #2b6cb0;
-    }
-    .card-nt .pill-group:hover {
-      background: var(--nt-pill-hover-bg);
-    }
-    .wc-card {
-      background: linear-gradient(135deg, #0a3d62, #1e5799);
-      color: white;
-      border-radius: 14px;
-      padding: 20px;
+    .jp-history {
+      margin-top: 10px;
     }
 
-    .wc-card h2 {
-      margin: 0 0 12px;
-      font-size: 1.3rem;
-    }
-
-    .wc-links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
-    .wc-btn {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 8px 14px;
+    .jp-history a {
+      display: inline-block;
+      padding: 6px 12px;
       border-radius: 999px;
+      background: rgba(255, 255, 255, 0.18);
+      font-weight: 700;
+      font-size: 13px;
       text-decoration: none;
-      color: white;
-      font-size: 0.9rem;
-      transition: 0.2s;
+      transition: 0.15s ease;
     }
 
-    .wc-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-
-    .wc-main {
-      background: #ffd700;
-      color: #222;
-      font-weight: bold;
+    .jp-history a:hover {
+      background: rgba(255, 255, 255, 0.28);
+      transform: translateY(-1px);
     }
   </style>
 
@@ -722,22 +664,27 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
 
       <div class="grid">
         <!-- 🏆 WCポータルカード -->
-        <div class="card wc-card">
+        <div class="card card-portal theme-wc grid-nt-main">
           <h2>🏆 FIFAワールドカップ2026</h2>
-
-          <div class="wc-links">
-            <a href="/wc/2026/#groups" class="wc-btn">グループ勝敗表（グループステージ）</a>
-            <a href="/wc/2026/#teams" class="wc-btn">出場国・代表メンバー一覧</a>
-            <a href="/wc/2026/#rankings" class="wc-btn"
+          <div class="portal-links">
+            <a href="/wc/2026/#groups" class="portal-btn"
+              >グループ勝敗表（グループステージ）</a
+            >
+            <a href="/wc/2026/#teams" class="portal-btn"
+              >出場国・代表メンバー一覧</a
+            >
+            <a href="/wc/2026/#rankings" class="portal-btn"
               >得点・アシストランキング</a
             >
-            <a href="/wc/2026/#schedule" class="wc-btn">日程・試合結果（マッチスケジュール）</a>
-            <a href="/wc/2026/#awards" class="wc-btn wc-main">表彰（個人賞・ベストイレブン）</a>
+            <a href="/wc/2026/#schedule" class="portal-btn"
+              >日程・試合結果（マッチスケジュール）</a
+            >
+            <a href="/wc/2026/#awards" class="portal-btn portal-main">表彰</a>
           </div>
         </div>
 
         <!-- row1 col2: CLUB main -->
-        <div class="card card-club grid-club-main">
+        <div class="card card-club theme-club grid-club-main">
           <div class="card-title">
             <h2>2025-26 主要クラブ 登録メンバー(スカッド)</h2>
           </div>
@@ -785,21 +732,31 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         </div>
 
         <!-- row2 col1: Japan -->
-        <div class="subcard subcard-nt jp-box grid-nt-sub1">
-          <div style="font-size:13px; font-weight:600;">
+        <div class="subcard jp-box theme-japan grid-nt-sub1">
+          <h3 class="subcard-title">
             <a href={japanHref}>SAMURAI BLUE（日本代表/ワールドカップ）</a>
-          </div>
+          </h3>
+
           <div class="jp-sub">
             日本代表はコチラから（WC2026メンバー一覧へ）<br />
             更新：<span class="date-red">{japanUpdatedAt}</span>
           </div>
+
+          <!-- ★追加：歴代WC導線 -->
+          <div class="jp-history">
+            <a href="/nt/japan/wc">
+              日本代表 ワールドカップの歩み（歴代メンバー）
+            </a>
+          </div>
         </div>
 
         <!-- row2 col2: UCL -->
-        <div class="subcard subcard-club ucl-box grid-club-sub1">
-          <div style="font-size:13px; font-weight:600;">
-            <a href={uclHref}>UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）</a>
-          </div>
+        <div class="subcard ucl-box theme-ucl grid-club-sub1">
+          <h3 class="subcard-title">
+            <a href={uclHref}
+              >UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）</a
+            >
+          </h3>
           <div class="ucl-sub">
             リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
             更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{
@@ -809,8 +766,8 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         </div>
 
         <!-- row3 col1: EURO -->
-        <div class="subcard subcard-nt euro-box grid-nt-sub2">
-          <div class="euro-title">EURO 2028 予選</div>
+        <div class="subcard euro-box theme-euro grid-nt-sub2">
+          <h3 class="subcard-title">EURO 2028 予選</h3>
           <div class="euro-sub">準備中</div>
           <div class="euro-sub">
             更新：<span class="date-red">—</span>
@@ -818,10 +775,10 @@ const japanUpdatedAt = ymdToJa(japanSnapMax);
         </div>
 
         <!-- row3 col2: Transfers -->
-        <div class="subcard subcard-club transfer-box grid-club-sub2">
-          <div style="font-size:13px; font-weight:600;">
+        <div class="subcard transfer-box theme-club grid-club-sub2">
+          <h3 class="subcard-title">
             <a href="/transfers">2025-26冬 主な移籍一覧</a>
-          </div>
+          </h3>
           <div class="transfer-sub">
             冬の主要選手の移籍はコチラから一覧で！<br />
             更新：<span class="date-red">{transfersUpdatedAt}</span>

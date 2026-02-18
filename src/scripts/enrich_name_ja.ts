@@ -602,7 +602,7 @@ async function main() {
 
     // fill対象：name_en + birth_date があり、name_jaが空（またはoverwrite）
     const candidates = rows.filter((r) => {
-      if (countryFilter && String(r.country ?? "") !== countryFilter)
+      if (countryFilter && String(r.country ?? "").trim() !== countryFilter)
         return false;
 
       const nameEn = String(r.name_en ?? "").trim();
