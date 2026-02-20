@@ -1,2 +1,11 @@
 team_slug,country_name_ja,country_name_en,confederation,is_enabled,notes
 japan,日本,Japan,AFC,1,
+brazil,ブラジル,Brazil,CONMEBOL,1,
+germany,ドイツ,Germany,UEFA,1,
+argentina,アルゼンチン,Argentina,CONMEBOL,1,
+france,フランス,France,UEFA,1,
+spain,スペイン,Spain,UEFA,1,
+england,イングランド,England,UEFA,1,
+italy,イタリア,Italy,UEFA,1,
+netherlands,オランダ,Netherlands,UEFA,1,
+portugal,ポルトガル,Portugal,UEFA,1,

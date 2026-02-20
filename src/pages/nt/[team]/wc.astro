@@ -315,10 +315,10 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
                 <thead>
                   <tr>
                     <th class="num">大会</th>
+                    <th>得点者</th>
                     <th class="round">フェーズ</th>
                     <th>vs</th>
                     <th class="num">分</th>
-                    <th>得点者</th>
                     <th>アシスト</th>
                     <th>備考</th>
                   </tr>
@@ -327,10 +327,10 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
                   {eventsAll.map((e) => (
                     <tr>
                       <td class="num">{e.edition}</td>
+                      <td>{e.player || "—"}</td>
                       <td class="round">{String(e.round ?? "").trim() || "—"}</td>
                       <td>{e.vs || "—"}</td>
                       <td class="num">{e.minute ?? "—"}</td>
-                      <td>{e.player || "—"}</td>
                       <td>{e.assist || "—"}</td>
                       <td>{e.note || ""}</td>
                     </tr>

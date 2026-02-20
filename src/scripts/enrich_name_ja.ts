@@ -61,6 +61,8 @@ const normName = (s: string) =>
   String(s ?? "")
     .trim()
     .replace(/\./g, "")
+    .replace(/[’'`´]/g, "'")
+    .replace(/[‐-‒–—―]/g, "-")
     .replace(/\s+/g, " ");
 
 const foldDiacritics = (s: string) =>
@@ -325,12 +327,14 @@ function wdBirthToYmd(entity: any): string {
 
 async function searchIds(nameEn: string): Promise<string[]> {
   const q = encodeURIComponent(nameEn);
-  const searchUrl = `https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json&language=en&uselang=en&limit=8&search=${q}`;
+  const searchUrl =
+    `https://www.wikidata.org/w/api.php?action=wbsearchentities&format=json` +
+    `&language=en&uselang=en&limit=20&search=${q}`;
   const searchJson = await fetchJsonWithTimeout(searchUrl, 4, 15000);
   return (searchJson?.search ?? [])
     .map((x: any) => String(x?.id ?? ""))
     .filter(Boolean)
-    .slice(0, 8);
+    .slice(0, 20);
 }
 
 async function getEntities(ids: string[]) {
@@ -373,6 +377,47 @@ async function lookupOneViaApiCore(
             : "";
           const ja = jaLabel || jaWiki || undefined;
           matches.push({ id, ja });
+        }
+      }
+
+      const birthYear = (ymd: string) =>
+        String(ymd).match(/^(\d{4})-/)?.[1] ?? "";
+
+      if (matches.length === 0) {
+        // ---- fallback: birth YEAR match + jawiki exists (safe-ish) ----
+        const by = birthYear(birthYmd);
+        if (by) {
+          const yearHits: { id: string; ja?: string }[] = [];
+
+          for (const id of ids) {
+            const e = entities[id];
+            if (!e) continue;
+
+            const ymd = wdBirthToYmd(e);
+            if (!ymd) continue;
+            if (birthYear(ymd) !== by) continue;
+
+            // jawiki/title or ja label
+            const jaLabel = e?.labels?.ja?.value
+              ? String(e.labels.ja.value)
+              : "";
+            const jaWiki = e?.sitelinks?.jawiki?.title
+              ? String(e.sitelinks.jawiki.title)
+              : "";
+            const ja = jaLabel || jaWiki || undefined;
+
+            // jawiki か jaLabel が無いなら誤爆しやすいので除外
+            if (!ja) continue;
+
+            yearHits.push({ id, ja });
+          }
+
+          if (yearHits.length === 1) {
+            return { status: "ok", name_ja: yearHits[0].ja! };
+          }
+          if (yearHits.length >= 2) {
+            return { status: "skip", reason: "ambiguous" };
+          }
         }
       }
 
