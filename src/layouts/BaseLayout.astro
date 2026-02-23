@@ -285,8 +285,10 @@ const pageHeading = heading || title;
       name="google-site-verification"
       content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84"
     />
-    <link rel="canonical" href={Astro.url.origin + Astro.url.pathname} />
-    <meta property="og:url" content={Astro.url.origin + Astro.url.pathname} />
+    --- const canonical = Astro.site ? new URL(Astro.url.pathname, Astro.site).href
+    : Astro.url.href; // 念のため ---
+    <link rel="canonical" href={canonical} />
+    <meta property="og:url" content={canonical} />
 
     <meta property="og:title" content={seoTitle} />
     <meta property="og:description" content={metaDescription} />

@@ -14,13 +14,12 @@ import {
   getTeamEventsByEdition,
 } from "../../../lib/matchEvents";
 
+import { STRONG_TEAMS } from "../../../lib/strongTeams";
+
 type NtMasterRow = {
   team_slug: string;
   country_name_ja: string;
-  country_name_en?: string;
-  confederation?: string;
   is_enabled?: string;
-  notes?: string;
 };
 
 type NtTournamentMetaRow = {
@@ -70,11 +69,16 @@ const teamSlug = String(team ?? "").trim();
 const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
   team_slug: String(r.team_slug ?? "").trim(),
   country_name_ja: String(r.country_name_ja ?? "").trim(),
-  country_name_en: String(r.country_name_en ?? "").trim(),
-  confederation: String(r.confederation ?? "").trim(),
   is_enabled: String(r.is_enabled ?? "").trim(),
-  notes: String(r.notes ?? "").trim(),
 }));
+
+const bySlug = new Map(ntMaster.map((r) => [r.team_slug, r]));
+const isEnabled = (v?: string) => {
+  const s = String(v ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "1" || s === "true" || s === "yes";
+};
 
 const me = ntMaster.find((r) => r.team_slug === teamSlug);
 if (!me)
@@ -120,7 +124,7 @@ const editions = Array.from(
     ...editionsFromCallups,
     ...metaWC.map((m) => String(m.edition ?? "").trim()).filter(Boolean),
   ]),
-).sort((a, b) => Number(a) - Number(b));
+).sort((a, b) => Number(b) - Number(a));
 
 const metaByEdition = new Map<string, NtTournamentMetaRow>();
 for (const m of metaWC) {
@@ -150,7 +154,6 @@ eventsAll.sort((a: any, b: any) => {
   if (ra !== rb) return ra.localeCompare(rb, "ja");
   return toNum(a.minute) - toNum(b.minute);
 });
-
 
 // 表の表示条件（1件でもあれば表示）
 const showGAList = eventsAll.length > 0;
@@ -235,6 +238,29 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
   ]}
   heading={heading}
 >
+  <div class="strong-pills">
+    {
+      STRONG_TEAMS.map((slug) => {
+        const m = bySlug.get(slug);
+        const label = m?.country_name_ja || slug;
+        const ok = isEnabled(m?.is_enabled);
+        const href = `/nt/${encodeURIComponent(slug)}/wc`;
+
+        return ok ? (
+          <a class="pill" href={href}>
+            {label}
+          </a>
+        ) : (
+          <span class="pill is-disabled" aria-disabled="true">
+            {label}
+          </span>
+        );
+      })
+    }
+  </div>
+</BaseLayout>
+
+<div class="section-wrap">
   <div class="lead">
     <p>
       {
@@ -282,11 +308,11 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
               <div class="chip">
                 <span class="k">メンバー</span>
                 <span class="v">
-                  {hasRoster ? `${summary.total}人` : "未投入"}
+                  {hasRoster ? `${summary.total}人` : "準備中"}
                 </span>
               </div>
 
-              {hasRoster && (
+              {hasRoster && teamSlug === "japan" && (
                 <div class="chip">
                   <span class="k">海外/国内</span>
                   <span class="v">
@@ -311,7 +337,7 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
           <h2 class="sec-title">大会別得点・アシスト</h2>
           <div class="block">
             <div class="table-wrap">
-              <table class="tbl">
+              <table class="tbl events-tbl">
                 <thead>
                   <tr>
                     <th class="num">大会</th>
@@ -328,7 +354,9 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
                     <tr>
                       <td class="num">{e.edition}</td>
                       <td>{e.player || "—"}</td>
-                      <td class="round">{String(e.round ?? "").trim() || "—"}</td>
+                      <td class="round">
+                        {String(e.round ?? "").trim() || "—"}
+                      </td>
                       <td>{e.vs || "—"}</td>
                       <td class="num">{e.minute ?? "—"}</td>
                       <td>{e.assist || "—"}</td>
@@ -425,17 +453,64 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
   </section>
 
   <style is:global>
+    /* =========================
+    Layout (page-nt-hub)
+  ========================= */
+    .page-nt-hub .section-wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
     .page-nt-hub .lead {
       margin: 6px 0 14px;
       color: #374151;
       font-size: 14px;
       line-height: 1.7;
     }
+
+    /* =========================
+    Strong pills
+  ========================= */
+    .page-nt-hub .strong-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .page-nt-hub .pill {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #fff;
+      font-size: 13px;
+      text-decoration: none;
+      color: #111;
+    }
+    .page-nt-hub .pill:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--color-wc) 35%,
+        rgba(0, 0, 0, 0.08)
+      );
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+    }
+    .page-nt-hub .pill.is-disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+      pointer-events: none;
+    }
+
+    /* =========================
+    Cards
+  ========================= */
     .page-nt-hub .cards {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 12px;
       margin-bottom: 24px;
+      border-top: 4px solid var(--color-wc);
+      padding-top: 12px;
     }
     @media (max-width: 1100px) {
       .page-nt-hub .cards {
@@ -496,8 +571,9 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       font-weight: 700;
       padding: 2px 8px;
       border-radius: 999px;
-      background: rgba(37, 99, 235, 0.12);
-      color: #1d4ed8;
+      background: color-mix(in srgb, var(--color-wc) 18%, transparent);
+      color: var(--color-wc);
+      border: 1px solid color-mix(in srgb, var(--color-wc) 25%, transparent);
     }
     .page-nt-hub .host {
       font-size: 12px;
@@ -561,73 +637,23 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       margin-top: 6px;
       font-size: 12.5px;
       font-weight: 700;
-      color: #1d4ed8;
-    }
-
-    .page-nt-hub .ga-title {
-      margin: 0 0 10px;
-    }
-
-    @media (max-width: 820px) {
-      .page-nt-hub .ga-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-    .page-nt-hub .ga-box {
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 12px;
-      padding: 10px;
-      background: #fafafa;
-      min-width: 0;
-    }
-    .page-nt-hub .ga-h {
-      margin: 0 0 8px;
-      font-size: 13px;
-      font-weight: 800;
-    }
-    .page-nt-hub .ga-note {
-      margin: 8px 2px 0;
-      font-size: 12px;
-      opacity: 0.75;
-    }
-
-    .page-nt-hub .events {
-      margin: 14px 0 20px;
-      padding: 12px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 14px;
-      background: #fff;
-      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
-    }
-
-    .page-nt-hub .events-title,
-    .page-nt-hub .ga-title {
-      margin-left: -12px;
-      font-size: 15px;
-      font-weight: 850;
-    }
-
-    .page-nt-hub .events-all {
-      margin: 14px 0 22px;
+      color: var(--color-wc);
     }
 
     /* =========================
-   stats / tables（整理版）
-   ========================= */
-
-    .stats-wrap {
+    Stats / Tables common
+  ========================= */
+    .page-nt-hub .stats-wrap {
       max-width: 1100px;
       margin: 24px auto;
     }
 
-    /* セクション見出し（箱の外に置く） */
     .page-nt-hub .sec-title {
       margin: 18px 0 10px;
       font-size: 16px;
       font-weight: 850;
     }
 
-    /* stats-wrap 内の共通“箱” */
     .page-nt-hub .block {
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.08);
@@ -637,7 +663,6 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       margin-bottom: 18px;
     }
 
-    /* 共通の表ラッパ（基本は横スクロール許可） */
     .page-nt-hub .table-wrap {
       overflow: auto;
       border: 1px solid rgba(0, 0, 0, 0.08);
@@ -645,7 +670,6 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       background: #fff;
     }
 
-    /* 共通テーブル（デフォルトは“広め”前提） */
     .page-nt-hub .tbl {
       width: 100%;
       border-collapse: separate;
@@ -656,13 +680,14 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
     .page-nt-hub .tbl thead th {
       position: sticky;
       top: 0;
-      background: rgba(0, 0, 0, 0.03);
+      background: color-mix(in srgb, var(--color-wc) 14%, white); /* ←WC色 */
       border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       font-size: 12px;
       font-weight: 800;
       text-align: left;
       padding: 10px 10px;
       white-space: nowrap;
+      z-index: 3; /* ヘッダー優先 */
     }
 
     .page-nt-hub .tbl tbody td {
@@ -677,30 +702,42 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       background: rgba(0, 0, 0, 0.02);
     }
 
-    .page-nt-hub .tbl .num {
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-      width: 72px;
-    }
-
+    .page-nt-hub .tbl .num,
     .page-nt-hub .tbl .round {
       text-align: center;
       font-variant-numeric: tabular-nums;
       width: 72px;
     }
 
-    /* -------------------------
-   GA（下の2表）は “箱に収める”
-   → 横スクロール禁止＆セルは省略表示
-   ------------------------- */
+    /* =========================
+    events table: left sticky (大会別得点・アシスト)
+    ※ table class="tbl events-tbl" が前提
+  ========================= */
+    .page-nt-hub .events-tbl th:first-child,
+    .page-nt-hub .events-tbl td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff; /* ←行背景はここでは固定でOK */
+      border-right: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .page-nt-hub .events-tbl thead th:first-child {
+      z-index: 4; /* 左上セル最強 */
+      background: color-mix(in srgb, var(--color-wc) 14%, white);
+    }
+    .page-nt-hub .events-tbl tbody tr:hover td:first-child {
+      background: rgba(0, 0, 0, 0.02); /* hoverに追従 */
+    }
 
+    /* =========================
+    GA grid (下2表)
+  ========================= */
     .page-nt-hub .ga-grid {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
       gap: 14px;
       align-items: start;
     }
-
     @media (max-width: 720px) {
       .page-nt-hub .ga-grid {
         grid-template-columns: 1fr;
@@ -714,51 +751,58 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       background: #fafafa;
       min-width: 0;
     }
-
     .page-nt-hub .ga-h {
       margin: 0 0 8px;
       font-size: 13px;
       font-weight: 800;
     }
-
     .page-nt-hub .ga-note {
       margin: 10px 2px 0;
       font-size: 12px;
       opacity: 0.75;
     }
 
-    /* GAだけ table-wrap をスクロールさせない */
     .page-nt-hub .ga-wrap {
-      overflow: hidden;
-    }
-
-    /* GAテーブルは min-width を解除し、箱幅に収める */
+      overflow: auto;
+    } /* ←ここは “auto” に統一 */
     .page-nt-hub .ga-tbl {
-      min-width: 0;
+      min-width: 520px; /* ←スマホでも最低読める */
       table-layout: fixed;
     }
 
-    /* GA内は省略表示（特に選手名が長い将来に備える） */
+    /* GA: 1列目固定（ここだけで完結させる） */
+    .page-nt-hub .ga-tbl th:first-child,
+    .page-nt-hub .ga-tbl td:first-child {
+      position: sticky;
+      left: 0;
+      z-index: 2;
+      background: #fff;
+      border-right: 1px solid rgba(0, 0, 0, 0.08);
+    }
+    .page-nt-hub .ga-tbl thead th:first-child {
+      z-index: 4;
+      background: color-mix(in srgb, var(--color-wc) 14%, white);
+    }
+    .page-nt-hub .ga-tbl tbody tr:hover td:first-child {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    /* GA: 省略表示（テーブルレイアウト固定前提） */
     .page-nt-hub .ga-tbl th,
     .page-nt-hub .ga-tbl td {
       overflow: hidden;
       text-overflow: ellipsis;
     }
 
-    /* 左：大会列は“見切れない”ように最低幅確保 */
+    /* GA: 列幅（あなたの設計を維持） */
     .page-nt-hub .ga-edition th:first-child,
     .page-nt-hub .ga-edition td:first-child {
       width: 76px;
-      min-width: 76px;
-      overflow: visible;
-      text-overflow: clip;
       white-space: nowrap;
     }
-
-    /* 右：選手名列を少し広めに（好みで 50〜60%） */
     .page-nt-hub .ga-player th:nth-child(2),
     .page-nt-hub .ga-player td:nth-child(2) {
       width: 55%;
     }
   </style>
-</BaseLayout>
+</div>

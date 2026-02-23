@@ -1,0 +1,297 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "../../../lib/csvSimple";
+import { STRONG_TEAMS } from "../../../lib/strongTeams";
+
+type NtMasterRow = {
+  team_slug: string;
+  country_name_ja: string;
+  country_name_en?: string;
+  confederation?: string;
+  is_enabled?: string;
+  notes?: string;
+};
+
+type NtTournamentMetaRow = {
+  competition: string;
+  edition: string;
+  team_slug: string;
+  coach_ja?: string;
+  result_ja?: string;
+  host_ja?: string;
+  comment_ja?: string;
+};
+
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
+  team_slug: String(r.team_slug ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  country_name_en: String(r.country_name_en ?? "").trim(),
+  confederation: String(r.confederation ?? "").trim(),
+  is_enabled: String(r.is_enabled ?? "").trim(),
+  notes: String(r.notes ?? "").trim(),
+}));
+
+const bySlug = new Map(ntMaster.map((r) => [r.team_slug, r]));
+
+const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
+  (r: any) => ({
+    competition: String(r.competition ?? "").trim(),
+    edition: String(r.edition ?? "").trim(),
+    team_slug: String(r.team_slug ?? "").trim(),
+    coach_ja: String(r.coach_ja ?? "").trim(),
+    result_ja: String(r.result_ja ?? "").trim(),
+    host_ja: String(r.host_ja ?? "").trim(),
+    comment_ja: String(r.comment_ja ?? "").trim(),
+  }),
+);
+
+const isEnabled = (v?: string) => {
+  const s = String(v ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "1" || s === "true" || s === "yes";
+};
+
+const metaWC = metaAll.filter(
+  (m) => String(m.competition ?? "").toUpperCase() === "WC",
+);
+
+function uniq<T>(arr: T[]) {
+  return Array.from(new Set(arr));
+}
+
+// “優勝”カウントは result_ja の文字列ベース（後で厳密化OK）
+function isWinner(resultJa: string) {
+  const s = String(resultJa ?? "").trim();
+  if (!s) return false;
+
+  if (s.includes("準優勝")) return false;
+
+  return s.includes("優勝") || s.includes("W優勝") || s.includes("冠军");
+}
+
+const items = STRONG_TEAMS.map((slug) => {
+  const m = bySlug.get(slug);
+  const label = m?.country_name_ja || slug;
+  const enabled = isEnabled(m?.is_enabled);
+
+  const rows = metaWC.filter((x) => x.team_slug === slug);
+
+  const editions = uniq(
+    rows.map((r) => String(r.edition ?? "").trim()).filter(Boolean),
+  );
+  const appearances = editions.length;
+
+  const wins = rows.filter((r) => isWinner(String(r.result_ja ?? ""))).length;
+
+  // 最新の1行（コメント出す用：edition最大を採用）
+  const latestEdition = editions
+    .map((x) => Number(x))
+    .filter((n) => Number.isFinite(n))
+    .sort((a, b) => b - a)[0];
+  const latest = latestEdition
+    ? rows.find((r) => Number(r.edition) === latestEdition)
+    : undefined;
+
+  const intro = String(m?.notes ?? "").trim();
+
+  return {
+    slug,
+    label,
+    enabled,
+    appearances,
+    wins,
+    intro,
+    latestHost: String(latest?.host_ja ?? "").trim(),
+    latestResult: String(latest?.result_ja ?? "").trim(),
+    latestComment: String(latest?.comment_ja ?? "").trim(),
+  };
+});
+
+const heading = "強豪国のワールドカップの歩み";
+const title = `${heading} | World Football Archive`;
+const description =
+  "強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。各国カードから「あゆみ」ページへ移動できます。";
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-nt-legends page-wc"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "代表", href: "/#jp" },
+    { label: "強豪国のW杯あゆみ" },
+  ]}
+  heading={heading}
+>
+  <div class="lead">
+    <p>
+      強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。各国カードから「あゆみ」ページへ移動できます。
+    </p>
+  </div>
+
+  <section class="grid" aria-label="強豪国一覧">
+    {
+      items.map((it) => {
+        const href = `/nt/${encodeURIComponent(it.slug)}/wc`;
+        const disabled = !it.enabled;
+
+        return (
+          <div class={`card ${disabled ? "is-disabled" : ""}`}>
+            <div class="top">
+              <div class="name">{it.label}代表</div>
+              <div class="badges">
+                <span class="badge">出場 {it.appearances}</span>
+                <span class="badge win">優勝 {it.wins}</span>
+              </div>
+            </div>
+
+            <div class="sub">
+              {it.intro ? (
+                <span class="intro">{it.intro}</span>
+              ) : it.latestHost || it.latestResult ? (
+                <span class="latest">
+                  {it.latestHost && <span>直近開催地: {it.latestHost}</span>}
+                  {it.latestResult && <span> / 成績: {it.latestResult}</span>}
+                </span>
+              ) : (
+                <span class="latest muted">データ準備中</span>
+              )}
+            </div>
+
+            {it.latestComment && (
+              <div class="comment">💬 {it.latestComment}</div>
+            )}
+
+            {disabled ? (
+              <div class="go muted">準備中</div>
+            ) : (
+              <a class="go" href={href}>
+                あゆみを見る →
+              </a>
+            )}
+          </div>
+        );
+      })
+    }
+  </section>
+
+  <style is:global>
+    .page-nt-legends .lead {
+      margin: 6px 0 14px;
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+    .page-nt-legends .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 24px;
+    }
+    @media (max-width: 980px) {
+      .page-nt-legends .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 560px) {
+      .page-nt-legends .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .page-nt-legends .card {
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px 12px 10px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
+      min-width: 0;
+    }
+    .page-nt-legends .card.is-disabled {
+      opacity: 0.6;
+    }
+    .page-nt-legends .top {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .page-nt-legends .name {
+      font-size: 16px;
+      font-weight: 850;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .page-nt-legends .badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .page-nt-legends .badge {
+      font-size: 12px;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #fafafa;
+      white-space: nowrap;
+    }
+    .page-nt-legends .badge.win {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.25);
+    }
+    .page-nt-legends .sub {
+      font-size: 12px;
+      opacity: 0.85;
+      margin-bottom: 8px;
+    }
+    .page-nt-legends .muted {
+      opacity: 0.65;
+    }
+    .page-nt-legends .comment {
+      font-size: 12px;
+      opacity: 0.85;
+      line-height: 1.5;
+      margin: 6px 0 8px;
+    }
+    .page-nt-legends .go {
+      display: inline-block;
+      margin-top: 6px;
+      font-size: 12.5px;
+      font-weight: 800;
+      color: #1d4ed8;
+      text-decoration: none;
+    }
+    .page-nt-legends .badge.win {
+      background: color-mix(in srgb, var(--theme-color) 14%, white);
+      border-color: color-mix(in srgb, var(--theme-color) 25%, transparent);
+    }
+    .page-nt-legends .intro {
+      font-weight: 750;
+      color: color-mix(in srgb, var(--theme-color) 85%, #111);
+    }
+    .page-nt-legends .go {
+      color: var(--theme-link);
+    }
+    .intro {
+      font-weight: 700;
+      color: color-mix(in srgb, var(--theme-color) 85%, #222);
+    }
+  </style>
+</BaseLayout>

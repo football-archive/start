@@ -190,9 +190,12 @@ for (const [g, list] of standingsByGroup.entries()) {
 
 const awardGroups = getAwards("WC", String(year));
 
-const wcTitle = `FIFAワールドカップ${year}（WC${year} / World Cup ${year}）`;
-const pageTitle = `${wcTitle}｜出場国・グループ・日程・得点ランキング`;
-const pageDesc = `${wcTitle}の出場国・代表メンバー、グループ、試合日程、得点ランキングを一覧できます。`;
+const wcTitle = `FIFAワールドカップ${year}`;
+
+const pageTitle =
+  `${wcTitle} 出場国・代表メンバー・グループ・日程｜海外サッカーDB`;
+const pageDesc =
+  `${wcTitle}の出場国、代表メンバー、グループ、試合日程、得点ランキングを一覧できます。`;
 ---
 
 <BaseLayout

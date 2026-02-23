@@ -2,8 +2,9 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
-// ★ここは後で本番URLに差し替えでOK（例: https://soccer-db.example.com）
-const SITE_URL = process.env.SITE_URL ?? "https://example.com";
+// ✅ Netlify 本番（いったんこれで固定）
+const SITE_URL =
+  process.env.SITE_URL ?? "https://world-football-archive.netlify.app";
 
 export default defineConfig({
   site: SITE_URL,

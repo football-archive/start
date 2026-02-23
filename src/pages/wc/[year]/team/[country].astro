@@ -57,6 +57,32 @@ const yearsForCountry = Array.from(
   ),
 ).sort((a, b) => Number(a) - Number(b));
 
+// クラブリンク解決（club_master.csv を使う）
+const normalize = (s: any) => String(s ?? "").trim().toLowerCase();
+
+// 選手ごとの「過去に招集された大会（edition）」一覧（リンク用）
+const playerKey = (r: any) =>
+  `${normalize(r.name_en || r.name_ja)}|${normalize(r.birth_date)}`;
+
+const all = loadCallups();
+const wcAllForCountry = all.filter(
+  (r) => String(r.competition ?? "").trim() === "WC" && String(r.country ?? "").trim() === countryName
+);
+
+const editionsByPlayer = new Map<string, string[]>();
+for (const r of wcAllForCountry) {
+  const k = playerKey(r);
+  const ed = String(r.edition ?? "").trim();
+  if (!ed) continue;
+  const arr = editionsByPlayer.get(k) ?? [];
+  if (!arr.includes(ed)) arr.push(ed);
+  editionsByPlayer.set(k, arr);
+}
+// 表示は降順に（数字として比較）
+for (const [k, arr] of editionsByPlayer) {
+  arr.sort((a, b) => Number(a) - Number(b));
+  editionsByPlayer.set(k, arr);
+}
 const groups = loadGroups("WC", String(year), "group");
 
 // その国のグループ（groups.csv から探す）
@@ -79,14 +105,6 @@ const rows = rowsAll.sort(sortForRoster);
 const starRows = rows
   .filter((r) => String((r as any).is_star ?? "").trim() === "1")
   .slice(0, 3);
-
-// クラブリンク解決（club_master.csv を使う）
-const normalize = (s: string) =>
-  String(s || "")
-    .trim()
-    .replace(/\s+/g, " ")
-    .replace(/　/g, " ")
-    .toLowerCase();
 
 const parseAliases = (aliases: string) =>
   String(aliases || "")
@@ -148,6 +166,15 @@ const columns = buildNtColumns({
   isLatestView: true,
   showStats: false,
   clubHref,
+
+  tournamentLinks: (r) => {
+    const k = `${normalize(r.name_en || r.name_ja)}|${normalize(r.birth_date)}`;
+    const editions = editionsByPlayer.get(k) ?? [];
+    return editions.map((ed) => ({
+      label: ed,
+      href: `/wc/${encodeURIComponent(ed)}/team/${encodeURIComponent(countryName)}`,
+    }));
+  },
 });
 
 const topHref = `/wc/${year}`;

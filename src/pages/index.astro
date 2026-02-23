@@ -16,6 +16,8 @@ import {
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../lib/ucl";
 import { loadTransfers } from "../lib/transfers";
 
+const wcYear = String(DEFAULTS.currentWcYear); // 最新大会のYYYY
+
 // yyyy-mm-dd の最大値を返す（空なら null）
 const maxYmd = (rows: any[], key: string) => {
   let max: string | null = null;
@@ -40,16 +42,26 @@ const updates = loadUpdates(6);
 // 代表（WC2026 / 日本）
 // --------------------
 const callupsAll = loadCallups();
-const callupsWc2026 = callupsAll.filter(
-  (r: any) => r.competition === "WC" && String(r.edition) === "2026",
+const callupsWc = callupsAll.filter(
+  (r: any) => r.competition === "WC" && String(r.edition) === wcYear,
 );
 
-const japanHref = "/wc/2026/team/日本";
+const japanHref = `/wc/${wcYear}/team/日本`;
 const japanNames = new Set(["日本", "日本代表", "Japan"]);
-const callupsJapan = callupsWc2026.filter((r: any) =>
+const callupsJapan = callupsWc.filter((r: any) =>
   japanNames.has(String(r.country ?? "").trim()),
 );
 const japanUpdatedAt = ymdToJa(maxYmd(callupsJapan, "snapshot_date"));
+
+const wcUpdatedAt = ymdToJa(maxYmd(callupsWc, "snapshot_date"));
+
+// チーム数：country で distinct（空は除外）
+const wcTeamCount = new Set(
+  callupsWc.map((r: any) => String(r.country ?? "").trim()).filter(Boolean),
+).size;
+
+// 人数：行数（今のCSV構造だと「選手1行」なので length でOK）
+const wcPlayerCount = callupsWc.length;
 
 // --------------------
 // クラブ（公開リーグ×公開クラブ、最新だけ集計）
@@ -484,10 +496,14 @@ const wcTopHref = tournamentTopUrl({
       gap: 10px;
       flex-wrap: wrap;
     }
-    .card-shortcuts {
+    /* “線の下に余白”が欲しければ、線の次のブロックにmargin-topを付ける */
+    .card-portal .portal-links,
+    .card-club .card-shortcuts {
       margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px dashed var(--border);
+    }
+    .card-shortcuts {
+      border-top: none;
+      padding-top: 0;
     }
     .shortcut-head {
       display: flex;
@@ -496,6 +512,27 @@ const wcTopHref = tournamentTopUrl({
       gap: 12px;
       margin: 0 0 10px;
       flex-wrap: wrap;
+    }
+
+    /* ==========================
+       カード上部高さ統一
+    ========================== */
+    .card-head {
+      min-height: 72px; /* ←ここで高さ統一 */
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    /* 行間を揃える */
+    .card-head p {
+      margin: 0;
+      line-height: 1.45;
+    }
+
+    /* meta 行も揃える */
+    .card-head .card-meta {
+      margin-top: 6px;
     }
 
     /* ==========================
@@ -515,6 +552,73 @@ const wcTopHref = tournamentTopUrl({
     .card-portal h2 {
       margin: 0 0 12px;
       font-size: 1.3rem; /* 見出しの存在感だけはWCポータル特別 */
+    }
+
+    /* タイトル下の余白を統一（ここが効く） */
+    .page-home .card-h2 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 6px; /* ←ここが“空きすぎ”の本丸 */
+    }
+
+    .page-home .card-ico {
+      display: inline-flex;
+      width: 22px;
+      justify-content: center;
+    }
+
+    /* ==========================
+       カード上部高さ（カード別に統一）
+    ========================== */
+    .card-head {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card-portal .card-head {
+      min-height: 72px;
+    }
+    .card-club .card-head {
+      min-height: 76px;
+    } /* まずは同値で揃える */
+
+    /* 行間を揃える */
+    .card-head p {
+      margin: 0;
+      line-height: 1.45;
+    }
+    .card-head .card-meta {
+      margin-top: 6px;
+    }
+
+    /* 区切り線は card-sep 1本に統一 */
+    .card-sep {
+      margin-top: 10px;
+      border-top: 1px dashed var(--border);
+    }
+
+    /* WC内のmetaは白寄せ（※線は持たせない） */
+    .card-portal .card-meta {
+      color: rgba(255, 255, 255, 0.88);
+      padding-bottom: 0;
+      margin-bottom: 0;
+      border: none;
+    }
+    .card-portal .card-meta .date-red {
+      color: #ffd400;
+      font-weight: 800;
+    }
+
+    .card-portal .card-meta .date-red {
+      color: #ffd400; /* WCの中では赤より黄が視認性高い */
+      font-weight: 800;
+    }
+
+    .card-portal .card-meta .badge {
+      background: rgba(255, 255, 255, 0.12);
+      color: rgba(255, 255, 255, 0.92);
+      border-color: rgba(255, 255, 255, 0.25);
     }
     .portal-links {
       display: flex;
@@ -634,6 +738,42 @@ const wcTopHref = tournamentTopUrl({
       background: rgba(255, 255, 255, 0.28);
       transform: translateY(-1px);
     }
+
+    .legend-btn {
+      display: block;
+      margin-top: 10px;
+      padding: 10px;
+      text-align: center;
+      font-weight: 700;
+      background: #ffd400;
+      color: #000;
+      border-radius: 8px;
+      text-decoration: none;
+    }
+
+    /* 日本カード内でも強豪国ボタンと同じ見た目にする（上書き優先） */
+    .jp-box .legend-btn {
+      background: #ffd400;
+      color: #111;
+      border: 1px solid rgba(0, 0, 0, 0.12);
+      text-decoration: none;
+    }
+
+    /* もし青カード側の a の padding / radius が崩すなら念のため固定 */
+    .jp-box .legend-btn {
+      background: #ffd400 !important;
+      color: #111 !important;
+
+      display: block;
+      text-align: center;
+
+      font-size: 16px; /* ← ここが重要 */
+      font-weight: 700; /* 太さ */
+      line-height: 1; /* 高さブレ防止 */
+
+      padding: 12px 16px; /* 強豪国と同じ体感サイズ */
+      border-radius: 10px;
+    }
   </style>
 
   <div class="container">
@@ -665,44 +805,58 @@ const wcTopHref = tournamentTopUrl({
       <div class="grid">
         <!-- 🏆 WCポータルカード -->
         <div class="card card-portal theme-wc grid-nt-main">
-          <h2>🏆 FIFAワールドカップ2026</h2>
+          <h2 class="card-h2">🏆 FIFAワールドカップ2026</h2>
+          <div class="card-head">
+            <p class="wc-desc">
+              代表チームの最新メンバー、スケジュールはコチラから。
+            </p>
+            <div class="card-meta">
+              <span>代表更新：<span class="date-red">{wcUpdatedAt}</span></span>
+              <span>出場：{wcTeamCount}チーム / {wcPlayerCount}人</span>
+            </div>
+          </div>
+          <div class="card-sep" aria-hidden="true"></div>
+
           <div class="portal-links">
-            <a href="/wc/2026/#groups" class="portal-btn"
-              >グループ勝敗表（グループステージ）</a
-            >
             <a href="/wc/2026/#teams" class="portal-btn"
               >出場国・代表メンバー一覧</a
+            >
+            <a href="/wc/2026/#groups" class="portal-btn"
+              >グループリーグ勝敗表</a
             >
             <a href="/wc/2026/#rankings" class="portal-btn"
               >得点・アシストランキング</a
             >
-            <a href="/wc/2026/#schedule" class="portal-btn"
-              >日程・試合結果（マッチスケジュール）</a
-            >
+            <a href="/wc/2026/#schedule" class="portal-btn">試合日程・結果</a>
             <a href="/wc/2026/#awards" class="portal-btn portal-main">表彰</a>
           </div>
+          <a class="legend-btn" href="/nt/wc/legends">
+            強豪国代表　W杯のあゆみ（歴代代表メンバー）
+          </a>
         </div>
 
         <!-- row1 col2: CLUB main -->
         <div class="card card-club theme-club grid-club-main">
-          <div class="card-title">
-            <h2>2025-26 主要クラブ 登録メンバー(スカッド)</h2>
+          <h2 class="card-h2">
+            <span class="card-ico" aria-hidden="true">👕</span>
+            2025-26 主要クラブ 登録メンバー(スカッド)
+          </h2>
+          <div class="card-head">
+            <p class="card-desc">
+              最新シーズンの登録選手を、クラブ別・リーグ別に。
+            </p>
+            <div class="card-meta">
+              <span
+                >クラブ更新：<span class="date-red">{updatedAtClub}</span></span
+              >
+              <span>
+                クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
+                  clubsPlayerCount
+                }人
+              </span>
+            </div>
           </div>
-
-          <p class="card-desc">
-            最新シーズンの登録選手を、クラブ別・リーグ別に。
-          </p>
-
-          <div class="card-meta">
-            <span
-              >クラブ更新：<span class="date-red">{updatedAtClub}</span></span
-            >
-            <span>
-              クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
-                clubsPlayerCount
-              }人
-            </span>
-          </div>
+          <div class="card-sep" aria-hidden="true"></div>
 
           <div class="card-shortcuts">
             <div class="shortcut-head">
@@ -744,9 +898,9 @@ const wcTopHref = tournamentTopUrl({
 
           <!-- ★追加：歴代WC導線 -->
           <div class="jp-history">
-            <a href="/nt/japan/wc">
-              日本代表 ワールドカップの歩み（歴代メンバー）
-            </a>
+            <a class="legend-btn" href="/nt/japan/wc"
+              >日本代表　W杯のあゆみ（歴代代表メンバー）</a
+            >
           </div>
         </div>
 

@@ -95,6 +95,32 @@ const rep2Html = (team: string, links: { label: string; href: string }[]) => {
   </div>`;
 };
 
+// 大会（edition）リンクだけをコンパクトに表示
+const editionLinksHtml = (
+  links: { label: string; href: string }[],
+  max = 6,
+) => {
+  if (!links?.length) return "";
+
+  const labelsAll = links.map((x) => x.label).join(" / ");
+
+  // 末尾側（最近）を残す
+  const sliced = links.length > max ? links.slice(-max) : links;
+  const prefix = links.length > max ? "… " : "";
+
+  const body = sliced
+    .map((x) => `<a href="${x.href}">${toYY(x.label)}</a>`)
+    .join(" / ");
+
+  return `<span title="${esc(labelsAll)}">${prefix}${body}</span>`;
+};
+
+function toYY(edition: string) {
+  const y = String(edition ?? "").trim();
+  if (!/^\d{4}$/.test(y)) return y; // 念のため
+  return y.slice(2); // "2022" -> "22"
+}
+
 const club2Html = (clubName?: string, href?: string) => {
   const c = (clubName ?? "").trim();
   if (!c) return "";
@@ -140,6 +166,14 @@ export const buildClubColumns = ({
       header: "選手名",
       html: true, // ✅ 追加
       render: (r) => name2Html(r.name_ja, r.name_en),
+    },
+
+    {
+      key: "editions",
+      header: "大会",
+      align: "center",
+      html: true,
+      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
     },
 
     // 加入日
@@ -230,6 +264,9 @@ type BuildNtColumnsArgs = {
 
   // ★追加：current_club文字列から表示名（日本語）を返す
   clubLabel?: (clubName: string) => string;
+
+  // ★追加：その選手が招集された大会（edition）リンクを返す（例：WC 2014/2018/2022…）
+  tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
 };
 
 export const buildNtColumns = ({
@@ -237,6 +274,7 @@ export const buildNtColumns = ({
   showStats = false,
   clubHref,
   clubLabel, // ★追加
+  tournamentLinks, // ★追加
 }: BuildNtColumnsArgs): Column<NtRow>[] => {
   // ※ 代表側はあなたの現状運用に合わせて必要な列だけにしてOK
   return [
@@ -263,6 +301,13 @@ export const buildNtColumns = ({
       header: "代表デビュー",
       align: "center",
       render: (r) => toYM(r.national_debut),
+    },
+    {
+      key: "editions",
+      header: "招集歴",
+      align: "center",
+      html: true,
+      render: (r) => editionLinksHtml(tournamentLinks(r) ?? []),
     },
     {
       key: "club",
