@@ -139,6 +139,7 @@ type BuildClubColumnsArgs = {
     name_en?: string;
     birth_date?: string;
   }) => { label: string; href: string }[];
+  tournamentLinks?: (row: ClubRow) => { label: string; href: string }[];
   showStats?: boolean;
 };
 
@@ -146,6 +147,7 @@ export const buildClubColumns = ({
   isLatestView,
   repLabel,
   repLinks,
+  tournamentLinks,
   showStats = false,
 }: BuildClubColumnsArgs): Column<ClubRow>[] => {
   return [
@@ -168,20 +170,21 @@ export const buildClubColumns = ({
       render: (r) => name2Html(r.name_ja, r.name_en),
     },
 
-    {
-      key: "editions",
-      header: "大会",
-      align: "center",
-      html: true,
-      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
-    },
-
     // 加入日
     {
       key: "joined",
       header: "加入日",
       align: "center",
       render: (r) => toYM(r.join_date),
+    },
+
+    {
+      key: "editions",
+      header: "招集歴",
+      align: "center",
+      html: true,
+      render: (r) =>
+        tournamentLinks ? editionLinksHtml(tournamentLinks(r) ?? []) : "",
     },
 
     // ✅ 国籍（ここが消えていたらこの差し替えで復活）
