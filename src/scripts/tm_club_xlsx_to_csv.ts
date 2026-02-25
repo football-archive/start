@@ -5,16 +5,13 @@ import path from "path";
 /**
  * Transfermarkt コピペExcel（クラブ版） → club_squads_site.csv 互換CSV
  *
- * 入力: _work/Club_update_2025-26.xlsx のシート "RAW"
- * - クラブ見出し行: A列が "### Premier League / アーセナル" 形式
- * - 選手情報が「1選手=2〜3行」に分割されることがある（名前行が別行/国籍が別行 など）
- *
- * 重要:
- * - club_master.csv を読んで league_key / club_key / club(日本語表示) を解決
- *
- * ✅ 追加:
- * - window 列を追加し、値はスクリプト直書きで一律セットする
- *   (winter/summer の2値運用想定)
+ * ✅ 修正ポイント
+ * - RAWヘッダー行から列indexを自動推定（「現在のクラブ」列が入ってもズレない）
+ * - club_master 解決はリーグ不一致でもクラブ名で拾える（Premire League typo等に耐える）
+ * - 出力は Excel で文字化けしない UTF-8 BOM + CRLF
+ * - markerに season があれば season列に反映
+ *    - "### Premier League / アーセナル"
+ *    - "### 2024-25 / Premier League / アーセナル"
  */
 
 const WORK_DIR = "_work";
@@ -28,78 +25,100 @@ const CLUB_MASTER_CSV = (() => {
 })();
 
 const RAW_SHEET = "RAW";
-const SEASON = "2025-26";
+const SEASON_DEFAULT = "2025-26";
 const SOURCE = "Transfermarkt (copypaste)";
-
-// ✅ window をソース直書きで埋める（夏版を作るときは "summer" に変える）
 const WINDOW_DEFAULT: "summer" | "winter" = "winter";
 
 // ===== utils =====
-// 文字列キーの正規化（見た目同じでも一致しない問題対策）
-// - NBSP/全角スペース/ゼロ幅スペースを除去
-// - Unicode NFKC 正規化
-// - 連続スペースを1つに
-function normalizeKey(v: unknown) {
-  const s0 = String(v ?? "");
-  // NFKC (Node 16+)
-  const s1 = s0.normalize("NFKC");
-  const s2 = s1
-    .replace(/[\u00A0\u200B\u200C\u200D\uFEFF]/g, "") // NBSP/zero-width
-    .replace(/[\u3000]/g, " ") // full-width space
-    .replace(/[\s\t\r\n]+/g, " ")
-    .trim()
-    .toLowerCase();
-  return s2;
+function seasonToSnapshotDate(season: string) {
+  const s = String(season ?? "").trim();
+  if (!s) return "";
+
+  // 例: "2017-18" "1992-93" "2024-25"
+  const m = s.match(/^(\d{4})-(\d{2})$/);
+  if (!m) return "";
+
+  const y1 = Number(m[1]);
+  const yy2 = Number(m[2]); // 0-99
+  if (!Number.isFinite(y1) || !Number.isFinite(yy2)) return "";
+
+  // 終わり年を推定
+  // 2017-18 -> 2018
+  // 1999-00 -> 2000
+  let y2 = Math.floor(y1 / 100) * 100 + yy2; // 1900 + 93, 2000 + 25 など
+  if (y2 < y1) y2 += 100; // 世紀跨ぎ対策（1999-00）
+
+  return `${y2}-02-01`;
+}
+
+function cleanPlayerName(name: string) {
+  let s = String(name ?? "").trim();
+  if (!s) return "";
+
+  // 例:
+  // "山田太郎（1998年生のサッカー選手）" -> "山田太郎"
+  // "山田太郎 (1998年生のサッカー選手)" -> "山田太郎"
+  s = s
+    .replace(/[（(]\s*\d{4}\s*年\s*生(?:まれ)?のサッカー選手\s*[）)]\s*$/u, "")
+    .trim();
+
+  return s;
 }
 
 function csvEscape(v: unknown) {
   const s = String(v ?? "");
-  if (/[",\n]/.test(s)) return `"${s.replace(/"/g, '""')}"`;
+  if (
+    s.includes('"') ||
+    s.includes(",") ||
+    s.includes("\n") ||
+    s.includes("\r")
+  ) {
+    return `"${s.replace(/"/g, '""')}"`;
+  }
   return s;
 }
 
-function keyNormalize(s: unknown) {
-  return normalizeKey(s);
+// 文字列キーの正規化（見た目同じでも一致しない問題対策）
+function keyNormalize(v: unknown) {
+  return String(v ?? "")
+    .replace(/\u00A0/g, " ") // NBSP
+    .replace(/\u3000/g, " ") // 全角スペース
+    .replace(/[\u200B-\u200D\uFEFF]/g, "") // ゼロ幅など
+    .normalize("NFKC")
+    .trim()
+    .toLowerCase();
 }
 
 function toYMD(v: unknown) {
   if (!v) return "";
-
-  // Excel date as Date
-  if (v instanceof Date && !isNaN(v.getTime())) {
-    return `${v.getFullYear()}/${v.getMonth() + 1}/${v.getDate()}`;
+  if (v instanceof Date && !Number.isNaN(v.getTime())) {
+    const y = v.getFullYear();
+    const m = String(v.getMonth() + 1).padStart(2, "0");
+    const d = String(v.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
   }
-
-  // Excel date as serial number (xlsx library often returns number)
-  if (typeof v === "number" && isFinite(v)) {
-    // @ts-ignore - SSF is available on XLSX
-    const d = (XLSX as any).SSF?.parse_date_code?.(v);
-    if (d && d.y && d.m && d.d) return `${d.y}/${Number(d.m)}/${Number(d.d)}`;
+  const s = String(v).trim();
+  if (!s) return "";
+  const m = s.match(/(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  if (m) {
+    const y = m[1];
+    const mm = String(Number(m[2])).padStart(2, "0");
+    const dd = String(Number(m[3])).padStart(2, "0");
+    return `${y}-${mm}-${dd}`;
   }
-
-  let s = String(v).trim();
-  if (!s || s === "-") return "";
-
-  // remove age "(30)"
-  s = s.replace(/\s*\(.*?\)\s*/g, "").trim();
-
-  // yyyy/mm/dd
-  let m = s.match(/(\d{4})\/(\d{1,2})\/(\d{1,2})/);
-  if (m) return `${m[1]}/${Number(m[2])}/${Number(m[3])}`;
-
-  // yyyy-mm-dd
-  m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
-  if (m) return `${m[1]}/${Number(m[2])}/${Number(m[3])}`;
-
-  // dd/mm/yyyy
-  m = s.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-  if (m) return `${m[3]}/${Number(m[2])}/${Number(m[1])}`;
-
   return "";
 }
 
+function toShirtNo(v: unknown) {
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  if (s === "-") return ""; // 空扱い
+  if (/^\d+$/.test(s)) return s;
+  return s;
+}
+
 function parseBirthDate(v: unknown) {
-  // RAWは "1995/09/15 (30)" 形式が多い
+  // "1995/09/15 (29)" みたいな形式 → YYYY-MM-DD
   return toYMD(v);
 }
 
@@ -119,8 +138,7 @@ function parseHeightCm(v: unknown) {
 }
 
 function normCell(v: unknown) {
-  const s = String(v ?? "").trim();
-  return s;
+  return String(v ?? "").trim();
 }
 
 function isMarkerRow(r: any[]) {
@@ -128,126 +146,110 @@ function isMarkerRow(r: any[]) {
 }
 
 function isHeaderRow(r: any[]) {
+  // RAWのヘッダー行（例）
+  // ['#','選手',null,'生年月日/年齢','国籍','現在のクラブ','身長','利き足','加入日','前所属',...]
   return (
     String(r?.[0] ?? "").trim() === "#" && String(r?.[1] ?? "").includes("選手")
   );
 }
 
 function isPlayerStartRow(r: any[]) {
-  const c0 = r?.[0];
-  if (typeof c0 === "number") return true;
-  if (typeof c0 === "string" && c0.trim() !== "" && /^\d+$/.test(c0.trim()))
-    return true;
-  return false;
+  const v = String(r?.[0] ?? "").trim();
+  return v !== "" && (v === "-" || /^\d+$/.test(v));
 }
 
-function toShirtNo(v: unknown) {
-  if (typeof v === "number") return String(v);
-  const s = String(v ?? "").trim();
-  if (/^\d+$/.test(s)) return s;
-  return "";
-}
+// 日本語/英語ポジを GK/DF/MF/FW に寄せる（代表側から転用）
+function mapPosLabelToPrimary(label: string) {
+  const raw = String(label ?? "").trim();
+  if (!raw) return "";
+  const s = raw.toLowerCase();
 
-function isPositionText(s: string) {
-  const t = keyNormalize(s);
-  if (!t) return false;
-  // 日本語/英語ざっくり（RAWは日本語が多い）
-  return (
-    t.includes("ゴール") ||
-    t.includes("gk") ||
-    t.includes("keeper") ||
-    t.includes("キーパー") ||
-    t.includes("センターバック") ||
-    t.includes("cb") ||
-    t.includes("back") ||
-    t.includes("sb") ||
-    t.includes("サイドバック") ||
-    t.includes("ウィングバック") ||
-    t.includes("ボランチ") ||
-    t.includes("ミッド") ||
-    t.includes("mf") ||
-    t.includes("wing") ||
-    t.includes("ウィンガー") ||
-    t.includes("fw") ||
-    t.includes("フォワード") ||
-    t.includes("ストライカー") ||
-    t.includes("cf")
-  );
-}
+  // ---- 日本語（TM日本語表記） ----
+  if (raw.includes("ゴールキーパー")) return "GK";
 
-function guessPrimaryPos(posText: string) {
-  const t = keyNormalize(posText);
-  if (!t) return "";
+  // FW（“ウイング”/“ウィンガー”両対応）
   if (
-    t.includes("gk") ||
-    t.includes("keeper") ||
-    t.includes("ゴール") ||
-    t.includes("キーパー")
-  )
-    return "GK";
-  if (
-    t.includes("back") ||
-    t.includes("cb") ||
-    t.includes("センターバック") ||
-    t.includes("sb") ||
-    t.includes("サイドバック") ||
-    t.includes("wb") ||
-    t.includes("ウィングバック") ||
-    t.includes("df")
-  )
-    return "DF";
-  if (
-    t.includes("mid") ||
-    t.includes("mf") ||
-    t.includes("ミッド") ||
-    t.includes("ボランチ")
-  )
-    return "MF";
-  if (
-    t.includes("wing") ||
-    t.includes("fw") ||
-    t.includes("cf") ||
-    t.includes("striker") ||
-    t.includes("フォワード") ||
-    t.includes("ウィンガー") ||
-    t.includes("ストライカー")
+    raw.includes("センターフォワード") ||
+    raw.includes("フォワード") ||
+    raw.includes("ストライカー") ||
+    raw.includes("ウイング") ||
+    raw.includes("ウィンガー")
   )
     return "FW";
+
+  // MF（“フィルダー/フィールダー”両対応。日本語は「ミッド」を見ればほぼ拾える）
+  if (
+    raw.includes("守備的ミッド") ||
+    raw.includes("セントラルミッド") ||
+    raw.includes("攻撃的ミッド") ||
+    raw.includes("ミッド") ||
+    raw.includes("中盤")
+  )
+    return "MF";
+
+  // DF
+  if (
+    raw.includes("センターバック") ||
+    raw.includes("右サイドバック") ||
+    raw.includes("左サイドバック") ||
+    raw.includes("サイドバック") ||
+    raw.includes("ウイングバック") ||
+    raw.includes("ディフェンダー") ||
+    raw.includes("バック")
+  )
+    return "DF";
+
+  // ---- 英語（既存互換） ----
+  if (s.includes("goalkeeper")) return "GK";
+
+  if (
+    s.includes("back") ||
+    s.includes("centre-back") ||
+    s.includes("center-back") ||
+    s.includes("defender") ||
+    s.includes("wing-back")
+  )
+    return "DF";
+
+  if (s.includes("midfield")) return "MF";
+
+  if (
+    s.includes("winger") ||
+    s.includes("forward") ||
+    s.includes("striker") ||
+    s.includes("second striker") ||
+    s.includes("centre-forward") ||
+    s.includes("center forward")
+  )
+    return "FW";
+
   return "";
 }
 
 // ===== club master =====
 type ClubMasterRow = {
-  club_key: string;
   league_key: string;
-  // display names (either old schema or current schema)
+  club_key: string;
   league_display: string;
   club_display_ja: string;
   club_display_en: string;
-  // optional aliases column in current schema
   aliases?: string;
-  // optional legacy aliases
   club_alias_en?: string;
   club_alias_ja?: string;
 };
 
-function loadClubMasterLookup(): ClubMasterRow[] {
-  if (!fs.existsSync(CLUB_MASTER_CSV)) return [];
-  const txt = fs.readFileSync(CLUB_MASTER_CSV, "utf-8");
-  const lines = txt.split(/\r?\n/).filter((l) => l.trim() !== "");
-  if (lines.length <= 1) return [];
+function loadClubMasterLookup() {
+  const csv = fs.readFileSync(CLUB_MASTER_CSV, "utf-8");
+  const lines = csv.split(/\r?\n/).filter(Boolean);
+  const header = lines[0].split(",");
+  // ✅ BOM除去（club_master.csv が UTF-8 BOM 付きのため）
+  header[0] = header[0].replace(/^\uFEFF/, "");
 
-  // NOTE:
-  // 現行の club_master.csv は以下の列を持つ（あなたのリポジトリ実体）:
-  // club_key, league_key, league_display, club_display_ja, club_display_en, sort_ja, aliases, status, notes
-  // ただし過去チャットで作った旧スキーマ（league_name_en 等）も想定し、両対応にする。
-  const header = lines[0]
-    .split(",")
-    .map((h) => h.replace(/^\uFEFF/, "").trim());
-  const idx = (name: string) => header.indexOf(name);
-  const pick = (cols: string[], ...names: string[]) => {
-    for (const n of names) {
-      const j = idx(n);
+  const idxOf = (k: string) => header.indexOf(k);
+
+  const pick = (cols: string[], ...keys: string[]) => {
+    for (const k of keys) {
+      const j = idxOf(k);
       if (j >= 0) return cols[j] ?? "";
     }
     return "";
@@ -311,11 +313,10 @@ function resolveClubFromMaster(
       m.club_display_ja,
       ...expandAliases(m),
     ].map((x) => keyNormalize(x));
-
-    // 完全一致 or 部分一致（RAW側が「FC」付き/なし等のゆらぎがあるため）
     return cands.some((x) => x && (x === c || x.includes(c) || c.includes(x)));
   };
 
+  // ✅ リーグが一致しない（Premire League typo等）場合でも、クラブ名で全体から拾う
   const hit = (leagueMatches.length ? leagueMatches : masters).find(findClub);
   if (!hit) return null;
 
@@ -325,6 +326,47 @@ function resolveClubFromMaster(
     club_display_ja: hit.club_display_ja,
     league_display: hit.league_display,
   };
+}
+
+// ===== header index (AUTO) =====
+type HeaderIndex = {
+  name1: number; // 選手（英語名など）
+  name2: number; // 選手（もう1列）
+  birth: number; // 生年月日/年齢
+  nat: number; // 国籍
+  height: number; // 身長
+  foot: number; // 利き足
+  join: number; // 加入日
+  prev: number; // 前所属
+  contract: number; // 契約終了（あれば）
+};
+
+function buildHeaderIndex(headerRow: any[]): HeaderIndex {
+  const find = (pred: (s: string) => boolean, fallback: number) => {
+    for (let i = 0; i < headerRow.length; i++) {
+      const s = String(headerRow[i] ?? "").trim();
+      if (s && pred(s)) return i;
+    }
+    return fallback;
+  };
+
+  // RAWの典型（あなたのExcel）
+  // 0 '#', 1 '選手', 2 null, 3 '生年月日/年齢', 4 '国籍', 5 '現在のクラブ', 6 '身長', 7 '利き足', 8 '加入日', 9 '前所属', ...
+  const name1 = 1;
+  const name2 = 2;
+
+  const birth = find((s) => s.includes("生年月日"), 3);
+  const nat = find((s) => s.includes("国籍"), 4);
+  const height = find((s) => s.includes("身長"), 6);
+  const foot = find((s) => s.includes("利き足"), 7);
+  const join = find((s) => s.includes("加入日"), 8);
+  const prev = find((s) => s.includes("前所属"), 9);
+  const contract = find(
+    (s) => s.includes("契約") || s.includes("満了") || s.includes("終了"),
+    -1,
+  );
+
+  return { name1, name2, birth, nat, height, foot, join, prev, contract };
 }
 
 // ===== main =====
@@ -346,17 +388,141 @@ const rows: any[][] = XLSX.utils.sheet_to_json(rawSheet, { header: 1 });
 const clubMasterLookup = loadClubMasterLookup();
 const missingClubs = new Set<string>();
 
+let curSeason = SEASON_DEFAULT;
+let curLeague = "";
+let curClub = "";
+let curLeagueKey = "";
+let curClubKey = "";
+let curClubDisplayJa = "";
+
+// ヘッダー列index（クラブごと/シート全体で共通でもOKだが安全に更新できるように）
+let hix: HeaderIndex = buildHeaderIndex(rows.find(isHeaderRow) ?? []);
+
 const today = (() => {
   const d = new Date();
   return `${d.getFullYear()}/${d.getMonth() + 1}/${d.getDate()}`;
 })();
+
+function setClubFromMarker(marker: string) {
+  // "### Premier League / アーセナル"
+  // "### 2024-25 / Premier League / アーセナル"
+  const s = marker.replace(/^###\s*/, "").trim();
+  const parts = s
+    .split(" / ")
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+  let season = "";
+  let league = "";
+  let club = s;
+
+  if (parts.length >= 3 && /^\d{4}-\d{2}$/.test(parts[0])) {
+    season = parts[0];
+    league = parts[1] ?? "";
+    club = parts.slice(2).join(" / ").trim();
+  } else if (parts.length >= 2) {
+    league = parts[0] ?? "";
+    club = parts.slice(1).join(" / ").trim();
+  }
+
+  if (season) curSeason = season;
+  curLeague = league || curLeague;
+  curClub = club || curClub;
+
+  const resolved = resolveClubFromMaster(clubMasterLookup, curLeague, curClub);
+  if (resolved) {
+    curLeagueKey = resolved.league_key;
+    curClubKey = resolved.club_key;
+    curClubDisplayJa = resolved.club_display_ja;
+  } else {
+    curLeagueKey = "";
+    curClubKey = "";
+    curClubDisplayJa = "";
+    missingClubs.add(`${curLeague} / ${curClub}`);
+  }
+}
+
+function mergePlayerBlock(block: any[][]) {
+  const getFirst = (col: number) => {
+    if (col < 0) return "";
+    for (const r of block) {
+      const v = r?.[col];
+      if (v !== undefined && v !== null && String(v).trim() !== "") return v;
+    }
+    return "";
+  };
+
+  const shirtNo = toShirtNo(getFirst(0));
+
+  const nameA = cleanPlayerName(normCell(getFirst(hix.name1)));
+  const nameB = cleanPlayerName(normCell(getFirst(hix.name2)));
+  const name_en = nameB || nameA;
+
+  const birth_date = parseBirthDate(getFirst(hix.birth));
+
+  // nationality: 複数国籍が別行に来ることがあるので、ブロック全行から拾ってユニーク結合
+  const nats: string[] = [];
+  for (const r of block) {
+    const v = normCell(r?.[hix.nat]);
+    if (v && !nats.includes(v)) nats.push(v);
+  }
+  const nationality = nats.join(" / ");
+
+  const height_cm = parseHeightCm(getFirst(hix.height));
+
+  // foot / prev_club は「現状使ってないので空でもOK」方針ならここを "" にしてOK
+  // ただ、ズレ検知のために正しく拾っておく（不要なら後で空にできます）
+  const foot = normCell(getFirst(hix.foot));
+  const join_date = toYMD(getFirst(hix.join));
+  const prev_club = normCell(getFirst(hix.prev));
+  const contract_until = toYMD(getFirst(hix.contract));
+
+  // position: 典型は「補助行のどこかに 'ゴールキーパー' 等が入る」
+  // position: ブロック内のどこに来ても拾う（細区分も mapPosLabelToPrimary が吸収）
+  let posPrimary = "";
+  outer: for (const r of block) {
+    for (let k = 0; k < (r?.length ?? 0); k++) {
+      const v = normCell(r?.[k]);
+      if (!v) continue;
+      const p = mapPosLabelToPrimary(v);
+      if (p) {
+        posPrimary = p;
+        break outer;
+      }
+    }
+  }
+
+  const snap = seasonToSnapshotDate(curSeason) || toYMD(new Date());
+
+  return {
+    season: curSeason,
+    league: curLeague,
+    club: curClubDisplayJa || curClub,
+    club_key: curClubKey,
+    league_key: curLeagueKey,
+    club_shirt_no: shirtNo,
+    position_primary: posPrimary,
+    name_en,
+    birth_date,
+    height_cm,
+    snapshot_date: snap,
+    name_ja: name_en, // 未整備なら仮で name_en
+    nationality,
+    foot,
+    join_date,
+    prev_club,
+    contract_until,
+    source: SOURCE,
+    notes: "",
+  };
+}
 
 // header
 const out: string[] = [];
 out.push(
   [
     "season",
-    "window", // ✅ 追加：seasonの次
+    "window",
     "league",
     "club",
     "club_key",
@@ -379,104 +545,6 @@ out.push(
   ].join(","),
 );
 
-let curLeague = "";
-let curClub = "";
-let curLeagueKey = "";
-let curClubKey = "";
-let curClubDisplayJa = "";
-
-function setClubFromMarker(marker: string) {
-  const s = marker.replace(/^###\s*/, "").trim();
-  let league = "";
-  let club = s;
-  const parts = s.split(" / ");
-  if (parts.length >= 2) {
-    league = parts[0].trim();
-    club = parts.slice(1).join(" / ").trim();
-  }
-
-  curLeague = league || curLeague;
-  curClub = club || curClub;
-
-  const resolved = resolveClubFromMaster(clubMasterLookup, curLeague, curClub);
-  if (resolved) {
-    curLeagueKey = resolved.league_key;
-    curClubKey = resolved.club_key;
-    curClubDisplayJa = resolved.club_display_ja;
-  } else {
-    curLeagueKey = "";
-    curClubKey = "";
-    curClubDisplayJa = "";
-    missingClubs.add(`${curLeague} / ${curClub}`);
-  }
-}
-
-function mergePlayerBlock(block: any[][]) {
-  // block: 先頭行は背番号あり。以降は補助行
-  const getFirst = (col: number) => {
-    for (const r of block) {
-      const v = r?.[col];
-      if (v !== undefined && v !== null && String(v).trim() !== "") return v;
-    }
-    return "";
-  };
-
-  const shirtNo = toShirtNo(getFirst(0));
-
-  // name: col2 or col3 に来ることがある（RAWの揺れ吸収）
-  const name2 = normCell(getFirst(1));
-  const name3 = normCell(getFirst(2));
-  const name_en = name3 || name2;
-
-  const birth_date = parseBirthDate(getFirst(3));
-
-  // nationality: block内の col4 をユニーク結合（複数国籍対策）
-  const nats: string[] = [];
-  for (const r of block) {
-    const v = normCell(r?.[4]);
-    if (v && !nats.includes(v)) nats.push(v);
-  }
-  const nationality = nats.join(" / ");
-
-  const height_cm = parseHeightCm(getFirst(5));
-  const foot = normCell(getFirst(6));
-  const join_date = toYMD(getFirst(7));
-  const prev_club = normCell(getFirst(8));
-  const contract_until = toYMD(getFirst(9));
-
-  // position: 典型行は (col1=null,col2=null,col3=pos) だが、国籍2つ等で崩れるので全文走査
-  let posText = "";
-  for (const r of block) {
-    const v = normCell(r?.[2]);
-    if (v && isPositionText(v)) {
-      posText = v;
-      break;
-    }
-  }
-  const posPrimary = guessPrimaryPos(posText);
-
-  return {
-    league: curLeague,
-    club: curClubDisplayJa || curClub,
-    club_key: curClubKey,
-    league_key: curLeagueKey,
-    club_shirt_no: shirtNo,
-    position_primary: posPrimary,
-    name_en,
-    birth_date,
-    height_cm,
-    snapshot_date: today,
-    name_ja: name_en, // name_ja未整備なら name_en を代替
-    nationality,
-    foot,
-    join_date,
-    prev_club,
-    contract_until,
-    source: SOURCE,
-    notes: "",
-  };
-}
-
 // main scan
 for (let i = 0; i < rows.length; i++) {
   const r = rows[i] ?? [];
@@ -485,7 +553,12 @@ for (let i = 0; i < rows.length; i++) {
     setClubFromMarker(String(r[0]));
     continue;
   }
-  if (isHeaderRow(r)) continue;
+
+  if (isHeaderRow(r)) {
+    // ✅ ヘッダー行から列indexを更新（過去シーズンでレイアウトが違っても追随）
+    hix = buildHeaderIndex(r);
+    continue;
+  }
 
   if (!isPlayerStartRow(r)) continue;
 
@@ -495,7 +568,6 @@ for (let i = 0; i < rows.length; i++) {
   while (j < rows.length) {
     const rr = rows[j] ?? [];
     if (isMarkerRow(rr) || isHeaderRow(rr) || isPlayerStartRow(rr)) break;
-    // 空行はスキップせずブロックに入れても害はないが、軽くする
     if (
       rr.some(
         (x: any) => x !== null && x !== undefined && String(x).trim() !== "",
@@ -509,22 +581,20 @@ for (let i = 0; i < rows.length; i++) {
 
   const rec = mergePlayerBlock(block);
 
-  // 必須キーが無い場合でも出力はするが、後で気づけるように stderr へ
   if (!rec.club_key || !rec.league_key) {
-    // eslint-disable-next-line no-console
     console.error("⚠️ missing club_key/league_key:", curLeague, "/", curClub);
   }
 
   out.push(
     [
-      csvEscape(SEASON),
-      csvEscape(WINDOW_DEFAULT), // ✅ 追加：window（固定値）
+      csvEscape(rec.season),
+      csvEscape(WINDOW_DEFAULT),
       csvEscape(rec.league),
       csvEscape(rec.club),
       csvEscape(rec.club_key),
       csvEscape(rec.club_shirt_no),
       csvEscape(rec.position_primary),
-      ,
+      "", // is_star（手入力運用）
       csvEscape(rec.name_en),
       csvEscape(rec.birth_date),
       csvEscape(rec.height_cm),
@@ -543,9 +613,14 @@ for (let i = 0; i < rows.length; i++) {
 }
 
 fs.mkdirSync(path.dirname(OUTPUT), { recursive: true });
-const csvText = out.join("\n");
-const csvCrlf = csvText.replace(/\r?\n/g, "\r\n");
-const BOM = "\uFEFF";
-fs.writeFileSync(OUTPUT, BOM + csvCrlf, { encoding: "utf8" });
+
+// ✅ Excel文字化け対策：UTF-8 BOM + CRLF
+const csvText = out.join("\n").replace(/\n/g, "\r\n");
+fs.writeFileSync(OUTPUT, "\uFEFF" + csvText, "utf-8");
 
 console.log("✅ wrote:", OUTPUT, "rows=", out.length - 1);
+
+if (missingClubs.size) {
+  console.log("⚠️ missing clubs in club_master:");
+  for (const s of Array.from(missingClubs)) console.log(" -", s);
+}

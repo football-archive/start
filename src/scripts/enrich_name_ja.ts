@@ -65,6 +65,21 @@ const normName = (s: string) =>
     .replace(/[‐-‒–—―]/g, "-")
     .replace(/\s+/g, " ");
 
+// jawiki.title の「（YYYY年生のサッカー選手）」みたいな注釈を削る
+function cleanJaName(raw: string): string {
+  let s = String(raw ?? "").trim();
+
+  // 全角/半角括弧のどちらでも落とす
+  // 例：
+  //   "山田太郎（1999年生のサッカー選手）" -> "山田太郎"
+  //   "山田太郎（サッカー選手）"           -> "山田太郎"
+  s = s
+    .replace(/[（(]\s*\d{4}\s*年\s*生\s*の\s*サッカー\s*選手\s*[）)]\s*$/u, "")
+    .replace(/[（(]\s*サッカー\s*選手\s*[）)]\s*$/u, "");
+
+  return s.trim();
+}
+
 const foldDiacritics = (s: string) =>
   String(s ?? "")
     .normalize("NFKD")
@@ -180,6 +195,8 @@ function readNameMap(): NameMapStore {
     const name_ja = String((r as any).name_ja ?? "").trim();
     if (!name_en || !birth || !name_ja) continue;
 
+    const ja = cleanJaName(name_ja);
+
     const entry: NameMapEntry = {
       key: keyOf(name_en, birth),
       name_en,
@@ -217,6 +234,9 @@ function upsertNameMap(
   name_ja: string,
 ) {
   const name_en = normName(String(name_en_raw ?? "").trim());
+  const cleanedJa = cleanJaName(name_ja);
+  if (!cleanedJa) return; // 空になるなら登録しない
+
   const key = keyOf(name_en, birth);
   const now = new Date().toISOString().slice(0, 10);
 
@@ -224,14 +244,13 @@ function upsertNameMap(
     key,
     name_en,
     birth_date: birth,
-    name_ja,
+    name_ja: cleanedJa,
     source: "wikidata",
     updated_at: now,
   };
 
   store.canon.set(key, entry);
 
-  // alias（raw/正規化/ダイアクリティカル/loosen）
   for (const k of candidateKeys(name_en_raw, birth)) store.index.set(k, entry);
 }
 
@@ -686,7 +705,7 @@ async function main() {
       }
 
       if (hit) {
-        r.name_ja = hit;
+        r.name_ja = cleanJaName(hit);
         filledByMap++;
       } else {
         stillMissing.push({ row: r, name_en_raw, birth });
@@ -802,7 +821,7 @@ async function main() {
         if (hit) break;
       }
       if (hit) {
-        m.row.name_ja = hit;
+        m.row.name_ja = cleanJaName(hit);
         filledRowsAfterLookup++;
       }
     }

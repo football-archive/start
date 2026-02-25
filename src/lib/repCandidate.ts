@@ -127,3 +127,77 @@ export function buildRepLabelFromCallups(
 
   return { repLabel, repLinks, maxSnapshot };
 }
+
+export function buildRepHistoryLinksFromCallups(
+  callups: CallupRow[],
+  opts: {
+    competition: string; // "WC"
+    excludeEdition?: number; // 2026 を除外したい等
+    max?: number; // 表示上限
+  },
+) {
+  const comp = String(opts.competition ?? "").trim();
+  const exclude = String(opts.excludeEdition ?? "").trim();
+  const max = opts.max ?? 6;
+
+  // key（選手特定）
+  const keyOfRow = (r: { name_en?: string; birth_date?: string }) =>
+    keyOf(r.name_en, r.birth_date);
+
+  // key -> edition -> {snap, country}
+  const byKey = new Map<
+    string,
+    Map<string, { snap: string; country: string }>
+  >();
+
+  for (const r of callups) {
+    if (String(r.competition ?? "") !== comp) continue;
+
+    const ed = String(r.edition ?? "").trim();
+    if (!ed) continue;
+    if (exclude && ed === exclude) continue;
+
+    const k = keyOfRow(r);
+    if (k.startsWith("|")) continue;
+
+    const country = String(r.country ?? "").trim();
+    if (!country) continue;
+
+    const snap = normDate(String(r.snapshot_date ?? "")); // "" もあり得る
+
+    if (!byKey.has(k)) byKey.set(k, new Map());
+    const m = byKey.get(k)!;
+
+    const prev = m.get(ed);
+    // snapshot が新しい方を採用（過去大会でも複数snapshotがある想定）
+    if (!prev || (snap && snap > prev.snap)) {
+      m.set(ed, { snap, country });
+    }
+  }
+
+  const toShort = (edition: string) => {
+    // C1案：下2桁
+    // "2022" -> "22"
+    const s = String(edition ?? "").trim();
+    return /^\d{4}$/.test(s) ? s.slice(2) : s;
+  };
+
+  return function repHistoryLinks(row: {
+    name_en?: string;
+    birth_date?: string;
+  }) {
+    const k = keyOfRow(row);
+    const m = byKey.get(k);
+    if (!m) return [];
+
+    const editions = Array.from(m.keys()).sort((a, b) => Number(b) - Number(a));
+
+    return editions.slice(0, max).map((ed) => {
+      const { country } = m.get(ed)!;
+      return {
+        label: `${comp}${toShort(ed)}`, // "WC22"
+        href: `/wc/${ed}/team/${encodeURIComponent(country)}`,
+      };
+    });
+  };
+}

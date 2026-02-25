@@ -17,6 +17,10 @@ export type ClubRow = {
   snapshot_date?: string;
 
   nationality?: string;
+  repHistoryLinks?: (row: {
+    name_en?: string;
+    birth_date?: string;
+  }) => { label: string; href: string }[];
   foot?: string;
 
   join_date?: string;
@@ -81,16 +85,47 @@ const name2Html = (ja?: string, en?: string) => {
   </div>`;
 };
 
-const rep2Html = (team: string, links: { label: string; href: string }[]) => {
+const rep2Html = (
+  team: string,
+  links: { label: string; href: string }[],
+  pastLinks?: { label: string; href: string }[],
+) => {
   const t = (team ?? "").trim();
-  if (!t) return ""; // ✅ 空は非表示
+  const hasAnyLinks = (links?.length ?? 0) > 0 || (pastLinks?.length ?? 0) > 0;
 
-  const linkHtml = (links ?? [])
-    .map((x) => `<a class="rep2-ed" href="${esc(x.href)}">${esc(x.label)}</a>`)
-    .join(`<span class="rep2-sep">/</span>`);
+  // 代表情報もリンクも無いなら表示しない
+  if (!t && !hasAnyLinks) return "";
+
+  // WC2026 / WC2026 PO / WC2022 などを WC26 / WC26 PO / WC22 に短縮
+  const shortLabel = (label: string) => {
+    const s = String(label ?? "").trim();
+    // 「WC」直後の4桁だけを取り出して下2桁化（後ろの文字列は保持）
+    // 例: "WC2026 PO" -> "WC26 PO"
+    //     "WC2022"    -> "WC22"
+    return s.replace(
+      /\bWC(20\d{2})\b/g,
+      (_m, y4) => `WC${String(y4).slice(2)}`,
+    );
+  };
+
+  // 最新(links) + 過去(pastLinks) を結合
+  const allLinks = [...(links ?? []), ...(pastLinks ?? [])].map((x) => ({
+    ...x,
+    label: shortLabel(x.label),
+  }));
+
+  const linkHtml = allLinks
+    .map((x, i) => {
+      const cls = i === 0 ? "rep2-ed rep2-ed--latest" : "rep2-ed";
+      return (
+        `${i > 0 ? `<span class="rep2-sep">/</span>` : ""}` +
+        `<a class="${cls}" href="${esc(x.href)}">${esc(x.label)}</a>`
+      );
+    })
+    .join("");
 
   return `<div class="rep2">
-    <div class="rep2-team">${esc(t)}代表</div>
+    ${t ? `<div class="rep2-team">${esc(t)}代表</div>` : ``}
     ${linkHtml ? `<div class="rep2-links">${linkHtml}</div>` : ``}
   </div>`;
 };
@@ -139,6 +174,10 @@ type BuildClubColumnsArgs = {
     name_en?: string;
     birth_date?: string;
   }) => { label: string; href: string }[];
+  repHistoryLinks?: (row: {
+    name_en?: string;
+    birth_date?: string;
+  }) => { label: string; href: string }[];
   tournamentLinks?: (row: ClubRow) => { label: string; href: string }[];
   showStats?: boolean;
 };
@@ -147,6 +186,7 @@ export const buildClubColumns = ({
   isLatestView,
   repLabel,
   repLinks,
+  repHistoryLinks,
   tournamentLinks,
   showStats = false,
 }: BuildClubColumnsArgs): Column<ClubRow>[] => {
@@ -178,15 +218,6 @@ export const buildClubColumns = ({
       render: (r) => toYM(r.join_date),
     },
 
-    {
-      key: "editions",
-      header: "招集歴",
-      align: "center",
-      html: true,
-      render: (r) =>
-        tournamentLinks ? editionLinksHtml(tournamentLinks(r) ?? []) : "",
-    },
-
     // ✅ 国籍（ここが消えていたらこの差し替えで復活）
     {
       key: "nat",
@@ -200,7 +231,8 @@ export const buildClubColumns = ({
       header: "代表",
       html: true,
       align: "center",
-      render: (r) => rep2Html(repLabel(r), repLinks(r)),
+      render: (r) =>
+        rep2Html(repLabel(r), repLinks(r), repHistoryLinks?.(r) ?? []),
     },
 
     {
