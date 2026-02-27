@@ -41,31 +41,47 @@ const hasSlot = Astro.slots.has("default");
   }
 
   .sub {
-    margin-top: 10px;
+    margin-top: 4px;
   }
 
   .sub:empty {
     display: none;
   }
 
-  /* ▼ ピル（全ページ共通 / Theme Engine） */
+  /* ▼ ピル（全ページ共通 / Theme Engine）
+   1行固定＋横スクロール（表示名はマスタのまま）
+*/
   .pills {
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap; /* ← 1行固定 */
     gap: 8px;
+    overflow-x: auto; /* ← はみ出したら横スクロール */
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 0px; /* スクロールバー分の逃げ */
+    scrollbar-width: thin; /* Firefox */
+  }
+
+  .pills::-webkit-scrollbar {
+    height: 8px;
+  }
+
+  /* ピルが縮んで潰れないように */
+  .pill {
+    flex: 0 0 auto;
   }
 
   .pill {
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    padding: 7px 10px;
+    padding: 5px 9px;
     border-radius: 999px;
     border: 1px solid var(--theme-pill-border, var(--border));
     background: #fff;
     color: #111;
     text-decoration: none;
-    font-size: 13px;
+    font-size: 12px;
     line-height: 1;
     transition:
       transform 0.06s ease,
@@ -140,9 +156,9 @@ const hasSlot = Astro.slots.has("default");
   /* slot側だけ枠（ピルをまとめる箱） */
   .sub--boxed {
     margin-top: 0;
-    padding: 12px 14px;
+    padding: 4px 10px;
     border: 1px solid var(--border);
-    border-radius: 14px;
+    border-radius: 12px;
     background: #fff;
   }
 
@@ -153,6 +169,107 @@ const hasSlot = Astro.slots.has("default");
     /* ✅ 注目選手枠：基準色（クラブ側の見た目を採用） */
     --star-bg: #f7f3f8;
     --star-border: #eadff0;
+  }
+
+  /* =========================
+  注目選手：1行固定（横スクロール）
+  - 代表/クラブで共通に効かせる想定
+========================= */
+
+  .star-block {
+    background: var(--star-bg, #f7f3f8);
+    border: 1px solid var(--star-border, #eadff0);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 0 rgba(0, 0, 0, 0.03) inset;
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .star-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 10px;
+    overflow: hidden; /* ← PCは隠す（横スクロールしない） */
+  }
+  @media (max-width: 520px) {
+    .star-grid {
+      overflow-x: auto; /* ← スマホだけ横スクロールOK */
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+    }
+  }
+
+  .star-card {
+    flex: 0 0 auto;
+    min-width: 0; /* ← 210pxをやめる */
+    max-width: none;
+    background: #fff;
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    border-radius: 12px;
+    padding: 6px 10px; /* ← 少し薄く */
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+
+  /* タイトル行（★ 注目選手）をコンパクトに */
+  .star-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    margin: 0; /* 下余白を消す */
+    white-space: nowrap;
+    flex-shrink: 0; /* 縮まない */
+  }
+
+  /* =========================
+  Mobile header compact
+  - box padding reduces = outer frame height shrink
+========================= */
+  @media (max-width: 640px) {
+    /* slim/boxed 両対応：ヘッダー全体の余白を少し詰める */
+    .header {
+      padding: 10px 12px;
+      border-radius: 12px;
+      margin: 0 0 10px;
+    }
+    .header-slim {
+      margin: 0 0 10px;
+    }
+
+    /* パンくずの行間を詰める */
+    .crumbs,
+    .crumbs--slim {
+      font-size: 12px;
+      line-height: 1.2;
+      margin: 2px 0 8px;
+    }
+
+    /* ★ここが効く：ピル外枠（箱）の高さを縮める */
+    .sub--boxed {
+      padding: 8px 10px; /* ← 12px 14px から縮小 */
+      border-radius: 12px;
+    }
+
+    /* ピル列の上下余白を抑える */
+    .pills {
+      gap: 6px;
+      padding-bottom: 0; /* 横スクロール版でも余白が増えないように */
+    }
+
+    /* ピルそのものも少しだけコンパクト化 */
+    .pill {
+      padding: 6px 9px;
+      font-size: 12px;
+    }
+    .pill .dot {
+      width: 6px;
+      height: 6px;
+    }
   }
 </style>
 

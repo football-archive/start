@@ -12,6 +12,7 @@ import RosterView from "../../../components/RosterView.astro";
 
 import { buildClubColumns } from "../../../lib/rosterColumns";
 import { toYMD } from "../../../lib/rosterFormat";
+import { seasonShort } from "../../../lib/seasonFormat";
 
 // ★ URLヘルパー
 import { clubsListUrl } from "../../../lib/urls";
@@ -190,16 +191,18 @@ const initialWindow =
 
 // 現行の title/heading 用（静的HTML上は latestSeason を表示）
 const season = initialSeason;
+const seasonDisp = season ? seasonShort(season) : "";
 
-// ===== title =====
 const pageTitleBase = season
-  ? `${clubLabel}｜${leagueLabel}（${season}）`
+  ? `${clubLabel}｜${leagueLabel}（${seasonDisp || season}）`
   : `${clubLabel}｜${leagueLabel}`;
 
 const title = `${pageTitleBase} 登録メンバー一覧（スカッド）`;
 
-// heading（H1表示）… 以前の h1 と同じ文言
-const heading = `${clubLabel} 登録メンバー一覧（スカッド）${season ? `（${season}）` : ""}`;
+// heading（H1表示） - 以前の h1 と同じ文言
+const heading = `${clubLabel} 登録メンバー一覧（スカッド）${
+  season ? `（${seasonDisp || season}）` : ""
+}`;
 
 // ===== 代表（候補）表示：WC2026の最新スナップショットだけを参照 =====
 const callups = loadCallups();
@@ -314,7 +317,7 @@ const searchTextFn = (r) =>
               class={`pill ${active ? "is-active" : ""}`}
               data-season={s}
             >
-              {s}
+              {seasonShort(s)}
             </button>
           );
         })}
@@ -322,11 +325,83 @@ const searchTextFn = (r) =>
     ) : null
   }
 
+  {/* ここは BaseLayout が page-wrap を持つので <main padding:16px> は不要 */}
+  {/* summer / winter toggle */}
+  <div
+    class="window-toggle"
+    data-default={defaultWindow}
+    data-season-packs={JSON.stringify(
+      seasonPacks.map((p) => ({
+        season: p.season,
+        hasSummer: p.hasSummer,
+        hasWinter: p.hasWinter,
+        defaultWindow: p.defaultWindow,
+      })),
+    )}
+  >
+    <button
+      type="button"
+      class={`wt-btn ${initialWindow === "summer" ? "is-active" : ""}`}
+      data-window="summer"
+      disabled={!initialPack?.hasSummer}
+      title={!initialPack?.hasSummer ? "データなし" : ""}
+    >
+      夏（summer）
+    </button>
+
+    <button
+      type="button"
+      class={`wt-btn ${initialWindow === "winter" ? "is-active" : ""}`}
+      data-window="winter"
+      disabled={!initialPack?.hasWinter}
+      title={!initialPack?.hasWinter ? "データなし" : ""}
+    >
+      冬（winter）
+    </button>
+    <span class="wt-hint">※ 表示切替（シーズン前半 / 後半）</span>
+  </div>
+
+  {/* ✅ 更新日：表の右肩注記（検索行の直前に置く） */}
+  <div class="meta-top">
+    <div class="meta-line">
+      <span class="meta-item">
+        クラブ更新：
+        {
+          seasonPacks.map((p) => (
+            <>
+              <span
+                class="updated-date"
+                data-season={p.season}
+                data-updated="summer"
+                style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+              >
+                {p.summerUpdated || "—"}
+              </span>
+              <span
+                class="updated-date"
+                data-season={p.season}
+                data-updated="winter"
+                style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+              >
+                {p.winterUpdated || "—"}
+              </span>
+            </>
+          ))
+        }
+      </span>
+      <span class="meta-sep">／</span>
+      <span class="meta-item">
+        代表更新：
+        <span class="updated-date">{toYMD(repMaxSnapshot) || "—"}</span>
+      </span>
+    </div>
+  </div>
+
   {
     seasonPacks.map((p) => (
       <>
         <section
-          class="star-section"
+          class="star-block"
           data-season={p.season}
           data-star-window="summer"
           style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
@@ -352,7 +427,7 @@ const searchTextFn = (r) =>
         </section>
 
         <section
-          class="star-section"
+          class="star-block"
           data-season={p.season}
           data-star-window="winter"
           style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
@@ -380,452 +455,383 @@ const searchTextFn = (r) =>
     ))
   }
 
-  {/* ここは BaseLayout が page-wrap を持つので <main padding:16px> は不要 */}
-  <div class="meta-top">
-    <div class="meta-line">
-      <span class="meta-item">
-        クラブスカッド更新日：
-        {
-          seasonPacks.map((p) => (
-            <>
-              <span
-                class="updated-date"
-                data-season={p.season}
-                data-updated="summer"
-                style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
-              >
-                {p.summerUpdated || "—"}
-              </span>
-              <span
-                class="updated-date"
-                data-season={p.season}
-                data-updated="winter"
-                style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
-              >
-                {p.winterUpdated || "—"}
-              </span>
-            </>
-          ))
-        }
-      </span>
-      <span class="meta-sep">／</span>
-      <span class="meta-item">
-        代表招集更新日：
-        <span class="updated-date">{toYMD(repMaxSnapshot) || "—"}</span>
-      </span>
-    </div>
-
-    {/* summer / winter toggle */}
-    <div
-      class="window-toggle"
-      data-default={defaultWindow}
-      data-season-packs={JSON.stringify(
-        seasonPacks.map((p) => ({
-          season: p.season,
-          hasSummer: p.hasSummer,
-          hasWinter: p.hasWinter,
-          defaultWindow: p.defaultWindow,
-        })),
-      )}
-    >
-      <button
-        type="button"
-        class={`wt-btn ${initialWindow === "summer" ? "is-active" : ""}`}
-        data-window="summer"
-        disabled={!initialPack?.hasSummer}
-        title={!initialPack?.hasSummer ? "データなし" : ""}
-      >
-        夏（summer）
-      </button>
-
-      <button
-        type="button"
-        class={`wt-btn ${initialWindow === "winter" ? "is-active" : ""}`}
-        data-window="winter"
-        disabled={!initialPack?.hasWinter}
-        title={!initialPack?.hasWinter ? "データなし" : ""}
-      >
-        冬（winter）
-      </button>
-      <span class="wt-hint">※ 表示切替（シーズン前半 / 後半）</span>
-    </div>
-    {
-      !clubInMaster || !leagueInMaster || !hasRoster ? (
-        <div class="empty">
-          <h2>データが見つかりません</h2>
-          <p>
-            {!leagueInMaster
-              ? "リーグが辞書に未登録です。"
-              : !clubInMaster
-                ? "クラブが辞書に未登録です。"
-                : "指定されたクラブのデータがありません。"}
-          </p>
-          <div class="empty-actions">
-            <a class="btn" href="/clubs">
-              クラブ一覧へ戻る
-            </a>
-          </div>
+  {
+    !clubInMaster || !leagueInMaster || !hasRoster ? (
+      <div class="empty">
+        <h2>データが見つかりません</h2>
+        <p>
+          {!leagueInMaster
+            ? "リーグが辞書に未登録です。"
+            : !clubInMaster
+              ? "クラブが辞書に未登録です。"
+              : "指定されたクラブのデータがありません。"}
+        </p>
+        <div class="empty-actions">
+          <a class="btn" href="/clubs">
+            クラブ一覧へ戻る
+          </a>
         </div>
-      ) : (
-        <>
-          {seasonPacks.map((p) => (
-            <>
-              <section
-                data-season={p.season}
-                data-window="summer"
-                style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
-              >
-                <RosterView
-                  tableId={`club-roster-${p.season}-summer`}
-                  rows={p.rosterSummer}
-                  minWidthPx={920}
-                  borderColor="var(--border, #e6e6e6)"
-                  placeholder="検索：選手名 / 国名 / 国籍"
-                  searchText={searchTextFn}
-                  columns={columnsBySeason[p.season].summer}
-                />
-              </section>
+      </div>
+    ) : (
+      <>
+        {seasonPacks.map((p) => (
+          <>
+            <section
+              data-season={p.season}
+              data-window="summer"
+              style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+            >
+              <RosterView
+                tableId={`club-roster-${p.season}-summer`}
+                rows={p.rosterSummer}
+                minWidthPx={920}
+                borderColor="var(--border, #e6e6e6)"
+                placeholder="検索：選手名 / 国名 / 国籍"
+                searchText={searchTextFn}
+                columns={columnsBySeason[p.season].summer}
+              />
+            </section>
 
-              <section
-                data-season={p.season}
-                data-window="winter"
-                style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
-              >
-                <RosterView
-                  tableId={`club-roster-${p.season}-winter`}
-                  rows={p.rosterWinter}
-                  minWidthPx={920}
-                  borderColor="var(--border, #e6e6e6)"
-                  placeholder="検索：選手名 / 国名 / 国籍"
-                  searchText={searchTextFn}
-                  columns={columnsBySeason[p.season].winter}
-                />
-              </section>
-            </>
-          ))}
-        </>
-      )
-    }
+            <section
+              data-season={p.season}
+              data-window="winter"
+              style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+            >
+              <RosterView
+                tableId={`club-roster-${p.season}-winter`}
+                rows={p.rosterWinter}
+                minWidthPx={920}
+                borderColor="var(--border, #e6e6e6)"
+                placeholder="検索：選手名 / 国名 / 国籍"
+                searchText={searchTextFn}
+                columns={columnsBySeason[p.season].winter}
+              />
+            </section>
+          </>
+        ))}
+      </>
+    )
+  }
 
-    <script is:inline>
-      window.addEventListener("DOMContentLoaded", () => {
-        try {
-          const seasonRoot = document.querySelector(".season-toggle");
-          const windowRoot = document.querySelector(".window-toggle");
-          if (!windowRoot) return;
+  <script is:inline>
+    window.addEventListener("DOMContentLoaded", () => {
+      try {
+        const seasonRoot = document.querySelector(".season-toggle");
+        const windowRoot = document.querySelector(".window-toggle");
+        if (!windowRoot) return;
 
-          const windowBtns = Array.from(
-            windowRoot.querySelectorAll("button[data-window]"),
-          );
-          const seasonBtns = seasonRoot
-            ? Array.from(seasonRoot.querySelectorAll("button[data-season]"))
-            : [];
+        const windowBtns = Array.from(
+          windowRoot.querySelectorAll("button[data-window]"),
+        );
+        const seasonBtns = seasonRoot
+          ? Array.from(seasonRoot.querySelectorAll("button[data-season]"))
+          : [];
 
-          const sections = Array.from(
-            document.querySelectorAll("section[data-window][data-season]"),
-          );
-          const updatedDates = Array.from(
-            document.querySelectorAll("[data-updated][data-season]"),
-          );
-          const starSections = Array.from(
-            document.querySelectorAll("[data-star-window][data-season]"),
-          );
+        const sections = Array.from(
+          document.querySelectorAll("section[data-window][data-season]"),
+        );
+        const updatedDates = Array.from(
+          document.querySelectorAll("[data-updated][data-season]"),
+        );
+        const starSections = Array.from(
+          document.querySelectorAll("[data-star-window][data-season]"),
+        );
 
-          const packs = JSON.parse(
-            windowRoot.getAttribute("data-season-packs") || "[]",
-          ); // [{season,hasSummer,hasWinter,defaultWindow},...]
+        const packs = JSON.parse(
+          windowRoot.getAttribute("data-season-packs") || "[]",
+        ); // [{season,hasSummer,hasWinter,defaultWindow},...]
 
-          const params = new URLSearchParams(location.search);
-          const qWin = (params.get("window") || "").toLowerCase();
-          const qSeason = (params.get("season") || "").trim();
+        const params = new URLSearchParams(location.search);
+        const qWin = (params.get("window") || "").toLowerCase();
+        const qSeason = (params.get("season") || "").trim();
 
-          const defaultSeason =
-            seasonRoot?.getAttribute("data-default-season") ||
-            packs[0]?.season ||
-            "";
-          const initialSeason =
-            qSeason && packs.some((p) => p.season === qSeason)
-              ? qSeason
-              : defaultSeason;
+        const defaultSeason =
+          seasonRoot?.getAttribute("data-default-season") ||
+          packs[0]?.season ||
+          "";
+        const initialSeason =
+          qSeason && packs.some((p) => p.season === qSeason)
+            ? qSeason
+            : defaultSeason;
 
-          function findPack(season) {
-            return packs.find((p) => p.season === season);
-          }
+        function findPack(season) {
+          return packs.find((p) => p.season === season);
+        }
 
-          function setWindowAvailability(season) {
+        function setWindowAvailability(season) {
+          const p = findPack(season);
+          const hasSummer = !!p?.hasSummer;
+          const hasWinter = !!p?.hasWinter;
+
+          windowBtns.forEach((b) => {
+            const w = b.getAttribute("data-window");
+            if (w === "summer") b.disabled = !hasSummer;
+            if (w === "winter") b.disabled = !hasWinter;
+            b.title = b.disabled ? "データなし" : "";
+          });
+
+          return p?.defaultWindow || "summer";
+        }
+
+        function setActive(season, win) {
+          // sections
+          sections.forEach((sec) => {
+            const s = sec.getAttribute("data-season");
+            const w = sec.getAttribute("data-window");
+            sec.style.display = s === season && w === win ? "" : "none";
+          });
+
+          // updated dates
+          updatedDates.forEach((el) => {
+            const s = el.getAttribute("data-season");
+            const w = el.getAttribute("data-updated");
+            el.style.display = s === season && w === win ? "" : "none";
+          });
+
+          // star sections
+          starSections.forEach((sec) => {
+            const s = sec.getAttribute("data-season");
+            const w = sec.getAttribute("data-star-window");
+            sec.style.display = s === season && w === win ? "" : "none";
+          });
+
+          // active window button
+          windowBtns.forEach((b) => {
+            b.classList.toggle(
+              "is-active",
+              b.getAttribute("data-window") === win,
+            );
+          });
+
+          // active season button
+          seasonBtns.forEach((b) => {
+            b.classList.toggle(
+              "is-active",
+              b.getAttribute("data-season") === season,
+            );
+          });
+
+          // update query (without reload)
+          const u = new URL(location.href);
+          u.searchParams.set("season", season);
+          u.searchParams.set("window", win);
+          history.replaceState(null, "", u.toString());
+        }
+
+        // init
+        const defaultWinFromSeason = setWindowAvailability(initialSeason);
+        const initialWin =
+          qWin === "winter" || qWin === "summer" ? qWin : defaultWinFromSeason;
+        setActive(initialSeason, initialWin);
+
+        // bind window clicks
+        windowBtns.forEach((b) => {
+          b.addEventListener("click", () => {
+            if (b.disabled) return;
+            const win = b.getAttribute("data-window");
+            if (!win) return;
+            const curSeason = (
+              new URLSearchParams(location.search).get("season") ||
+              initialSeason
+            ).trim();
+            setActive(curSeason, win);
+          });
+        });
+
+        // bind season clicks
+        seasonBtns.forEach((b) => {
+          b.addEventListener("click", () => {
+            const season = b.getAttribute("data-season");
+            if (!season) return;
+
+            const defaultWin = setWindowAvailability(season);
+            const curWin = (
+              new URLSearchParams(location.search).get("window") || ""
+            ).toLowerCase();
+            const win =
+              curWin === "winter" || curWin === "summer" ? curWin : defaultWin;
+
+            // disabledなら season側デフォルトに寄せる
             const p = findPack(season);
             const hasSummer = !!p?.hasSummer;
             const hasWinter = !!p?.hasWinter;
+            const finalWin =
+              win === "winter" && !hasWinter
+                ? "summer"
+                : win === "summer" && !hasSummer
+                  ? "winter"
+                  : win;
 
-            windowBtns.forEach((b) => {
-              const w = b.getAttribute("data-window");
-              if (w === "summer") b.disabled = !hasSummer;
-              if (w === "winter") b.disabled = !hasWinter;
-              b.title = b.disabled ? "データなし" : "";
-            });
-
-            return p?.defaultWindow || "summer";
-          }
-
-          function setActive(season, win) {
-            // sections
-            sections.forEach((sec) => {
-              const s = sec.getAttribute("data-season");
-              const w = sec.getAttribute("data-window");
-              sec.style.display = s === season && w === win ? "" : "none";
-            });
-
-            // updated dates
-            updatedDates.forEach((el) => {
-              const s = el.getAttribute("data-season");
-              const w = el.getAttribute("data-updated");
-              el.style.display = s === season && w === win ? "" : "none";
-            });
-
-            // star sections
-            starSections.forEach((sec) => {
-              const s = sec.getAttribute("data-season");
-              const w = sec.getAttribute("data-star-window");
-              sec.style.display = s === season && w === win ? "" : "none";
-            });
-
-            // active window button
-            windowBtns.forEach((b) => {
-              b.classList.toggle(
-                "is-active",
-                b.getAttribute("data-window") === win,
-              );
-            });
-
-            // active season button
-            seasonBtns.forEach((b) => {
-              b.classList.toggle(
-                "is-active",
-                b.getAttribute("data-season") === season,
-              );
-            });
-
-            // update query (without reload)
-            const u = new URL(location.href);
-            u.searchParams.set("season", season);
-            u.searchParams.set("window", win);
-            history.replaceState(null, "", u.toString());
-          }
-
-          // init
-          const defaultWinFromSeason = setWindowAvailability(initialSeason);
-          const initialWin =
-            qWin === "winter" || qWin === "summer"
-              ? qWin
-              : defaultWinFromSeason;
-          setActive(initialSeason, initialWin);
-
-          // bind window clicks
-          windowBtns.forEach((b) => {
-            b.addEventListener("click", () => {
-              if (b.disabled) return;
-              const win = b.getAttribute("data-window");
-              if (!win) return;
-              const curSeason = (
-                new URLSearchParams(location.search).get("season") ||
-                initialSeason
-              ).trim();
-              setActive(curSeason, win);
-            });
+            setActive(season, finalWin);
           });
-
-          // bind season clicks
-          seasonBtns.forEach((b) => {
-            b.addEventListener("click", () => {
-              const season = b.getAttribute("data-season");
-              if (!season) return;
-
-              const defaultWin = setWindowAvailability(season);
-              const curWin = (
-                new URLSearchParams(location.search).get("window") || ""
-              ).toLowerCase();
-              const win =
-                curWin === "winter" || curWin === "summer"
-                  ? curWin
-                  : defaultWin;
-
-              // disabledなら season側デフォルトに寄せる
-              const p = findPack(season);
-              const hasSummer = !!p?.hasSummer;
-              const hasWinter = !!p?.hasWinter;
-              const finalWin =
-                win === "winter" && !hasWinter
-                  ? "summer"
-                  : win === "summer" && !hasSummer
-                    ? "winter"
-                    : win;
-
-              setActive(season, finalWin);
-            });
-          });
-        } catch (e) {
-          console.error("season/window toggle init failed:", e);
-        }
-      });
-    </script>
-
-    <style is:global>
-      .page-club .meta-top {
-        margin: 6px 0 12px;
+        });
+      } catch (e) {
+        console.error("season/window toggle init failed:", e);
       }
+    });
+  </script>
 
-      .page-club .meta-line {
-        font-size: 12px;
-        opacity: 0.78;
-        margin-bottom: 8px;
-      }
-      .page-club .meta-item {
-        display: inline-block;
-      }
-      .page-club .meta-sep {
-        margin: 0 6px;
-        opacity: 0.6;
-      }
-      .page-club .updated-date {
-        font-weight: 700;
-      }
+  <style is:global>
+    /* ✅ 更新日：表の右肩注記（検索行の直下に見える位置想定なので詰める） */
+    .page-club .meta-top {
+      margin: 2px 0 0; /* 下を0にして詰める */
+    }
 
-      .page-club .window-toggle {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        margin: 8px 0 6px;
-        flex-wrap: wrap;
-      }
+    .page-club .meta-line {
+      font-size: 12px;
+      opacity: 0.78;
+      line-height: 1.15; /* 行間をさらに詰める */
+      text-align: right;
+      margin: 0;
+      white-space: nowrap;
+    }
 
-      .page-club .wt-btn {
-        appearance: none;
-        border: 1px solid var(--border, #e6e6e6);
-        background: #f3f4f6; /* ← グレー */
-        border-radius: 999px;
-        padding: 6px 10px;
-        font-size: 12px;
-        cursor: pointer;
-        transition:
-          transform 0.06s ease,
-          box-shadow 0.06s ease;
-      }
-      /* hover */
-      .page-club .wt-btn:hover:not(:disabled) {
-        background: #e5e7eb;
-      }
+    .page-club .meta-item {
+      display: inline;
+    }
+    .page-club .meta-sep {
+      margin: 0 6px;
+      opacity: 0.6;
+    }
+    .page-club .updated-date {
+      font-weight: 700;
+    }
 
-      .page-club .wt-btn.is-active {
-        font-weight: 700; /* 強すぎない */
-        background: #111;
-        color: #fff;
-        border-color: #111;
-        cursor: pointer; /* ← 押せる印象を明確に */
-      }
-      .page-club .wt-btn:disabled {
-        opacity: 0.35;
-        cursor: default;
-        transform: none;
-        box-shadow: none;
-      }
+    .page-club .window-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 6px;
+      flex-wrap: wrap;
+    }
 
+    .page-club .wt-btn {
+      appearance: none;
+      border: 1px solid var(--border, #e6e6e6);
+      background: #f3f4f6;
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-size: 12px;
+      cursor: pointer;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease;
+    }
+    .page-club .wt-btn:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
+
+    .page-club .wt-btn.is-active {
+      font-weight: 700;
+      background: #111;
+      color: #fff;
+      border-color: #111;
+      cursor: pointer;
+    }
+    .page-club .wt-btn:disabled {
+      opacity: 0.35;
+      cursor: default;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .page-club .wt-hint {
+      font-size: 12px;
+      opacity: 0.6;
+      margin-left: 6px;
+      color: #6b7280;
+    }
+
+    @media (max-width: 640px) {
       .page-club .wt-hint {
-        font-size: 12px;
-        opacity: 0.6;
-        margin-left: 6px;
-        color: #6b7280;
+        width: 100%;
+        margin-left: 0;
       }
+    }
 
-      @media (max-width: 640px) {
-        .page-club .wt-hint {
-          width: 100%;
-          margin-left: 0;
-        }
-      }
+    /* ===== 既存（そのまま） ===== */
+    .star-block {
+      margin: 12px 0 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
 
-      /* ===== 注目選手（クラブ）：代表と同じトーンに統一 ===== */
-      .star-section {
-        margin: 12px 0 16px;
-        padding: 10px 12px;
-        border: 1px solid rgba(0, 0, 0, 0.08);
-        border-radius: 12px;
-        background: #f3e5f5;
-      }
+      background: #ead5f3;
+      border: 1px solid rgba(128, 0, 128, 0.18);
+    }
 
-      .star-title {
-        margin: 0 0 8px;
-        font-size: 13px;
-        font-weight: 650;
-        opacity: 1;
-      }
+    .star-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 650;
+      opacity: 1;
+    }
 
+    .star-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media (max-width: 900px) {
       .star-grid {
-        display: grid;
-        gap: 10px;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
       }
+    }
+    @media (max-width: 640px) {
+      .star-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
-      @media (max-width: 900px) {
-        .star-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-      @media (max-width: 640px) {
-        .star-grid {
-          grid-template-columns: 1fr;
-        }
-      }
+    .star-card {
+      background: #fff;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+    }
 
-      .star-card {
-        background: #fff;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        border-radius: 10px;
-        padding: 8px 10px;
-        display: flex;
-        align-items: center;
-      }
+    .star-name {
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
 
-      .star-name {
-        font-weight: 600;
-        font-size: 13px;
-        line-height: 1.35;
-        word-break: keep-all;
-      }
+    .star-pos {
+      font-weight: 500;
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
 
-      .star-pos {
-        font-weight: 500;
-        font-size: 12px;
-        opacity: 0.7;
-        margin-left: 4px;
-      }
+    .star-empty {
+      font-size: 13px;
+      opacity: 0.65;
+      padding: 8px 4px;
+    }
 
-      .star-empty {
-        font-size: 13px;
-        opacity: 0.65;
-        padding: 8px 4px;
-      }
+    .rep2-links--past {
+      margin-top: 2px;
+      opacity: 0.75;
+      font-size: 11px;
+    }
+    .rep2-ed--past {
+      text-decoration: underline;
+    }
 
-      .rep2-links--past {
-        margin-top: 2px;
-        opacity: 0.75;
-        font-size: 11px;
-      }
-      .rep2-ed--past {
-        text-decoration: underline;
-      }
+    .rep2-ed--latest {
+      font-weight: 700;
+      text-decoration-thickness: 2px;
+    }
 
-      .rep2-ed--latest {
-        font-weight: 700;
-        text-decoration-thickness: 2px;
-      }
+    .rep2-sep {
+      opacity: 0.55;
+    }
 
-      .rep2-sep {
-        opacity: 0.55;
-      }
-
-      .rep2-ed:not(.rep2-ed--latest) {
-        opacity: 0.8;
-      }
-    </style>
-  </div>
+    .rep2-ed:not(.rep2-ed--latest) {
+      opacity: 0.8;
+    }
+  </style>
 </BaseLayout>

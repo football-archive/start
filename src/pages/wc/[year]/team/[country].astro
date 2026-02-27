@@ -8,6 +8,7 @@ import { loadClubMaster } from "../../../../lib/clubMaster";
 
 import { loadGroups } from "../../../../lib/tournamentGroups";
 import { loadClubSquads } from "../../../../lib/clubSquads";
+import { toYMD } from "../../../../lib/rosterFormat";
 
 // ====================
 // getStaticPaths
@@ -45,6 +46,16 @@ const rowsAll = loadCallups()
   .filter((r: any) => String(r.edition ?? "") === String(year))
   .filter((r: any) => String(r.country ?? "").trim() === countryName);
 
+// 更新日（その国×その年 の callups の最新スナップショット）
+const maxSnapshot = (() => {
+  let max = "";
+  for (const r of rowsAll as any[]) {
+    const s = toYMD(String((r as any).snapshot_date ?? ""));
+    if (s && s > max) max = s;
+  }
+  return max;
+})();
+
 // その国が出場したWCの年（callupsに存在する edition を列挙）
 // ※大会ページのグループ/結果が未投入でも、チームページは成立する
 const yearsForCountry = Array.from(
@@ -58,7 +69,10 @@ const yearsForCountry = Array.from(
 ).sort((a, b) => Number(a) - Number(b));
 
 // クラブリンク解決（club_master.csv を使う）
-const normalize = (s: any) => String(s ?? "").trim().toLowerCase();
+const normalize = (s: any) =>
+  String(s ?? "")
+    .trim()
+    .toLowerCase();
 
 // 選手ごとの「過去に招集された大会（edition）」一覧（リンク用）
 const playerKey = (r: any) =>
@@ -66,7 +80,9 @@ const playerKey = (r: any) =>
 
 const all = loadCallups();
 const wcAllForCountry = all.filter(
-  (r) => String(r.competition ?? "").trim() === "WC" && String(r.country ?? "").trim() === countryName
+  (r) =>
+    String(r.competition ?? "").trim() === "WC" &&
+    String(r.country ?? "").trim() === countryName,
 );
 
 const editionsByPlayer = new Map<string, string[]>();
@@ -114,9 +130,11 @@ const parseAliases = (aliases: string) =>
 
 const clubMaster = loadClubMaster();
 
-// club_squads の存在判定（season + league_key + club_key）
+// club_squads の存在判定（season + window + league_key + club_key）
 const clubSquadKeySet = new Set(
-  loadClubSquads().map((r) => `${r.season}|||${r.league_key}|||${r.club_key}`),
+  loadClubSquads().map(
+    (r) => `${r.season}|||${r.window}|||${r.league_key}|||${r.club_key}`,
+  ),
 );
 
 // WCのedition → クラブ側の season/window へ寄せる
@@ -154,13 +172,27 @@ const clubHref = (clubName: string) => {
   const mapped = mapWcToClubSeason(String(year));
   if (!mapped) return "";
 
-  const exists = clubSquadKeySet.has(
-    `${mapped.season}|||${c.league_key}|||${c.club_key}`,
-  );
+  const squadKey = (season: string, window: "summer" | "winter") =>
+    `${season}|||${window}|||${c.league_key}|||${c.club_key}`;
 
-  return exists ? `/clubs/${c.league_key}/${c.club_key}` : "";
+  // 第一希望：mapWcToClubSeason の window
+  let win: "summer" | "winter" = mapped.window;
+
+  // 無ければ反対側へフォールバック
+  if (!clubSquadKeySet.has(squadKey(mapped.season, win))) {
+    const alt: "summer" | "winter" = win === "summer" ? "winter" : "summer";
+    if (clubSquadKeySet.has(squadKey(mapped.season, alt))) {
+      win = alt;
+    } else {
+      return "";
+    }
+  }
+
+  // ✅ clubページ側は ?season= &window= を受け取って初期表示を切替できる
+  return `/clubs/${c.league_key}/${c.club_key}?season=${encodeURIComponent(
+    mapped.season,
+  )}&window=${encodeURIComponent(win)}`;
 };
-
 
 const columns = buildNtColumns({
   isLatestView: true,
@@ -237,8 +269,15 @@ const heading = `${countryName}代表`;
     )
   }
 
-  {/* ✅ H1直下に “戻るリンク” を寄せる（共通化の流れ） */}
-  <section class="star-section" aria-label="注目選手">
+  {/*  更新日（注目選手の上に置く：状態 → 内容の順） */}
+  <div class="nt-meta-line" aria-label="更新日">
+    更新日：
+    <span class="updated-date">
+      {toYMD(maxSnapshot) || "—"}
+    </span>
+  </div>
+
+  <section class="star-block" aria-label="注目選手">
     <h2 class="star-title">⭐ 注目選手</h2>
 
     {
@@ -339,12 +378,13 @@ const heading = `${countryName}代表`;
       opacity: 0.85;
     }
 
-    .star-section {
+    .star-block {
       margin: 12px 0 16px;
       padding: 10px 12px;
-      border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 12px;
-      background: #f3e5f5;
+
+      background: #ead5f3;
+      border: 1px solid rgba(128, 0, 128, 0.18);
     }
 
     .star-title {
@@ -420,6 +460,40 @@ const heading = `${countryName}代表`;
     .page-nt h2,
     .page-nt h3.section-title {
       color: var(--theme-color);
+    }
+
+    /* 代表側：更新日（注記） */
+    .nt-meta-line {
+      font-size: 12px;
+      opacity: 0.78;
+      line-height: 1.2;
+      margin: 4px 0 8px;
+      text-align: right; /* 注記感＝右寄せ */
+      white-space: nowrap;
+    }
+
+    /* 既に SiteHeader.astro にあるなら不要だが、保険で */
+    .updated-date {
+      color: #c0392b;
+      font-weight: 700;
+    }
+
+    /* pillsブロックの余白を軽く詰める（任意） */
+    .nt-year-pills {
+      margin-bottom: 8px;
+    }
+    .nt-nav-pills {
+      margin: 0 0 6px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 640px) {
+      .nt-meta-line {
+        margin: 3px 0 6px;
+        font-size: 12px;
+      }
     }
   </style>
 </BaseLayout>
