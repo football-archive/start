@@ -9,6 +9,9 @@ export const STRONG_TEAMS = [
   "italy",
   "netherlands",
   "portugal",
+  "belgium",
+  "croatia",
+  "morocco",
 ] as const;
 
 export type StrongTeamSlug = (typeof STRONG_TEAMS)[number];

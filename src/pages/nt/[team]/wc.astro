@@ -44,7 +44,12 @@ export async function getStaticPaths() {
     const v = String(r.is_enabled ?? "")
       .trim()
       .toLowerCase();
-    return v === "1" || v === "true" || v === "yes";
+
+    // 0 / false / no / 空 は「非表示」
+    if (v === "" || v === "0" || v === "false" || v === "no") return false;
+
+    // それ以外（1,2,3... / true / yes）は表示
+    return true;
   });
 
   return enabled
@@ -74,10 +79,13 @@ const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
 
 const bySlug = new Map(ntMaster.map((r) => [r.team_slug, r]));
 const isEnabled = (v?: string) => {
-  const s = String(v ?? "")
-    .trim()
-    .toLowerCase();
-  return s === "1" || s === "true" || s === "yes";
+  const s = String(v ?? "").trim().toLowerCase();
+
+  // 0 / false / no / 空 は「非表示」
+  if (s === "" || s === "0" || s === "false" || s === "no") return false;
+
+  // それ以外（1,2,3... / true / yes）は表示
+  return true;
 };
 
 const me = ntMaster.find((r) => r.team_slug === teamSlug);
@@ -240,22 +248,35 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
 >
   <div class="strong-pills">
     {
-      STRONG_TEAMS.map((slug) => {
-        const m = bySlug.get(slug);
-        const label = m?.country_name_ja || slug;
-        const ok = isEnabled(m?.is_enabled);
-        const href = `/nt/${encodeURIComponent(slug)}/wc`;
+      ntMaster
+        .filter((r) => isEnabled(r.is_enabled))
+        .filter((r) => String(r.is_enabled ?? "").trim() === "1")
+        .map((r) => {
+          const label = r.country_name_ja || r.team_slug;
+          const href = `/nt/${encodeURIComponent(r.team_slug)}/wc`;
+          return (
+            <a class="pill" href={href}>
+              {label}
+            </a>
+          );
+        })
+    }
+  </div>
 
-        return ok ? (
-          <a class="pill" href={href}>
-            {label}
-          </a>
-        ) : (
-          <span class="pill is-disabled" aria-disabled="true">
-            {label}
-          </span>
-        );
-      })
+  <div class="strong-pills" style="margin-top:8px;">
+    {
+      ntMaster
+        .filter((r) => isEnabled(r.is_enabled))
+        .filter((r) => String(r.is_enabled ?? "").trim() === "2")
+        .map((r) => {
+          const label = r.country_name_ja || r.team_slug;
+          const href = `/nt/${encodeURIComponent(r.team_slug)}/wc`;
+          return (
+            <a class="pill pill-sub" href={href}>
+              {label}
+            </a>
+          );
+        })
     }
   </div>
 </BaseLayout>

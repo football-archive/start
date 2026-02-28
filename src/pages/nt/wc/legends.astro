@@ -54,10 +54,13 @@ const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
 );
 
 const isEnabled = (v?: string) => {
-  const s = String(v ?? "")
-    .trim()
-    .toLowerCase();
-  return s === "1" || s === "true" || s === "yes";
+  const s = String(v ?? "").trim().toLowerCase();
+
+  // 0 / false / no / 空 は「非表示」
+  if (s === "" || s === "0" || s === "false" || s === "no") return false;
+
+  // それ以外（1,2,3... / true / yes）は表示
+  return true;
 };
 
 const metaWC = metaAll.filter(

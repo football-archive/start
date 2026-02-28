@@ -266,6 +266,36 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
     .roster-block .table-wrap {
       max-height: 75vh;
     }
+
+    /* ===== mobile: # / Pos を最小化（sticky列の幅＆leftを詰める） ===== */
+
+    /* 目標値（好みで微調整OK） */
+    /* # : 36px / Pos : 44px くらいが現実的に詰まる */
+    .roster-block .roster-table tbody td:nth-child(1),
+    .roster-block .roster-table thead th:nth-child(1) {
+      width: 36px;
+      min-width: 36px;
+      max-width: 36px;
+      padding-left: 6px;
+      padding-right: 6px;
+      text-align: center; /* 右寄せより見た目が締まる */
+    }
+
+    .roster-block .roster-table tbody td:nth-child(2),
+    .roster-block .roster-table thead th:nth-child(2) {
+      width: 44px;
+      min-width: 44px;
+      max-width: 44px;
+      padding-left: 6px;
+      padding-right: 6px;
+      text-align: center;
+    }
+
+    /* stickyのleftも詰め直し（ここが超重要） */
+    .roster-block .roster-table tbody td:nth-child(2),
+    .roster-block .roster-table thead th:nth-child(2) {
+      left: 36px;
+    }
   }
 
   .name2 {
