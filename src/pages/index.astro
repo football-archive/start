@@ -774,6 +774,105 @@ const wcTopHref = tournamentTopUrl({
       padding: 12px 16px; /* 強豪国と同じ体感サイズ */
       border-radius: 10px;
     }
+
+    /* 共通：アイコンの見た目 */
+    .card-ico {
+      display: inline-block;
+      margin-right: 6px;
+      font-size: 0.95em;
+      line-height: 1;
+      vertical-align: -0.08em;
+      opacity: 0.95;
+    }
+
+    /* 色分け（好みで調整OK） */
+    .ico-wc {
+      color: #d4af37;
+    } /* ゴールド */
+    .ico-jp {
+      color: #d11a2a;
+    } /* 日の丸レッド */
+    .ico-club {
+      color: #166534 !important;
+    }
+    .ico-ucl {
+      color: #eab308;
+    } /* ゴールド寄り */
+    .ico-euro {
+      color: #1f4ed8;
+    } /* EUブルー */
+    .ico-transfer {
+      color: #ea580c;
+    } /* オレンジ */
+
+    .card-ico {
+      font-family:
+        "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", sans-serif;
+    }
+
+    .theme-club .card-h2 .card-ico {
+      color: #166534 !important;
+    }
+
+    /* 👕だけは単色化しやすいフォントに寄せる（環境によっては効果あり） */
+    .ico-club {
+      font-family:
+        "Segoe UI Symbol", "Noto Sans Symbols2", "Arial Unicode MS", sans-serif !important;
+      color: #166534 !important;
+    }
+
+    .theme-wc {
+      background: linear-gradient(180deg, #9f1d2c 0%, #7f1622 100%);
+    }
+
+    .theme-club{
+  background: linear-gradient(180deg, #7fa293 0%, #5f8273 100%) !important;
+}
+
+    .theme-japan{
+  background: linear-gradient(180deg, #4f6fa3 0%, #324f80 100%) !important;
+}
+
+    .theme-ucl{
+  background: linear-gradient(180deg, #4c5b79 0%, #2f3e5a 100%) !important;
+}
+
+    .theme-euro{
+  background: linear-gradient(180deg, #cfd5de 0%, #aeb7c4 100%) !important;
+}
+
+.transfer-box{
+  background: linear-gradient(180deg, #9fb8aa 0%, #7f9e90 100%);
+}
+
+    .card,
+    .subcard {
+      position: relative;
+      overflow: hidden;
+      transition:
+        transform 120ms ease,
+        box-shadow 120ms ease;
+    }
+
+    .card:hover,
+    .subcard:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
+    }
+
+    .card::before,
+    .subcard::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.14) 0%,
+        rgba(255, 255, 255, 0.04) 38%,
+        rgba(0, 0, 0, 0.06) 100%
+      );
+    }
   </style>
 
   <div class="container">
@@ -805,7 +904,10 @@ const wcTopHref = tournamentTopUrl({
       <div class="grid">
         <!-- 🏆 WCポータルカード -->
         <div class="card card-portal theme-wc grid-nt-main">
-          <h2 class="card-h2">🏆 FIFAワールドカップ2026</h2>
+          <h2 class="card-h2">
+            <span class="card-ico ico-wc" aria-hidden="true">🏆</span>
+            FIFAワールドカップ2026
+          </h2>
           <div class="card-head">
             <p class="wc-desc">
               代表チームの最新メンバー、スケジュールはコチラから。
@@ -838,7 +940,7 @@ const wcTopHref = tournamentTopUrl({
         <!-- row1 col2: CLUB main -->
         <div class="card card-club theme-club grid-club-main">
           <h2 class="card-h2">
-            <span class="card-ico" aria-hidden="true">👕</span>
+            <span class="card-ico ico-club" aria-hidden="true">👕</span>
             2025-26 主要クラブ 登録メンバー(スカッド)
           </h2>
           <div class="card-head">
@@ -888,7 +990,10 @@ const wcTopHref = tournamentTopUrl({
         <!-- row2 col1: Japan -->
         <div class="subcard jp-box theme-japan grid-nt-sub1">
           <h3 class="subcard-title">
-            <a href={japanHref}>SAMURAI BLUE（日本代表/ワールドカップ）</a>
+            <a href={japanHref}>
+              <span class="card-ico ico-jp" aria-hidden="true">🔴</span>
+              SAMURAI BLUE（日本代表/ワールドカップ）
+            </a>
           </h3>
 
           <div class="jp-sub">
@@ -907,9 +1012,10 @@ const wcTopHref = tournamentTopUrl({
         <!-- row2 col2: UCL -->
         <div class="subcard ucl-box theme-ucl grid-club-sub1">
           <h3 class="subcard-title">
-            <a href={uclHref}
-              >UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）</a
-            >
+            <a href={uclHref}>
+              <span class="card-ico ico-ucl" aria-hidden="true">👑</span>
+              UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）
+            </a>
           </h3>
           <div class="ucl-sub">
             リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
@@ -921,7 +1027,10 @@ const wcTopHref = tournamentTopUrl({
 
         <!-- row3 col1: EURO -->
         <div class="subcard euro-box theme-euro grid-nt-sub2">
-          <h3 class="subcard-title">EURO 2028 予選</h3>
+          <h3 class="subcard-title">
+            <span class="card-ico ico-euro" aria-hidden="true">🌍</span>
+            EURO 2028 予選
+          </h3>
           <div class="euro-sub">準備中</div>
           <div class="euro-sub">
             更新：<span class="date-red">—</span>
@@ -931,7 +1040,10 @@ const wcTopHref = tournamentTopUrl({
         <!-- row3 col2: Transfers -->
         <div class="subcard transfer-box theme-club grid-club-sub2">
           <h3 class="subcard-title">
-            <a href="/transfers">2025-26冬 主な移籍一覧</a>
+            <a href="/transfers">
+              <span class="card-ico ico-transfer" aria-hidden="true">🔁</span>
+              2025-26冬 主な移籍一覧
+            </a>
           </h3>
           <div class="transfer-sub">
             冬の主要選手の移籍はコチラから一覧で！<br />

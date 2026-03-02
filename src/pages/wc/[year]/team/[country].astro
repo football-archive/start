@@ -2,6 +2,11 @@
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
 import RosterView from "../../../../components/RosterView.astro";
 
+import { parseCsv } from "../../../../lib/csvSimple";
+
+import fs from "node:fs";
+import path from "node:path";
+
 import { loadCallups, sortForRoster } from "../../../../lib/callups";
 import { buildNtColumns } from "../../../../lib/rosterColumns";
 import { loadClubMaster } from "../../../../lib/clubMaster";
@@ -45,6 +50,71 @@ const countryName = String(country ?? "").trim();
 const rowsAll = loadCallups()
   .filter((r: any) => String(r.edition ?? "") === String(year))
   .filter((r: any) => String(r.country ?? "").trim() === countryName);
+
+// --------------------
+// メタ1行表示（成績 / 監督）
+//   - 参照：src/data/nt_tournament_meta.csv
+//   - countryName(日本語) -> team_slug は nt_master.csv から解決
+// --------------------
+type NtMasterRow = {
+  team_slug: string;
+  country_name_ja: string;
+};
+
+type NtTournamentMetaRow = {
+  competition: string;
+  edition: string;
+  team_slug: string;
+  coach_ja?: string;
+  result_ja?: string;
+  host_ja?: string;
+};
+
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
+  team_slug: String(r.team_slug ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+}));
+
+const teamSlug =
+  ntMaster.find((r) => String(r.country_name_ja) === countryName)?.team_slug ??
+  "";
+
+const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
+  (r: any) => ({
+    competition: String(r.competition ?? "").trim(),
+    edition: String(r.edition ?? "").trim(),
+    team_slug: String(r.team_slug ?? "").trim(),
+    coach_ja: String(r.coach_ja ?? "").trim(),
+    result_ja: String(r.result_ja ?? "").trim(),
+    host_ja: String(r.host_ja ?? "").trim(),
+  }),
+);
+
+const metaRow = metaAll.find(
+  (m) =>
+    String(m.competition ?? "").toUpperCase() === "WC" &&
+    String(m.edition ?? "") === String(year) &&
+    String(m.team_slug ?? "") === teamSlug,
+);
+
+// 大会名（開催地）＋年：例「ロシア2018」
+// host_ja があれば付ける。無ければ年だけ（例「2018」）
+const metaPrefix = String(metaRow?.host_ja ?? "").trim()
+  ? `${String(metaRow?.host_ja ?? "").trim()}${String(year)}`
+  : String(year);
+
+const metaLine = (() => {
+  const result = String(metaRow?.result_ja ?? "").trim();
+  const coach = String(metaRow?.coach_ja ?? "").trim();
+  const parts = [metaPrefix, result, coach].filter((x) => String(x).trim());
+  return parts.join("｜");
+})();
 
 // 更新日（その国×その年 の callups の最新スナップショット）
 const maxSnapshot = (() => {
@@ -269,12 +339,15 @@ const heading = `${countryName}代表`;
     )
   }
 
-  {/*  更新日（注目選手の上に置く：状態 → 内容の順） */}
-  <div class="nt-meta-line" aria-label="更新日">
-    更新日：
-    <span class="updated-date">
-      {toYMD(maxSnapshot) || "—"}
-    </span>
+  {/*  更新日 + メタ（注目選手の上に置く：状態 → 内容の順） */}
+  <div class="nt-meta-line" aria-label="更新日とメタ情報">
+    <div class="nt-updated">
+      更新日：
+      <span class="updated-date">
+        {toYMD(maxSnapshot) || "—"}
+      </span>
+    </div>
+    {metaLine && <div class="nt-meta">{metaLine}</div>}
   </div>
 
   <section class="star-block" aria-label="注目選手">
@@ -383,7 +456,8 @@ const heading = `${countryName}代表`;
       padding: 10px 12px;
       border-radius: 12px;
 
-      background: #ead5f3;
+      background: color-mix(in srgb, var(--theme-color) 26%, #ffffff);
+      border-color: color-mix(in srgb, var(--theme-color) 45%, var(--border));
       border: 1px solid rgba(128, 0, 128, 0.18);
     }
 
@@ -462,14 +536,39 @@ const heading = `${countryName}代表`;
       color: var(--theme-color);
     }
 
-    /* 代表側：更新日（注記） */
+    /* 代表側：更新日（注記） + メタ1行 */
     .nt-meta-line {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 4px 0 10px;
+      white-space: normal;
+    }
+
+    .nt-updated {
       font-size: 12px;
       opacity: 0.78;
       line-height: 1.2;
-      margin: 4px 0 8px;
-      text-align: right; /* 注記感＝右寄せ */
+      text-align: right; /* 更新日は注記感＝右寄せ */
       white-space: nowrap;
+    }
+
+    /* 追加：メタ1行（成績｜監督）
+       - 左寄せ
+       - WCテーマ色（var(--theme-color)）
+       - 強調（少し大きく、太く） */
+    .nt-meta {
+      align-self: flex-start;
+      text-align: left;
+      margin-top: 0;
+      font-weight: 700;
+      font-size: 14px;
+      line-height: 1.25;
+      color: var(--theme-color);
+      opacity: 1;
+      word-break: keep-all;
+      border-left: 4px solid var(--theme-color);
+      padding-left: 8px;
     }
 
     /* 既に SiteHeader.astro にあるなら不要だが、保険で */
@@ -491,8 +590,11 @@ const heading = `${countryName}代表`;
 
     @media (max-width: 640px) {
       .nt-meta-line {
-        margin: 3px 0 6px;
-        font-size: 12px;
+        margin: 3px 0 8px;
+      }
+
+      .nt-meta {
+        font-size: 13px;
       }
     }
   </style>

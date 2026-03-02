@@ -1,5 +1,4 @@
 team_slug,country_name_ja,country_name_en,confederation,is_enabled,notes
-japan,日本,Japan,AFC,1,強豪国の仲間入りへ
 brazil,ブラジル,Brazil,CONMEBOL,1,かつてのサッカー王国
 germany,ドイツ,Germany,UEFA,1,不屈のゲルマン魂
 argentina,アルゼンチン,Argentina,CONMEBOL,1,マラドーナからメッシへ
@@ -10,5 +9,8 @@ italy,イタリア,Italy,UEFA,1,守備の国カテナチオ
 netherlands,オランダ,Netherlands,UEFA,1,トータルフットボール
 portugal,ポルトガル,Portugal,UEFA,1,稀代のスター「CR7」の時代
 belgium,ベルギー,Belgium,UEFA,2,黄金世代が切り拓いた強豪への道
+uruguay,ウルグアイ,Uruguay,CONMEBOL,2,完全復活を期す南米の古豪
 croatia,クロアチア,Croatia,UEFA,2,世界を揺るがし続ける小国
-morocco,モロッコ,Morocco,UEFA,2,アフリカの新たな挑戦者
+columbia,コロンビア,Columbia,CONMEBOL,2,2014年大会の主役
+morocco,モロッコ,Morocco,UEFA,2,急成長を遂げたダークホース
+japan,日本,Japan,AFC,1,歴代最強メンバー、強豪国入りへの挑戦

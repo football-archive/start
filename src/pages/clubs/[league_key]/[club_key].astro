@@ -14,6 +14,9 @@ import { buildClubColumns } from "../../../lib/rosterColumns";
 import { toYMD } from "../../../lib/rosterFormat";
 import { seasonShort } from "../../../lib/seasonFormat";
 
+// ★ クラブ“あゆみ”用：シーズンメタ（順位/監督など）
+import { loadCtSeasonMeta, findCtSeasonMeta } from "../../../lib/ctSeasonMeta";
+
 // ★ URLヘルパー
 import { clubsListUrl } from "../../../lib/urls";
 
@@ -180,6 +183,27 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
 const hasRoster = seasonPacks.some((p) => p.hasSummer || p.hasWinter);
 
 // 静的HTMLの初期表示 season/window（JSが上書きするが初期描画に使う）
+// --------------------
+// クラブ“あゆみ”メタ（順位/監督など）：ct_season_meta.csv 参照
+// --------------------
+const ctSeasonMetaAll = loadCtSeasonMeta();
+
+const ctMetaLabel = (seasonStr: string): string => {
+  const meta = findCtSeasonMeta(ctSeasonMetaAll, {
+    season: seasonStr,
+    league_key,
+    club_key,
+  });
+  if (!meta) return "";
+
+  const head = seasonShort(seasonStr) || String(seasonStr ?? "").trim();
+  const rank = String(meta.rank_ja ?? "").trim();
+  const coach = String(meta.coach_ja ?? "").trim();
+
+  const parts = [head, rank, coach].filter(Boolean);
+  return parts.length >= 2 ? parts.join("｜") : ""; // headだけは表示しない
+};
+
 const initialSeason =
   qSeason && seasonCandidates.includes(qSeason) ? qSeason : latestSeason;
 const initialPack = seasonPacks.find((p) => p.season === initialSeason);
@@ -395,6 +419,24 @@ const searchTextFn = (r) =>
         <span class="updated-date">{toYMD(repMaxSnapshot) || "—"}</span>
       </span>
     </div>
+
+    {/* ✅ シーズンメタ：更新日より下（左寄せ・強調） */}
+    {
+      seasonPacks.map((p) => {
+        const label = ctMetaLabel(p.season);
+        if (!label) return null;
+        return (
+          <div
+            class="ct-meta"
+            data-ctmeta="1"
+            data-season={p.season}
+            style={`display:${p.season === initialSeason ? "" : "none"}`}
+          >
+            {label}
+          </div>
+        );
+      })
+    }
   </div>
 
   {
@@ -533,6 +575,9 @@ const searchTextFn = (r) =>
         const updatedDates = Array.from(
           document.querySelectorAll("[data-updated][data-season]"),
         );
+        const ctMetas = Array.from(
+          document.querySelectorAll("[data-ctmeta][data-season]"),
+        );
         const starSections = Array.from(
           document.querySelectorAll("[data-star-window][data-season]"),
         );
@@ -586,6 +631,12 @@ const searchTextFn = (r) =>
             const s = el.getAttribute("data-season");
             const w = el.getAttribute("data-updated");
             el.style.display = s === season && w === win ? "" : "none";
+          });
+
+          // ct meta (depends only on season)
+          ctMetas.forEach((el) => {
+            const s = el.getAttribute("data-season");
+            el.style.display = s === season ? "" : "none";
           });
 
           // star sections
@@ -686,6 +737,28 @@ const searchTextFn = (r) =>
       white-space: nowrap;
     }
 
+    /* ✅ シーズンメタ（順位/監督）：更新日の下に“見出し”として出す */
+    .ct-meta {
+      margin: 6px 0 10px;
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-align: left;
+      color: var(--theme-color);
+      border-left: 4px solid var(--theme-color);
+      padding-left: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    @media (max-width: 480px) {
+      .ct-meta {
+        font-size: 13px;
+        border-left-width: 5px;
+      }
+    }
+
     .page-club .meta-item {
       display: inline;
     }
@@ -755,7 +828,8 @@ const searchTextFn = (r) =>
       padding: 10px 12px;
       border-radius: 12px;
 
-      background: #ead5f3;
+      background: color-mix(in srgb, var(--theme-color) 26%, #ffffff);
+      border-color: color-mix(in srgb, var(--theme-color) 45%, var(--border));
       border: 1px solid rgba(128, 0, 128, 0.18);
     }
 

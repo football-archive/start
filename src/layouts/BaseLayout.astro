@@ -40,7 +40,9 @@ const seoTitle = title ? `${title}｜${siteNameSeo}` : siteNameSeo;
 const metaDescription =
   description && String(description).trim() ? description : seoTitle;
 
-const canonicalUrl = Astro.url ? `${Astro.url.origin}${Astro.url.pathname}` : "";
+const canonicalUrl = Astro.url
+  ? `${Astro.url.origin}${Astro.url.pathname}`
+  : "";
 
 const pageHeading = heading || title;
 ---
@@ -59,12 +61,14 @@ const pageHeading = heading || title;
         --color-ucl: #0a1f44; /* CL：紺 */
         --color-wc: #7a1f2b; /* WC：ワインレッド（暫定） */
         --color-japan: #1f4fa3; /* 日本：SAMURAI BLUE */
-        --color-club: #6b7280; /* クラブ：無所属グレー */
+        --color-club: #2f855a; /* クラブ：仮グリーン（試験） */
         --color-awards: #c9a227; /* 表彰：金 */
-        --color-euro: #1f7a3a; /* EURO：緑（暫定） */
+        --color-euro: #6b7280; /* EURO：グレー仮置き */
 
         /* ★ default theme（未指定時の基準） */
-        --theme-color: var(--color-club);
+        --theme-color: var(--color-euro);
+
+        --color-club-accent: #2f855a; /* クラブ強調用（試験） */
 
         /* ===== Derived tokens ===== */
         --theme-link: var(--theme-color);
@@ -79,13 +83,18 @@ const pageHeading = heading || title;
       body {
         --theme-table-head-bg: color-mix(
           in srgb,
-          var(--theme-color) 18%,
+          var(--theme-color) 38%,
           #ffffff
         );
         --theme-table-head-border: color-mix(
           in srgb,
-          var(--theme-color) 28%,
+          var(--theme-color) 55%,
           var(--border)
+        );
+        --theme-table-head-solid: color-mix(
+          in srgb,
+          var(--theme-color) 82%,
+          #000000
         );
       }
 
@@ -103,7 +112,7 @@ const pageHeading = heading || title;
         --theme-color: var(--color-awards);
       }
       body.page-club {
-        --theme-color: var(--color-club);
+        --theme-color: var(--color-club-accent);
       }
       body.page-euro {
         --theme-color: var(--color-euro);
@@ -129,9 +138,9 @@ const pageHeading = heading || title;
         --theme-color: var(--color-euro);
       }
 
-      body.page-ucl table thead th {
-        background: color-mix(in srgb, var(--theme-color) 22%, #ffffff);
-        border-color: color-mix(in srgb, var(--theme-color) 45%, var(--border));
+      table thead th {
+        background: var(--theme-table-head-bg);
+        border-color: var(--theme-table-head-border);
       }
 
       body.page-ucl .pill.is-active {
@@ -271,6 +280,17 @@ const pageHeading = heading || title;
           var(--theme-color) 38%,
           var(--border)
         );
+      }
+
+      /* ===== Meta line (ct / nt) ===== */
+      :where(.ct-meta, .nt-meta) {
+        font-size: 20px !important;
+        font-weight: 800;
+        line-height: 1.35;
+        letter-spacing: 0.02em;
+        margin: 10px 0 8px;
+        padding-left: 10px;
+        border-left: 4px solid color-mix(in srgb, var(--theme-color) 70%, #000);
       }
     </style>
     <meta charset="utf-8" />
