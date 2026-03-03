@@ -40,8 +40,8 @@ const seoTitle = title ? `${title}｜${siteNameSeo}` : siteNameSeo;
 const metaDescription =
   description && String(description).trim() ? description : seoTitle;
 
-const canonicalUrl = Astro.url
-  ? `${Astro.url.origin}${Astro.url.pathname}`
+const canonicalUrl = Astro.site
+  ? new URL(Astro.url.pathname, Astro.site).toString()
   : "";
 
 const pageHeading = heading || title;

@@ -2,9 +2,8 @@
 import { defineConfig } from "astro/config";
 import sitemap from "@astrojs/sitemap";
 
-// ✅ Netlify 本番（いったんこれで固定）
-const SITE_URL =
-  process.env.SITE_URL ?? "https://world-football-archive.netlify.app";
+// ✅ 本番ドメイン（ここを正にする）
+const SITE_URL = "https://worldfootballarchive.com";
 
 export default defineConfig({
   site: SITE_URL,
