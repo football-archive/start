@@ -19,7 +19,10 @@ import { STRONG_TEAMS } from "../../../lib/strongTeams";
 type NtMasterRow = {
   team_slug: string;
   country_name_ja: string;
-  is_enabled?: string;
+  // 0=非表示 / 1=歴史的強豪国 / 2=強豪に迫る実力国
+  display_tier?: string;
+  wc_titles?: string;
+  wc_titles_all_time?: string;
 };
 
 type NtTournamentMetaRow = {
@@ -32,34 +35,37 @@ type NtTournamentMetaRow = {
   comment_ja?: string;
 };
 
+function toTier(v?: string) {
+  const n = Number(String(v ?? "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+
 // ====================
-// getStaticPaths：ここだけ「完全直書き」で安定化
+// getStaticPaths：display_tier ベースに変更（is_enabled 廃止）
 // ====================
 export async function getStaticPaths() {
+  // ★ getStaticPaths 内に閉じ込めて定義（スコープ事故を確実に回避）
+  const toTier = (v: any) => {
+    const n = Number(String(v ?? "").trim());
+    return Number.isFinite(n) ? n : 0;
+  };
+
   const p = path.join(process.cwd(), "src", "data", "nt_master.csv");
   const text = fs.readFileSync(p, "utf-8");
   const rows = parseCsv(text);
 
-  const enabled = rows.filter((r: any) => {
-    const v = String(r.is_enabled ?? "")
-      .trim()
-      .toLowerCase();
-
-    // 0 / false / no / 空 は「非表示」
-    if (v === "" || v === "0" || v === "false" || v === "no") return false;
-
-    // それ以外（1,2,3... / true / yes）は表示
-    return true;
-  });
-
-  return enabled
-    .map((r: any) => String(r.team_slug ?? "").trim())
-    .filter(Boolean)
-    .map((team) => ({ params: { team } }));
+  return rows
+    .filter((r: any) => {
+      const slug = String(r.team_slug ?? "").trim();
+      if (!slug) return false;
+      const tier = toTier(r.display_tier);
+      return tier === 1 || tier === 2; // 0は生成しない
+    })
+    .map((r: any) => ({ params: { team: String(r.team_slug).trim() } }));
 }
 
 // ====================
-// 以降：ページ側（ここは関数使ってOK）
+// 以降：ページ側
 // ====================
 function readCsv(fileName: string) {
   const p = path.join(process.cwd(), "src", "data", fileName);
@@ -74,19 +80,10 @@ const teamSlug = String(team ?? "").trim();
 const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
   team_slug: String(r.team_slug ?? "").trim(),
   country_name_ja: String(r.country_name_ja ?? "").trim(),
-  is_enabled: String(r.is_enabled ?? "").trim(),
+  display_tier: String(r.display_tier ?? "").trim(),
+  wc_titles: String(r.wc_titles ?? "").trim(),
+  wc_titles_all_time: String(r.wc_titles_all_time ?? "").trim(),
 }));
-
-const bySlug = new Map(ntMaster.map((r) => [r.team_slug, r]));
-const isEnabled = (v?: string) => {
-  const s = String(v ?? "").trim().toLowerCase();
-
-  // 0 / false / no / 空 は「非表示」
-  if (s === "" || s === "0" || s === "false" || s === "no") return false;
-
-  // それ以外（1,2,3... / true / yes）は表示
-  return true;
-};
 
 const me = ntMaster.find((r) => r.team_slug === teamSlug);
 if (!me)
@@ -246,16 +243,21 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
   ]}
   heading={heading}
 >
+  <div class="backline">
+    <a class="back" href="/nt/wc/legends">← 強豪国一覧に戻る</a>
+  </div>
   <div class="strong-pills">
     {
       ntMaster
-        .filter((r) => isEnabled(r.is_enabled))
-        .filter((r) => String(r.is_enabled ?? "").trim() === "1")
+        .filter((r) => Number(String(r.display_tier ?? "").trim()) === 1)
         .map((r) => {
           const label = r.country_name_ja || r.team_slug;
           const href = `/nt/${encodeURIComponent(r.team_slug)}/wc`;
           return (
-            <a class="pill" href={href}>
+            <a
+              class={`pill ${r.team_slug === teamSlug ? "is-active" : ""}`}
+              href={href}
+            >
               {label}
             </a>
           );
@@ -266,13 +268,15 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
   <div class="strong-pills" style="margin-top:8px;">
     {
       ntMaster
-        .filter((r) => isEnabled(r.is_enabled))
-        .filter((r) => String(r.is_enabled ?? "").trim() === "2")
+        .filter((r) => Number(String(r.display_tier ?? "").trim()) === 2)
         .map((r) => {
           const label = r.country_name_ja || r.team_slug;
           const href = `/nt/${encodeURIComponent(r.team_slug)}/wc`;
           return (
-            <a class="pill pill-sub" href={href}>
+            <a
+              class={`pill pill-sub ${r.team_slug === teamSlug ? "is-active" : ""}`}
+              href={href}
+            >
               {label}
             </a>
           );
@@ -497,6 +501,26 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
       flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 14px;
+    }
+
+    .page-nt-hub .backline {
+      margin: 4px 0 10px;
+    }
+    .page-nt-hub .back {
+      display: inline-block;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--color-wc);
+    }
+
+    .page-nt-hub .pill.is-active {
+      background: color-mix(in srgb, var(--color-wc) 14%, white);
+      border-color: color-mix(
+        in srgb,
+        var(--color-wc) 30%,
+        rgba(0, 0, 0, 0.08)
+      );
     }
 
     .page-nt-hub .pill {
@@ -824,6 +848,26 @@ const description = `${countryJa}代表のワールドカップ出場大会を�
     .page-nt-hub .ga-player th:nth-child(2),
     .page-nt-hub .ga-player td:nth-child(2) {
       width: 55%;
+    }
+
+    /* ===== Links: keep SEO, but look like text ===== */
+    .page-nt-hub a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-nt-hub a:hover {
+      text-decoration: none;
+    }
+
+    /* pills は既にデザインがあるのでそのまま */
+    .page-nt-hub .pill {
+      color: #111;
+    }
+
+    /* breadcrumb と back link は “リンク感” 残したければ個別に色指定 */
+    .page-nt-hub .back {
+      color: var(--color-wc);
     }
   </style>
 </div>

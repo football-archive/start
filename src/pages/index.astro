@@ -269,7 +269,7 @@ const wcTopHref = tournamentTopUrl({
 <BaseLayout
   title="World Football Archive｜海外サッカーDB"
   bodyClass="page-home"
-  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。 FIFAワールドカップの代表チームや、海外クラブ登録メンバーの『今 / あの時』を行き来する、『世界サッカーDB』。"
+  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
 >
   <style is:global>
@@ -825,25 +825,25 @@ const wcTopHref = tournamentTopUrl({
       background: linear-gradient(180deg, #9f1d2c 0%, #7f1622 100%);
     }
 
-    .theme-club{
-  background: linear-gradient(180deg, #7fa293 0%, #5f8273 100%) !important;
-}
+    .theme-club {
+      background: linear-gradient(180deg, #7fa293 0%, #5f8273 100%) !important;
+    }
 
-    .theme-japan{
-  background: linear-gradient(180deg, #4f6fa3 0%, #324f80 100%) !important;
-}
+    .theme-japan {
+      background: linear-gradient(180deg, #4f6fa3 0%, #324f80 100%) !important;
+    }
 
-    .theme-ucl{
-  background: linear-gradient(180deg, #4c5b79 0%, #2f3e5a 100%) !important;
-}
+    .theme-ucl {
+      background: linear-gradient(180deg, #4c5b79 0%, #2f3e5a 100%) !important;
+    }
 
-    .theme-euro{
-  background: linear-gradient(180deg, #cfd5de 0%, #aeb7c4 100%) !important;
-}
+    .theme-euro {
+      background: linear-gradient(180deg, #cfd5de 0%, #aeb7c4 100%) !important;
+    }
 
-.transfer-box{
-  background: linear-gradient(180deg, #9fb8aa 0%, #7f9e90 100%);
-}
+    .transfer-box {
+      background: linear-gradient(180deg, #9fb8aa 0%, #7f9e90 100%);
+    }
 
     .card,
     .subcard {
@@ -873,6 +873,33 @@ const wcTopHref = tournamentTopUrl({
         rgba(0, 0, 0, 0.06) 100%
       );
     }
+
+    /* ✅ WCカード内：代表ポータル導線 */
+    .grid-nt-main .nt-portal-row {
+      margin-top: 10px;
+    }
+
+    .grid-nt-main .nt-portal-btn {
+      display: block;
+      text-decoration: none;
+      color: inherit;
+      border: 1px solid rgba(0, 0, 0, 0.14);
+      background: rgba(255, 255, 255, 0.12);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .grid-nt-main .nt-portal-btn:hover {
+      border-color: color-mix(
+        in srgb,
+        var(--color-wc) 35%,
+        rgba(0, 0, 0, 0.14)
+      );
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
+    }
   </style>
 
   <div class="container">
@@ -880,7 +907,10 @@ const wcTopHref = tournamentTopUrl({
       <p class="subtitle">
         Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
         />
-        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。
+        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。<br
+        /><br
+        />
+        代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。
       </p>
 
       <section class="updates">
@@ -932,6 +962,14 @@ const wcTopHref = tournamentTopUrl({
             <a href="/wc/2026/#schedule" class="portal-btn">試合日程・結果</a>
             <a href="/wc/2026/#awards" class="portal-btn portal-main">表彰</a>
           </div>
+
+          <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
+          <div class="nt-portal-row">
+            <a class="nt-portal-btn" href="/nt">
+              代表トップへ（強豪国・日本代表・各国あゆみ）
+            </a>
+          </div>
+
           <a class="legend-btn" href="/nt/wc/legends">
             強豪国代表　W杯のあゆみ（歴代代表メンバー）
           </a>

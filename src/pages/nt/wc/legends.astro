@@ -5,12 +5,23 @@ import path from "node:path";
 import { parseCsv } from "../../../lib/csvSimple";
 import { STRONG_TEAMS } from "../../../lib/strongTeams";
 
+const CURRENT_WC_EDITION = 2026; // ✅ 今は2026開催直前。完結大会は<2026
+const INCOMPLETE_PATTERNS = [
+  "出場決定",
+  "予選",
+  "PO",
+  "プレーオフ",
+  "未定",
+  "辞退",
+  "開催前",
+];
+
 type NtMasterRow = {
   team_slug: string;
   country_name_ja: string;
-  country_name_en?: string;
-  confederation?: string;
-  is_enabled?: string;
+  display_tier?: string;
+  wc_titles?: string;
+  wc_titles_all_time?: string;
   notes?: string;
 };
 
@@ -30,16 +41,32 @@ function readCsv(fileName: string) {
   return parseCsv(text);
 }
 
+function toTier(v: any) {
+  const n = Number(String(v ?? "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+function toNum(v: any) {
+  const n = Number(String(v ?? "").trim());
+  return Number.isFinite(n) ? n : 0;
+}
+function uniq<T>(arr: T[]) {
+  return Array.from(new Set(arr));
+}
+
+function isIncompleteResult(result: string) {
+  const t = String(result ?? "").trim();
+  if (!t) return true; // 空は“完結情報なし”扱い
+  return INCOMPLETE_PATTERNS.some((p) => t.includes(p));
+}
+
 const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
   team_slug: String(r.team_slug ?? "").trim(),
   country_name_ja: String(r.country_name_ja ?? "").trim(),
-  country_name_en: String(r.country_name_en ?? "").trim(),
-  confederation: String(r.confederation ?? "").trim(),
-  is_enabled: String(r.is_enabled ?? "").trim(),
+  display_tier: String(r.display_tier ?? "").trim(),
+  wc_titles: String(r.wc_titles ?? "").trim(),
+  wc_titles_all_time: String(r.wc_titles_all_time ?? "").trim(),
   notes: String(r.notes ?? "").trim(),
 }));
-
-const bySlug = new Map(ntMaster.map((r) => [r.team_slug, r]));
 
 const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
   (r: any) => ({
@@ -53,71 +80,107 @@ const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
   }),
 );
 
-const isEnabled = (v?: string) => {
-  const s = String(v ?? "").trim().toLowerCase();
-
-  // 0 / false / no / 空 は「非表示」
-  if (s === "" || s === "0" || s === "false" || s === "no") return false;
-
-  // それ以外（1,2,3... / true / yes）は表示
-  return true;
-};
-
 const metaWC = metaAll.filter(
   (m) => String(m.competition ?? "").toUpperCase() === "WC",
 );
 
-function uniq<T>(arr: T[]) {
-  return Array.from(new Set(arr));
+// STRONG_TEAMSの並び順を優先（同tier内の並び）
+const order = new Map(STRONG_TEAMS.map((s, i) => [s, i] as const));
+
+type LegendItem = {
+  slug: string;
+  tier: number;
+  label: string;
+  appearances: number;
+  wins: number;
+  intro: string;
+  lastAppearance: string; // 例：2014：GL敗退（完結大会）
+  latestResult: string; // カード補助（notesがないときに使う）
+};
+
+function pickLastCompleted(rows: NtTournamentMetaRow[]) {
+  // ① edition を数値化
+  const list = rows
+    .map((r) => {
+      const ed = Number(String(r.edition ?? "").trim());
+      if (!Number.isFinite(ed)) return null;
+      const result = String(r.result_ja ?? "").trim();
+      return { ed, result };
+    })
+    .filter(Boolean) as { ed: number; result: string }[];
+
+  // ② “完結大会”候補：ed < CURRENT、かつ result_ja が未完結っぽくない
+  const completed = list
+    .filter((x) => x.ed < CURRENT_WC_EDITION)
+    .filter((x) => !isIncompleteResult(x.result))
+    .sort((a, b) => b.ed - a.ed);
+
+  if (completed[0]) return completed[0];
+
+  // ③ fallback：ed < CURRENT の最大（resultが空でもOK）
+  const beforeCurrent = list
+    .filter((x) => x.ed < CURRENT_WC_EDITION)
+    .sort((a, b) => b.ed - a.ed);
+
+  if (beforeCurrent[0]) return beforeCurrent[0];
+
+  // ④ 最後のfallback：最大edition（=2026しか無いケース）
+  const any = list.sort((a, b) => b.ed - a.ed);
+  return any[0] ?? null;
 }
 
-// “優勝”カウントは result_ja の文字列ベース（後で厳密化OK）
-function isWinner(resultJa: string) {
-  const s = String(resultJa ?? "").trim();
-  if (!s) return false;
+const itemsAll: LegendItem[] = ntMaster
+  .map((m) => {
+    const slug = String(m.team_slug ?? "").trim();
+    const tier = toTier(m.display_tier);
+    const label = String(m.country_name_ja ?? "").trim() || slug;
 
-  if (s.includes("準優勝")) return false;
+    // WCメタ（この国）
+    const rows = metaWC.filter(
+      (x) => String(x.team_slug ?? "").trim() === slug,
+    );
 
-  return s.includes("優勝") || s.includes("W優勝") || s.includes("冠军");
-}
+    // 出場回数：editionユニーク（未来大会含むのが嫌なら、ここも <CURRENT にできます）
+    const editions = uniq(
+      rows.map((r) => String(r.edition ?? "").trim()).filter(Boolean),
+    );
+    const appearances = editions.length;
 
-const items = STRONG_TEAMS.map((slug) => {
-  const m = bySlug.get(slug);
-  const label = m?.country_name_ja || slug;
-  const enabled = isEnabled(m?.is_enabled);
+    // 優勝回数：nt_masterから
+    const wins = Math.max(toNum(m.wc_titles), toNum(m.wc_titles_all_time));
 
-  const rows = metaWC.filter((x) => x.team_slug === slug);
+    // ✅ 前回出場（完結している直近）
+    const last = pickLastCompleted(rows);
+    const lastAppearance = last ? `${last.ed}：${last.result || "—"}` : "—";
 
-  const editions = uniq(
-    rows.map((r) => String(r.edition ?? "").trim()).filter(Boolean),
-  );
-  const appearances = editions.length;
+    // カード備考：notes優先、なければ前回成績を使う
+    const intro = String(m.notes ?? "").trim();
+    const latestResult = last ? last.result || "" : "";
 
-  const wins = rows.filter((r) => isWinner(String(r.result_ja ?? ""))).length;
+    return {
+      slug,
+      tier,
+      label,
+      appearances,
+      wins,
+      intro,
+      lastAppearance,
+      latestResult,
+    };
+  })
+  .filter((it) => it.slug && (it.tier === 1 || it.tier === 2))
+  .sort((a, b) => {
+    if (a.tier !== b.tier) return a.tier - b.tier;
+    return (order.get(a.slug) ?? 999) - (order.get(b.slug) ?? 999);
+  });
 
-  // 最新の1行（コメント出す用：edition最大を採用）
-  const latestEdition = editions
-    .map((x) => Number(x))
-    .filter((n) => Number.isFinite(n))
-    .sort((a, b) => b - a)[0];
-  const latest = latestEdition
-    ? rows.find((r) => Number(r.edition) === latestEdition)
-    : undefined;
+const tier1 = itemsAll.filter((x) => x.tier === 1);
+const tier2 = itemsAll.filter((x) => x.tier === 2);
 
-  const intro = String(m?.notes ?? "").trim();
-
-  return {
-    slug,
-    label,
-    enabled,
-    appearances,
-    wins,
-    intro,
-    latestHost: String(latest?.host_ja ?? "").trim(),
-    latestResult: String(latest?.result_ja ?? "").trim(),
-    latestComment: String(latest?.comment_ja ?? "").trim(),
-  };
-});
+const ranking = [...itemsAll]
+  .filter((x) => x.wins > 0)
+  .sort((a, b) => b.wins - a.wins || b.appearances - a.appearances)
+  .slice(0, 8);
 
 const heading = "強豪国のワールドカップの歩み";
 const title = `${heading} | World Football Archive`;
@@ -140,68 +203,269 @@ const description =
 >
   <div class="lead">
     <p>
-      強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。各国カードから「あゆみ」ページへ移動できます。
+      強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。カードをタップすると各国の「W杯あゆみ」へ移動します。
     </p>
   </div>
 
-  <section class="grid" aria-label="強豪国一覧">
-    {
-      items.map((it) => {
-        const href = `/nt/${encodeURIComponent(it.slug)}/wc`;
-        const disabled = !it.enabled;
+  {
+    ranking.length > 0 && (
+      <section class="rank" aria-label="W杯優勝回数ランキング">
+        <h2 class="sec-title">W杯優勝回数ランキング（上位）</h2>
 
-        return (
-          <div class={`card ${disabled ? "is-disabled" : ""}`}>
-            <div class="top">
-              <div class="name">{it.label}代表</div>
-              <div class="badges">
-                <span class="badge">出場 {it.appearances}</span>
-                <span class="badge win">優勝 {it.wins}</span>
-              </div>
+        <div class="rank-table" role="table" aria-label="優勝回数ランキング">
+          <div class="rank-row head" role="row">
+            <div class="c-rank" role="columnheader">
+              #
             </div>
-
-            <div class="sub">
-              {it.intro ? (
-                <span class="intro">{it.intro}</span>
-              ) : it.latestHost || it.latestResult ? (
-                <span class="latest">
-                  {it.latestHost && <span>直近開催地: {it.latestHost}</span>}
-                  {it.latestResult && <span> / 成績: {it.latestResult}</span>}
-                </span>
-              ) : (
-                <span class="latest muted">データ準備中</span>
-              )}
+            <div class="c-name" role="columnheader">
+              国
             </div>
-
-            {it.latestComment && (
-              <div class="comment">💬 {it.latestComment}</div>
-            )}
-
-            {disabled ? (
-              <div class="go muted">準備中</div>
-            ) : (
-              <a class="go" href={href}>
-                あゆみを見る →
-              </a>
-            )}
+            <div class="c-win" role="columnheader">
+              優勝
+            </div>
+            <div class="c-app" role="columnheader">
+              出場
+            </div>
+            <div class="c-last" role="columnheader">
+              前回出場
+            </div>
           </div>
-        );
-      })
-    }
-  </section>
+
+          {ranking.map((it, idx) => (
+            <a
+              class="rank-row"
+              role="row"
+              href={`/nt/${encodeURIComponent(it.slug)}/wc`}
+            >
+              <div class="c-rank" role="cell">
+                {idx + 1}
+              </div>
+              <div class="c-name" role="cell">
+                {it.label}
+              </div>
+              <div class="c-win" role="cell">
+                {it.wins}
+              </div>
+              <div class="c-app" role="cell">
+                {it.appearances}
+              </div>
+              <div class="c-last" role="cell">
+                {it.lastAppearance || "—"}
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    tier1.length > 0 && (
+      <section aria-label="歴史的強豪国">
+        <h2 class="sec-title">歴史的強豪国（{tier1.length}）</h2>
+        <section class="grid" aria-label="歴史的強豪国 一覧">
+          {tier1.map((it) => (
+            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc`}>
+              <div class="top">
+                <div class="name">{it.label}代表</div>
+                <div class="badges">
+                  <span class="badge">出場 {it.appearances}</span>
+                  <span class="badge win">優勝 {it.wins}</span>
+                </div>
+              </div>
+
+              <div class="sub">
+                {/* ✅備考だけテーマカラー（notes優先） */}
+                <span
+                  class={`intro ${it.intro || it.latestResult ? "theme" : "muted"}`}
+                >
+                  {it.intro || it.latestResult || "データ準備中"}
+                </span>
+              </div>
+
+              <div class="go">WCあゆみ →</div>
+            </a>
+          ))}
+        </section>
+      </section>
+    )
+  }
+
+  {
+    tier2.length > 0 && (
+      <section aria-label="強豪に迫る実力国">
+        <h2 class="sec-title">強豪に迫る実力国（{tier2.length}）</h2>
+        <section class="grid" aria-label="強豪に迫る実力国 一覧">
+          {tier2.map((it) => (
+            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc`}>
+              <div class="top">
+                <div class="name">{it.label}代表</div>
+                <div class="badges">
+                  <span class="badge">出場 {it.appearances}</span>
+                  <span class="badge win">優勝 {it.wins}</span>
+                </div>
+              </div>
+
+              <div class="sub">
+                <span class={`intro ${it.intro ? "theme" : "muted"}`}>
+                  {it.intro || it.latestResult || "データ準備中"}
+                </span>
+              </div>
+
+              <div class="go">WCあゆみ →</div>
+            </a>
+          ))}
+        </section>
+      </section>
+    )
+  }
 
   <style is:global>
     .page-nt-legends .lead {
-      margin: 6px 0 14px;
+      margin: 6px 0 12px;
       color: #374151;
       font-size: 14px;
       line-height: 1.7;
     }
+
+    .page-nt-legends .sec-title {
+      margin: 16px 0 10px;
+      font-size: 16px;
+      font-weight: 850;
+      color: var(--theme-color);
+    }
+
+    /* ===== Ranking ===== */
+    /* ===== Ranking ===== */
+    .page-nt-legends .rank {
+      padding: 10px 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.05);
+      max-width: 820px;
+      margin: 6px auto 18px;
+    }
+
+    .page-nt-legends .rank-table {
+      display: grid;
+      gap: 2px;
+      margin-top: 8px;
+      border-top: 1px solid rgba(0, 0, 0, 0.06);
+      padding-top: 6px;
+    }
+
+    /* ✅ 国列に上限をつける + 右側を広げる */
+    .page-nt-legends .rank-row {
+      display: grid;
+      grid-template-columns:
+        28px
+        minmax(140px, 240px) /* 国：伸びすぎ防止（ここが効く） */
+        64px /* 優勝 */
+        70px /* 出場：少し広げる */
+        minmax(180px, 1fr); /* 前回出場：広めに */
+      column-gap: 16px; /* ✅ 出場と前回出場を離す */
+      align-items: center;
+      padding: 6px 8px;
+      border-radius: 10px;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .page-nt-legends .rank-row.head {
+      font-size: 12px;
+      font-weight: 850;
+      opacity: 0.78;
+      pointer-events: none;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      border-radius: 0;
+      padding-bottom: 8px;
+      margin-bottom: 2px;
+    }
+
+    .page-nt-legends a.rank-row:hover {
+      background: rgba(0, 0, 0, 0.03);
+    }
+
+    .page-nt-legends .c-name {
+      font-weight: 850;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 値：数字は右寄せ */
+    .page-nt-legends .c-win,
+    .page-nt-legends .c-app,
+    .page-nt-legends .c-rank {
+      font-variant-numeric: tabular-nums;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ✅ 見出しだけ中央寄せ（日本の表感） */
+    .page-nt-legends .rank-row.head .c-rank,
+    .page-nt-legends .rank-row.head .c-name,
+    .page-nt-legends .rank-row.head .c-win,
+    .page-nt-legends .rank-row.head .c-app {
+      text-align: center;
+    }
+
+    .page-nt-legends .rank-row.head .c-last {
+      text-align: left;
+    }
+
+    .page-nt-legends .c-win {
+      font-weight: 900;
+      color: color-mix(in srgb, var(--theme-color) 80%, #111);
+    }
+
+    /* 前回出場：文字列なので左寄せ、はみ出しは省略 */
+    .page-nt-legends .c-last {
+      font-variant-numeric: tabular-nums;
+      text-align: left;
+      padding-left: 10px; /* ←これが重要 */
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* 行リンクが「押せる」と分かる演出 */
+    .page-nt-legends a.rank-row {
+      position: relative;
+    }
+
+    .page-nt-legends a.rank-row:hover {
+      background: color-mix(in srgb, var(--theme-color) 6%, transparent);
+      outline: 1px solid color-mix(in srgb, var(--theme-color) 22%, transparent);
+    }
+
+    .page-nt-legends a.rank-row:focus-visible {
+      outline: 2px solid color-mix(in srgb, var(--theme-color) 45%, transparent);
+      outline-offset: 2px;
+    }
+
+    /* 右端に薄い矢印（行リンクのサイン） */
+    .page-nt-legends a.rank-row::after {
+      content: "→";
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      opacity: 0.75;
+      font-weight: 900;
+    }
+
+    .page-nt-legends a.rank-row:hover::after {
+      opacity: 0.7;
+    }
+
+    /* ===== Grid ===== */
     .page-nt-legends .grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 0 0 24px;
+      gap: 10px;
+      margin: 0 0 20px;
     }
     @media (max-width: 980px) {
       .page-nt-legends .grid {
@@ -210,91 +474,93 @@ const description =
     }
     @media (max-width: 560px) {
       .page-nt-legends .grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
       }
     }
 
+    /* ===== Card (compact) ===== */
     .page-nt-legends .card {
+      display: block;
       border: 1px solid rgba(0, 0, 0, 0.08);
       border-radius: 14px;
       background: #fff;
-      padding: 12px 12px 10px;
+      padding: 10px 10px 9px;
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.06);
       min-width: 0;
+      text-decoration: none;
+      color: inherit;
     }
-    .page-nt-legends .card.is-disabled {
-      opacity: 0.6;
+    .page-nt-legends .card:hover {
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+      transform: translateY(-1px);
+      transition: 0.08s ease;
     }
+
     .page-nt-legends .top {
       display: flex;
-      align-items: baseline;
+      align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      margin-bottom: 8px;
+      gap: 8px;
+      margin-bottom: 6px;
     }
     .page-nt-legends .name {
-      font-size: 16px;
-      font-weight: 850;
+      font-size: 15px;
+      font-weight: 900;
       letter-spacing: 0.2px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
     }
     .page-nt-legends .badges {
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
       justify-content: flex-end;
+      flex-shrink: 0;
     }
     .page-nt-legends .badge {
       font-size: 12px;
-      font-weight: 800;
-      padding: 2px 8px;
+      font-weight: 900;
+      padding: 2px 7px;
       border-radius: 999px;
       border: 1px solid rgba(0, 0, 0, 0.08);
       background: #fafafa;
       white-space: nowrap;
-    }
-    .page-nt-legends .badge.win {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.25);
-    }
-    .page-nt-legends .sub {
-      font-size: 12px;
-      opacity: 0.85;
-      margin-bottom: 8px;
-    }
-    .page-nt-legends .muted {
-      opacity: 0.65;
-    }
-    .page-nt-legends .comment {
-      font-size: 12px;
-      opacity: 0.85;
-      line-height: 1.5;
-      margin: 6px 0 8px;
-    }
-    .page-nt-legends .go {
-      display: inline-block;
-      margin-top: 6px;
-      font-size: 12.5px;
-      font-weight: 800;
-      color: #1d4ed8;
-      text-decoration: none;
+      line-height: 1.2;
     }
     .page-nt-legends .badge.win {
       background: color-mix(in srgb, var(--theme-color) 14%, white);
       border-color: color-mix(in srgb, var(--theme-color) 25%, transparent);
     }
+
+    .page-nt-legends .sub {
+      font-size: 12px;
+      margin-bottom: 6px;
+      min-height: 1.2em;
+    }
+
     .page-nt-legends .intro {
-      font-weight: 750;
-      color: color-mix(in srgb, var(--theme-color) 85%, #111);
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      line-height: 1.2;
     }
+    .page-nt-legends .intro.muted {
+      opacity: 0.65;
+      color: #111;
+    }
+    .page-nt-legends .intro.theme {
+      color: var(--theme-color); /* ✅備考だけテーマ色 */
+      font-weight: 850;
+    }
+
     .page-nt-legends .go {
+      font-size: 12.5px;
+      font-weight: 900;
       color: var(--theme-link);
-    }
-    .intro {
-      font-weight: 700;
-      color: color-mix(in srgb, var(--theme-color) 85%, #222);
+      white-space: nowrap;
     }
   </style>
 </BaseLayout>
