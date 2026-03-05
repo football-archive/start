@@ -40,10 +40,81 @@ const seoTitle = title ? `${title}｜${siteNameSeo}` : siteNameSeo;
 const metaDescription =
   description && String(description).trim() ? description : seoTitle;
 
+/**
+ * canonical は「クエリなし・末尾スラッシュはAstro標準のpathname」で統一
+ * Astro.site が無い（ローカル等）場合は相対URLのままでもOKにする
+ */
 const canonicalUrl = Astro.site
   ? new URL(Astro.url.pathname, Astro.site).toString()
+  : Astro.url.pathname;
+
+/**
+ * OGP画像はできれば絶対URLが堅い（SNSクローラ対策）
+ * Astro.site が無い場合は相対のまま
+ */
+const ogImage = Astro.site ? new URL("/ogp.png", Astro.site).toString() : "/ogp.png";
+
+/**
+ * JSON-LD: BreadcrumbList
+ * crumbs が「label」だけ（href無し）で渡ってくる運用なので、
+ * href があるものだけ item を持たせる。最後は現在ページとしてitem無しでもOK。
+ */
+const buildBreadcrumbJsonLd = () => {
+  if (!crumbs || crumbs.length === 0) return "";
+
+  const items = crumbs
+    .filter((c) => c && String(c.label ?? "").trim())
+    .map((c, idx) => {
+      const label = String(c.label ?? "").trim();
+      const href = String(c.href ?? "").trim();
+
+      // href がない場合は「現在ページ」扱いで item を付けない
+      const item =
+        href && Astro.site ? new URL(href, Astro.site).toString() : href;
+
+      const base: any = {
+        "@type": "ListItem",
+        position: idx + 1,
+        name: label,
+      };
+      if (item) base.item = item;
+      return base;
+    });
+
+  const json = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: items,
+  };
+
+  return JSON.stringify(json);
+};
+
+const breadcrumbJsonLd = buildBreadcrumbJsonLd();
+
+/**
+ * WebSite / Organization（最小構成）
+ * ※将来ロゴやSNSが揃ったらここに追加していけばOK
+ */
+const websiteJsonLd = Astro.site
+  ? JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: siteNameSeo,
+      url: Astro.site.toString(),
+    })
   : "";
 
+const orgJsonLd = Astro.site
+  ? JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      name: siteNameSeo,
+      url: Astro.site.toString(),
+    })
+  : "";
+
+// heading（既存）
 const pageHeading = heading || title;
 ---
 
@@ -293,31 +364,52 @@ const pageHeading = heading || title;
         border-left: 4px solid color-mix(in srgb, var(--theme-color) 70%, #000);
       }
     </style>
+
     <meta charset="utf-8" />
     <title>{seoTitle}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    {/* ✅ 基本メタ */}
     <meta name="description" content={metaDescription} />
-    {
-      /*
-      canonical / og:url
-      クエリ文字列を除いたURLを正規URLとして扱う
-    */
-    }
+    <meta name="robots" content="index,follow" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+
+    {/* ✅ Search Console */}
     <meta
       name="google-site-verification"
       content="ELhwwwP8DIFrwsjhnopOuIZnZ_bHVqPRMkcT7q5Dg84"
     />
+
+    {/* ✅ canonical / og:url */}
     <link rel="canonical" href={canonicalUrl} />
     <meta property="og:url" content={canonicalUrl} />
 
+    {/* ✅ Open Graph */}
+    <meta property="og:site_name" content={siteNameSeo} />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ja_JP" />
     <meta property="og:title" content={seoTitle} />
     <meta property="og:description" content={metaDescription} />
-    <meta property="og:image" content="/ogp.png" />
+    <meta property="og:image" content={ogImage} />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
+
+    {/* ✅ Twitter */}
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={seoTitle} />
+    <meta name="twitter:description" content={metaDescription} />
+    <meta name="twitter:image" content={ogImage} />
 
     <link rel="icon" type="image/png" href="/favicon.png" />
+
+    {/* ✅ JSON-LD: WebSite / Organization / Breadcrumbs */}
+    {websiteJsonLd && (
+      <script type="application/ld+json" set:html={websiteJsonLd} />
+    )}
+    {orgJsonLd && <script type="application/ld+json" set:html={orgJsonLd} />}
+    {breadcrumbJsonLd && (
+      <script type="application/ld+json" set:html={breadcrumbJsonLd} />
+    )}
   </head>
 
   <body

@@ -1,0 +1,72 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+// まずは入口だけ（クラブ追加は後で増やしてOK）
+const elite = [
+  { label: "Barcelona", slug: "barcelona" },
+  { label: "Real Madrid", slug: "real-madrid" },
+  { label: "Bayern", slug: "bayern" },
+  { label: "Manchester United", slug: "manchester-united" },
+  { label: "AC Milan", slug: "ac-milan" },
+];
+---
+
+<BaseLayout
+  title="クラブのあゆみ"
+  description="欧州強豪クラブの歴史を年代とともに振り返るアーカイブ。"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "クラブ", href: "/clubs" },
+    { label: "クラブのあゆみ" },
+  ]}
+>
+  <main style="padding:16px">
+    <h1>クラブのあゆみ</h1>
+
+    <p class="lead">
+      欧州強豪クラブの歴史を、年代・黄金期・主なタイトル・当時のメンバーで振り返ります。
+      （まずは入口ページ。ここから順次、各クラブの「あゆみ」を追加していきます）
+    </p>
+
+    <h2>欧州強豪クラブ</h2>
+    <div class="grid">
+      {elite.map((c) => (
+        <a class="card" href={`/clubs/history/${c.slug}`}>
+          <strong>{c.label}</strong>
+          <span class="sub">歴代メンバー / 黄金期</span>
+        </a>
+      ))}
+    </div>
+
+    <p class="note">
+      ※ 各クラブページ（/clubs/history/[club]）は次のステップで実装します。
+    </p>
+  </main>
+
+  <style>
+    .lead { color:#444; margin:0 0 18px; line-height:1.6; }
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+      gap:12px;
+      margin:10px 0 18px;
+    }
+    .card{
+      display:block;
+      padding:14px;
+      border:1px solid rgba(0,0,0,.15);
+      border-radius:10px;
+      background:#fff;
+      text-decoration:none;
+      color:#111;
+      transition:.15s;
+    }
+    .card:hover{
+      border-color:#f2c94c;
+      background:#fff9e6;
+    }
+    .sub{ display:block; margin-top:6px; font-size:12px; color:#555; }
+    .note{ font-size:12px; color:#666; }
+  </style>
+</BaseLayout>

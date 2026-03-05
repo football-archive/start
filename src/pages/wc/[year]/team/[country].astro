@@ -20,7 +20,9 @@ import { toYMD } from "../../../../lib/rosterFormat";
 // 重要：params.country は「未エンコードの国名」を返す
 // ====================
 export async function getStaticPaths() {
-  const rows = loadCallups().filter((r) => String(r.competition) === "WC");
+  const rows = loadCallups().filter(
+    (r) => String(r.competition ?? "").toUpperCase() === "WC",
+  );
   const seen = new Set<string>();
   const paths: { params: { year: string; country: string } }[] = [];
 
@@ -81,9 +83,16 @@ const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
   country_name_ja: String(r.country_name_ja ?? "").trim(),
 }));
 
+const normKey = (s: any) =>
+  String(s ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+
+// teamSlug はこれで
 const teamSlug =
-  ntMaster.find((r) => String(r.country_name_ja) === countryName)?.team_slug ??
-  "";
+  ntMaster.find((r) => normKey(r.country_name_ja) === normKey(countryName))
+    ?.team_slug ?? "";
 
 const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
   (r: any) => ({
@@ -136,7 +145,7 @@ const yearsForCountry = Array.from(
       .map((r: any) => String(r.edition ?? "").trim())
       .filter(Boolean),
   ),
-).sort((a, b) => Number(a) - Number(b));
+).sort((a, b) => Number(b) - Number(a));
 
 // クラブリンク解決（club_master.csv を使う）
 const normalize = (s: any) =>
@@ -166,7 +175,7 @@ for (const r of wcAllForCountry) {
 }
 // 表示は降順に（数字として比較）
 for (const [k, arr] of editionsByPlayer) {
-  arr.sort((a, b) => Number(a) - Number(b));
+  arr.sort((a, b) => Number(b) - Number(a));
   editionsByPlayer.set(k, arr);
 }
 const groups = loadGroups("WC", String(year), "group");
@@ -282,8 +291,8 @@ const columns = buildNtColumns({
 const topHref = `/wc/${year}`;
 
 // <title> 用（共通ヘッダーのページ名にも出る）
-const title = `FIFAワールドカップ${year}（WC${year}）${countryName}代表メンバー`;
-const description = `${countryName}代表の招集メンバー（WC${year} / FIFAワールドカップ${year}）。ポジション、所属クラブ、代表デビュー、生年月日など。`;
+const title = `${countryName}代表 WC${year}招集メンバー`;
+const description = `${countryName}代表のWC${year}招集メンバー一覧。背番号・ポジション・所属クラブなどを掲載。`;
 const heading = `${countryName}代表`;
 ---
 

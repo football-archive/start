@@ -274,7 +274,7 @@ export function getTeamEditionSubtotals(
       assists: v.assists,
       ga: v.goals + v.assists,
     }))
-    .sort((a, b) => Number(a.edition) - Number(b.edition));
+    .sort((a, b) => Number(b.edition) - Number(a.edition));
 }
 
 // 同順位：1,1,3方式
