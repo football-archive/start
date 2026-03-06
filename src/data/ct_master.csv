@@ -1,7 +1,20 @@
-﻿club_key,club_name_ja,club_name_en,league_key,is_enabled,league_titles_all_time,notes
-premier-league-arsenal,アーセナル,Arsenal,premier-league,1,,
-premier-league-liverpool,リヴァプール,Liverpool,premier-league,1,,
-premier-league-manchester-city,マンチェスター・C,Manchester City,premier-league,1,,
-premier-league-manchester-united,マンチェスター・U,Manchester United,premier-league,1,,
-premier-league-chelsea,チェルシー,Chelsea,premier-league,1,,
-premier-league-tottenham-hotspur,トッテナム,Tottenham Hotspur,premier-league,2,,
+﻿club_key,club_name_ja,club_name_en,league_key,display_tier,league_titles_all_time,notes
+premier-league-liverpool-fc,リヴァプール,Liverpool FC,premier-league,1,19,世界から愛される伝統の名門
+premier-league-arsenal,アーセナル,Arsenal,premier-league,1,13,ヴェンゲルが築いた革新的マインド
+premier-league-chelsea,チェルシー,Chelsea,premier-league,1,6,受け継がれるアブラモビッチのDNA
+premier-league-manchester-united,マンチェスター・ユナイテッド,Manchester United,premier-league,1,20,創設期最強を誇った「赤い悪魔」
+premier-league-manchester-city,マンチェスター・シティ,Manchester City,premier-league,1,10,名将ペップ到来で黄金時代へ
+laliga-real-madrid,レアル・マドリード,Real Madrid,laliga,1,36,世界中のスターが集うクラブ最高峰
+laliga-fc-barcelona,バルセロナ,FC Barcelona,laliga,1,27,ティキ・タカが築いた攻撃哲学
+seriea-ac-milan,ACミラン,AC Milan,serie-a,1,19,セリエ黄金期を象徴する欧州屈指の名門
+seriea-juventus-fc,ユヴェントス,Juventus FC,serie-a,1,36,国内最多優勝を誇るイタリアの盟主
+seriea-internazionale-milano,インテル・ミラノ,Internazionale Milano,serie-a,1,20,各国スターが集うミラノの雄
+bundesliga-bayern-munchen,バイエルン・ミュンヘン,Bayern München,bundesliga,1,33,国内最強を誇るドイツの絶対王者
+ligue1-paris-saint-germain-fc,パリ・サンジェルマン,Paris Saint-Germain FC,ligue-1,1,12,巨額投資で世界的ビッグクラブへ
+laliga-atletico-de-madrid,アトレティコ・マドリード,Atlético de Madrid,laliga,2,11,鉄壁のシメオネ長期政権
+bundesliga-borussia-dortmund,ボルシア・ドルトムント,Borussia Dortmund,bundesliga,2,8,若き才能が輝くドイツ屈指の名門
+ligue1-as-monaco,ASモナコ,AS Monaco,ligue-1,2,8,若手スターを輩出する育成の名門
+seriea-ssc-napoli,SSCナポリ,SSC Napoli,serie-a,2,3,マラドーナから続く南欧の古豪
+premier-league-tottenham-hotspur,トッテナム・ホットスパー,Tottenham Hotspur,premier-league,2,2,ビッグ6の一角を担う強豪クラブ
+bundesliga-bayer-04-leverkusen,バイエル・レバークーゼン,Bayer 04 Leverkusen,bundesliga,2,1,悲願の初優勝で新時代を切り拓く
+eredivisie-ajax-amsterdam,アヤックス,Ajax Amsterdam,eredivisie,0,,

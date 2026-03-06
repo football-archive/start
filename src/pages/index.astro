@@ -36,7 +36,7 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(6);
+const updates = loadUpdates(5);
 
 // --------------------
 // 代表（WC2026 / 日本）
@@ -267,9 +267,9 @@ const wcTopHref = tournamentTopUrl({
 ---
 
 <BaseLayout
-  title="World Football Archive｜海外サッカーDB"
+  title="海外サッカーDB｜ワールドカップ代表メンバー・海外クラブ登録選手"
   bodyClass="page-home"
-  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。"
+  description="Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今」と「あの時」を行き来できる、世界サッカーDB。代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
 >
   <style is:global>
@@ -900,6 +900,17 @@ const wcTopHref = tournamentTopUrl({
       );
       box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
     }
+
+    .jp-sub a {
+      color: #fff;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .jp-sub a:hover {
+      opacity: 0.9;
+    }
   </style>
 
   <div class="container">
@@ -908,8 +919,7 @@ const wcTopHref = tournamentTopUrl({
         Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
         />
         FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。<br
-        /><br
-        />
+        /><br />
         代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。
       </p>
 
@@ -944,14 +954,17 @@ const wcTopHref = tournamentTopUrl({
             </p>
             <div class="card-meta">
               <span>代表更新：<span class="date-red">{wcUpdatedAt}</span></span>
-              <span>出場：{wcTeamCount}チーム / {wcPlayerCount}人</span>
+              <span>出場：{wcTeamCount}カ国 / {wcPlayerCount}選手</span>
             </div>
           </div>
           <div class="card-sep" aria-hidden="true"></div>
 
           <div class="portal-links">
-            <a href="/wc/2026/#teams" class="portal-btn"
+            <a href="/wc/2026/#teams" class="portal-btn portal-main"
               >出場国・代表メンバー一覧</a
+            >
+            <a href="/wc/2026/#schedule" class="portal-btn portal-main"
+              >試合日程・結果</a
             >
             <a href="/wc/2026/#groups" class="portal-btn"
               >グループリーグ勝敗表</a
@@ -959,8 +972,7 @@ const wcTopHref = tournamentTopUrl({
             <a href="/wc/2026/#rankings" class="portal-btn"
               >得点・アシストランキング</a
             >
-            <a href="/wc/2026/#schedule" class="portal-btn">試合日程・結果</a>
-            <a href="/wc/2026/#awards" class="portal-btn portal-main">表彰</a>
+            <a href="/wc/2026/#awards" class="portal-btn">表彰</a>
           </div>
 
           <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
@@ -992,7 +1004,7 @@ const wcTopHref = tournamentTopUrl({
               <span>
                 クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
                   clubsPlayerCount
-                }人
+                }選手
               </span>
             </div>
           </div>
@@ -1001,7 +1013,7 @@ const wcTopHref = tournamentTopUrl({
           <div class="card-shortcuts">
             <div class="shortcut-head">
               <p class="quick-title">ショートカット：主要リーグから探す</p>
-              <a class="see-now" href="/clubs">→ いますぐ見る</a>
+              <a class="see-now" href="/clubs">クラブ一覧へ →</a>
             </div>
 
             <div class="pills">
@@ -1022,6 +1034,9 @@ const wcTopHref = tournamentTopUrl({
                 全リーグ
               </a>
             </div>
+            <a class="legend-btn" href="/clubs/history">
+              欧州強豪クラブのあゆみ（歴代メンバー）
+            </a>
           </div>
         </div>
 
@@ -1035,7 +1050,7 @@ const wcTopHref = tournamentTopUrl({
           </h3>
 
           <div class="jp-sub">
-            日本代表はコチラから（WC2026メンバー一覧へ）<br />
+            <a href="/wc/2026/team/日本">日本代表メンバー一覧はこちら</a><br />
             更新：<span class="date-red">{japanUpdatedAt}</span>
           </div>
 

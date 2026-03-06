@@ -5,6 +5,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { loadCallups, countrySlug } from "../../../lib/callups";
 import { tournamentTopUrl } from "../../../lib/urls";
 import { loadGroups, getGroupsList } from "../../../lib/tournamentGroups";
+import { latestUpdateDate, fmtJP } from "../../../lib/updates";
 
 import MatchScheduleTable from "../../../components/MatchScheduleTable.astro";
 import {
@@ -120,6 +121,10 @@ for (const conf of confs) {
   for (const country of countries) allCountries.push({ country, conf });
 }
 
+const totalCountries = allCountries.length;
+const latestNtUpdate = fmtJP(latestUpdateDate("nt"));
+const isWC2026 = String(year) === "2026";
+
 const qualifiedCountries = allCountries.filter(({ country }) =>
   statusMap.qualified.has(country),
 );
@@ -191,11 +196,12 @@ for (const [g, list] of standingsByGroup.entries()) {
 const awardGroups = getAwards("WC", String(year));
 
 const wcTitle = `FIFAワールドカップ${year}`;
+const teamsHeading = isWC2026
+  ? `FIFAワールドカップ2026 出場国・代表メンバー一覧`
+  : `${wcTitle} 出場国・代表メンバー一覧`;
 
-const pageTitle =
-  `${wcTitle} 出場国・代表メンバー・グループ・日程｜海外サッカーDB`;
-const pageDesc =
-  `${wcTitle}の出場国、代表メンバー、グループ、試合日程、得点ランキングを一覧できます。`;
+const pageTitle = `${teamsHeading}｜グループ・日程・各国チーム情報｜海外サッカーDB`;
+const pageDesc = `${wcTitle}の出場国一覧と各国の代表メンバーを掲載。グループ、試合日程、得点ランキングも確認できます。ワールドカップ2026の最新チーム情報を一覧でチェック。`;
 ---
 
 <BaseLayout
@@ -205,7 +211,7 @@ const pageDesc =
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[{ label: "トップ", href: "/" }, { label: wcTitle }]}
-  heading={wcTitle}
+  heading={teamsHeading}
 >
   <style is:global>
     .page-wc .quick-title {
@@ -659,130 +665,43 @@ const pageDesc =
     .page-wc .filter-link {
       color: var(--theme-color);
     }
+
+    .update-date {
+      color: #c62828;
+      font-weight: 600;
+    }
   </style>
 
-  <p class="quick-title" style="margin: 6px 0 10px;">
-    FIFAワールドカップ（World Cup / WC）{year} の出場国・代表メンバー、グループ、試合日程、得点ランキングを一覧できます。
+  <p class="quick-title" style="margin: 6px 0 6px;">
+    {wcTitle}の出場国一覧と各国の最新代表メンバーを掲載しています。
+    各チームページでは招集メンバー、所属クラブ、代表歴などを確認できます。
   </p>
+
+  <p class="quick-title" style="margin: 0 0 10px;">
+    {isWC2026 ? "2026年大会は史上初の48カ国開催。" : ""}
+    出場国は大陸別・グループ別に絞り込みできます。
+    <span class="update-date">｜最終更新：{latestNtUpdate}</span>
+  </p>
+
   {
-    /* =========================
-      (1) グループ枠（A〜L）
-     ========================= */
+    isWC2026 && (
+      <p style="margin: 0 0 14px;">
+        <a href={`${topHref}/team/${countrySlug("日本")}`} class="filter-link">
+          🇯🇵 日本代表メンバーを見る
+        </a>
+      </p>
+    )
   }
-  <section id="groups" style="margin: 18px 0;">
-    <h2>グループ勝敗表（グループステージ）</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      各グループの参加国（※プレーオフ枠は確定後にリンク化）
-    </p>
-
-    <div class="group-grid">
-      {
-        groups.map((g) => (
-          <div class="group-card">
-            <h3>Group {g}</h3>
-            <ul>
-              {(groupSets[g] || []).map((it) => (
-                <li>
-                  {it.is_placeholder ? (
-                    <span class="placeholder">{it.name}</span>
-                  ) : (
-                    <a
-                      href={`${topHref}/team/${it.slug}?from=group-card-${encodeURIComponent(
-                        g,
-                      )}&anchor=groups`}
-                    >
-                      {it.name}
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
-
-            {(() => {
-              const s = standingsByGroup.get(g) || [];
-              if (s.length === 0) return null;
-
-              const v = (x: any) =>
-                String(x ?? "").trim() ? String(x).trim() : "-";
-              const isPH = (r: any) => String(r.is_placeholder ?? "0") === "1";
-
-              return (
-                <div class="group-standings-wrap">
-                  <table
-                    class="mini-standings"
-                    aria-label={`Group ${g} standings`}
-                  >
-                    <thead>
-                      <tr>
-                        <th>国</th>
-                        <th>試</th>
-                        <th>勝</th>
-                        <th>分</th>
-                        <th>負</th>
-                        <th>得</th>
-                        <th>失</th>
-                        <th>差</th>
-                        <th>点</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {s.map((r: any) => (
-                        <tr>
-                          <td>
-                            {isPH(r) ? (
-                              <span class="placeholder">
-                                {r.country_name_ja}
-                              </span>
-                            ) : (
-                              <a
-                                href={`${topHref}/team/${countrySlug(
-                                  r.route_param ||
-                                    r.country_key ||
-                                    r.country_name_ja,
-                                )}`}
-                              >
-                                {r.country_name_ja}
-                              </a>
-                            )}
-                          </td>
-                          <td>{v(r.played)}</td>
-                          <td>{v(r.w)}</td>
-                          <td>{v(r.d)}</td>
-                          <td>{v(r.l)}</td>
-                          <td>{v(r.gf)}</td>
-                          <td>{v(r.ga)}</td>
-                          <td>{v(r.gd)}</td>
-                          <td>
-                            <b>{v(r.pts)}</b>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })()}
-
-            <p class="quick-title" style="margin: 10px 0 0;">
-              <a href={`${topHref}?group=${encodeURIComponent(g)}#teams`}>
-                グループ{g}の国を絞り込む →
-              </a>
-            </p>
-          </div>
-        ))
-      }
-    </div>
-  </section>
 
   {
     /* =========================
-      (2) 出場国カード：検索/ピル絞り込み（軽量バッジ版）
+      (1) 出場国カード：検索/ピル絞り込み（軽量バッジ版）
      ========================= */
   }
   <section id="teams" style="margin: 18px 0;">
-    <h2>出場国・代表メンバー一覧</h2>
+    <h2>FIFAワールドカップ2026 出場国・代表メンバー一覧</h2>
     <p class="quick-title" style="margin: 6px 0 10px;">
-      大陸・グループ・状態で絞り込み／国名検索ができます（クリックで各国代表ページへ）
+      出場国を大陸・グループ・状態で絞り込みできます。国名検索にも対応。各カードをクリックすると代表メンバー一覧ページへ移動します。
     </p>
 
     <div class="filterbar" id="teams-filterbar">
@@ -795,7 +714,7 @@ const pageDesc =
           spellcheck={false}
         />
         <div class="count">
-          表示：<b id="teams-count">0</b> / <span id="teams-total">0</span>
+          表示：<b id="teams-count">{totalCountries}</b>カ国
         </div>
       </div>
 
@@ -976,7 +895,130 @@ const pageDesc =
 
   {
     /* =========================
-    (3) ランキング（得点 / アシスト）
+    (3) 日程・試合結果（アンカー用に section wrap）
+   ========================= */
+  }
+  <section id="schedule" style="margin: 18px 0;">
+    <h2>日程・試合結果（マッチスケジュール）</h2>
+    <p class="quick-title" style="margin: 6px 0 10px;">
+      全試合の日程・結果はコチラから（結果は随時更新）
+    </p>
+    <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
+  </section>
+
+  {
+    /* =========================
+      (3) グループ枠（A〜L）
+     ========================= */
+  }
+  <section id="groups" style="margin: 18px 0;">
+    <h2>グループ勝敗表（グループステージ）</h2>
+    <p class="quick-title" style="margin: 6px 0 10px;">
+      各グループの参加国（※プレーオフ枠は確定後にリンク化）
+    </p>
+
+    <div class="group-grid">
+      {
+        groups.map((g) => (
+          <div class="group-card">
+            <h3>Group {g}</h3>
+            <ul>
+              {(groupSets[g] || []).map((it) => (
+                <li>
+                  {it.is_placeholder ? (
+                    <span class="placeholder">{it.name}</span>
+                  ) : (
+                    <a
+                      href={`${topHref}/team/${it.slug}?from=group-card-${encodeURIComponent(
+                        g,
+                      )}&anchor=groups`}
+                    >
+                      {it.name}
+                    </a>
+                  )}
+                </li>
+              ))}
+            </ul>
+
+            {(() => {
+              const s = standingsByGroup.get(g) || [];
+              if (s.length === 0) return null;
+
+              const v = (x: any) =>
+                String(x ?? "").trim() ? String(x).trim() : "-";
+              const isPH = (r: any) => String(r.is_placeholder ?? "0") === "1";
+
+              return (
+                <div class="group-standings-wrap">
+                  <table
+                    class="mini-standings"
+                    aria-label={`Group ${g} standings`}
+                  >
+                    <thead>
+                      <tr>
+                        <th>国</th>
+                        <th>試</th>
+                        <th>勝</th>
+                        <th>分</th>
+                        <th>負</th>
+                        <th>得</th>
+                        <th>失</th>
+                        <th>差</th>
+                        <th>点</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {s.map((r: any) => (
+                        <tr>
+                          <td>
+                            {isPH(r) ? (
+                              <span class="placeholder">
+                                {r.country_name_ja}
+                              </span>
+                            ) : (
+                              <a
+                                href={`${topHref}/team/${countrySlug(
+                                  r.route_param ||
+                                    r.country_key ||
+                                    r.country_name_ja,
+                                )}`}
+                              >
+                                {r.country_name_ja}
+                              </a>
+                            )}
+                          </td>
+                          <td>{v(r.played)}</td>
+                          <td>{v(r.w)}</td>
+                          <td>{v(r.d)}</td>
+                          <td>{v(r.l)}</td>
+                          <td>{v(r.gf)}</td>
+                          <td>{v(r.ga)}</td>
+                          <td>{v(r.gd)}</td>
+                          <td>
+                            <b>{v(r.pts)}</b>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              );
+            })()}
+
+            <p class="quick-title" style="margin: 10px 0 0;">
+              <a href={`${topHref}?group=${encodeURIComponent(g)}#teams`}>
+                グループ{g}の国を絞り込む →
+              </a>
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    /* =========================
+    (4) ランキング（得点 / アシスト）
    ========================= */
   }
   <section id="rankings" style="margin: 18px 0;">
@@ -1069,19 +1111,6 @@ const pageDesc =
 
   {
     /* =========================
-    (4) 日程・試合結果（アンカー用に section wrap）
-   ========================= */
-  }
-  <section id="schedule" style="margin: 18px 0;">
-    <h2>日程・試合結果（マッチスケジュール）</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      全試合の日程・結果はコチラから（結果は随時更新）
-    </p>
-    <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
-  </section>
-
-  {
-    /* =========================
     (5) 表彰（ページ末尾へ移動）
    ========================= */
   }
@@ -1150,11 +1179,9 @@ const pageDesc =
       });
     }
 
-    function updateCounts(visible, total) {
+    function updateCounts(visible) {
       const elCount = $("#teams-count");
-      const elTotal = $("#teams-total");
       if (elCount) elCount.textContent = String(visible);
-      if (elTotal) elTotal.textContent = String(total);
     }
 
     function readTeamsStateFromUrl() {
@@ -1186,7 +1213,6 @@ const pageDesc =
 
     function applyTeamsFilter(state) {
       const cards = $$("[data-team-card]");
-      const total = cards.length;
 
       const q = normLower(state.q);
       const conf = norm(state.conf);
@@ -1212,7 +1238,7 @@ const pageDesc =
         if (ok) visible++;
       });
 
-      updateCounts(visible, total);
+      updateCounts(visible);
 
       const nf = $("#teams-notfound");
       if (nf) nf.style.display = visible === 0 ? "" : "none";
