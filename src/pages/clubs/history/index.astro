@@ -4,6 +4,17 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseCsv } from "../../../lib/csvSimple";
 import { STRONG_CLUBS } from "../../../lib/strongClubs";
+import { loadClubSquads } from "../../../lib/clubSquads";
+import { toYMD } from "../../../lib/rosterFormat";
+
+const latestClubHistoryUpdate = (() => {
+  let max = "";
+  for (const r of loadClubSquads()) {
+    const s = toYMD(String(r.snapshot_date ?? ""));
+    if (s && s > max) max = s;
+  }
+  return max;
+})();
 
 type Row = {
   club_key: string;
@@ -70,6 +81,10 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
     <p class="lead">
       欧州強豪クラブの歴史を、年代・黄金期・リーグ制覇・当時のメンバーで振り返ります。
     </p>
+    <p class="page-update">
+      最終更新：<span class="update-date">{latestClubHistoryUpdate || "—"}</span
+      >
+    </p>
 
     <h2 class="sec">歴史的強豪クラブ</h2>
     <div class="grid">
@@ -129,6 +144,18 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
   </main>
 
   <style>
+    .page-update {
+      margin: 0 0 12px;
+      font-size: 13px;
+      color: var(--muted, #666);
+      text-align: right;
+    }
+
+    .page-update .update-date {
+      color: #c62828;
+      font-weight: 700;
+    }
+
     /* ===== Club Legends (match nt-legends) ===== */
     .lead {
       margin: 6px 0 12px;
@@ -224,7 +251,7 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
     .badge.win {
       background: color-mix(in srgb, var(--theme-color) 14%, white);
       border-color: color-mix(in srgb, var(--theme-color) 25%, transparent);
-      color: #111;   /* ←追加 */
+      color: #111; /* ←追加 */
     }
 
     .sub {
@@ -248,6 +275,32 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
     .intro.theme {
       color: var(--theme-color);
       font-weight: 850;
+    }
+
+    @media (max-width: 560px) {
+      .top {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .badges {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
     }
   </style>
 </BaseLayout>

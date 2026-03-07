@@ -85,6 +85,23 @@ const name2Html = (ja?: string, en?: string) => {
   </div>`;
 };
 
+const nationality2Html = (nationality?: string) => {
+  const raw = String(nationality ?? "").trim();
+  if (!raw) return "";
+
+  const parts = raw
+    .split(/[|/、,]/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  if (parts.length === 0) return "";
+  if (parts.length === 1) return esc(parts[0]);
+
+  return `<div class="nat2">
+    ${parts.map((p) => `<div class="nat2-line">${esc(p)}</div>`).join("")}
+  </div>`;
+};
+
 const rep2Html = (
   team: string,
   links: { label: string; href: string }[],
@@ -223,7 +240,8 @@ export const buildClubColumns = ({
       key: "nat",
       header: "国籍",
       align: "center",
-      render: (r) => (r.nationality ?? "").trim(),
+      html: true,
+      render: (r) => nationality2Html(r.nationality),
     },
 
     {

@@ -326,12 +326,6 @@ const pageDesc = `${wcTitle}の出場国一覧と各国の代表メンバーを�
       box-shadow: 0 0 0 3px
         color-mix(in srgb, var(--theme-color) 25%, transparent);
     }
-    .page-wc .filterbar .subttl {
-      margin: 10px 0 8px;
-      font-size: 13px;
-      font-weight: 800;
-      color: color-mix(in srgb, var(--theme-color) 70%, #111);
-    }
 
     /* team cards */
     .page-wc .team-grid {
@@ -670,6 +664,44 @@ const pageDesc = `${wcTitle}の出場国一覧と各国の代表メンバーを�
       color: #c62828;
       font-weight: 600;
     }
+
+    .page-wc .filter-line {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 10px 0 8px;
+    }
+
+    .page-wc .filter-label {
+      min-width: 52px;
+      font-size: 13px;
+      font-weight: 800;
+      color: color-mix(in srgb, var(--theme-color) 70%, #111);
+      line-height: 34px;
+      flex: 0 0 auto;
+    }
+
+    .page-wc .filter-line .pills {
+      flex: 1 1 auto;
+    }
+
+    @media (max-width: 560px) {
+      .page-wc .filter-line {
+        gap: 8px;
+        margin: 8px 0 6px;
+      }
+
+      .page-wc .filter-label {
+        min-width: 44px;
+        font-size: 12px;
+        line-height: 30px;
+      }
+    }
+
+    .page-wc .count {
+      font-weight: 600;
+      color: var(--theme-color);
+    }
   </style>
 
   <p class="quick-title" style="margin: 6px 0 6px;">
@@ -718,584 +750,608 @@ const pageDesc = `${wcTitle}の出場国一覧と各国の代表メンバーを�
         </div>
       </div>
 
-      <div class="subttl">大陸で絞り込み</div>
-      <div class="pills" id="teams-conf-pills">
-        <a class="pill clear" href={`${topHref}#teams`} data-teams-conf=""
-          ><span class="dot" aria-hidden="true"></span>全大陸</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=UEFA#teams`}
-          data-teams-conf="UEFA"
-          ><span class="dot" aria-hidden="true"></span>UEFA(欧州)</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=CONMEBOL#teams`}
-          data-teams-conf="CONMEBOL"
-          ><span class="dot" aria-hidden="true"></span>CONMEBOL(南米)</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=CONCACAF#teams`}
-          data-teams-conf="CONCACAF"
-          ><span class="dot" aria-hidden="true"
-          ></span>CONCACAF(北中米・カリブ海)</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=AFC#teams`}
-          data-teams-conf="AFC"
-          ><span class="dot" aria-hidden="true"></span>AFC(アジア)</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=CAF#teams`}
-          data-teams-conf="CAF"
-          ><span class="dot" aria-hidden="true"></span>CAF(アフリカ)</a
-        >
-        <a
-          class="pill"
-          href={`${topHref}?continent=OFC#teams`}
-          data-teams-conf="OFC"
-          ><span class="dot" aria-hidden="true"></span>OFC(オセアニア)</a
-        >
+      <div class="filter-line">
+        <div class="filter-label">大陸</div>
+        <div class="pills" id="teams-conf-pills">
+          <a class="pill clear" href={`${topHref}#teams`} data-teams-conf="">
+            <span class="dot" aria-hidden="true"></span>全大陸
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=UEFA#teams`}
+            data-teams-conf="UEFA"
+          >
+            <span class="dot" aria-hidden="true"></span>UEFA
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=CONMEBOL#teams`}
+            data-teams-conf="CONMEBOL"
+          >
+            <span class="dot" aria-hidden="true"></span>CONMEBOL
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=CONCACAF#teams`}
+            data-teams-conf="CONCACAF"
+          >
+            <span class="dot" aria-hidden="true"></span>CONCACAF
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=AFC#teams`}
+            data-teams-conf="AFC"
+          >
+            <span class="dot" aria-hidden="true"></span>AFC
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=CAF#teams`}
+            data-teams-conf="CAF"
+          >
+            <span class="dot" aria-hidden="true"></span>CAF
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?continent=OFC#teams`}
+            data-teams-conf="OFC"
+          >
+            <span class="dot" aria-hidden="true"></span>OFC
+          </a>
+        </div>
       </div>
 
-      <div class="subttl">グループで絞り込み</div>
-      <div class="pills" id="teams-group-pills">
-        <a class="pill clear" href={`${topHref}#teams`} data-teams-group=""
-          ><span class="dot" aria-hidden="true"></span>全グループ</a
-        >
+      <div class="filter-line">
+        <div class="filter-label">Group</div>
+        <div class="pills" id="teams-group-pills">
+          <a class="pill clear" href={`${topHref}#teams`} data-teams-group="">
+            <span class="dot" aria-hidden="true"></span>全
+          </a>
+          {
+            groups.map((g) => (
+              <a
+                class="pill"
+                href={`${topHref}?group=${encodeURIComponent(g)}#teams`}
+                data-teams-group={String(g).trim()}
+              >
+                <span class="dot" aria-hidden="true" />
+                {g}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div class="filter-line">
+        <div class="filter-label">状態</div>
+        <div class="pills" id="teams-status-pills">
+          <a class="pill clear" href={`${topHref}#teams`} data-teams-status="">
+            <span class="dot" aria-hidden="true"></span>全部
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?status=q#teams`}
+            data-teams-status="q"
+          >
+            <span class="dot" aria-hidden="true"></span>出場
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?status=p#teams`}
+            data-teams-status="p"
+          >
+            <span class="dot" aria-hidden="true"></span>PO
+          </a>
+          <a
+            class="pill"
+            href={`${topHref}?status=e#teams`}
+            data-teams-status="e"
+          >
+            <span class="dot" aria-hidden="true"></span>敗退
+          </a>
+        </div>
+      </div>
+
+      <div class="team-grid" id="teams-grid">
         {
-          groups.map((g) => (
-            <a
-              class="pill"
-              href={`${topHref}?group=${encodeURIComponent(g)}#teams`}
-              data-teams-group={String(g).trim()}
-            >
-              <span class="dot" aria-hidden="true" />
-              Group {g}
-            </a>
-          ))
+          qualifiedCountries.map(({ country, conf }) => {
+            const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
+            return (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="q"
+                href={`${teamHref(country)}?from=teams-card&anchor=teams`}
+              >
+                <div class="row1">
+                  <div class="name">
+                    <span class="status-dot q" aria-hidden="true" />
+                    {country}
+                  </div>
+                </div>
+                <div class="meta">
+                  <span class="badge">{conf}</span>
+                  {g ? <span class="badge">Group {g}</span> : null}
+                </div>
+              </a>
+            );
+          })
+        }
+
+        {
+          playoffCountries.map(({ country, conf }) => {
+            const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
+            return (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="p"
+                href={`${teamHref(country)}?from=po-card&anchor=teams`}
+              >
+                <div class="row1">
+                  <div class="name">
+                    <span class="status-dot p" aria-hidden="true" />
+                    {country}
+                  </div>
+                </div>
+                <div class="meta">
+                  <span class="badge">{conf}</span>
+                  {g ? <span class="badge">Group {g}</span> : null}
+                </div>
+              </a>
+            );
+          })
+        }
+
+        {
+          eliminatedCountries.map(({ country, conf }) => {
+            const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
+            return (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="e"
+                href={`${teamHref(country)}?from=elim-card&anchor=teams`}
+              >
+                <div class="row1">
+                  <div class="name">
+                    <span class="status-dot e" aria-hidden="true" />
+                    {country}
+                  </div>
+                </div>
+                <div class="meta">
+                  <span class="badge">{conf}</span>
+                  {g ? <span class="badge">Group {g}</span> : null}
+                </div>
+              </a>
+            );
+          })
         }
       </div>
 
-      <div class="subttl">状態（出場 / PO / 敗退）</div>
-      <div class="pills" id="teams-status-pills">
-        <a class="pill clear" href={`${topHref}#teams`} data-teams-status=""
-          ><span class="dot" aria-hidden="true"></span>全部</a
-        >
-        <a class="pill" href={`${topHref}?status=q#teams`} data-teams-status="q"
-          ><span class="dot" aria-hidden="true"></span>🟢 出場</a
-        >
-        <a class="pill" href={`${topHref}?status=p#teams`} data-teams-status="p"
-          ><span class="dot" aria-hidden="true"></span>🟡 PO</a
-        >
-        <a class="pill" href={`${topHref}?status=e#teams`} data-teams-status="e"
-          ><span class="dot" aria-hidden="true"></span>🔴 敗退</a
-        >
-      </div>
+      <p
+        class="quick-title"
+        id="teams-notfound"
+        style="display:none; margin-top:10px;"
+      >
+        条件に一致する国がありません（絞り込みを解除してみてください）
+      </p>
     </div>
 
-    <div class="team-grid" id="teams-grid">
-      {
-        qualifiedCountries.map(({ country, conf }) => {
-          const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-          return (
-            <a
-              class="team-card"
-              data-team-card
-              data-country={country}
-              data-conf={conf}
-              data-group={g}
-              data-status="q"
-              href={`${teamHref(country)}?from=teams-card&anchor=teams`}
-            >
-              <div class="row1">
-                <div class="name">
-                  <span class="status-dot q" aria-hidden="true" />
-                  {country}
-                </div>
-              </div>
-              <div class="meta">
-                <span class="badge">{conf}</span>
-                {g ? <span class="badge">Group {g}</span> : null}
-              </div>
-            </a>
-          );
-        })
-      }
-
-      {
-        playoffCountries.map(({ country, conf }) => {
-          const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-          return (
-            <a
-              class="team-card"
-              data-team-card
-              data-country={country}
-              data-conf={conf}
-              data-group={g}
-              data-status="p"
-              href={`${teamHref(country)}?from=po-card&anchor=teams`}
-            >
-              <div class="row1">
-                <div class="name">
-                  <span class="status-dot p" aria-hidden="true" />
-                  {country}
-                </div>
-              </div>
-              <div class="meta">
-                <span class="badge">{conf}</span>
-                {g ? <span class="badge">Group {g}</span> : null}
-              </div>
-            </a>
-          );
-        })
-      }
-
-      {
-        eliminatedCountries.map(({ country, conf }) => {
-          const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-          return (
-            <a
-              class="team-card"
-              data-team-card
-              data-country={country}
-              data-conf={conf}
-              data-group={g}
-              data-status="e"
-              href={`${teamHref(country)}?from=elim-card&anchor=teams`}
-            >
-              <div class="row1">
-                <div class="name">
-                  <span class="status-dot e" aria-hidden="true" />
-                  {country}
-                </div>
-              </div>
-              <div class="meta">
-                <span class="badge">{conf}</span>
-                {g ? <span class="badge">Group {g}</span> : null}
-              </div>
-            </a>
-          );
-        })
-      }
-    </div>
-
-    <p
-      class="quick-title"
-      id="teams-notfound"
-      style="display:none; margin-top:10px;"
-    >
-      条件に一致する国がありません（絞り込みを解除してみてください）
-    </p>
-  </section>
-
-  {
-    /* =========================
+    {
+      /* =========================
     (3) 日程・試合結果（アンカー用に section wrap）
    ========================= */
-  }
-  <section id="schedule" style="margin: 18px 0;">
-    <h2>日程・試合結果（マッチスケジュール）</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      全試合の日程・結果はコチラから（結果は随時更新）
-    </p>
-    <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
-  </section>
+    }
+    <section id="schedule" style="margin: 18px 0;">
+      <h2>日程・試合結果（マッチスケジュール）</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        全試合の日程・結果はコチラから（結果は随時更新）
+      </p>
+      <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
+    </section>
 
-  {
-    /* =========================
+    {
+      /* =========================
       (3) グループ枠（A〜L）
      ========================= */
-  }
-  <section id="groups" style="margin: 18px 0;">
-    <h2>グループ勝敗表（グループステージ）</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      各グループの参加国（※プレーオフ枠は確定後にリンク化）
-    </p>
+    }
+    <section id="groups" style="margin: 18px 0;">
+      <h2>グループ勝敗表（グループステージ）</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        各グループの参加国（※プレーオフ枠は確定後にリンク化）
+      </p>
 
-    <div class="group-grid">
-      {
-        groups.map((g) => (
-          <div class="group-card">
-            <h3>Group {g}</h3>
-            <ul>
-              {(groupSets[g] || []).map((it) => (
-                <li>
-                  {it.is_placeholder ? (
-                    <span class="placeholder">{it.name}</span>
-                  ) : (
-                    <a
-                      href={`${topHref}/team/${it.slug}?from=group-card-${encodeURIComponent(
-                        g,
-                      )}&anchor=groups`}
+      <div class="group-grid">
+        {
+          groups.map((g) => (
+            <div class="group-card">
+              <h3>Group {g}</h3>
+              <ul>
+                {(groupSets[g] || []).map((it) => (
+                  <li>
+                    {it.is_placeholder ? (
+                      <span class="placeholder">{it.name}</span>
+                    ) : (
+                      <a
+                        href={`${topHref}/team/${it.slug}?from=group-card-${encodeURIComponent(
+                          g,
+                        )}&anchor=groups`}
+                      >
+                        {it.name}
+                      </a>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              {(() => {
+                const s = standingsByGroup.get(g) || [];
+                if (s.length === 0) return null;
+
+                const v = (x: any) =>
+                  String(x ?? "").trim() ? String(x).trim() : "-";
+                const isPH = (r: any) =>
+                  String(r.is_placeholder ?? "0") === "1";
+
+                return (
+                  <div class="group-standings-wrap">
+                    <table
+                      class="mini-standings"
+                      aria-label={`Group ${g} standings`}
                     >
-                      {it.name}
-                    </a>
-                  )}
-                </li>
-              ))}
-            </ul>
-
-            {(() => {
-              const s = standingsByGroup.get(g) || [];
-              if (s.length === 0) return null;
-
-              const v = (x: any) =>
-                String(x ?? "").trim() ? String(x).trim() : "-";
-              const isPH = (r: any) => String(r.is_placeholder ?? "0") === "1";
-
-              return (
-                <div class="group-standings-wrap">
-                  <table
-                    class="mini-standings"
-                    aria-label={`Group ${g} standings`}
-                  >
-                    <thead>
-                      <tr>
-                        <th>国</th>
-                        <th>試</th>
-                        <th>勝</th>
-                        <th>分</th>
-                        <th>負</th>
-                        <th>得</th>
-                        <th>失</th>
-                        <th>差</th>
-                        <th>点</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {s.map((r: any) => (
+                      <thead>
                         <tr>
-                          <td>
-                            {isPH(r) ? (
-                              <span class="placeholder">
-                                {r.country_name_ja}
-                              </span>
-                            ) : (
-                              <a
-                                href={`${topHref}/team/${countrySlug(
-                                  r.route_param ||
-                                    r.country_key ||
-                                    r.country_name_ja,
-                                )}`}
-                              >
-                                {r.country_name_ja}
-                              </a>
-                            )}
-                          </td>
-                          <td>{v(r.played)}</td>
-                          <td>{v(r.w)}</td>
-                          <td>{v(r.d)}</td>
-                          <td>{v(r.l)}</td>
-                          <td>{v(r.gf)}</td>
-                          <td>{v(r.ga)}</td>
-                          <td>{v(r.gd)}</td>
-                          <td>
-                            <b>{v(r.pts)}</b>
-                          </td>
+                          <th>国</th>
+                          <th>試</th>
+                          <th>勝</th>
+                          <th>分</th>
+                          <th>負</th>
+                          <th>得</th>
+                          <th>失</th>
+                          <th>差</th>
+                          <th>点</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-              );
-            })()}
+                      </thead>
+                      <tbody>
+                        {s.map((r: any) => (
+                          <tr>
+                            <td>
+                              {isPH(r) ? (
+                                <span class="placeholder">
+                                  {r.country_name_ja}
+                                </span>
+                              ) : (
+                                <a
+                                  href={`${topHref}/team/${countrySlug(
+                                    r.route_param ||
+                                      r.country_key ||
+                                      r.country_name_ja,
+                                  )}`}
+                                >
+                                  {r.country_name_ja}
+                                </a>
+                              )}
+                            </td>
+                            <td>{v(r.played)}</td>
+                            <td>{v(r.w)}</td>
+                            <td>{v(r.d)}</td>
+                            <td>{v(r.l)}</td>
+                            <td>{v(r.gf)}</td>
+                            <td>{v(r.ga)}</td>
+                            <td>{v(r.gd)}</td>
+                            <td>
+                              <b>{v(r.pts)}</b>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
 
-            <p class="quick-title" style="margin: 10px 0 0;">
-              <a href={`${topHref}?group=${encodeURIComponent(g)}#teams`}>
-                グループ{g}の国を絞り込む →
-              </a>
-            </p>
-          </div>
-        ))
-      }
-    </div>
-  </section>
+              <p class="quick-title" style="margin: 10px 0 0;">
+                <a href={`${topHref}?group=${encodeURIComponent(g)}#teams`}>
+                  グループ{g}の国を絞り込む →
+                </a>
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </section>
 
-  {
-    /* =========================
+    {
+      /* =========================
     (4) ランキング（得点 / アシスト）
    ========================= */
-  }
-  <section id="rankings" style="margin: 18px 0;">
-    <h2>得点・アシストランキング</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      試合結果・得点・アシストから自動集計しています。
-    </p>
-    {
-      showGARank ? (
-        <div class="rank-grid">
-          <div class="rank-card">
-            <h3>🥇 得点ランキング</h3>
-            {goalRank.length === 0 ? (
-              <p class="rank-muted">まだイベントが登録されていません。</p>
-            ) : (
-              <table class="rank" aria-label={`WC${year} goal ranking`}>
-                <thead>
-                  <tr>
-                    <th class="rank">順位</th>
-                    <th>選手</th>
-                    <th>国</th>
-                    <th class="num">得点</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {goalRank.slice(0, 30).map((r) => (
-                    <tr>
-                      <td class="rank">
-                        <b>{r.rank}</b>
-                      </td>
-                      <td>{r.player}</td>
-                      <td>
-                        <a
-                          href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
-                        >
-                          {r.team}
-                        </a>
-                      </td>
-                      <td class="num">
-                        <b>{r.goals}</b>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-
-          <div class="rank-card">
-            <h3>🎯 アシストランキング</h3>
-            {assistRank.length === 0 ? (
-              <p class="rank-muted">まだイベントが登録されていません。</p>
-            ) : (
-              <table class="rank" aria-label={`WC${year} assist ranking`}>
-                <thead>
-                  <tr>
-                    <th class="rank">順位</th>
-                    <th>選手</th>
-                    <th>国</th>
-                    <th class="num">アシスト</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {assistRank.slice(0, 30).map((r) => (
-                    <tr>
-                      <td class="rank">
-                        <b>{r.rank}</b>
-                      </td>
-                      <td>{r.player}</td>
-                      <td>
-                        <a
-                          href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
-                        >
-                          {r.team}
-                        </a>
-                      </td>
-                      <td class="num">
-                        <b>{r.assists}</b>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
-          </div>
-        </div>
-      ) : null
     }
-  </section>
+    <section id="rankings" style="margin: 18px 0;">
+      <h2>得点・アシストランキング</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        試合結果・得点・アシストから自動集計しています。
+      </p>
+      {
+        showGARank ? (
+          <div class="rank-grid">
+            <div class="rank-card">
+              <h3>🥇 得点ランキング</h3>
+              {goalRank.length === 0 ? (
+                <p class="rank-muted">まだイベントが登録されていません。</p>
+              ) : (
+                <table class="rank" aria-label={`WC${year} goal ranking`}>
+                  <thead>
+                    <tr>
+                      <th class="rank">順位</th>
+                      <th>選手</th>
+                      <th>国</th>
+                      <th class="num">得点</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {goalRank.slice(0, 30).map((r) => (
+                      <tr>
+                        <td class="rank">
+                          <b>{r.rank}</b>
+                        </td>
+                        <td>{r.player}</td>
+                        <td>
+                          <a
+                            href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
+                          >
+                            {r.team}
+                          </a>
+                        </td>
+                        <td class="num">
+                          <b>{r.goals}</b>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
 
-  {
-    /* =========================
+            <div class="rank-card">
+              <h3>🎯 アシストランキング</h3>
+              {assistRank.length === 0 ? (
+                <p class="rank-muted">まだイベントが登録されていません。</p>
+              ) : (
+                <table class="rank" aria-label={`WC${year} assist ranking`}>
+                  <thead>
+                    <tr>
+                      <th class="rank">順位</th>
+                      <th>選手</th>
+                      <th>国</th>
+                      <th class="num">アシスト</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {assistRank.slice(0, 30).map((r) => (
+                      <tr>
+                        <td class="rank">
+                          <b>{r.rank}</b>
+                        </td>
+                        <td>{r.player}</td>
+                        <td>
+                          <a
+                            href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
+                          >
+                            {r.team}
+                          </a>
+                        </td>
+                        <td class="num">
+                          <b>{r.assists}</b>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          </div>
+        ) : null
+      }
+    </section>
+
+    {
+      /* =========================
     (5) 表彰（ページ末尾へ移動）
    ========================= */
-  }
-  <section id="awards" style="margin: 18px 0;">
-    <h2>表彰（個人賞・ベストイレブン）</h2>
-    <p class="quick-title" style="margin: 6px 0 10px;">
-      大会公式の個人賞・ベストイレブンを掲載
-    </p>
+    }
+    <section id="awards" style="margin: 18px 0;">
+      <h2>表彰（個人賞・ベストイレブン）</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        大会公式の個人賞・ベストイレブンを掲載
+      </p>
 
-    {
-      awardGroups.length === 0 ? (
-        <p class="rank-muted">まだ表彰データがありません。</p>
-      ) : (
-        <div class="rank-grid">
-          {awardGroups.map((g) => (
-            <div class="rank-card">
-              <h3>🏅 {g.name}</h3>
-              <ul style="margin:0; padding-left:18px; line-height:1.7;">
-                {g.items.map((r) => {
-                  const rankLabel =
-                    g.key === "golden_ball"
-                      ? r.rank === "1"
-                        ? "最優秀選手（ゴールデン）"
-                        : r.rank === "2"
-                          ? "優秀選手（シルバー）"
-                          : r.rank === "3"
-                            ? "優秀選手（ブロンズ）"
-                            : r.rank
-                      : r.rank;
+      {
+        awardGroups.length === 0 ? (
+          <p class="rank-muted">まだ表彰データがありません。</p>
+        ) : (
+          <div class="rank-grid">
+            {awardGroups.map((g) => (
+              <div class="rank-card">
+                <h3>🏅 {g.name}</h3>
+                <ul style="margin:0; padding-left:18px; line-height:1.7;">
+                  {g.items.map((r) => {
+                    const rankLabel =
+                      g.key === "golden_ball"
+                        ? r.rank === "1"
+                          ? "最優秀選手（ゴールデン）"
+                          : r.rank === "2"
+                            ? "優秀選手（シルバー）"
+                            : r.rank === "3"
+                              ? "優秀選手（ブロンズ）"
+                              : r.rank
+                        : r.rank;
 
-                  return (
-                    <li>
-                      <span style="color:var(--muted,#666); margin-right:6px;">
-                        {rankLabel ? `${rankLabel}:` : ""}
-                      </span>
-                      <b>{r.player}</b>
-                      {r.team ? <span>（{r.team}）</span> : null}
-                      {r.note ? (
-                        <span style="color:var(--muted,#666);">
-                          {" "}
-                          - {r.note}
+                    return (
+                      <li>
+                        <span style="color:var(--muted,#666); margin-right:6px;">
+                          {rankLabel ? `${rankLabel}:` : ""}
                         </span>
-                      ) : null}
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-      )
-    }
-  </section>
+                        <b>{r.player}</b>
+                        {r.team ? <span>（{r.team}）</span> : null}
+                        {r.note ? (
+                          <span style="color:var(--muted,#666);">
+                            {" "}
+                            - {r.note}
+                          </span>
+                        ) : null}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            ))}
+          </div>
+        )
+      }
+    </section>
 
-  <script is:inline>
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+    <script is:inline>
+      const $ = (sel) => document.querySelector(sel);
+      const $$ = (sel) => Array.from(document.querySelectorAll(sel));
 
-    const norm = (s) => String(s ?? "").trim();
-    const normLower = (s) => norm(s).toLowerCase();
+      const norm = (s) => String(s ?? "").trim();
+      const normLower = (s) => norm(s).toLowerCase();
 
-    function setActivePills(containerSel, key, value) {
-      $$(containerSel + " [data-" + key + "]").forEach((a) => {
-        const v = a.getAttribute("data-" + key) ?? "";
-        a.classList.toggle("is-active", v === (value ?? ""));
-      });
-    }
-
-    function updateCounts(visible) {
-      const elCount = $("#teams-count");
-      if (elCount) elCount.textContent = String(visible);
-    }
-
-    function readTeamsStateFromUrl() {
-      const params = new URLSearchParams(location.search);
-      return {
-        conf: norm(params.get("continent")), // e.g. UEFA
-        group: norm(params.get("group")), // e.g. A
-        status: norm(params.get("status")), // q|p|e
-        q: norm($("#teams-q")?.value),
-      };
-    }
-
-    function writeUrl(state) {
-      const params = new URLSearchParams(location.search);
-
-      if (state.conf) params.set("continent", state.conf);
-      else params.delete("continent");
-
-      if (state.group) params.set("group", state.group);
-      else params.delete("group");
-
-      if (state.status) params.set("status", state.status);
-      else params.delete("status");
-
-      const next = params.toString();
-      const url = next ? `?${next}#teams` : `#teams`;
-      history.replaceState(null, "", url);
-    }
-
-    function applyTeamsFilter(state) {
-      const cards = $$("[data-team-card]");
-
-      const q = normLower(state.q);
-      const conf = norm(state.conf);
-      const group = norm(state.group);
-      const status = norm(state.status);
-
-      let visible = 0;
-
-      cards.forEach((card) => {
-        const cName = normLower(card.getAttribute("data-country"));
-        const cConf = norm(card.getAttribute("data-conf"));
-        const cGroup = norm(card.getAttribute("data-group"));
-        const cStatus = norm(card.getAttribute("data-status"));
-
-        const okQ = !q || cName.includes(q);
-        const okConf = !conf || cConf === conf;
-        const okGroup = !group || cGroup === group;
-        const okStatus = !status || cStatus === status;
-
-        const ok = okQ && okConf && okGroup && okStatus;
-
-        card.style.display = ok ? "" : "none";
-        if (ok) visible++;
-      });
-
-      updateCounts(visible);
-
-      const nf = $("#teams-notfound");
-      if (nf) nf.style.display = visible === 0 ? "" : "none";
-
-      setActivePills("#teams-conf-pills", "teams-conf", conf);
-      setActivePills("#teams-group-pills", "teams-group", group);
-      setActivePills("#teams-status-pills", "teams-status", status);
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      const qInput = $("#teams-q");
-
-      // 初期反映
-      const init = readTeamsStateFromUrl();
-      applyTeamsFilter(init);
-
-      if (qInput) {
-        qInput.addEventListener("input", () => {
-          const st = readTeamsStateFromUrl();
-          applyTeamsFilter(st);
+      function setActivePills(containerSel, key, value) {
+        $$(containerSel + " [data-" + key + "]").forEach((a) => {
+          const v = a.getAttribute("data-" + key) ?? "";
+          a.classList.toggle("is-active", v === (value ?? ""));
         });
       }
 
-      // pills (即時反映)
-      $$("#teams-conf-pills [data-teams-conf]").forEach((a) => {
-        a.addEventListener("click", (e) => {
-          e.preventDefault();
-          const st = readTeamsStateFromUrl();
-          st.conf = a.getAttribute("data-teams-conf") ?? "";
-          writeUrl(st);
-          applyTeamsFilter(st);
+      function updateCounts(visible) {
+        const elCount = $("#teams-count");
+        if (elCount) elCount.textContent = String(visible);
+      }
+
+      function readTeamsStateFromUrl() {
+        const params = new URLSearchParams(location.search);
+        return {
+          conf: norm(params.get("continent")), // e.g. UEFA
+          group: norm(params.get("group")), // e.g. A
+          status: norm(params.get("status")), // q|p|e
+          q: norm($("#teams-q")?.value),
+        };
+      }
+
+      function writeUrl(state) {
+        const params = new URLSearchParams(location.search);
+
+        if (state.conf) params.set("continent", state.conf);
+        else params.delete("continent");
+
+        if (state.group) params.set("group", state.group);
+        else params.delete("group");
+
+        if (state.status) params.set("status", state.status);
+        else params.delete("status");
+
+        const next = params.toString();
+        const url = next ? `?${next}#teams` : `#teams`;
+        history.replaceState(null, "", url);
+      }
+
+      function applyTeamsFilter(state) {
+        const cards = $$("[data-team-card]");
+
+        const q = normLower(state.q);
+        const conf = norm(state.conf);
+        const group = norm(state.group);
+        const status = norm(state.status);
+
+        let visible = 0;
+
+        cards.forEach((card) => {
+          const cName = normLower(card.getAttribute("data-country"));
+          const cConf = norm(card.getAttribute("data-conf"));
+          const cGroup = norm(card.getAttribute("data-group"));
+          const cStatus = norm(card.getAttribute("data-status"));
+
+          const okQ = !q || cName.includes(q);
+          const okConf = !conf || cConf === conf;
+          const okGroup = !group || cGroup === group;
+          const okStatus = !status || cStatus === status;
+
+          const ok = okQ && okConf && okGroup && okStatus;
+
+          card.style.display = ok ? "" : "none";
+          if (ok) visible++;
+        });
+
+        updateCounts(visible);
+
+        const nf = $("#teams-notfound");
+        if (nf) nf.style.display = visible === 0 ? "" : "none";
+
+        setActivePills("#teams-conf-pills", "teams-conf", conf);
+        setActivePills("#teams-group-pills", "teams-group", group);
+        setActivePills("#teams-status-pills", "teams-status", status);
+      }
+
+      window.addEventListener("DOMContentLoaded", () => {
+        const qInput = $("#teams-q");
+
+        // 初期反映
+        const init = readTeamsStateFromUrl();
+        applyTeamsFilter(init);
+
+        if (qInput) {
+          qInput.addEventListener("input", () => {
+            const st = readTeamsStateFromUrl();
+            applyTeamsFilter(st);
+          });
+        }
+
+        // pills (即時反映)
+        $$("#teams-conf-pills [data-teams-conf]").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            const st = readTeamsStateFromUrl();
+            st.conf = a.getAttribute("data-teams-conf") ?? "";
+            writeUrl(st);
+            applyTeamsFilter(st);
+          });
+        });
+
+        $$("#teams-group-pills [data-teams-group]").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            const st = readTeamsStateFromUrl();
+            st.group = a.getAttribute("data-teams-group") ?? "";
+            writeUrl(st);
+            applyTeamsFilter(st);
+          });
+        });
+
+        $$("#teams-status-pills [data-teams-status]").forEach((a) => {
+          a.addEventListener("click", (e) => {
+            e.preventDefault();
+            const st = readTeamsStateFromUrl();
+            st.status = a.getAttribute("data-teams-status") ?? "";
+            writeUrl(st);
+            applyTeamsFilter(st);
+          });
+        });
+
+        window.addEventListener("popstate", () => {
+          applyTeamsFilter(readTeamsStateFromUrl());
         });
       });
-
-      $$("#teams-group-pills [data-teams-group]").forEach((a) => {
-        a.addEventListener("click", (e) => {
-          e.preventDefault();
-          const st = readTeamsStateFromUrl();
-          st.group = a.getAttribute("data-teams-group") ?? "";
-          writeUrl(st);
-          applyTeamsFilter(st);
-        });
-      });
-
-      $$("#teams-status-pills [data-teams-status]").forEach((a) => {
-        a.addEventListener("click", (e) => {
-          e.preventDefault();
-          const st = readTeamsStateFromUrl();
-          st.status = a.getAttribute("data-teams-status") ?? "";
-          writeUrl(st);
-          applyTeamsFilter(st);
-        });
-      });
-
-      window.addEventListener("popstate", () => {
-        applyTeamsFilter(readTeamsStateFromUrl());
-      });
-    });
-  </script>
+    </script>
+  </section>
 </BaseLayout>

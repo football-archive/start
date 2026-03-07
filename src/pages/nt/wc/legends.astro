@@ -4,6 +4,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { parseCsv } from "../../../lib/csvSimple";
 import { STRONG_TEAMS } from "../../../lib/strongTeams";
+import { loadCallups } from "../../../lib/callups";
+import { toYMD } from "../../../lib/rosterFormat";
 
 const CURRENT_WC_EDITION = 2026; // ✅ 今は2026開催直前。完結大会は<2026
 const INCOMPLETE_PATTERNS = [
@@ -186,6 +188,19 @@ const heading = "強豪国のワールドカップの歩み";
 const title = `${heading} | World Football Archive`;
 const description =
   "強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。各国カードから「あゆみ」ページへ移動できます。";
+
+const latestNtLegendsUpdate = (() => {
+  let max = "";
+  const rows = loadCallups().filter(
+    (r: any) => String(r.competition ?? "").toUpperCase() === "WC",
+  );
+
+  for (const r of rows) {
+    const s = toYMD(String(r.snapshot_date ?? ""));
+    if (s && s > max) max = s;
+  }
+  return max;
+})();
 ---
 
 <BaseLayout
@@ -206,6 +221,9 @@ const description =
       強豪国のワールドカップの歩み（出場回数・優勝回数）を一覧で。カードをタップすると各国の「W杯あゆみ」へ移動します。
     </p>
   </div>
+  <p class="page-update">
+    最終更新：<span class="update-date">{latestNtLegendsUpdate || "—"}</span>
+  </p>
 
   {
     ranking.length > 0 && (
@@ -322,6 +340,18 @@ const description =
       color: #374151;
       font-size: 14px;
       line-height: 1.7;
+    }
+
+    .page-nt-legends .page-update {
+      margin: -2px 0 12px;
+      font-size: 12px;
+      color: var(--muted, #666);
+      text-align: right;
+    }
+
+    .page-nt-legends .page-update .update-date {
+      color: #c62828;
+      font-weight: 700;
     }
 
     .page-nt-legends .sec-title {
@@ -557,6 +587,31 @@ const description =
       font-weight: 900;
       color: var(--theme-link);
       white-space: nowrap;
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-legends .top {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+
+      .page-nt-legends .name {
+        white-space: normal;
+        overflow: visible;
+        text-overflow: unset;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+      }
+
+      .page-nt-legends .badges {
+        width: 100%;
+        justify-content: flex-start;
+        gap: 6px;
+      }
     }
   </style>
 </BaseLayout>
