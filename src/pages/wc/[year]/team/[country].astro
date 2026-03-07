@@ -15,6 +15,8 @@ import { loadGroups } from "../../../../lib/tournamentGroups";
 import { loadClubSquads } from "../../../../lib/clubSquads";
 import { toYMD } from "../../../../lib/rosterFormat";
 
+import { loadLeagueMaster } from "../../../../lib/leagueMaster";
+
 // ====================
 // getStaticPaths
 // 重要：params.country は「未エンコードの国名」を返す
@@ -197,9 +199,42 @@ const group =
 const continent = rowsAll[0]?.confederation ?? "";
 
 const rows = rowsAll.sort(sortForRoster);
-const starRows = rows
-  .filter((r) => String((r as any).is_star ?? "").trim() === "1")
-  .slice(0, 3);
+
+// ====================
+// 統計（平均年齢 + 5大リーグ）
+// ※ 最新大会だけ表示
+// ====================
+
+// この国の最新大会だけ表示
+const latestYearForCountry = yearsForCountry[0] ?? "";
+const showTeamStats = String(year) === String(latestYearForCountry);
+
+// 平均年齢
+const calcAge = (birth: string, base: Date) => {
+  if (!birth) return null;
+  const d = new Date(birth.replace(/\//g, "-"));
+  if (isNaN(d.getTime())) return null;
+
+  let age = base.getFullYear() - d.getFullYear();
+  const m = base.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && base.getDate() < d.getDate())) age--;
+  return age;
+};
+
+const baseDate = new Date(`${year}-06-01`);
+
+const ages = rows
+  .map((r: any) => calcAge(String(r.birth_date ?? ""), baseDate))
+  .filter((a) => a !== null) as number[];
+
+const avgAge =
+  ages.length > 0
+    ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1)
+    : "";
+
+// 5大リーグ集計
+const clubMaster = loadClubMaster();
+const leagueMaster = loadLeagueMaster();
 
 const parseAliases = (aliases: string) =>
   String(aliases || "")
@@ -207,7 +242,70 @@ const parseAliases = (aliases: string) =>
     .map((s) => s.trim())
     .filter(Boolean);
 
-const clubMaster = loadClubMaster();
+const resolveClubMaster = (clubName: string) => {
+  const raw = String(clubName || "").trim();
+  if (!raw) return null;
+
+  const key = normalize(raw);
+
+  return (
+    clubMaster.find((x: any) => {
+      const ja = normalize(x.club_display_ja || "");
+      const en = normalize(x.club_display_en || "");
+      if (key === ja || key === en) return true;
+
+      const als = parseAliases(x.aliases);
+      return als.some((a) => normalize(a) === key);
+    }) ?? null
+  );
+};
+
+const leagueKeyToName = new Map(
+  leagueMaster.map((l) => [l.league_key, l.league_display_en]),
+);
+
+const leagueCounts: Record<string, number> = {};
+
+for (const r of rows as any[]) {
+  const club = String(r.current_club ?? "").trim();
+  const c = resolveClubMaster(club);
+  if (!c) continue;
+
+  const name = leagueKeyToName.get(c.league_key);
+  if (!name) continue;
+
+  if (!leagueCounts[name]) leagueCounts[name] = 0;
+  leagueCounts[name]++;
+}
+
+// 5大リーグ順
+const leagueOrder = [
+  "Premier League",
+  "LaLiga",
+  "SerieA",
+  "Bundesliga",
+  "Ligue1",
+];
+
+const leagueLabel = (name: string) => {
+  switch (name) {
+    case "Premier League":
+      return "Premier";
+    default:
+      return name;
+  }
+};
+
+const leagueText = leagueOrder
+  .map((l) =>
+    leagueCounts[l] ? `${leagueLabel(l)}: ${leagueCounts[l]}` : null,
+  )
+  .filter(Boolean)
+  .join(" / ");
+
+const starRows = rows
+  .filter((r) => String((r as any).is_star ?? "").trim() === "1")
+  .slice(0, 3);
 
 // club_squads の存在判定（season + window + league_key + club_key）
 const clubSquadKeySet = new Set(
@@ -231,20 +329,7 @@ function mapWcToClubSeason(edition: string) {
 }
 
 const clubHref = (clubName: string) => {
-  const raw = String(clubName || "").trim();
-  if (!raw) return "";
-
-  const key = normalize(raw);
-
-  const c = clubMaster.find((x: any) => {
-    const ja = normalize(x.club_display_ja || "");
-    const en = normalize(x.club_display_en || "");
-    if (key === ja || key === en) return true;
-
-    const als = parseAliases(x.aliases);
-    return als.some((a) => normalize(a) === key);
-  });
-
+  const c = resolveClubMaster(clubName);
   if (!c) return "";
 
   // ✅ 過去大会：該当seasonのclub_squadsが無ければリンクしない
@@ -382,6 +467,14 @@ const heading = `${countryName}代表`;
     }
   </section>
 
+  {
+    showTeamStats && avgAge && (
+      <div class="team-stats">
+        平均年齢：{avgAge}歳{leagueText ? ` ｜ ${leagueText}` : ""}
+      </div>
+    )
+  }
+
   <RosterView {rows} {columns} />
 
   <script is:inline define:vars={{ topHref }}>
@@ -472,8 +565,8 @@ const heading = `${countryName}代表`;
 
     .star-title {
       margin: 0 0 8px;
-      font-size: 13px; /* 少し小さく */
-      font-weight: 650; /* 少し弱く（700→） */
+      font-size: 13px;
+      font-weight: 650;
       opacity: 1;
     }
 
@@ -483,14 +576,12 @@ const heading = `${countryName}代表`;
       grid-template-columns: repeat(3, 1fr);
     }
 
-    /* タブレット */
     @media (max-width: 900px) {
       .star-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
 
-    /* スマホ */
     @media (max-width: 640px) {
       .star-grid {
         grid-template-columns: 1fr;
@@ -501,14 +592,14 @@ const heading = `${countryName}代表`;
       background: #fff;
       border: 1px solid rgba(0, 0, 0, 0.05);
       border-radius: 10px;
-      padding: 8px 10px; /* 少し薄く */
+      padding: 8px 10px;
       display: flex;
       align-items: center;
     }
 
     .star-name {
-      font-weight: 600; /* 700→600 */
-      font-size: 13px; /* ここで確実に小さく */
+      font-weight: 600;
+      font-size: 13px;
       line-height: 1.35;
       word-break: keep-all;
     }
@@ -558,14 +649,10 @@ const heading = `${countryName}代表`;
       font-size: 12px;
       opacity: 0.78;
       line-height: 1.2;
-      text-align: right; /* 更新日は注記感＝右寄せ */
+      text-align: right;
       white-space: nowrap;
     }
 
-    /* 追加：メタ1行（成績｜監督）
-       - 左寄せ
-       - WCテーマ色（var(--theme-color)）
-       - 強調（少し大きく、太く） */
     .nt-meta {
       align-self: flex-start;
       text-align: left;
@@ -580,13 +667,11 @@ const heading = `${countryName}代表`;
       padding-left: 8px;
     }
 
-    /* 既に SiteHeader.astro にあるなら不要だが、保険で */
     .updated-date {
       color: #c0392b;
       font-weight: 700;
     }
 
-    /* pillsブロックの余白を軽く詰める（任意） */
     .nt-year-pills {
       margin-bottom: 8px;
     }
@@ -605,6 +690,13 @@ const heading = `${countryName}代表`;
       .nt-meta {
         font-size: 13px;
       }
+    }
+
+    .team-stats {
+      font-size: 13px;
+      color: var(--theme-color);
+      font-weight: 600;
+      margin: 8px 0;
     }
   </style>
 </BaseLayout>

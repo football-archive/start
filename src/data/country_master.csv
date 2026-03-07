@@ -1,0 +1,198 @@
+country_key,country_name_ja,country_name_en,continent,confederation
+japan,日本,Japan,Asia,AFC
+south-korea,韓国,South Korea,Asia,AFC
+south-korea,韓国,Korea, South,Asia,AFC
+north-korea,北朝鮮,North Korea,Asia,AFC
+china,中国,China,Asia,AFC
+taiwan,台湾,Taiwan,Asia,AFC
+hong-kong,香港,Hong Kong,Asia,AFC
+macao,マカオ,Macau,Asia,AFC
+mongolia,モンゴル,Mongolia,Asia,AFC
+vietnam,ベトナム,Vietnam,Asia,AFC
+thailand,タイ,Thailand,Asia,AFC
+malaysia,マレーシア,Malaysia,Asia,AFC
+singapore,シンガポール,Singapore,Asia,AFC
+indonesia,インドネシア,Indonesia,Asia,AFC
+philippines,フィリピン,Philippines,Asia,AFC
+myanmar,ミャンマー,Myanmar,Asia,AFC
+cambodia,カンボジア,Cambodia,Asia,AFC
+laos,ラオス,Laos,Asia,AFC
+brunei,ブルネイ,Brunei,Asia,AFC
+timor-leste,東ティモール,Timor-Leste,Asia,AFC
+india,インド,India,Asia,AFC
+pakistan,パキスタン,Pakistan,Asia,AFC
+bangladesh,バングラデシュ,Bangladesh,Asia,AFC
+nepal,ネパール,Nepal,Asia,AFC
+bhutan,ブータン,Bhutan,Asia,AFC
+sri-lanka,スリランカ,Sri Lanka,Asia,AFC
+maldives,モルディブ,Maldives,Asia,AFC
+afghanistan,アフガニスタン,Afghanistan,Asia,AFC
+iran,イラン,Iran,Asia,AFC
+iraq,イラク,Iraq,Asia,AFC
+saudi-arabia,サウジアラビア,Saudi Arabia,Asia,AFC
+uae,アラブ首長国連邦,United Arab Emirates,Asia,AFC
+qatar,カタール,Qatar,Asia,AFC
+oman,オマーン,Oman,Asia,AFC
+yemen,イエメン,Yemen,Asia,AFC
+bahrain,バーレーン,Bahrain,Asia,AFC
+kuwait,クウェート,Kuwait,Asia,AFC
+jordan,ヨルダン,Jordan,Asia,AFC
+lebanon,レバノン,Lebanon,Asia,AFC
+syria,シリア,Syria,Asia,AFC
+palestine,パレスチナ,Palestine,Asia,AFC
+australia,オーストラリア,Australia,Asia,AFC
+new-zealand,ニュージーランド,New Zealand,Oceania,OFC
+fiji,フィジー,Fiji,Oceania,OFC
+new-caledonia,ニューカレドニア,New Caledonia,Oceania,OFC
+solomon-islands,ソロモン諸島,Solomon Islands,Oceania,OFC
+papua-new-guinea,パプアニューギニア,Papua New Guinea,Oceania,OFC
+tahiti,タヒチ,Tahiti,Oceania,OFC
+vanuatu,バヌアツ,Vanuatu,Oceania,OFC
+samoa,サモア,Samoa,Oceania,OFC
+american-samoa,アメリカ領サモア,American Samoa,Oceania,OFC
+tonga,トンガ,Tonga,Oceania,OFC
+cook-islands,クック諸島,Cook Islands,Oceania,OFC
+mexico,メキシコ,Mexico,North America,CONCACAF
+usa,アメリカ,United States,North America,CONCACAF
+canada,カナダ,Canada,North America,CONCACAF
+costa-rica,コスタリカ,Costa Rica,North America,CONCACAF
+panama,パナマ,Panama,North America,CONCACAF
+jamaica,ジャマイカ,Jamaica,North America,CONCACAF
+honduras,ホンジュラス,Honduras,North America,CONCACAF
+el-salvador,エルサルバドル,El Salvador,North America,CONCACAF
+guatemala,グアテマラ,Guatemala,North America,CONCACAF
+nicaragua,ニカラグア,Nicaragua,North America,CONCACAF
+belize,ベリーズ,Belize,North America,CONCACAF
+haiti,ハイチ,Haiti,North America,CONCACAF
+dominican-republic,ドミニカ共和国,Dominican Republic,North America,CONCACAF
+trinidad-and-tobago,トリニダード・トバゴ,Trinidad and Tobago,North America,CONCACAF
+cuba,キューバ,Cuba,North America,CONCACAF
+curacao,キュラソー,Curacao,North America,CONCACAF
+suriname,スリナム,Suriname,South America,CONCACAF
+guyana,ガイアナ,Guyana,South America,CONCACAF
+martinique,マルティニーク,Martinique,North America,CONCACAF
+guadeloupe,グアドループ,Guadeloupe,North America,CONCACAF
+puerto-rico,プエルトリコ,Puerto Rico,North America,CONCACAF
+aruba,アルバ,Aruba,North America,CONCACAF
+st-kitts-and-nevis,セントクリストファー・ネイビス,Saint Kitts and Nevis,North America,CONCACAF
+antigua-and-barbuda,アンティグア・バーブーダ,Antigua and Barbuda,North America,CONCACAF
+st-lucia,セントルシア,Saint Lucia,North America,CONCACAF
+st-vincent-and-the-grenadines,セントビンセント・グレナディーン,Saint Vincent and the Grenadines,North America,CONCACAF
+grenada,グレナダ,Grenada,North America,CONCACAF
+barbados,バルバドス,Barbados,North America,CONCACAF
+dominica,ドミニカ国,Dominica,North America,CONCACAF
+bermuda,バミューダ,Bermuda,North America,CONCACAF
+brazil,ブラジル,Brazil,South America,CONMEBOL
+argentina,アルゼンチン,Argentina,South America,CONMEBOL
+uruguay,ウルグアイ,Uruguay,South America,CONMEBOL
+paraguay,パラグアイ,Paraguay,South America,CONMEBOL
+chile,チリ,Chile,South America,CONMEBOL
+peru,ペルー,Peru,South America,CONMEBOL
+colombia,コロンビア,Colombia,South America,CONMEBOL
+ecuador,エクアドル,Ecuador,South America,CONMEBOL
+venezuela,ベネズエラ,Venezuela,South America,CONMEBOL
+bolivia,ボリビア,Bolivia,South America,CONMEBOL
+england,イングランド,England,Europe,UEFA
+scotland,スコットランド,Scotland,Europe,UEFA
+wales,ウェールズ,Wales,Europe,UEFA
+northern-ireland,北アイルランド,Northern Ireland,Europe,UEFA
+ireland,アイルランド,Republic of Ireland,Europe,UEFA
+france,フランス,France,Europe,UEFA
+spain,スペイン,Spain,Europe,UEFA
+portugal,ポルトガル,Portugal,Europe,UEFA
+italy,イタリア,Italy,Europe,UEFA
+germany,ドイツ,Germany,Europe,UEFA
+netherlands,オランダ,Netherlands,Europe,UEFA
+belgium,ベルギー,Belgium,Europe,UEFA
+luxembourg,ルクセンブルク,Luxembourg,Europe,UEFA
+switzerland,スイス,Switzerland,Europe,UEFA
+austria,オーストリア,Austria,Europe,UEFA
+denmark,デンマーク,Denmark,Europe,UEFA
+sweden,スウェーデン,Sweden,Europe,UEFA
+norway,ノルウェー,Norway,Europe,UEFA
+finland,フィンランド,Finland,Europe,UEFA
+iceland,アイスランド,Iceland,Europe,UEFA
+poland,ポーランド,Poland,Europe,UEFA
+czechia,チェコ,Czechia,Europe,UEFA
+slovakia,スロバキア,Slovakia,Europe,UEFA
+hungary,ハンガリー,Hungary,Europe,UEFA
+romania,ルーマニア,Romania,Europe,UEFA
+bulgaria,ブルガリア,Bulgaria,Europe,UEFA
+croatia,クロアチア,Croatia,Europe,UEFA
+serbia,セルビア,Serbia,Europe,UEFA
+bosnia-and-herzegovina,ボスニア・ヘルツェゴビナ,Bosnia and Herzegovina,Europe,UEFA
+slovenia,スロベニア,Slovenia,Europe,UEFA
+montenegro,モンテネグロ,Montenegro,Europe,UEFA
+north-macedonia,北マケドニア,North Macedonia,Europe,UEFA
+albania,アルバニア,Albania,Europe,UEFA
+greece,ギリシャ,Greece,Europe,UEFA
+turkey,トルコ,Turkey,Europe,UEFA
+cyprus,キプロス,Cyprus,Europe,UEFA
+malta,マルタ,Malta,Europe,UEFA
+ukraine,ウクライナ,Ukraine,Europe,UEFA
+belarus,ベラルーシ,Belarus,Europe,UEFA
+moldova,モルドバ,Moldova,Europe,UEFA
+russia,ロシア,Russia,Europe,UEFA
+estonia,エストニア,Estonia,Europe,UEFA
+latvia,ラトビア,Latvia,Europe,UEFA
+lithuania,リトアニア,Lithuania,Europe,UEFA
+georgia,ジョージア,Georgia,Europe,UEFA
+armenia,アルメニア,Armenia,Europe,UEFA
+azerbaijan,アゼルバイジャン,Azerbaijan,Europe,UEFA
+kazakhstan,カザフスタン,Kazakhstan,Europe,UEFA
+israel,イスラエル,Israel,Europe,UEFA
+kosovo,コソボ,Kosovo,Europe,UEFA
+andorra,アンドラ,Andorra,Europe,UEFA
+san-marino,サンマリノ,San Marino,Europe,UEFA
+liechtenstein,リヒテンシュタイン,Liechtenstein,Europe,UEFA
+gibraltar,ジブラルタル,Gibraltar,Europe,UEFA
+faroe-islands,フェロー諸島,Faroe Islands,Europe,UEFA
+morocco,モロッコ,Morocco,Africa,CAF
+algeria,アルジェリア,Algeria,Africa,CAF
+tunisia,チュニジア,Tunisia,Africa,CAF
+egypt,エジプト,Egypt,Africa,CAF
+libya,リビア,Libya,Africa,CAF
+sudan,スーダン,Sudan,Africa,CAF
+south-sudan,南スーダン,South Sudan,Africa,CAF
+mauritania,モーリタニア,Mauritania,Africa,CAF
+mali,マリ,Mali,Africa,CAF
+senegal,セネガル,Senegal,Africa,CAF
+gambia,ガンビア,Gambia,Africa,CAF
+guinea,ギニア,Guinea,Africa,CAF
+guinea-bissau,ギニアビサウ,Guinea-Bissau,Africa,CAF
+sierra-leone,シエラレオネ,Sierra Leone,Africa,CAF
+liberia,リベリア,Liberia,Africa,CAF
+cote-divoire,コートジボワール,Côte d'Ivoire,Africa,CAF
+ghana,ガーナ,Ghana,Africa,CAF
+togo,トーゴ,Togo,Africa,CAF
+benin,ベナン,Benin,Africa,CAF
+burkina-faso,ブルキナファソ,Burkina Faso,Africa,CAF
+nigeria,ナイジェリア,Nigeria,Africa,CAF
+cameroon,カメルーン,Cameroon,Africa,CAF
+equatorial-guinea,赤道ギニア,Equatorial Guinea,Africa,CAF
+gabon,ガボン,Gabon,Africa,CAF
+congo,コンゴ共和国,Congo,Africa,CAF
+dr-congo,コンゴ民主共和国,DR Congo,Africa,CAF
+angola,アンゴラ,Angola,Africa,CAF
+uganda,ウガンダ,Uganda,Africa,CAF
+kenya,ケニア,Kenya,Africa,CAF
+tanzania,タンザニア,Tanzania,Africa,CAF
+rwanda,ルワンダ,Rwanda,Africa,CAF
+burundi,ブルンジ,Burundi,Africa,CAF
+ethiopia,エチオピア,Ethiopia,Africa,CAF
+eritrea,エリトリア,Eritrea,Africa,CAF
+somalia,ソマリア,Somalia,Africa,CAF
+djibouti,ジブチ,Djibouti,Africa,CAF
+south-africa,南アフリカ,South Africa,Africa,CAF
+zambia,ザンビア,Zambia,Africa,CAF
+zimbabwe,ジンバブエ,Zimbabwe,Africa,CAF
+malawi,マラウイ,Malawi,Africa,CAF
+mozambique,モザンビーク,Mozambique,Africa,CAF
+botswana,ボツワナ,Botswana,Africa,CAF
+namibia,ナミビア,Namibia,Africa,CAF
+lesotho,レソト,Lesotho,Africa,CAF
+eswatini,エスワティニ,Eswatini,Africa,CAF
+madagascar,マダガスカル,Madagascar,Africa,CAF
+mauritius,モーリシャス,Mauritius,Africa,CAF
+comoros,コモロ,Comoros,Africa,CAF
+cape-verde,カーボベルデ,Cape Verde,Africa,CAF

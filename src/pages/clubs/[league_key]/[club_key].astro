@@ -22,6 +22,11 @@ import { clubsListUrl } from "../../../lib/urls";
 
 import { buildRepHistoryLinksFromCallups } from "../../../lib/repCandidate";
 
+// ★ country master 読み込み用
+import { parseCsv } from "../../../lib/csvSimple";
+import fs from "node:fs";
+import path from "node:path";
+
 // --------------------
 // getStaticPaths：keyで生成
 // --------------------
@@ -52,6 +57,132 @@ const leagueInMaster = !!leagueInfo;
 
 const clubLabel = clubInfo?.club_display_ja ?? club_key;
 const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
+
+// --------------------
+// country master
+// --------------------
+type CountryMasterRow = {
+  country_key: string;
+  country_name_ja: string;
+  country_name_en: string;
+  continent: string;
+  confederation: string;
+};
+
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+const countryMaster: CountryMasterRow[] = readCsv("country_master.csv").map(
+  (r: any) => ({
+    country_key: String(r.country_key ?? "").trim(),
+    country_name_ja: String(r.country_name_ja ?? "").trim(),
+    country_name_en: String(r.country_name_en ?? "").trim(),
+    continent: String(r.continent ?? "").trim(),
+    confederation: String(r.confederation ?? "").trim(),
+  }),
+);
+
+const normCountry = (s: any) =>
+  String(s ?? "")
+    .trim()
+    .toLowerCase();
+
+const countryToContinent = new Map<string, string>();
+for (const c of countryMaster) {
+  if (c.country_name_en)
+    countryToContinent.set(normCountry(c.country_name_en), c.continent);
+  if (c.country_name_ja)
+    countryToContinent.set(normCountry(c.country_name_ja), c.continent);
+  if (c.country_key)
+    countryToContinent.set(normCountry(c.country_key), c.continent);
+}
+
+const continentJa = (c: string) => {
+  switch (String(c ?? "").trim()) {
+    case "Europe":
+      return "欧州";
+    case "South America":
+      return "南米";
+    case "North America":
+    case "Central America":
+    case "North/Central America":
+    case "North & Central America":
+      return "北中米";
+    case "Africa":
+      return "アフリカ";
+    case "Asia":
+      return "アジア";
+    case "Oceania":
+      return "オセアニア";
+    default:
+      return "";
+  }
+};
+
+const firstNationality = (s: any) =>
+  String(s ?? "")
+    .split(/[|,/、]/)
+    .map((x) => String(x ?? "").trim())
+    .filter(Boolean)[0] ?? "";
+
+const calcAge = (birth: string, base: Date) => {
+  if (!birth) return null;
+  const d = new Date(String(birth).replace(/\//g, "-"));
+  if (isNaN(d.getTime())) return null;
+
+  let age = base.getFullYear() - d.getFullYear();
+  const m = base.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && base.getDate() < d.getDate())) age--;
+  return age;
+};
+
+const buildClubStatsLine = (
+  rows: any[],
+  snapshot: string,
+  enabled: boolean,
+) => {
+  if (!enabled || !rows.length) return "";
+
+  const base = new Date(String(snapshot || "").replace(/\//g, "-"));
+  if (isNaN(base.getTime())) return "";
+
+  // 平均年齢
+  const ages = rows
+    .map((r) => calcAge(String(r.birth_date ?? ""), base))
+    .filter((a) => a !== null) as number[];
+
+  const avgAge =
+    ages.length > 0
+      ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1)
+      : "";
+
+  // 大陸別（先頭国籍のみ）
+  const counts: Record<string, number> = {};
+  for (const r of rows) {
+    const nat = firstNationality(r.nationality);
+    if (!nat) continue;
+
+    const continent = countryToContinent.get(normCountry(nat));
+    if (!continent) continue;
+
+    const label = continentJa(continent);
+    if (!label) continue;
+
+    counts[label] = (counts[label] ?? 0) + 1;
+  }
+
+  const order = ["欧州", "南米", "北中米", "アフリカ", "アジア", "オセアニア"];
+  const continentText = order
+    .map((label) => (counts[label] ? `${label}: ${counts[label]}` : null))
+    .filter(Boolean)
+    .join(" / ");
+
+  if (!avgAge) return continentText ? `大陸別：${continentText}` : "";
+  return `平均年齢：${avgAge}歳${continentText ? ` ｜ ${continentText}` : ""}`;
+};
 
 // --------------------
 // roster：keyで抽出（window/snapshot/season を扱う）
@@ -112,6 +243,8 @@ type SeasonPack = {
   starRowsWinter: any[];
   isLatestViewSummer: boolean;
   isLatestViewWinter: boolean;
+  statsSummer: string;
+  statsWinter: string;
 };
 
 const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
@@ -119,17 +252,25 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
     (r) => String(r.season ?? "").trim() === s,
   );
 
-  const summerRows = rowsForSeason.filter((r) => normWindow(r.window) === "summer");
-  const winterRows = rowsForSeason.filter((r) => normWindow(r.window) === "winter");
+  const summerRows = rowsForSeason.filter(
+    (r) => normWindow(r.window) === "summer",
+  );
+  const winterRows = rowsForSeason.filter(
+    (r) => normWindow(r.window) === "winter",
+  );
 
   const summerSnapMax = maxSnapIn(summerRows);
   const winterSnapMax = maxSnapIn(winterRows);
 
   const rosterSummer = sortClubRoster(
-    summerRows.filter((r) => toYMD(String(r.snapshot_date ?? "")) === summerSnapMax),
+    summerRows.filter(
+      (r) => toYMD(String(r.snapshot_date ?? "")) === summerSnapMax,
+    ),
   );
   const rosterWinter = sortClubRoster(
-    winterRows.filter((r) => toYMD(String(r.snapshot_date ?? "")) === winterSnapMax),
+    winterRows.filter(
+      (r) => toYMD(String(r.snapshot_date ?? "")) === winterSnapMax,
+    ),
   );
 
   const hasSummer = rosterSummer.length > 0;
@@ -154,6 +295,19 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
     .filter((r) => String((r as any).is_star ?? "").trim() === "1")
     .slice(0, 3);
 
+  const showStats = s === latestSeason;
+
+  const statsSummer = buildClubStatsLine(
+    rosterSummer,
+    summerUpdated,
+    showStats,
+  );
+  const statsWinter = buildClubStatsLine(
+    rosterWinter,
+    winterUpdated,
+    showStats,
+  );
+
   return {
     season: s,
     hasSummer,
@@ -167,6 +321,8 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
     starRowsWinter,
     isLatestViewSummer,
     isLatestViewWinter,
+    statsSummer,
+    statsWinter,
   };
 });
 
@@ -295,15 +451,17 @@ const searchTextFn = (r: any) =>
 >
   {/* ✅ H1直下に「リーグピル＋同リーグ一覧＋全リーグ」を配置 */}
   <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
-    {leaguePills.map((p) => (
-      <a
-        class={`pill ${p.key === league_key ? "is-active" : ""}`}
-        href={clubsListUrl({ leagueKey: p.key })}
-      >
-        <span class="dot" aria-hidden="true" />
-        {p.label}
-      </a>
-    ))}
+    {
+      leaguePills.map((p) => (
+        <a
+          class={`pill ${p.key === league_key ? "is-active" : ""}`}
+          href={clubsListUrl({ leagueKey: p.key })}
+        >
+          <span class="dot" aria-hidden="true" />
+          {p.label}
+        </a>
+      ))
+    }
 
     <a class="pill" href={clubsListUrl({ leagueKey: league_key })}>
       <span class="dot" aria-hidden="true"></span>同リーグのクラブ一覧
@@ -315,26 +473,28 @@ const searchTextFn = (r: any) =>
   </div>
 
   {/* ✅ season pills（JSで切替） */}
-  {seasonCandidates.length > 0 ? (
-    <div
-      class="pills season-toggle"
-      style="margin: 0 0 14px;"
-      data-default-season={initialSeason}
-    >
-      {seasonCandidates.map((s) => {
-        const active = s === initialSeason;
-        return (
-          <button
-            type="button"
-            class={`pill ${active ? "is-active" : ""}`}
-            data-season={s}
-          >
-            {seasonShort(s)}
-          </button>
-        );
-      })}
-    </div>
-  ) : null}
+  {
+    seasonCandidates.length > 0 ? (
+      <div
+        class="pills season-toggle"
+        style="margin: 0 0 14px;"
+        data-default-season={initialSeason}
+      >
+        {seasonCandidates.map((s) => {
+          const active = s === initialSeason;
+          return (
+            <button
+              type="button"
+              class={`pill ${active ? "is-active" : ""}`}
+              data-season={s}
+            >
+              {seasonShort(s)}
+            </button>
+          );
+        })}
+      </div>
+    ) : null
+  }
 
   {/* summer / winter toggle */}
   <div
@@ -376,155 +536,200 @@ const searchTextFn = (r: any) =>
     <div class="meta-line">
       <span class="meta-item">
         クラブ更新：
-        {seasonPacks.map((p) => (
-          <>
-            <span
-              class="updated-date"
-              data-season={p.season}
-              data-updated="summer"
-              style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
-            >
-              {p.summerUpdated || "—"}
-            </span>
-            <span
-              class="updated-date"
-              data-season={p.season}
-              data-updated="winter"
-              style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
-            >
-              {p.winterUpdated || "—"}
-            </span>
-          </>
-        ))}
+        {
+          seasonPacks.map((p) => (
+            <>
+              <span
+                class="updated-date"
+                data-season={p.season}
+                data-updated="summer"
+                style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+              >
+                {p.summerUpdated || "—"}
+              </span>
+              <span
+                class="updated-date"
+                data-season={p.season}
+                data-updated="winter"
+                style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+              >
+                {p.winterUpdated || "—"}
+              </span>
+            </>
+          ))
+        }
       </span>
       <span class="meta-sep">／</span>
       <span class="meta-item">
-        代表更新：<span class="updated-date">{toYMD(repMaxSnapshot) || "—"}</span>
+        代表更新：<span class="updated-date"
+          >{toYMD(repMaxSnapshot) || "—"}</span
+        >
       </span>
     </div>
 
     {/* ✅ シーズンメタ：更新日より下（左寄せ・強調） */}
-    {seasonPacks.map((p) => {
-      const label = ctMetaLabel(p.season);
-      if (!label) return null;
-      return (
-        <div
-          class="ct-meta"
-          data-ctmeta="1"
-          data-season={p.season}
-          style={`display:${p.season === initialSeason ? "" : "none"}`}
-        >
-          {label}
-        </div>
-      );
-    })}
+    {
+      seasonPacks.map((p) => {
+        const label = ctMetaLabel(p.season);
+        if (!label) return null;
+        return (
+          <div
+            class="ct-meta"
+            data-ctmeta="1"
+            data-season={p.season}
+            style={`display:${p.season === initialSeason ? "" : "none"}`}
+          >
+            {label}
+          </div>
+        );
+      })
+    }
   </div>
 
-  {seasonPacks.map((p) => (
-    <>
-      <section
-        class="star-block"
-        data-season={p.season}
-        data-star-window="summer"
-        style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
-        aria-label={`注目選手（夏 ${p.season}）`}
-      >
-        <h2 class="star-title">⭐ 注目選手</h2>
-        {p.starRowsSummer.length > 0 ? (
-          <div class="star-grid">
-            {p.starRowsSummer.map((r) => (
-              <div class="star-card">
-                <div class="star-name">
-                  {r.name_ja || r.name_en || r.name}
-                  <span class="star-pos">（{r.position_primary || r.position}）</span>
+  {
+    seasonPacks.map((p) => (
+      <>
+        <section
+          class="star-block"
+          data-season={p.season}
+          data-star-window="summer"
+          style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+          aria-label={`注目選手（夏 ${p.season}）`}
+        >
+          <h2 class="star-title">⭐ 注目選手</h2>
+          {p.starRowsSummer.length > 0 ? (
+            <div class="star-grid">
+              {p.starRowsSummer.map((r) => (
+                <div class="star-card">
+                  <div class="star-name">
+                    {r.name_ja || r.name_en || r.name}
+                    <span class="star-pos">
+                      （{r.position_primary || r.position}）
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div class="star-empty">準備中</div>
-        )}
-      </section>
+              ))}
+            </div>
+          ) : (
+            <div class="star-empty">準備中</div>
+          )}
+        </section>
 
-      <section
-        class="star-block"
-        data-season={p.season}
-        data-star-window="winter"
-        style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
-        aria-label={`注目選手（冬 ${p.season}）`}
-      >
-        <h2 class="star-title">⭐ 注目選手</h2>
-        {p.starRowsWinter.length > 0 ? (
-          <div class="star-grid">
-            {p.starRowsWinter.map((r) => (
-              <div class="star-card">
-                <div class="star-name">
-                  {r.name_ja || r.name_en || r.name}
-                  <span class="star-pos">（{r.position_primary || r.position}）</span>
+        <section
+          class="star-block"
+          data-season={p.season}
+          data-star-window="winter"
+          style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+          aria-label={`注目選手（冬 ${p.season}）`}
+        >
+          <h2 class="star-title">⭐ 注目選手</h2>
+          {p.starRowsWinter.length > 0 ? (
+            <div class="star-grid">
+              {p.starRowsWinter.map((r) => (
+                <div class="star-card">
+                  <div class="star-name">
+                    {r.name_ja || r.name_en || r.name}
+                    <span class="star-pos">
+                      （{r.position_primary || r.position}）
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div class="star-empty">準備中</div>
-        )}
-      </section>
-    </>
-  ))}
+              ))}
+            </div>
+          ) : (
+            <div class="star-empty">準備中</div>
+          )}
+        </section>
+      </>
+    ))
+  }
 
-  {!clubInMaster || !leagueInMaster || !hasRoster ? (
-    <div class="empty">
-      <h2>データが見つかりません</h2>
-      <p>
-        {!leagueInMaster
-          ? "リーグが辞書に未登録です。"
-          : !clubInMaster
-            ? "クラブが辞書に未登録です。"
-            : "指定されたクラブのデータがありません。"}
-      </p>
-      <div class="empty-actions">
-        <a class="btn" href="/clubs">クラブ一覧へ戻る</a>
-      </div>
-    </div>
-  ) : (
-    <>
-      {seasonPacks.map((p) => (
-        <>
-          <section
+  {/* ✅ 1行統計（最新シーズンだけ表示、window追従） */}
+  {
+    seasonPacks.map((p) => (
+      <>
+        {p.statsSummer ? (
+          <div
+            class="team-stats"
             data-season={p.season}
-            data-window="summer"
+            data-stats-window="summer"
             style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
           >
-            <RosterView
-              tableId={`club-roster-${p.season}-summer`}
-              rows={p.rosterSummer}
-              minWidthPx={920}
-              borderColor="var(--border, #e6e6e6)"
-              placeholder="検索：選手名 / 国名 / 国籍"
-              searchText={searchTextFn}
-              columns={columnsBySeason[p.season].summer}
-            />
-          </section>
+            {p.statsSummer}
+          </div>
+        ) : null}
 
-          <section
+        {p.statsWinter ? (
+          <div
+            class="team-stats"
             data-season={p.season}
-            data-window="winter"
+            data-stats-window="winter"
             style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
           >
-            <RosterView
-              tableId={`club-roster-${p.season}-winter`}
-              rows={p.rosterWinter}
-              minWidthPx={920}
-              borderColor="var(--border, #e6e6e6)"
-              placeholder="検索：選手名 / 国名 / 国籍"
-              searchText={searchTextFn}
-              columns={columnsBySeason[p.season].winter}
-            />
-          </section>
-        </>
-      ))}
-    </>
-  )}
+            {p.statsWinter}
+          </div>
+        ) : null}
+      </>
+    ))
+  }
+
+  {
+    !clubInMaster || !leagueInMaster || !hasRoster ? (
+      <div class="empty">
+        <h2>データが見つかりません</h2>
+        <p>
+          {!leagueInMaster
+            ? "リーグが辞書に未登録です。"
+            : !clubInMaster
+              ? "クラブが辞書に未登録です。"
+              : "指定されたクラブのデータがありません。"}
+        </p>
+        <div class="empty-actions">
+          <a class="btn" href="/clubs">
+            クラブ一覧へ戻る
+          </a>
+        </div>
+      </div>
+    ) : (
+      <>
+        {seasonPacks.map((p) => (
+          <>
+            <section
+              data-season={p.season}
+              data-window="summer"
+              style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+            >
+              <RosterView
+                tableId={`club-roster-${p.season}-summer`}
+                rows={p.rosterSummer}
+                minWidthPx={920}
+                borderColor="var(--border, #e6e6e6)"
+                placeholder="検索：選手名 / 国名 / 国籍"
+                searchText={searchTextFn}
+                columns={columnsBySeason[p.season].summer}
+              />
+            </section>
+
+            <section
+              data-season={p.season}
+              data-window="winter"
+              style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+            >
+              <RosterView
+                tableId={`club-roster-${p.season}-winter`}
+                rows={p.rosterWinter}
+                minWidthPx={920}
+                borderColor="var(--border, #e6e6e6)"
+                placeholder="検索：選手名 / 国名 / 国籍"
+                searchText={searchTextFn}
+                columns={columnsBySeason[p.season].winter}
+              />
+            </section>
+          </>
+        ))}
+      </>
+    )
+  }
 
   <script is:inline>
     window.addEventListener("DOMContentLoaded", () => {
@@ -533,24 +738,45 @@ const searchTextFn = (r: any) =>
         const windowRoot = document.querySelector(".window-toggle");
         if (!windowRoot) return;
 
-        const windowBtns = Array.from(windowRoot.querySelectorAll("button[data-window]"));
+        const windowBtns = Array.from(
+          windowRoot.querySelectorAll("button[data-window]"),
+        );
         const seasonBtns = seasonRoot
           ? Array.from(seasonRoot.querySelectorAll("button[data-season]"))
           : [];
 
-        const sections = Array.from(document.querySelectorAll("section[data-window][data-season]"));
-        const updatedDates = Array.from(document.querySelectorAll("[data-updated][data-season]"));
-        const ctMetas = Array.from(document.querySelectorAll("[data-ctmeta][data-season]"));
-        const starSections = Array.from(document.querySelectorAll("[data-star-window][data-season]"));
+        const sections = Array.from(
+          document.querySelectorAll("section[data-window][data-season]"),
+        );
+        const updatedDates = Array.from(
+          document.querySelectorAll("[data-updated][data-season]"),
+        );
+        const ctMetas = Array.from(
+          document.querySelectorAll("[data-ctmeta][data-season]"),
+        );
+        const starSections = Array.from(
+          document.querySelectorAll("[data-star-window][data-season]"),
+        );
+        const statLines = Array.from(
+          document.querySelectorAll("[data-stats-window][data-season]"),
+        );
 
-        const packs = JSON.parse(windowRoot.getAttribute("data-season-packs") || "[]");
+        const packs = JSON.parse(
+          windowRoot.getAttribute("data-season-packs") || "[]",
+        );
 
         const params = new URLSearchParams(location.search);
         const qWin = (params.get("window") || "").toLowerCase();
         const qSeason = (params.get("season") || "").trim();
 
-        const defaultSeason = seasonRoot?.getAttribute("data-default-season") || packs[0]?.season || "";
-        const initialSeason = qSeason && packs.some((p) => p.season === qSeason) ? qSeason : defaultSeason;
+        const defaultSeason =
+          seasonRoot?.getAttribute("data-default-season") ||
+          packs[0]?.season ||
+          "";
+        const initialSeason =
+          qSeason && packs.some((p) => p.season === qSeason)
+            ? qSeason
+            : defaultSeason;
 
         function findPack(season) {
           return packs.find((p) => p.season === season);
@@ -595,12 +821,24 @@ const searchTextFn = (r: any) =>
             sec.style.display = s === season && w === win ? "" : "none";
           });
 
+          statLines.forEach((el) => {
+            const s = el.getAttribute("data-season");
+            const w = el.getAttribute("data-stats-window");
+            el.style.display = s === season && w === win ? "" : "none";
+          });
+
           windowBtns.forEach((b) => {
-            b.classList.toggle("is-active", b.getAttribute("data-window") === win);
+            b.classList.toggle(
+              "is-active",
+              b.getAttribute("data-window") === win,
+            );
           });
 
           seasonBtns.forEach((b) => {
-            b.classList.toggle("is-active", b.getAttribute("data-season") === season);
+            b.classList.toggle(
+              "is-active",
+              b.getAttribute("data-season") === season,
+            );
           });
 
           const u = new URL(location.href);
@@ -610,7 +848,8 @@ const searchTextFn = (r: any) =>
         }
 
         const defaultWinFromSeason = setWindowAvailability(initialSeason);
-        const initialWin = qWin === "winter" || qWin === "summer" ? qWin : defaultWinFromSeason;
+        const initialWin =
+          qWin === "winter" || qWin === "summer" ? qWin : defaultWinFromSeason;
         setActive(initialSeason, initialWin);
 
         windowBtns.forEach((b) => {
@@ -618,7 +857,10 @@ const searchTextFn = (r: any) =>
             if (b.disabled) return;
             const win = b.getAttribute("data-window");
             if (!win) return;
-            const curSeason = (new URLSearchParams(location.search).get("season") || initialSeason).trim();
+            const curSeason = (
+              new URLSearchParams(location.search).get("season") ||
+              initialSeason
+            ).trim();
             setActive(curSeason, win);
           });
         });
@@ -629,8 +871,11 @@ const searchTextFn = (r: any) =>
             if (!season) return;
 
             const defaultWin = setWindowAvailability(season);
-            const curWin = (new URLSearchParams(location.search).get("window") || "").toLowerCase();
-            const win = curWin === "winter" || curWin === "summer" ? curWin : defaultWin;
+            const curWin = (
+              new URLSearchParams(location.search).get("window") || ""
+            ).toLowerCase();
+            const win =
+              curWin === "winter" || curWin === "summer" ? curWin : defaultWin;
 
             const p = findPack(season);
             const hasSummer = !!p?.hasSummer;
@@ -652,7 +897,9 @@ const searchTextFn = (r: any) =>
   </script>
 
   <style is:global>
-    .page-club .meta-top { margin: 2px 0 0; }
+    .page-club .meta-top {
+      margin: 2px 0 0;
+    }
     .page-club .meta-line {
       font-size: 12px;
       opacity: 0.78;
@@ -676,12 +923,22 @@ const searchTextFn = (r: any) =>
       text-overflow: ellipsis;
     }
     @media (max-width: 480px) {
-      .ct-meta { font-size: 13px; border-left-width: 5px; }
+      .ct-meta {
+        font-size: 13px;
+        border-left-width: 5px;
+      }
     }
 
-    .page-club .meta-item { display: inline; }
-    .page-club .meta-sep { margin: 0 6px; opacity: 0.6; }
-    .page-club .updated-date { font-weight: 700; }
+    .page-club .meta-item {
+      display: inline;
+    }
+    .page-club .meta-sep {
+      margin: 0 6px;
+      opacity: 0.6;
+    }
+    .page-club .updated-date {
+      font-weight: 700;
+    }
 
     .page-club .window-toggle {
       display: flex;
@@ -699,9 +956,13 @@ const searchTextFn = (r: any) =>
       padding: 6px 10px;
       font-size: 12px;
       cursor: pointer;
-      transition: transform 0.06s ease, box-shadow 0.06s ease;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease;
     }
-    .page-club .wt-btn:hover:not(:disabled) { background: #e5e7eb; }
+    .page-club .wt-btn:hover:not(:disabled) {
+      background: #e5e7eb;
+    }
 
     .page-club .wt-btn.is-active {
       font-weight: 700;
@@ -724,10 +985,12 @@ const searchTextFn = (r: any) =>
       color: #6b7280;
     }
     @media (max-width: 640px) {
-      .page-club .wt-hint { width: 100%; margin-left: 0; }
+      .page-club .wt-hint {
+        width: 100%;
+        margin-left: 0;
+      }
     }
 
-    /* ===== 既存（そのまま） ===== */
     .star-block {
       margin: 12px 0 16px;
       padding: 10px 12px;
@@ -737,11 +1000,28 @@ const searchTextFn = (r: any) =>
       border: 1px solid rgba(128, 0, 128, 0.18);
     }
 
-    .star-title { margin: 0 0 8px; font-size: 13px; font-weight: 650; opacity: 1; }
+    .star-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 650;
+      opacity: 1;
+    }
 
-    .star-grid { display: grid; gap: 10px; grid-template-columns: repeat(3, 1fr); }
-    @media (max-width: 900px) { .star-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 640px) { .star-grid { grid-template-columns: 1fr; } }
+    .star-grid {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    @media (max-width: 900px) {
+      .star-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    @media (max-width: 640px) {
+      .star-grid {
+        grid-template-columns: 1fr;
+      }
+    }
 
     .star-card {
       background: #fff;
@@ -752,14 +1032,49 @@ const searchTextFn = (r: any) =>
       align-items: center;
     }
 
-    .star-name { font-weight: 600; font-size: 13px; line-height: 1.35; word-break: keep-all; }
-    .star-pos { font-weight: 500; font-size: 12px; opacity: 0.7; margin-left: 4px; }
-    .star-empty { font-size: 13px; opacity: 0.65; padding: 8px 4px; }
+    .star-name {
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+    .star-pos {
+      font-weight: 500;
+      font-size: 12px;
+      opacity: 0.7;
+      margin-left: 4px;
+    }
+    .star-empty {
+      font-size: 13px;
+      opacity: 0.65;
+      padding: 8px 4px;
+    }
 
-    .rep2-links--past { margin-top: 2px; opacity: 0.75; font-size: 11px; }
-    .rep2-ed--past { text-decoration: underline; }
-    .rep2-ed--latest { font-weight: 700; text-decoration-thickness: 2px; }
-    .rep2-sep { opacity: 0.55; }
-    .rep2-ed:not(.rep2-ed--latest) { opacity: 0.8; }
+    .rep2-links--past {
+      margin-top: 2px;
+      opacity: 0.75;
+      font-size: 11px;
+    }
+    .rep2-ed--past {
+      text-decoration: underline;
+    }
+    .rep2-ed--latest {
+      font-weight: 700;
+      text-decoration-thickness: 2px;
+    }
+    .rep2-sep {
+      opacity: 0.55;
+    }
+    .rep2-ed:not(.rep2-ed--latest) {
+      opacity: 0.8;
+    }
+
+    .team-stats {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--theme-color);
+      font-weight: 600;
+      margin: 8px 0;
+    }
   </style>
 </BaseLayout>
