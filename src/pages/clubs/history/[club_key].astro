@@ -63,7 +63,7 @@ function seasonStart(season: string) {
 function isLeagueChampion(rankJa: string) {
   const t = String(rankJa ?? "").trim();
   if (!t) return false;
-  return t.includes("優勝") || t === "1位" || t.includes("1位");
+  return t.includes("優勝") ;
 }
 
 function uniqCount(arr: string[]) {
