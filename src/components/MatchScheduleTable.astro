@@ -19,42 +19,23 @@ const {
   maxHeight = 560,
 } = Astro.props;
 
-// stage順（好みで追加/調整OK）
-const stageOrder = [
-  "Playoff",
-  "Group-Phase",
-  "Round32",
-  "Round16",
-  "Quarterfinals",
-  "Semifinals",
-  "Third-place",
-  "Final",
-  "Other",
-];
-
-const byStage = new Map<string, MatchRow[]>();
-for (const m of matches) {
-  const key = String(m.stage || "Other").trim() || "Other";
-  if (!byStage.has(key)) byStage.set(key, []);
-  byStage.get(key)!.push(m);
-}
-
-const stages = [...byStage.keys()].sort((a, b) => {
-  const ia = stageOrder.indexOf(a);
-  const ib = stageOrder.indexOf(b);
-  return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-});
-
 // 1つのtableに「ステージ区切り行」を挟む
 type RowItem =
   | { kind: "stage"; stage: string }
   | { kind: "match"; m: MatchRow };
 
 const rows: RowItem[] = [];
-for (const st of stages) {
-  rows.push({ kind: "stage", stage: st });
-  const list = byStage.get(st) || [];
-  for (const m of list) rows.push({ kind: "match", m });
+let prevStage = "";
+
+for (const m of matches) {
+  const stage = String(m.stage || "Other").trim() || "Other";
+
+  if (stage !== prevStage) {
+    rows.push({ kind: "stage", stage });
+    prevStage = stage;
+  }
+
+  rows.push({ kind: "match", m });
 }
 ---
 

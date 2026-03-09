@@ -945,7 +945,7 @@ const pageDesc = isCurrentEdition
                 </div>
                 <div class="meta">
                   <span class="badge">{conf}</span>
-                  {g ? <span class="badge">Group {g}</span> : null}
+                  {g ? <span class="badge">grp {g}</span> : null}
                 </div>
               </a>
             );
@@ -973,7 +973,7 @@ const pageDesc = isCurrentEdition
                 </div>
                 <div class="meta">
                   <span class="badge">{conf}</span>
-                  {g ? <span class="badge">Group {g}</span> : null}
+                  {g ? <span class="badge">grp {g}</span> : null}
                 </div>
               </a>
             );
@@ -1158,7 +1158,7 @@ const pageDesc = isCurrentEdition
             <div class="rank-card">
               <h3>🥇 得点ランキング</h3>
               {goalRank.length === 0 ? (
-                <p class="rank-muted">まだイベントが登録されていません。</p>
+                <p class="rank-muted">大会前、またはデータ準備中です。</p>
               ) : (
                 <table class="rank" aria-label={`WC${year} goal ranking`}>
                   <thead>
@@ -1196,7 +1196,7 @@ const pageDesc = isCurrentEdition
             <div class="rank-card">
               <h3>🎯 アシストランキング</h3>
               {assistRank.length === 0 ? (
-                <p class="rank-muted">まだイベントが登録されていません。</p>
+                <p class="rank-muted">大会前、またはデータ準備中です。</p>
               ) : (
                 <table class="rank" aria-label={`WC${year} assist ranking`}>
                   <thead>
@@ -1248,7 +1248,7 @@ const pageDesc = isCurrentEdition
 
       {
         awardGroups.length === 0 ? (
-          <p class="rank-muted">まだ表彰データがありません。</p>
+          <p class="rank-muted">大会前、またはデータ準備中です。</p>
         ) : (
           <div class="rank-grid">
             {awardGroups.map((g) => (
@@ -1259,11 +1259,11 @@ const pageDesc = isCurrentEdition
                     const rankLabel =
                       g.key === "golden_ball"
                         ? r.rank === "1"
-                          ? "最優秀選手（ゴールデン）"
+                          ? "ゴールデンボール"
                           : r.rank === "2"
-                            ? "優秀選手（シルバー）"
+                            ? "シルバーボール"
                             : r.rank === "3"
-                              ? "優秀選手（ブロンズ）"
+                              ? "ブロンズボール"
                               : r.rank
                         : r.rank;
 
