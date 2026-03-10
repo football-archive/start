@@ -264,6 +264,9 @@ const wcTopHref = tournamentTopUrl({
   tournament: DEFAULTS.currentWcTournament,
   year: DEFAULTS.currentWcYear,
 });
+
+// いったん準備できた大会の入口
+const wcPastEditions = ["2022", "2018"];
 ---
 
 <BaseLayout
@@ -901,6 +904,66 @@ const wcTopHref = tournamentTopUrl({
       box-shadow: 0 10px 22px rgba(0, 0, 0, 0.1);
     }
 
+    /* ✅ WCカード内：過去大会ミニ導線 */
+    .grid-nt-main .wc-past-links {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(255, 255, 255, 0.35);
+    }
+
+    .grid-nt-main .wc-past-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .grid-nt-main .wc-past-label {
+      font-size: 13px;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.9);
+      letter-spacing: 0.02em;
+    }
+
+    .grid-nt-main .wc-past-note {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.72);
+    }
+
+    .grid-nt-main .wc-past-pills {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .grid-nt-main .wc-past-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 64px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.20);
+      border: 1px solid rgba(255, 255, 255, 0.26);
+      color: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1;
+      transition:
+        transform 0.06s ease,
+        background 0.12s ease,
+        box-shadow 0.12s ease;
+    }
+
+    .grid-nt-main .wc-past-pill:hover {
+      transform: translateY(-1px);
+      background: rgba(255, 255, 255, 0.24);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+    }
+
     .jp-sub a {
       color: #fff;
       font-weight: 700;
@@ -976,10 +1039,32 @@ const wcTopHref = tournamentTopUrl({
           </div>
 
           <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
+          <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
           <div class="nt-portal-row">
             <a class="nt-portal-btn" href="/nt">
               代表トップへ（強豪国・日本代表・各国あゆみ）
             </a>
+          </div>
+
+          <!-- ✅ 追加：過去大会ミニ導線 -->
+          <div class="wc-past-links">
+            <div class="wc-past-head">
+              <div class="wc-past-label">過去大会</div>
+              <div class="wc-past-note">大会ページを見る</div>
+            </div>
+
+            <div class="wc-past-pills">
+              {
+                wcPastEditions.map((edition) => (
+                  <a
+                    class="wc-past-pill"
+                    href={tournamentTopUrl({ tournament: "wc", year: edition })}
+                  >
+                    {edition}
+                  </a>
+                ))
+              }
+            </div>
           </div>
 
           <a class="legend-btn" href="/nt/wc/legends">

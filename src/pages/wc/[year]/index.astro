@@ -58,14 +58,22 @@ const matches = filterMatches(all, "WC", String(year)).sort(
 // URLs
 const topHref = tournamentTopUrl({ tournament: "wc", year });
 
-// team 側の getStaticPaths と「同じ slug」
-const teamHref = (country: string) => `${topHref}/team/${countrySlug(country)}`;
-
-// ----- callups -----
+// ----- callups / team link availability -----
 const rows = loadCallups();
 const filtered = (rows as any[]).filter(
   (r) => r.competition === "WC" && String(r.edition) === String(year),
 );
+const linkedTeamCountrySet = new Set(
+  filtered.map((r) => String(r.country ?? "").trim()).filter(Boolean),
+);
+const hasTeamPage = (country: string) =>
+  linkedTeamCountrySet.has(String(country ?? "").trim());
+const teamHref = (country: string) =>
+  `${topHref}/team/${countrySlug(String(country ?? "").trim())}`;
+const teamHrefIfExists = (country: string) =>
+  hasTeamPage(country) ? teamHref(country) : "";
+
+
 
 const latestCallupSnapshotRaw =
   filtered
@@ -392,6 +400,19 @@ const pageDesc = isCurrentEdition
       transition:
         transform 0.06s ease,
         box-shadow 0.06s ease;
+    }
+    .page-wc .team-card.is-disabled {
+      cursor: default;
+    }
+
+    .page-wc .team-card.is-disabled:hover {
+      transform: none;
+      box-shadow: none;
+      background: #fff;
+    }
+
+    .page-wc .team-card.is-disabled .name {
+      text-decoration: none;
     }
     .page-wc .team-card:hover {
       transform: translateY(-1px);
@@ -782,15 +803,20 @@ const pageDesc = isCurrentEdition
       <div class="featured-line">
         <div class="filter-label">注目国</div>
         <div class="pills">
-          {featuredCountriesVisible.map((country) => (
-            <a
-              class="pill"
-              href={`${teamHref(country)}?from=featured-countries`}
-            >
-              <span class="dot" aria-hidden="true" />
-              {country}
-            </a>
-          ))}
+          {featuredCountriesVisible.map((country) => {
+            const href = teamHrefIfExists(country);
+            return href ? (
+              <a class="pill" href={`${href}?from=featured-countries`}>
+                <span class="dot" aria-hidden="true" />
+                {country}
+              </a>
+            ) : (
+              <span class="pill" aria-disabled="true">
+                <span class="dot" aria-hidden="true" />
+                {country}
+              </span>
+            );
+          })}
         </div>
       </div>
     )
@@ -927,16 +953,10 @@ const pageDesc = isCurrentEdition
         {
           qualifiedCountries.map(({ country, conf }) => {
             const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-            return (
-              <a
-                class="team-card"
-                data-team-card
-                data-country={country}
-                data-conf={conf}
-                data-group={g}
-                data-status="q"
-                href={`${teamHref(country)}?from=teams-card&anchor=teams`}
-              >
+            const href = teamHrefIfExists(country);
+
+            const cardInner = (
+              <>
                 <div class="row1">
                   <div class="name">
                     <span class="status-dot q" aria-hidden="true" />
@@ -947,7 +967,33 @@ const pageDesc = isCurrentEdition
                   <span class="badge">{conf}</span>
                   {g ? <span class="badge">grp {g}</span> : null}
                 </div>
+              </>
+            );
+
+            return href ? (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="q"
+                href={`${href}?from=teams-card&anchor=teams`}
+              >
+                {cardInner}
               </a>
+            ) : (
+              <div
+                class="team-card is-disabled"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="q"
+                aria-disabled="true"
+              >
+                {cardInner}
+              </div>
             );
           })
         }
@@ -955,16 +1001,10 @@ const pageDesc = isCurrentEdition
         {
           playoffCountries.map(({ country, conf }) => {
             const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-            return (
-              <a
-                class="team-card"
-                data-team-card
-                data-country={country}
-                data-conf={conf}
-                data-group={g}
-                data-status="p"
-                href={`${teamHref(country)}?from=po-card&anchor=teams`}
-              >
+            const href = teamHrefIfExists(country);
+
+            const cardInner = (
+              <>
                 <div class="row1">
                   <div class="name">
                     <span class="status-dot p" aria-hidden="true" />
@@ -975,7 +1015,33 @@ const pageDesc = isCurrentEdition
                   <span class="badge">{conf}</span>
                   {g ? <span class="badge">grp {g}</span> : null}
                 </div>
+              </>
+            );
+
+            return href ? (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="p"
+                href={`${href}?from=po-card&anchor=teams`}
+              >
+                {cardInner}
               </a>
+            ) : (
+              <div
+                class="team-card is-disabled"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="p"
+                aria-disabled="true"
+              >
+                {cardInner}
+              </div>
             );
           })
         }
@@ -983,16 +1049,10 @@ const pageDesc = isCurrentEdition
         {
           eliminatedCountries.map(({ country, conf }) => {
             const g = countryToGroup.get(String(country ?? "").trim()) ?? "";
-            return (
-              <a
-                class="team-card"
-                data-team-card
-                data-country={country}
-                data-conf={conf}
-                data-group={g}
-                data-status="e"
-                href={`${teamHref(country)}?from=elim-card&anchor=teams`}
-              >
+            const href = teamHrefIfExists(country);
+
+            const cardInner = (
+              <>
                 <div class="row1">
                   <div class="name">
                     <span class="status-dot e" aria-hidden="true" />
@@ -1003,7 +1063,33 @@ const pageDesc = isCurrentEdition
                   <span class="badge">{conf}</span>
                   {g ? <span class="badge">Group {g}</span> : null}
                 </div>
+              </>
+            );
+
+            return href ? (
+              <a
+                class="team-card"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="e"
+                href={`${href}?from=elim-card&anchor=teams`}
+              >
+                {cardInner}
               </a>
+            ) : (
+              <div
+                class="team-card is-disabled"
+                data-team-card
+                data-country={country}
+                data-conf={conf}
+                data-group={g}
+                data-status="e"
+                aria-disabled="true"
+              >
+                {cardInner}
+              </div>
             );
           })
         }
@@ -1052,14 +1138,16 @@ const pageDesc = isCurrentEdition
                   <li>
                     {it.is_placeholder ? (
                       <span class="placeholder">{it.name}</span>
-                    ) : (
+                    ) : hasTeamPage(it.name) ? (
                       <a
-                        href={`${topHref}/team/${it.slug}?from=group-card-${encodeURIComponent(
+                        href={`${teamHref(it.name)}?from=group-card-${encodeURIComponent(
                           g,
                         )}&anchor=groups`}
                       >
                         {it.name}
                       </a>
+                    ) : (
+                      <span>{it.name}</span>
                     )}
                   </li>
                 ))}
@@ -1101,16 +1189,16 @@ const pageDesc = isCurrentEdition
                                 <span class="placeholder">
                                   {r.country_name_ja}
                                 </span>
-                              ) : (
+                              ) : hasTeamPage(
+                                  String(r.country_name_ja ?? "").trim(),
+                                ) ? (
                                 <a
-                                  href={`${topHref}/team/${countrySlug(
-                                    r.route_param ||
-                                      r.country_key ||
-                                      r.country_name_ja,
-                                  )}`}
+                                  href={`${teamHref(String(r.country_name_ja ?? "").trim())}?from=group-standings&anchor=groups`}
                                 >
                                   {r.country_name_ja}
                                 </a>
+                              ) : (
+                                <span>{r.country_name_ja}</span>
                               )}
                             </td>
                             <td>{v(r.played)}</td>
@@ -1177,11 +1265,15 @@ const pageDesc = isCurrentEdition
                         </td>
                         <td>{r.player}</td>
                         <td>
-                          <a
-                            href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
-                          >
-                            {r.team}
-                          </a>
+                          {hasTeamPage(r.team) ? (
+                            <a
+                              href={`${teamHref(r.team)}?from=rank-goal&anchor=rankings`}
+                            >
+                              {r.team}
+                            </a>
+                          ) : (
+                            <span>{r.team}</span>
+                          )}
                         </td>
                         <td class="num">
                           <b>{r.goals}</b>
@@ -1215,11 +1307,15 @@ const pageDesc = isCurrentEdition
                         </td>
                         <td>{r.player}</td>
                         <td>
-                          <a
-                            href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
-                          >
-                            {r.team}
-                          </a>
+                          {hasTeamPage(r.team) ? (
+                            <a
+                              href={`${teamHref(r.team)}?from=rank-assist&anchor=rankings`}
+                            >
+                              {r.team}
+                            </a>
+                          ) : (
+                            <span>{r.team}</span>
+                          )}
                         </td>
                         <td class="num">
                           <b>{r.assists}</b>
