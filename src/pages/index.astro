@@ -266,7 +266,7 @@ const wcTopHref = tournamentTopUrl({
 });
 
 // いったん準備できた大会の入口
-const wcPastEditions = ["2022", "2018"];
+const wcPastEditions = ["2022", "2018", "2014"];
 ---
 
 <BaseLayout
@@ -677,6 +677,7 @@ const wcPastEditions = ["2022", "2018"];
     .transfer-sub,
     .euro-sub {
       margin-top: 6px;
+      margin-bottom: 8px;
       font-size: 12px;
       line-height: 1.5;
       color: var(--muted);
@@ -945,7 +946,7 @@ const wcPastEditions = ["2022", "2018"];
       min-width: 64px;
       padding: 8px 14px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.20);
+      background: rgba(255, 255, 255, 0.2);
       border: 1px solid rgba(255, 255, 255, 0.26);
       color: #fff;
       text-decoration: none;
@@ -972,6 +973,57 @@ const wcPastEditions = ["2022", "2018"];
     }
 
     .jp-sub a:hover {
+      opacity: 0.9;
+    }
+
+    .jp-opponents {
+      margin-top: 10px;
+      font-size: 13px;
+      line-height: 1.65;
+    }
+
+    .jp-opponents-title {
+      font-weight: 700;
+      margin: 8px 0 6px;
+    }
+
+    .jp-opponents-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      margin-top: 2px;
+    }
+
+    .jp-opponents-row.small {
+      font-size: 12px;
+    }
+
+    .jp-opponents-label {
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-right: 2px;
+    }
+
+    .jp-opponents .sep {
+      color: rgba(255, 255, 255, 0.45);
+      margin: 0 2px;
+    }
+
+    .jp-opponents .muted {
+      color: rgba(255, 255, 255, 0.82);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .jp-opponents a {
+      color: #fff;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .jp-opponents a:hover {
       opacity: 0.9;
     }
   </style>
@@ -1023,7 +1075,7 @@ const wcPastEditions = ["2022", "2018"];
           <div class="card-sep" aria-hidden="true"></div>
 
           <div class="portal-links">
-            <a href="/wc/2026/#teams" class="portal-btn portal-main"
+            <a href="/wc/2026" class="portal-btn portal-main"
               >出場国・代表メンバー一覧</a
             >
             <a href="/wc/2026/#schedule" class="portal-btn portal-main"
@@ -1130,13 +1182,86 @@ const wcPastEditions = ["2022", "2018"];
           <h3 class="subcard-title">
             <a href={japanHref}>
               <span class="card-ico ico-jp" aria-hidden="true">🔴</span>
-              SAMURAI BLUE（日本代表/ワールドカップ）
+              SAMURAI BLUE（日本代表）
             </a>
           </h3>
 
           <div class="jp-sub">
-            <a href="/wc/2026/team/日本">日本代表メンバー一覧はこちら</a><br />
+            <a href="/wc/2026/team/日本">日本代表メンバー一覧</a><br />
             更新：<span class="date-red">{japanUpdatedAt}</span>
+          </div>
+
+          <div class="jp-opponents">
+            <div class="jp-opponents-title">🔥 今後の対戦予定</div>
+
+            <div class="jp-opponents-row">
+              <span class="jp-opponents-label">3月：</span>
+              <a
+                href="/wc/2026/team/スコットランド"
+                title="スコットランド代表メンバー一覧"
+              >
+                スコットランド
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026/team/イングランド"
+                title="イングランド代表メンバー一覧"
+              >
+                イングランド
+              </a>
+            </div>
+
+            <div class="jp-opponents-row">
+              <span class="jp-opponents-label">W杯GL：</span>
+              <a href="/wc/2026/team/オランダ" title="オランダ代表メンバー一覧">
+                オランダ
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026/team/チュニジア"
+                title="チュニジア代表メンバー一覧"
+              >
+                チュニジア
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026#teams"
+                class="muted"
+                title="W杯2026 出場国一覧へ"
+              >
+                欧州PO
+              </a>
+            </div>
+
+            <div class="jp-opponents-row small">
+              <a
+                href="/wc/2026/team/ポーランド"
+                title="ポーランド代表メンバー一覧"
+              >
+                ポーランド
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026/team/スウェーデン"
+                title="スウェーデン代表メンバー一覧"
+              >
+                スウェーデン
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026/team/ウクライナ"
+                title="ウクライナ代表メンバー一覧"
+              >
+                ウクライナ
+              </a>
+              <span class="sep">｜</span>
+              <a
+                href="/wc/2026/team/アルバニア"
+                title="アルバニア代表メンバー一覧"
+              >
+                アルバニア
+              </a>
+            </div>
           </div>
 
           <!-- ★追加：歴代WC導線 -->

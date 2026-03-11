@@ -357,7 +357,7 @@ export const buildNtColumns = ({
     },
     {
       key: "editions",
-      header: "招集歴",
+      header: "W杯招集歴",
       align: "center",
       html: true,
       render: (r) => editionLinksHtml(tournamentLinks(r) ?? []),
