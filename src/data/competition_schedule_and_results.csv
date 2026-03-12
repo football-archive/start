@@ -295,3 +295,195 @@ WC-2014-MD061,WC,2014,MD061,Semi-Final,,準決勝,7/8(火)17:00,ブラジル,ド
 WC-2014-MD062,WC,2014,MD062,Semi-Final,,準決勝,7/9(水)17:00,オランダ,アルゼンチン,Arena de São Paulo,0,0,2,4,延長・PK戦,2026/3/11
 WC-2014-MD063,WC,2014,MD063,Third-Place,,3位決定戦,7/12(土)17:00,ブラジル,オランダ,Estádio Nacional Mané Garrincha,0,3,,,,2026/3/11
 WC-2014-MD064,WC,2014,MD064,Final,,決勝,7/13(日)16:00,ドイツ,アルゼンチン,Estádio do Maracanã,1,0,,,延長,2026/3/11
+WC-2010-MD001,WC,2010,MD001,Group-Phase,A,第１節,6/11(金)16:00,南アフリカ,メキシコ,Soccer City,1,1,,,,2026/3/13
+WC-2010-MD002,WC,2010,MD002,Group-Phase,A,第１節,6/11(金)20:30,ウルグアイ,フランス,Cape Town Stadium,0,0,,,,2026/3/13
+WC-2010-MD003,WC,2010,MD003,Group-Phase,B,第１節,6/12(土)13:30,韓国,ギリシャ,Nelson Mandela Bay Stadium,2,0,,,,2026/3/13
+WC-2010-MD004,WC,2010,MD004,Group-Phase,B,第１節,6/12(土)16:00,アルゼンチン,ナイジェリア,Ellis Park Stadium,1,0,,,,2026/3/13
+WC-2010-MD005,WC,2010,MD005,Group-Phase,C,第１節,6/12(土)20:30,イングランド,アメリカ,Royal Bafokeng Stadium,1,1,,,,2026/3/13
+WC-2010-MD006,WC,2010,MD006,Group-Phase,C,第１節,6/13(日)13:30,アルジェリア,スロベニア,Peter Mokaba Stadium,0,1,,,,2026/3/13
+WC-2010-MD007,WC,2010,MD007,Group-Phase,D,第１節,6/13(日)16:00,セルビア,ガーナ,Loftus Versfeld Stadium,0,1,,,,2026/3/13
+WC-2010-MD008,WC,2010,MD008,Group-Phase,D,第１節,6/13(日)20:30,ドイツ,オーストラリア,Moses Mabhida Stadium,4,0,,,,2026/3/13
+WC-2010-MD009,WC,2010,MD009,Group-Phase,E,第１節,6/14(月)13:30,オランダ,デンマーク,Soccer City,2,0,,,,2026/3/13
+WC-2010-MD010,WC,2010,MD010,Group-Phase,E,第１節,6/14(月)16:00,日本,カメルーン,Free State Stadium,1,0,,,,2026/3/13
+WC-2010-MD011,WC,2010,MD011,Group-Phase,F,第１節,6/14(月)20:30,イタリア,パラグアイ,Green Point Stadium,1,1,,,,2026/3/13
+WC-2010-MD012,WC,2010,MD012,Group-Phase,F,第１節,6/15(火)13:30,ニュージーランド,スロバキア,Royal Bafokeng Stadium,1,1,,,,2026/3/13
+WC-2010-MD013,WC,2010,MD013,Group-Phase,G,第１節,6/15(火)16:00,コートジボワール,ポルトガル,Nelson Mandela Bay Stadium,0,0,,,,2026/3/13
+WC-2010-MD014,WC,2010,MD014,Group-Phase,G,第１節,6/15(火)20:30,ブラジル,北朝鮮,Ellis Park Stadium,2,1,,,,2026/3/13
+WC-2010-MD015,WC,2010,MD015,Group-Phase,H,第１節,6/16(水)13:30,ホンジュラス,チリ,Mbombela Stadium,0,1,,,,2026/3/13
+WC-2010-MD016,WC,2010,MD016,Group-Phase,H,第１節,6/16(水)16:00,スペイン,スイス,Moses Mabhida Stadium,0,1,,,,2026/3/13
+WC-2010-MD017,WC,2010,MD017,Group-Phase,A,第２節,6/16(水)20:30,南アフリカ,ウルグアイ,Loftus Versfeld Stadium,0,3,,,,2026/3/13
+WC-2010-MD018,WC,2010,MD018,Group-Phase,A,第２節,6/17(木)13:30,フランス,メキシコ,Peter Mokaba Stadium,0,2,,,,2026/3/13
+WC-2010-MD019,WC,2010,MD019,Group-Phase,B,第２節,6/17(木)16:00,アルゼンチン,韓国,Soccer City,4,1,,,,2026/3/13
+WC-2010-MD020,WC,2010,MD020,Group-Phase,B,第２節,6/17(木)20:30,ギリシャ,ナイジェリア,Free State Stadium,2,1,,,,2026/3/13
+WC-2010-MD021,WC,2010,MD021,Group-Phase,C,第２節,6/18(金)16:00,スロベニア,アメリカ,Ellis Park Stadium,2,2,,,,2026/3/13
+WC-2010-MD022,WC,2010,MD022,Group-Phase,C,第２節,6/18(金)20:30,イングランド,アルジェリア,Green Point Stadium,0,0,,,,2026/3/13
+WC-2010-MD023,WC,2010,MD023,Group-Phase,D,第２節,6/18(金)13:30,ドイツ,セルビア,Nelson Mandela Bay Stadium,0,1,,,,2026/3/13
+WC-2010-MD024,WC,2010,MD024,Group-Phase,D,第２節,6/19(土)16:00,ガーナ,オーストラリア,Royal Bafokeng Stadium,1,1,,,,2026/3/13
+WC-2010-MD025,WC,2010,MD025,Group-Phase,E,第２節,6/19(土)13:30,オランダ,日本,Moses Mabhida Stadium,1,0,,,,2026/3/13
+WC-2010-MD026,WC,2010,MD026,Group-Phase,E,第２節,6/19(土)20:30,カメルーン,デンマーク,Loftus Versfeld Stadium,1,2,,,,2026/3/13
+WC-2010-MD027,WC,2010,MD027,Group-Phase,F,第２節,6/20(日)13:30,スロバキア,パラグアイ,Free State Stadium,0,2,,,,2026/3/13
+WC-2010-MD028,WC,2010,MD028,Group-Phase,F,第２節,6/20(日)16:00,イタリア,ニュージーランド,Mbombela Stadium,1,1,,,,2026/3/13
+WC-2010-MD029,WC,2010,MD029,Group-Phase,G,第２節,6/20(日)20:30,ブラジル,コートジボワール,Soccer City,3,1,,,,2026/3/13
+WC-2010-MD030,WC,2010,MD030,Group-Phase,G,第２節,6/21(月)13:30,ポルトガル,北朝鮮,Green Point Stadium,7,0,,,,2026/3/13
+WC-2010-MD031,WC,2010,MD031,Group-Phase,H,第２節,6/21(月)16:00,チリ,スイス,Nelson Mandela Bay Stadium,1,0,,,,2026/3/13
+WC-2010-MD032,WC,2010,MD032,Group-Phase,H,第２節,6/21(月)20:30,スペイン,ホンジュラス,Ellis Park Stadium,2,0,,,,2026/3/13
+WC-2010-MD033,WC,2010,MD033,Group-Phase,A,第３節,6/22(火)16:00,メキシコ,ウルグアイ,Royal Bafokeng Stadium,0,1,,,,2026/3/13
+WC-2010-MD034,WC,2010,MD034,Group-Phase,A,第３節,6/22(火)16:00,フランス,南アフリカ,Free State Stadium,1,2,,,,2026/3/13
+WC-2010-MD035,WC,2010,MD035,Group-Phase,B,第３節,6/22(火)20:30,ナイジェリア,韓国,Moses Mabhida Stadium,2,2,,,,2026/3/13
+WC-2010-MD036,WC,2010,MD036,Group-Phase,B,第３節,6/22(火)20:30,ギリシャ,アルゼンチン,Peter Mokaba Stadium,0,2,,,,2026/3/13
+WC-2010-MD037,WC,2010,MD037,Group-Phase,C,第３節,6/23(水)16:00,スロベニア,イングランド,Nelson Mandela Bay Stadium,0,1,,,,2026/3/13
+WC-2010-MD038,WC,2010,MD038,Group-Phase,C,第３節,6/23(水)16:00,アメリカ,アルジェリア,Loftus Versfeld Stadium,1,0,,,,2026/3/13
+WC-2010-MD039,WC,2010,MD039,Group-Phase,D,第３節,6/23(水)20:30,ガーナ,ドイツ,Soccer City,0,1,,,,2026/3/13
+WC-2010-MD040,WC,2010,MD040,Group-Phase,D,第３節,6/23(水)20:30,オーストラリア,セルビア,Mbombela Stadium,2,1,,,,2026/3/13
+WC-2010-MD041,WC,2010,MD041,Group-Phase,E,第３節,6/24(木)20:30,日本,デンマーク,Royal Bafokeng Stadium,3,1,,,,2026/3/13
+WC-2010-MD042,WC,2010,MD042,Group-Phase,E,第３節,6/24(木)20:30,カメルーン,オランダ,Green Point Stadium,1,2,,,,2026/3/13
+WC-2010-MD043,WC,2010,MD043,Group-Phase,F,第３節,6/24(木)16:00,スロバキア,イタリア,Ellis Park Stadium,3,2,,,,2026/3/13
+WC-2010-MD044,WC,2010,MD044,Group-Phase,F,第３節,6/24(木)16:00,パラグアイ,ニュージーランド,Peter Mokaba Stadium,0,0,,,,2026/3/13
+WC-2010-MD045,WC,2010,MD045,Group-Phase,G,第３節,6/25(金)16:00,ポルトガル,ブラジル,Moses Mabhida Stadium,0,0,,,,2026/3/13
+WC-2010-MD046,WC,2010,MD046,Group-Phase,G,第３節,6/25(金)16:00,北朝鮮,コートジボワール,Nelson Mandela Bay Stadium,0,3,,,,2026/3/13
+WC-2010-MD047,WC,2010,MD047,Group-Phase,H,第３節,6/25(金)20:30,チリ,スペイン,Loftus Versfeld Stadium,1,2,,,,2026/3/13
+WC-2010-MD048,WC,2010,MD048,Group-Phase,H,第３節,6/25(金)20:30,スイス,ホンジュラス,Free State Stadium,0,0,,,,2026/3/13
+WC-2010-MD049,WC,2010,MD049,Round-16,,ラウンド16,6/26(土)16:00,ウルグアイ,韓国,Nelson Mandela Bay Stadium,2,1,,,,2026/3/13
+WC-2010-MD050,WC,2010,MD050,Round-16,,ラウンド16,6/26(土)20:30,アメリカ,ガーナ,Royal Bafokeng Stadium,1,2,,,延長,2026/3/13
+WC-2010-MD051,WC,2010,MD051,Round-16,,ラウンド16,6/27(日)16:00,ドイツ,イングランド,Free State Stadium,4,1,,,,2026/3/13
+WC-2010-MD052,WC,2010,MD052,Round-16,,ラウンド16,6/27(日)20:30,アルゼンチン,メキシコ,Soccer City,3,1,,,,2026/3/13
+WC-2010-MD053,WC,2010,MD053,Round-16,,ラウンド16,6/28(月)16:00,オランダ,スロバキア,Moses Mabhida Stadium,2,1,,,,2026/3/13
+WC-2010-MD054,WC,2010,MD054,Round-16,,ラウンド16,6/28(月)20:30,ブラジル,チリ,Ellis Park Stadium,3,0,,,,2026/3/13
+WC-2010-MD055,WC,2010,MD055,Round-16,,ラウンド16,6/29(火)16:00,パラグアイ,日本,Loftus Versfeld Stadium,0,0,5,3,延長・PK戦,2026/3/13
+WC-2010-MD056,WC,2010,MD056,Round-16,,ラウンド16,6/29(火)20:30,スペイン,ポルトガル,Green Point Stadium,1,0,,,,2026/3/13
+WC-2010-MD057,WC,2010,MD057,Quarter-Final,,準々決勝,7/2(金)16:00,オランダ,ブラジル,Nelson Mandela Bay Stadium,2,1,,,,2026/3/13
+WC-2010-MD058,WC,2010,MD058,Quarter-Final,,準々決勝,7/2(金)20:30,ウルグアイ,ガーナ,Soccer City,1,1,4,2,延長・PK戦,2026/3/13
+WC-2010-MD059,WC,2010,MD059,Quarter-Final,,準々決勝,7/3(土)16:00,アルゼンチン,ドイツ,Green Point Stadium,0,4,,,,2026/3/13
+WC-2010-MD060,WC,2010,MD060,Quarter-Final,,準々決勝,7/3(土)20:30,パラグアイ,スペイン,Ellis Park Stadium,0,1,,,,2026/3/13
+WC-2010-MD061,WC,2010,MD061,Semi-Final,,準決勝,7/6(火)20:30,ウルグアイ,オランダ,Green Point Stadium,2,3,,,,2026/3/13
+WC-2010-MD062,WC,2010,MD062,Semi-Final,,準決勝,7/7(水)20:30,ドイツ,スペイン,Moses Mabhida Stadium,0,1,,,,2026/3/13
+WC-2010-MD063,WC,2010,MD063,Third-Place,,3位決定戦,7/10(土)20:30,ウルグアイ,ドイツ,Nelson Mandela Bay Stadium,2,3,,,,2026/3/13
+WC-2010-MD064,WC,2010,MD064,Final,,決勝,7/11(日)20:30,オランダ,スペイン,Soccer City,0,1,,,延長,2026/3/13
+WC-2006-MD001,WC,2006,MD001,Group-Phase,A,第１節,6/9(金)18:00,ドイツ,コスタリカ,FIFA World Cup Stadium Munich,4,2,,,,2026/3/13
+WC-2006-MD002,WC,2006,MD002,Group-Phase,A,第１節,6/9(金)21:00,ポーランド,エクアドル,FIFA World Cup Stadium Gelsenkirchen,0,2,,,,2026/3/13
+WC-2006-MD003,WC,2006,MD003,Group-Phase,B,第１節,6/10(土)15:00,イングランド,パラグアイ,FIFA World Cup Stadium Frankfurt,1,0,,,,2026/3/13
+WC-2006-MD004,WC,2006,MD004,Group-Phase,B,第１節,6/10(土)18:00,トリニダード・トバゴ,スウェーデン,FIFA World Cup Stadium Dortmund,0,0,,,,2026/3/13
+WC-2006-MD005,WC,2006,MD005,Group-Phase,C,第１節,6/10(土)21:00,アルゼンチン,コートジボワール,FIFA World Cup Stadium Hamburg,2,1,,,,2026/3/13
+WC-2006-MD006,WC,2006,MD006,Group-Phase,C,第１節,6/11(日)15:00,セルビア・モンテネグロ,オランダ,FIFA World Cup Stadium Leipzig,0,1,,,,2026/3/13
+WC-2006-MD007,WC,2006,MD007,Group-Phase,D,第１節,6/11(日)18:00,メキシコ,イラン,FIFA World Cup Stadium Nuremberg,3,1,,,,2026/3/13
+WC-2006-MD008,WC,2006,MD008,Group-Phase,D,第１節,6/11(日)21:00,アンゴラ,ポルトガル,FIFA World Cup Stadium Cologne,0,1,,,,2026/3/13
+WC-2006-MD009,WC,2006,MD009,Group-Phase,E,第１節,6/12(月)15:00,オーストラリア,日本,FIFA World Cup Stadium Kaiserslautern,3,1,,,,2026/3/13
+WC-2006-MD010,WC,2006,MD010,Group-Phase,E,第１節,6/12(月)18:00,アメリカ,チェコ,FIFA World Cup Stadium Gelsenkirchen,0,3,,,,2026/3/13
+WC-2006-MD011,WC,2006,MD011,Group-Phase,F,第１節,6/12(月)21:00,イタリア,ガーナ,FIFA World Cup Stadium Hanover,2,0,,,,2026/3/13
+WC-2006-MD012,WC,2006,MD012,Group-Phase,F,第１節,6/13(火)15:00,韓国,トーゴ,FIFA World Cup Stadium Frankfurt,2,1,,,,2026/3/13
+WC-2006-MD013,WC,2006,MD013,Group-Phase,G,第１節,6/13(火)18:00,フランス,スイス,FIFA World Cup Stadium Stuttgart,0,0,,,,2026/3/13
+WC-2006-MD014,WC,2006,MD014,Group-Phase,G,第１節,6/13(火)21:00,ブラジル,クロアチア,FIFA World Cup Stadium Berlin,1,0,,,,2026/3/13
+WC-2006-MD015,WC,2006,MD015,Group-Phase,H,第１節,6/14(水)15:00,スペイン,ウクライナ,FIFA World Cup Stadium Leipzig,4,0,,,,2026/3/13
+WC-2006-MD016,WC,2006,MD016,Group-Phase,H,第１節,6/14(水)18:00,チュニジア,サウジアラビア,FIFA World Cup Stadium Munich,2,2,,,,2026/3/13
+WC-2006-MD017,WC,2006,MD017,Group-Phase,A,第２節,6/14(水)21:00,ドイツ,ポーランド,FIFA World Cup Stadium Dortmund,1,0,,,,2026/3/13
+WC-2006-MD018,WC,2006,MD018,Group-Phase,A,第２節,6/15(木)15:00,エクアドル,コスタリカ,FIFA World Cup Stadium Hamburg,3,0,,,,2026/3/13
+WC-2006-MD019,WC,2006,MD019,Group-Phase,B,第２節,6/15(木)18:00,イングランド,トリニダード・トバゴ,FIFA World Cup Stadium Nuremberg,2,0,,,,2026/3/13
+WC-2006-MD020,WC,2006,MD020,Group-Phase,B,第２節,6/15(木)21:00,スウェーデン,パラグアイ,FIFA World Cup Stadium Berlin,1,0,,,,2026/3/13
+WC-2006-MD021,WC,2006,MD021,Group-Phase,C,第２節,6/16(金)15:00,アルゼンチン,セルビア・モンテネグロ,FIFA World Cup Stadium Gelsenkirchen,6,0,,,,2026/3/13
+WC-2006-MD022,WC,2006,MD022,Group-Phase,C,第２節,6/16(金)18:00,オランダ,コートジボワール,FIFA World Cup Stadium Stuttgart,2,1,,,,2026/3/13
+WC-2006-MD023,WC,2006,MD023,Group-Phase,D,第２節,6/16(金)21:00,メキシコ,アンゴラ,FIFA World Cup Stadium Hanover,0,0,,,,2026/3/13
+WC-2006-MD024,WC,2006,MD024,Group-Phase,D,第２節,6/17(土)15:00,ポルトガル,イラン,FIFA World Cup Stadium Frankfurt,2,0,,,,2026/3/13
+WC-2006-MD025,WC,2006,MD025,Group-Phase,E,第２節,6/17(土)18:00,チェコ,ガーナ,FIFA World Cup Stadium Cologne,0,2,,,,2026/3/13
+WC-2006-MD026,WC,2006,MD026,Group-Phase,E,第２節,6/17(土)21:00,イタリア,アメリカ,FIFA World Cup Stadium Kaiserslautern,1,1,,,,2026/3/13
+WC-2006-MD027,WC,2006,MD027,Group-Phase,F,第２節,6/18(日)15:00,ブラジル,オーストラリア,FIFA World Cup Stadium Munich,2,0,,,,2026/3/13
+WC-2006-MD028,WC,2006,MD028,Group-Phase,F,第２節,6/18(日)18:00,日本,クロアチア,FIFA World Cup Stadium Nuremberg,0,0,,,,2026/3/13
+WC-2006-MD029,WC,2006,MD029,Group-Phase,G,第２節,6/18(日)21:00,フランス,韓国,FIFA World Cup Stadium Leipzig,1,1,,,,2026/3/13
+WC-2006-MD030,WC,2006,MD030,Group-Phase,G,第２節,6/19(月)15:00,トーゴ,スイス,FIFA World Cup Stadium Dortmund,0,2,,,,2026/3/13
+WC-2006-MD031,WC,2006,MD031,Group-Phase,H,第２節,6/19(月)18:00,サウジアラビア,ウクライナ,FIFA World Cup Stadium Hamburg,0,4,,,,2026/3/13
+WC-2006-MD032,WC,2006,MD032,Group-Phase,H,第２節,6/19(月)21:00,スペイン,チュニジア,FIFA World Cup Stadium Stuttgart,3,1,,,,2026/3/13
+WC-2006-MD033,WC,2006,MD033,Group-Phase,A,第３節,6/20(火)16:00,エクアドル,ドイツ,FIFA World Cup Stadium Berlin,0,3,,,,2026/3/13
+WC-2006-MD034,WC,2006,MD034,Group-Phase,A,第３節,6/20(火)16:00,コスタリカ,ポーランド,FIFA World Cup Stadium Hanover,1,2,,,,2026/3/13
+WC-2006-MD035,WC,2006,MD035,Group-Phase,B,第３節,6/20(火)21:00,スウェーデン,イングランド,FIFA World Cup Stadium Cologne,2,2,,,,2026/3/13
+WC-2006-MD036,WC,2006,MD036,Group-Phase,B,第３節,6/20(火)21:00,パラグアイ,トリニダード・トバゴ,FIFA World Cup Stadium Kaiserslautern,2,0,,,,2026/3/13
+WC-2006-MD037,WC,2006,MD037,Group-Phase,C,第３節,6/21(水)16:00,オランダ,アルゼンチン,FIFA World Cup Stadium Frankfurt,0,0,,,,2026/3/13
+WC-2006-MD038,WC,2006,MD038,Group-Phase,C,第３節,6/21(水)16:00,コートジボワール,セルビア・モンテネグロ,FIFA World Cup Stadium Munich,3,2,,,,2026/3/13
+WC-2006-MD039,WC,2006,MD039,Group-Phase,D,第３節,6/21(水)21:00,ポルトガル,メキシコ,FIFA World Cup Stadium Gelsenkirchen,2,1,,,,2026/3/13
+WC-2006-MD040,WC,2006,MD040,Group-Phase,D,第３節,6/21(水)21:00,イラン,アンゴラ,FIFA World Cup Stadium Leipzig,1,1,,,,2026/3/13
+WC-2006-MD041,WC,2006,MD041,Group-Phase,E,第３節,6/22(木)16:00,チェコ,イタリア,FIFA World Cup Stadium Hamburg,0,2,,,,2026/3/13
+WC-2006-MD042,WC,2006,MD042,Group-Phase,E,第３節,6/22(木)16:00,ガーナ,アメリカ,FIFA World Cup Stadium Nuremberg,2,1,,,,2026/3/13
+WC-2006-MD043,WC,2006,MD043,Group-Phase,F,第３節,6/22(木)21:00,クロアチア,オーストラリア,FIFA World Cup Stadium Stuttgart,2,2,,,,2026/3/13
+WC-2006-MD044,WC,2006,MD044,Group-Phase,F,第３節,6/22(木)21:00,日本,ブラジル,FIFA World Cup Stadium Dortmund,1,4,,,,2026/3/13
+WC-2006-MD045,WC,2006,MD045,Group-Phase,G,第３節,6/23(金)16:00,トーゴ,フランス,FIFA World Cup Stadium Cologne,0,2,,,,2026/3/13
+WC-2006-MD046,WC,2006,MD046,Group-Phase,G,第３節,6/23(金)16:00,スイス,韓国,FIFA World Cup Stadium Hanover,2,0,,,,2026/3/13
+WC-2006-MD047,WC,2006,MD047,Group-Phase,H,第３節,6/23(金)21:00,サウジアラビア,スペイン,FIFA World Cup Stadium Kaiserslautern,0,1,,,,2026/3/13
+WC-2006-MD048,WC,2006,MD048,Group-Phase,H,第３節,6/23(金)21:00,ウクライナ,チュニジア,FIFA World Cup Stadium Berlin,1,0,,,,2026/3/13
+WC-2006-MD049,WC,2006,MD049,Round-16,,ラウンド16,6/24(土)17:00,ドイツ,スウェーデン,FIFA World Cup Stadium Munich,2,0,,,,2026/3/13
+WC-2006-MD050,WC,2006,MD050,Round-16,,ラウンド16,6/24(土)21:00,アルゼンチン,メキシコ,FIFA World Cup Stadium Leipzig,2,1,,,延長,2026/3/13
+WC-2006-MD051,WC,2006,MD051,Round-16,,ラウンド16,6/25(日)17:00,イングランド,エクアドル,FIFA World Cup Stadium Stuttgart,1,0,,,,2026/3/13
+WC-2006-MD052,WC,2006,MD052,Round-16,,ラウンド16,6/25(日)21:00,ポルトガル,オランダ,FIFA World Cup Stadium Nuremberg,1,0,,,,2026/3/13
+WC-2006-MD053,WC,2006,MD053,Round-16,,ラウンド16,6/26(月)17:00,イタリア,オーストラリア,FIFA World Cup Stadium Kaiserslautern,1,0,,,,2026/3/13
+WC-2006-MD054,WC,2006,MD054,Round-16,,ラウンド16,6/26(月)21:00,スイス,ウクライナ,FIFA World Cup Stadium Cologne,0,0,0,3,延長・PK戦,2026/3/13
+WC-2006-MD055,WC,2006,MD055,Round-16,,ラウンド16,6/27(火)17:00,ブラジル,ガーナ,FIFA World Cup Stadium Dortmund,3,0,,,,2026/3/13
+WC-2006-MD056,WC,2006,MD056,Round-16,,ラウンド16,6/27(火)21:00,スペイン,フランス,FIFA World Cup Stadium Hanover,1,3,,,,2026/3/13
+WC-2006-MD057,WC,2006,MD057,Quarter-Final,,準々決勝,6/30(金)17:00,ドイツ,アルゼンチン,FIFA World Cup Stadium Berlin,1,1,4,2,延長・PK戦,2026/3/13
+WC-2006-MD058,WC,2006,MD058,Quarter-Final,,準々決勝,6/30(金)21:00,イタリア,ウクライナ,FIFA World Cup Stadium Hamburg,3,0,,,,2026/3/13
+WC-2006-MD059,WC,2006,MD059,Quarter-Final,,準々決勝,7/1(土)17:00,イングランド,ポルトガル,FIFA World Cup Stadium Gelsenkirchen,0,0,1,3,延長・PK戦,2026/3/13
+WC-2006-MD060,WC,2006,MD060,Quarter-Final,,準々決勝,7/1(土)21:00,ブラジル,フランス,FIFA World Cup Stadium Frankfurt,0,1,,,,2026/3/13
+WC-2006-MD061,WC,2006,MD061,Semi-Final,,準決勝,7/4(火)21:00,ドイツ,イタリア,FIFA World Cup Stadium Dortmund,0,2,,,延長,2026/3/13
+WC-2006-MD062,WC,2006,MD062,Semi-Final,,準決勝,7/5(水)21:00,ポルトガル,フランス,FIFA World Cup Stadium Munich,0,1,,,,2026/3/13
+WC-2006-MD063,WC,2006,MD063,Third-Place,,3位決定戦,7/8(土)21:00,ドイツ,ポルトガル,FIFA World Cup Stadium Stuttgart,3,1,,,,2026/3/13
+WC-2006-MD064,WC,2006,MD064,Final,,決勝,7/9(日)20:00,イタリア,フランス,Olympiastadion Berlin,1,1,5,3,延長・PK戦,2026/3/13
+WC-2002-MD001,WC,2002,MD001,Group-Phase,A,第１節,5/31(金)20:30,フランス,セネガル,Seoul World Cup Stadium,0,1,,,,2026/3/13
+WC-2002-MD002,WC,2002,MD002,Group-Phase,E,第１節,6/1(土)15:30,アイルランド,カメルーン,Niigata Stadium,1,1,,,,2026/3/13
+WC-2002-MD003,WC,2002,MD003,Group-Phase,E,第１節,6/1(土)20:30,ドイツ,サウジアラビア,Sapporo Dome,8,0,,,,2026/3/13
+WC-2002-MD004,WC,2002,MD004,Group-Phase,A,第１節,6/1(土)18:00,デンマーク,ウルグアイ,Ulsan Munsu Football Stadium,2,1,,,,2026/3/13
+WC-2002-MD005,WC,2002,MD005,Group-Phase,B,第１節,6/2(日)15:30,パラグアイ,南アフリカ,Busan Asiad Main Stadium,2,2,,,,2026/3/13
+WC-2002-MD006,WC,2002,MD006,Group-Phase,B,第１節,6/2(日)18:30,スロベニア,スペイン,Gwangju World Cup Stadium,1,3,,,,2026/3/13
+WC-2002-MD007,WC,2002,MD007,Group-Phase,F,第１節,6/2(日)20:30,アルゼンチン,ナイジェリア,Ibaraki Kashima Stadium,1,0,,,,2026/3/13
+WC-2002-MD008,WC,2002,MD008,Group-Phase,F,第１節,6/2(日)18:00,イングランド,スウェーデン,Saitama Stadium 2002,1,1,,,,2026/3/13
+WC-2002-MD009,WC,2002,MD009,Group-Phase,C,第１節,6/3(月)15:30,ブラジル,トルコ,Ulsan Munsu Football Stadium,2,1,,,,2026/3/13
+WC-2002-MD010,WC,2002,MD010,Group-Phase,C,第１節,6/3(月)20:30,中国,コスタリカ,Gwangju World Cup Stadium,0,2,,,,2026/3/13
+WC-2002-MD011,WC,2002,MD011,Group-Phase,D,第１節,6/4(火)15:30,韓国,ポーランド,Busan Asiad Main Stadium,2,0,,,,2026/3/13
+WC-2002-MD012,WC,2002,MD012,Group-Phase,D,第１節,6/4(火)20:30,アメリカ,ポルトガル,Suwon World Cup Stadium,3,2,,,,2026/3/13
+WC-2002-MD013,WC,2002,MD013,Group-Phase,G,第１節,6/3(月)18:00,クロアチア,メキシコ,Niigata Stadium,0,1,,,,2026/3/13
+WC-2002-MD014,WC,2002,MD014,Group-Phase,G,第１節,6/3(月)15:30,イタリア,エクアドル,Sapporo Dome,2,0,,,,2026/3/13
+WC-2002-MD015,WC,2002,MD015,Group-Phase,H,第１節,6/4(火)18:00,日本,ベルギー,Saitama Stadium 2002,2,2,,,,2026/3/13
+WC-2002-MD016,WC,2002,MD016,Group-Phase,H,第１節,6/5(水)15:30,ロシア,チュニジア,Kobe Wing Stadium,2,0,,,,2026/3/13
+WC-2002-MD017,WC,2002,MD017,Group-Phase,A,第２節,6/6(木)15:30,デンマーク,セネガル,Daegu World Cup Stadium,1,1,,,,2026/3/13
+WC-2002-MD018,WC,2002,MD018,Group-Phase,A,第２節,6/6(木)18:00,フランス,ウルグアイ,Busan Asiad Main Stadium,0,0,,,,2026/3/13
+WC-2002-MD019,WC,2002,MD019,Group-Phase,E,第２節,6/6(木)20:30,カメルーン,サウジアラビア,Saitama Stadium 2002,1,0,,,,2026/3/13
+WC-2002-MD020,WC,2002,MD020,Group-Phase,E,第２節,6/5(水)18:00,ドイツ,アイルランド,Ibaraki Kashima Stadium,1,1,,,,2026/3/13
+WC-2002-MD021,WC,2002,MD021,Group-Phase,B,第２節,6/8(土)15:30,スペイン,パラグアイ,Jeonju World Cup Stadium,3,1,,,,2026/3/13
+WC-2002-MD022,WC,2002,MD022,Group-Phase,B,第２節,6/8(土)20:30,南アフリカ,スロベニア,Daegu World Cup Stadium,1,0,,,,2026/3/13
+WC-2002-MD023,WC,2002,MD023,Group-Phase,F,第２節,6/7(金)15:30,スウェーデン,ナイジェリア,Kobe Wing Stadium,2,1,,,,2026/3/13
+WC-2002-MD024,WC,2002,MD024,Group-Phase,F,第２節,6/7(金)20:30,アルゼンチン,イングランド,Sapporo Dome,0,1,,,,2026/3/13
+WC-2002-MD025,WC,2002,MD025,Group-Phase,C,第２節,6/8(土)18:00,ブラジル,中国,Jeju World Cup Stadium,4,0,,,,2026/3/13
+WC-2002-MD026,WC,2002,MD026,Group-Phase,C,第２節,6/9(日)15:30,コスタリカ,トルコ,Incheon Munhak Stadium,1,1,,,,2026/3/13
+WC-2002-MD027,WC,2002,MD027,Group-Phase,D,第２節,6/10(月)15:30,韓国,アメリカ,Daegu World Cup Stadium,1,1,,,,2026/3/13
+WC-2002-MD028,WC,2002,MD028,Group-Phase,D,第２節,6/10(月)20:30,ポルトガル,ポーランド,Jeonju World Cup Stadium,4,0,,,,2026/3/13
+WC-2002-MD029,WC,2002,MD029,Group-Phase,G,第２節,6/8(土)20:30,イタリア,クロアチア,Ibaraki Kashima Stadium,1,2,,,,2026/3/13
+WC-2002-MD030,WC,2002,MD030,Group-Phase,G,第２節,6/9(日)18:00,メキシコ,エクアドル,Miyagi Stadium,2,1,,,,2026/3/13
+WC-2002-MD031,WC,2002,MD031,Group-Phase,H,第２節,6/9(日)20:30,日本,ロシア,Yokohama International Stadium,1,0,,,,2026/3/13
+WC-2002-MD032,WC,2002,MD032,Group-Phase,H,第２節,6/10(月)18:00,チュニジア,ベルギー,Oita Stadium,1,1,,,,2026/3/13
+WC-2002-MD033,WC,2002,MD033,Group-Phase,A,第３節,6/11(火)15:30,デンマーク,フランス,Incheon Munhak Stadium,2,0,,,,2026/3/13
+WC-2002-MD034,WC,2002,MD034,Group-Phase,A,第３節,6/11(火)15:30,セネガル,ウルグアイ,Suwon World Cup Stadium,3,3,,,,2026/3/13
+WC-2002-MD035,WC,2002,MD035,Group-Phase,E,第３節,6/11(火)20:30,カメルーン,ドイツ,Shizuoka Stadium Ecopa,0,2,,,,2026/3/13
+WC-2002-MD036,WC,2002,MD036,Group-Phase,E,第３節,6/11(火)20:30,アイルランド,サウジアラビア,Yokohama International Stadium,3,0,,,,2026/3/13
+WC-2002-MD037,WC,2002,MD037,Group-Phase,B,第３節,6/12(水)15:30,スペイン,南アフリカ,Daejeon World Cup Stadium,3,2,,,,2026/3/13
+WC-2002-MD038,WC,2002,MD038,Group-Phase,B,第３節,6/12(水)15:30,スロベニア,パラグアイ,Seogwipo World Cup Stadium,1,3,,,,2026/3/13
+WC-2002-MD039,WC,2002,MD039,Group-Phase,F,第３節,6/12(水)20:30,スウェーデン,アルゼンチン,Miyagi Stadium,1,1,,,,2026/3/13
+WC-2002-MD040,WC,2002,MD040,Group-Phase,F,第３節,6/12(水)20:30,ナイジェリア,イングランド,Nagai Stadium,0,0,,,,2026/3/13
+WC-2002-MD041,WC,2002,MD041,Group-Phase,C,第３節,6/13(木)15:30,コスタリカ,ブラジル,Suwon World Cup Stadium,2,5,,,,2026/3/13
+WC-2002-MD042,WC,2002,MD042,Group-Phase,C,第３節,6/13(木)15:30,トルコ,中国,Seoul World Cup Stadium,3,0,,,,2026/3/13
+WC-2002-MD043,WC,2002,MD043,Group-Phase,D,第３節,6/14(金)15:30,ポルトガル,韓国,Incheon Munhak Stadium,0,1,,,,2026/3/13
+WC-2002-MD044,WC,2002,MD044,Group-Phase,D,第３節,6/14(金)15:30,ポーランド,アメリカ,Daejeon World Cup Stadium,3,1,,,,2026/3/13
+WC-2002-MD045,WC,2002,MD045,Group-Phase,G,第３節,6/13(木)20:30,クロアチア,エクアドル,Yokohama International Stadium,0,1,,,,2026/3/13
+WC-2002-MD046,WC,2002,MD046,Group-Phase,G,第３節,6/13(木)20:30,メキシコ,イタリア,Oita Stadium,1,1,,,,2026/3/13
+WC-2002-MD047,WC,2002,MD047,Group-Phase,H,第３節,6/14(金)20:30,日本,チュニジア,Nagai Stadium,2,0,,,,2026/3/13
+WC-2002-MD048,WC,2002,MD048,Group-Phase,H,第３節,6/14(金)20:30,ベルギー,ロシア,Shizuoka Stadium Ecopa,3,2,,,,2026/3/13
+WC-2002-MD049,WC,2002,MD049,Round-16,,ラウンド16,6/15(土)15:30,ドイツ,パラグアイ,Jeju World Cup Stadium,1,0,,,,2026/3/13
+WC-2002-MD050,WC,2002,MD050,Round-16,,ラウンド16,6/15(土)20:30,デンマーク,イングランド,Niigata Stadium,0,3,,,,2026/3/13
+WC-2002-MD051,WC,2002,MD051,Round-16,,ラウンド16,6/16(日)15:30,スウェーデン,セネガル,Oita Stadium,1,2,,,延長,2026/3/13
+WC-2002-MD052,WC,2002,MD052,Round-16,,ラウンド16,6/16(日)20:30,スペイン,アイルランド,Suwon World Cup Stadium,1,1,3,2,延長・PK戦,2026/3/13
+WC-2002-MD053,WC,2002,MD053,Round-16,,ラウンド16,6/17(月)15:30,メキシコ,アメリカ,Jeonju World Cup Stadium,0,2,,,,2026/3/13
+WC-2002-MD054,WC,2002,MD054,Round-16,,ラウンド16,6/17(月)20:30,ブラジル,ベルギー,Kobe Wing Stadium,2,0,,,,2026/3/13
+WC-2002-MD055,WC,2002,MD055,Round-16,,ラウンド16,6/18(火)15:30,日本,トルコ,Miyagi Stadium,0,1,,,,2026/3/13
+WC-2002-MD056,WC,2002,MD056,Round-16,,ラウンド16,6/18(火)20:30,韓国,イタリア,Daejeon World Cup Stadium,2,1,,,延長,2026/3/13
+WC-2002-MD057,WC,2002,MD057,Quarter-Final,,準々決勝,6/21(金)15:30,イングランド,ブラジル,Shizuoka Stadium Ecopa,1,2,,,,2026/3/13
+WC-2002-MD058,WC,2002,MD058,Quarter-Final,,準々決勝,6/21(金)20:30,ドイツ,アメリカ,Munsu Cup Stadium,1,0,,,,2026/3/13
+WC-2002-MD059,WC,2002,MD059,Quarter-Final,,準々決勝,6/22(土)15:30,スペイン,韓国,Gwangju World Cup Stadium,0,0,3,5,延長・PK戦,2026/3/13
+WC-2002-MD060,WC,2002,MD060,Quarter-Final,,準々決勝,6/22(土)20:30,セネガル,トルコ,Nagai Stadium,0,1,,,延長,2026/3/13
+WC-2002-MD061,WC,2002,MD061,Semi-Final,,準決勝,6/25(火)20:30,韓国,ドイツ,Seoul World Cup Stadium,0,1,,,,2026/3/13
+WC-2002-MD062,WC,2002,MD062,Semi-Final,,準決勝,6/26(水)20:30,ブラジル,トルコ,Saitama Stadium 2002,1,0,,,,2026/3/13
+WC-2002-MD063,WC,2002,MD063,Third-Place,,3位決定戦,6/29(土)20:00,韓国,トルコ,Daegu World Cup Stadium,2,3,,,,2026/3/13
+WC-2002-MD064,WC,2002,MD064,Final,,決勝,6/30(日)20:00,ドイツ,ブラジル,Yokohama International Stadium,0,2,,,,2026/3/13
