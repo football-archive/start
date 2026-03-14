@@ -55,6 +55,23 @@ const rowsAll = loadCallups()
   .filter((r: any) => String(r.edition ?? "") === String(year))
   .filter((r: any) => String(r.country ?? "").trim() === countryName);
 
+const competition = "WC";
+
+const competitionLabel = (c: string) => {
+  switch (String(c ?? "").toUpperCase()) {
+    case "WC":
+      return "W杯";
+    case "EURO":
+      return "EURO";
+    case "COPA":
+      return "コパ";
+    default:
+      return c;
+  }
+};
+
+const compLabel = competitionLabel(competition);
+
 // --------------------
 // メタ1行表示（成績 / 監督）
 //   - 参照：src/data/nt_tournament_meta.csv
@@ -116,15 +133,19 @@ const metaRow = metaAll.find(
 
 // 大会名（開催地）＋年：例「ロシア2018」
 // host_ja があれば付ける。無ければ年だけ（例「2018」）
-const metaPrefix = String(metaRow?.host_ja ?? "").trim()
+const tournamentLabel = String(metaRow?.host_ja ?? "").trim()
   ? `${String(metaRow?.host_ja ?? "").trim()}${String(year)}`
-  : String(year);
+  : "";
 
 const metaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
   const coach = String(metaRow?.coach_ja ?? "").trim();
-  const parts = [metaPrefix, result, coach].filter((x) => String(x).trim());
-  return parts.join("｜");
+
+  const parts = [tournamentLabel, result, coach].filter((x) =>
+    String(x ?? "").trim(),
+  );
+
+  return parts.join(" ｜ ");
 })();
 
 // 更新日（その国×その年 の callups の最新スナップショット）
@@ -378,8 +399,8 @@ const columns = buildNtColumns({
 const topHref = `/wc/${year}`;
 
 // <title> 用（共通ヘッダーのページ名にも出る）
-const title = `${countryName}代表 WC${year}招集メンバー`;
-const description = `${countryName}代表のWC${year}招集メンバー一覧。背番号・ポジション・所属クラブなどを掲載。`;
+const title = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
+const description = `${countryName}代表の${compLabel}${year}メンバー一覧。背番号・ポジション・所属クラブなどを掲載。`;
 const heading = `${countryName}代表`;
 ---
 
@@ -436,15 +457,28 @@ const heading = `${countryName}代表`;
   }
 
   {/*  更新日 + メタ（注目選手の上に置く：状態 → 内容の順） */}
-  <div class="nt-meta-line" aria-label="更新日とメタ情報">
+  <div class="nt-title-divider" aria-hidden="true"></div>
+
+  <section class="nt-hero" aria-label="代表ページ見出し">
+    <div class="nt-hero-main">
+      <h1 class="nt-hero-title">
+        {countryName}代表 {compLabel}{year}メンバー一覧
+      </h1>
+
+      <p class="hero-desc">
+        {countryName}代表の{compLabel}{
+          year
+        }メンバー一覧。背番号・所属クラブ・代表デビューなどを掲載。
+      </p>
+
+      {metaLine && <div class="nt-hero-meta">{metaLine}</div>}
+    </div>
+
     <div class="nt-updated">
       更新日：
-      <span class="updated-date">
-        {toYMD(maxSnapshot) || "—"}
-      </span>
+      <span class="updated-date">{toYMD(maxSnapshot) || "—"}</span>
     </div>
-    {metaLine && <div class="nt-meta">{metaLine}</div>}
-  </div>
+  </section>
 
   <section class="star-block" aria-label="注目選手">
     <h2 class="star-title">⭐ 注目選手</h2>
@@ -536,11 +570,6 @@ const heading = `${countryName}代表`;
 
   {/* JSで文言差し替えもあるので global 推奨 */}
   <style is:global>
-    /* 年ピル（代表ページ上部） */
-    .nt-year-pills {
-      margin: 2px 0 10px;
-    }
-
     .page-wc .back-link {
       margin: 0 0 10px;
       font-size: 13px;
@@ -559,7 +588,6 @@ const heading = `${countryName}代表`;
       margin: 12px 0 16px;
       padding: 10px 12px;
       border-radius: 12px;
-
       background: color-mix(in srgb, var(--theme-color) 26%, #ffffff);
       border-color: color-mix(in srgb, var(--theme-color) 45%, var(--border));
       border: 1px solid rgba(128, 0, 128, 0.18);
@@ -576,18 +604,6 @@ const heading = `${countryName}代表`;
       display: grid;
       gap: 10px;
       grid-template-columns: repeat(3, 1fr);
-    }
-
-    @media (max-width: 900px) {
-      .star-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 640px) {
-      .star-grid {
-        grid-template-columns: 1fr;
-      }
     }
 
     .star-card {
@@ -619,10 +635,81 @@ const heading = `${countryName}代表`;
       padding: 8px 4px;
     }
 
+    /* 統計 */
+    .team-stats {
+      font-size: 13px;
+      color: var(--theme-color);
+      font-weight: 600;
+      margin: 8px 0;
+    }
+
+    @media (max-width: 900px) {
+      .star-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 640px) {
+      .nt-hero {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .nt-hero-title {
+        font-size: 18px;
+        line-height: 1.3;
+      }
+
+      .nt-hero-meta {
+        font-size: 14px;
+      }
+
+      .nt-updated {
+        margin-top: 4px;
+        text-align: left;
+        white-space: normal;
+      }
+
+      .star-grid {
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        grid-template-columns: none;
+        padding-bottom: 2px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .star-card {
+        flex: 0 0 auto;
+        min-width: 170px;
+        padding: 6px 10px;
+      }
+
+      .star-name {
+        font-size: 12px;
+        line-height: 1.3;
+      }
+
+      .star-pos {
+        font-size: 11px;
+      }
+    }
+
+    .star-empty {
+      font-size: 13px;
+      opacity: 0.65;
+      padding: 8px 4px;
+    }
+
     .page-wc .star-section {
       background: #f3e5f5 !important;
       border-color: rgba(0, 0, 0, 0.08) !important;
       opacity: 1;
+    }
+
+    /* 年ピル（代表ページ上部） */
+    .nt-year-pills {
+      margin: 2px 0 10px;
     }
 
     /* ===== 代表ページ：大陸・グループナビ ===== */
@@ -630,12 +717,63 @@ const heading = `${countryName}代表`;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 4px 0 14px;
+      margin: 0 0 8px;
+    }
+
+    /* ピル群とタイトル群の区切り */
+    .nt-title-divider {
+      height: 1px;
+      background: color-mix(in srgb, var(--theme-color) 24%, #d1d5db);
+      margin: 8px 0 12px;
+    }
+
+    /* タイトルブロック */
+    .nt-hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 0 0 10px;
+    }
+
+    .nt-hero-main {
+      min-width: 0;
+    }
+
+    .nt-hero-title {
+      margin: 0;
+      font-size: clamp(20px, 2.8vw, 26px);
+      line-height: 1.25;
+      font-weight: 800;
+      color: #111;
+      letter-spacing: 0.01em;
+    }
+
+    .nt-hero-meta {
+      margin-top: 4px;
+      font-weight: 700;
+      font-size: 16px;
+      line-height: 1.3;
+      color: var(--theme-color);
+      word-break: keep-all;
     }
 
     .page-nt h2,
     .page-nt h3.section-title {
       color: var(--theme-color);
+    }
+
+    .hero-desc {
+      margin: 6px 0 4px;
+      font-size: 13px;
+      line-height: 1.45;
+      color: #666;
+    }
+
+    @media (max-width: 640px) {
+      .hero-desc {
+        font-size: 12px;
+      }
     }
 
     /* 代表側：更新日（注記） + メタ1行 */
@@ -653,6 +791,7 @@ const heading = `${countryName}代表`;
       line-height: 1.2;
       text-align: right;
       white-space: nowrap;
+      flex: 0 0 auto;
     }
 
     .nt-meta {
