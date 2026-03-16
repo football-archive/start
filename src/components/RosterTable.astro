@@ -194,6 +194,17 @@ const vars = `--roster-min-width:${minWidthPx}px;--roster-max-height:${maxHeight
     box-shadow: 1px 0 0 var(--roster-border);
   }
 
+  /* 行ハイライト時は左固定列も白ではなくハイライト色にする */
+  .roster-block .roster-table tbody tr.row-highlight td:nth-child(1),
+  .roster-block .roster-table tbody tr.row-highlight td:nth-child(2) {
+    background: color-mix(in srgb, var(--theme-color) 14%, #ffffff) !important;
+  }
+
+  .roster-block .roster-table tbody tr.row-highlight:hover td:nth-child(1),
+  .roster-block .roster-table tbody tr.row-highlight:hover td:nth-child(2) {
+    background: color-mix(in srgb, var(--theme-color) 18%, #ffffff) !important;
+  }
+
   .roster-block .roster-table thead th:nth-child(1) {
     position: sticky;
     left: 0;

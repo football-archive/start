@@ -27,6 +27,9 @@ type Props<T> = {
   showSearch?: boolean;
 
   showStats?: boolean;
+
+  // ✅ 追加：行ごとの class を返す
+  rowClass?: (row: T, index: number) => string;
 };
 
 const {
@@ -39,6 +42,7 @@ const {
   borderColor = "var(--border, #e6e6e6)",
   placeholder = "検索：選手名（日本語/英語）",
   showSearch = true,
+  rowClass, // ✅ 追加
 } = Astro.props as Props<any>;
 
 // ✅ 未指定なら適当に全文検索できるデフォルトを使う
@@ -62,7 +66,6 @@ const thClass = (c: any) =>
   c.align === "center" ? "center" : c.align === "right" ? "right" : "";
 ---
 
-
 <RosterTable
   tableId={tableId}
   total={rows.length}
@@ -82,7 +85,10 @@ const thClass = (c: any) =>
     <tbody>
       {
         rows.map((row: any, i: number) => (
-          <tr data-search={searchText(row).toLowerCase()}>
+          <tr
+            class={rowClass?.(row, i) ?? ""}
+            data-search={searchText(row).toLowerCase()}
+          >
             {visibleColumns.map((c) => {
               const v = c.render(row, i);
 
@@ -110,5 +116,19 @@ const thClass = (c: any) =>
   }
   .right {
     text-align: right;
+  }
+
+  /* ✅ 追加：行ハイライト */
+  :global(.roster-table tbody tr.row-highlight td) {
+    background: color-mix(in srgb, var(--theme-color) 14%, #ffffff) !important;
+  }
+
+  :global(.roster-table tbody tr.row-highlight td:first-child) {
+    box-shadow: inset 3px 0 0
+      color-mix(in srgb, var(--theme-color) 55%, #ffffff);
+  }
+
+  :global(.roster-table tbody tr.row-highlight:hover td) {
+    background: color-mix(in srgb, var(--theme-color) 18%, #ffffff) !important;
   }
 </style>

@@ -221,6 +221,16 @@ const continent = rowsAll[0]?.confederation ?? "";
 
 const rows = rowsAll.sort(sortForRoster);
 
+const highlightToken = "2026.03";
+
+const rowHighlightClass = (r: any) => {
+  const noteText = String(
+    r.notes ?? r.note ?? r.remarks ?? r.note_ja ?? "",
+  ).trim();
+
+  return noteText.includes(highlightToken) ? "row-highlight" : "";
+};
+
 const currentWcYear = "2026"; // 手動更新：最新大会に合わせて切替
 const isCurrentEdition = String(year) === currentWcYear;
 
@@ -511,7 +521,7 @@ const heading = `${countryName}代表`;
     )
   }
 
-  <RosterView {rows} {columns} />
+  <RosterView {rows} {columns} rowClass={rowHighlightClass} />
 
   <script is:inline define:vars={{ topHref }}>
     const TOP = topHref;
