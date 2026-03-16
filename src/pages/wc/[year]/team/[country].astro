@@ -409,8 +409,8 @@ const columns = buildNtColumns({
 const topHref = `/wc/${year}`;
 
 // <title> 用（共通ヘッダーのページ名にも出る）
-const title = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
-const description = `${countryName}代表の${compLabel}${year}メンバー一覧。背番号・ポジション・所属クラブなどを掲載。`;
+const title = `${countryName}代表 ${compLabel}${year}メンバー一覧・最新招集【海外サッカーDB】`;
+const description = `${countryName}代表の${compLabel}${year}メンバー一覧。最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。`;
 const heading = `${countryName}代表`;
 ---
 
@@ -478,7 +478,7 @@ const heading = `${countryName}代表`;
       <p class="hero-desc">
         {countryName}代表の{compLabel}{
           year
-        }メンバー一覧。背番号・所属クラブ・代表デビューなどを掲載。
+        }メンバー一覧。</br>最新招集メンバーをハイライト表示。 背番号・所属クラブ・代表デビュー・過去大会招集も掲載。
       </p>
 
       {metaLine && <div class="nt-hero-meta">{metaLine}</div>}
