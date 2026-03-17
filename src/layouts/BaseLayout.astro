@@ -41,12 +41,29 @@ const metaDescription =
   description && String(description).trim() ? description : seoTitle;
 
 /**
- * canonical は「クエリなし・末尾スラッシュはAstro標準のpathname」で統一
- * Astro.site が無い（ローカル等）場合は相対URLのままでもOKにする
+ * canonical は「クエリなし・末尾スラッシュあり」で統一
+ * - /wc/2026/team/ブラジル  → /wc/2026/team/ブラジル/
+ * - /                         → /
+ * - /favicon.png など拡張子付きはそのまま
  */
+const normalizeCanonicalPath = (pathname: string) => {
+  const p = String(pathname || "").trim() || "/";
+
+  // ルートはそのまま
+  if (p === "/") return "/";
+
+  // 拡張子つきファイルっぽいものはそのまま
+  if (/\.[a-z0-9]+$/i.test(p)) return p;
+
+  // 末尾スラッシュを付ける
+  return p.endsWith("/") ? p : `${p}/`;
+};
+
+const canonicalPath = normalizeCanonicalPath(Astro.url.pathname);
+
 const canonicalUrl = Astro.site
-  ? new URL(Astro.url.pathname, Astro.site).toString()
-  : Astro.url.pathname;
+  ? new URL(canonicalPath, Astro.site).toString()
+  : canonicalPath;
 
 /**
  * OGP画像はできれば絶対URLが堅い（SNSクローラ対策）
