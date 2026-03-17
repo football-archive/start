@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://worldfootballarchive.com/sitemap.xml
+Sitemap: https://worldfootballarchive.com/sitemap-index.xml
