@@ -4,8 +4,8 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "prebuild": "node -e \"fs.rmSync('dist',{ recursive: true, force: true })\"",
     "build": "astro build",
-    "postbuild": "node src/scripts/generate_sitemap.mjs",
     "preview": "astro preview",
     "astro": "astro",
     "check": "node src/scripts/check_routes.mjs && node src/scripts/check_links.mjs"
