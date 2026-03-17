@@ -5,6 +5,7 @@ export type UpdateItem = {
   date: string; // YYYY-MM-DD
   title: string;
   category?: string; // clubs | nt | etc
+  href?: string;
 };
 
 function parseCsvLine(line: string): string[] {
@@ -28,9 +29,9 @@ export function loadUpdates(limit = 10): UpdateItem[] {
 
   const items: UpdateItem[] = rows
     .map((line) => {
-      const [date, title, category] = parseCsvLine(line);
+      const [date, title, category, href] = parseCsvLine(line);
       if (!date || !title) return null;
-      return { date, title, category };
+      return { date, title, category, href };
     })
     .filter((v): v is UpdateItem => !!v);
 

@@ -6,6 +6,7 @@ import { loadCallups, countrySlug } from "../../../lib/callups";
 import { tournamentTopUrl } from "../../../lib/urls";
 import { loadGroups, getGroupsList } from "../../../lib/tournamentGroups";
 import { fmtJP } from "../../../lib/updates";
+import { toYMD } from "../../../lib/rosterFormat";
 
 import MatchScheduleTable from "../../../components/MatchScheduleTable.astro";
 import {
@@ -75,12 +76,11 @@ const teamHrefIfExists = (country: string) =>
 
 
 
-const latestCallupSnapshotRaw =
-  filtered
-    .map((r) => String(r.snapshot_date ?? "").trim())
-    .filter(Boolean)
-    .sort()
-    .at(-1) ?? "";
+const latestCallupSnapshotRaw = filtered.reduce((max, r) => {
+  const s = toYMD(String(r.snapshot_date ?? ""));
+  if (!s) return max;
+  return !max || s > max ? s : max;
+}, "");
 
 const latestCallupSnapshot = latestCallupSnapshotRaw
   ? fmtJP(latestCallupSnapshotRaw)

@@ -15,19 +15,23 @@ import {
 } from "../lib/urls";
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../lib/ucl";
 import { loadTransfers } from "../lib/transfers";
+import { toYMD } from "../lib/rosterFormat";
 
 const wcYear = String(DEFAULTS.currentWcYear); // 最新大会のYYYY
 
 // yyyy-mm-dd の最大値を返す（空なら null）
 const maxYmd = (rows: any[], key: string) => {
-  let max: string | null = null;
+  let max = "";
   for (const r of rows) {
     const v = r?.[key];
     if (!v) continue;
-    const s = String(v);
+
+    const s = toYMD(String(v));
+    if (!s) continue;
+
     if (!max || s > max) max = s;
   }
-  return max;
+  return max || null;
 };
 
 // 表示用（yyyy/mm/dd）
@@ -387,6 +391,16 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
     .updates .title {
       font-weight: 400;
       font-size: 14px;
+    }
+
+    .updates .title-link {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .updates .title-link:hover {
+      opacity: 0.82;
     }
 
     .quick-title {
@@ -1048,7 +1062,13 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               {updates.map((u, i) => (
                 <li class={i === 0 ? "is-latest" : ""}>
                   <span class="date">{u.date.replaceAll("-", "/")}</span>
-                  <span class="title">{u.title}</span>
+                  {u.href ? (
+                    <a class="title-link" href={u.href}>
+                      <span class="title">{u.title}</span>
+                    </a>
+                  ) : (
+                    <span class="title">{u.title}</span>
+                  )}
                 </li>
               ))}
             </ul>
