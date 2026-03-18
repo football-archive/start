@@ -216,6 +216,45 @@ const group =
     ?.group ??
   "";
 
+// 出場ステータス注記（2026のPO/敗退国向け）
+const confederationBucket = String(rowsAll[0]?.confederation_bucket ?? "")
+  .trim()
+  .toUpperCase();
+
+const statusSuffix = (() => {
+  if (!confederationBucket || confederationBucket === "QUALIFIED") return "";
+
+  if (
+    [
+      "INTER_PO",
+      "INTERCONF_PO",
+      "INTERCONFED_PO",
+      "INTERCONTINENTAL_PO",
+      "IC_PO",
+    ].some((v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`))
+  ) {
+    return "（大陸間プレーオフ）";
+  }
+
+  if (
+    ["UEFA_PO", "EU_PO", "EURO_PO", "EUROPE_PO"].some(
+      (v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`),
+    )
+  ) {
+    return "（欧州プレーオフ）";
+  }
+
+  if (
+    ["ELIM", "ELIMINATED"].some(
+      (v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`),
+    )
+  ) {
+    return "（予選敗退）";
+  }
+
+  return "";
+})();
+
 // その国の大陸（callupsの最初の行から取れる想定）
 const continent = rowsAll[0]?.confederation ?? "";
 
@@ -409,9 +448,17 @@ const columns = buildNtColumns({
 const topHref = `/wc/${year}`;
 
 // <title> 用（共通ヘッダーのページ名にも出る）
-const title = `${countryName}代表 ${compLabel}${year}メンバー一覧・最新招集【海外サッカーDB】`;
-const description = `${countryName}代表の${compLabel}${year}メンバー一覧。最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。`;
-const heading = `${countryName}代表`;
+const pageLabel = `${countryName}代表${statusSuffix ? ` ${statusSuffix}` : ""}`;
+
+const title = `${countryName}代表 ${compLabel}${year}メンバー一覧${
+  statusSuffix ? ` ${statusSuffix}` : ""
+}・最新招集【海外サッカーDB】`;
+
+const description = `${countryName}代表${
+  statusSuffix ? `（${statusSuffix.replace(/[()（）]/g, "")}）` : ""
+}の${compLabel}${year}メンバー一覧。最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。`;
+
+const heading = pageLabel;
 ---
 
 <BaseLayout
@@ -473,13 +520,25 @@ const heading = `${countryName}代表`;
     <div class="nt-hero-main">
       <h1 class="nt-hero-title">
         {countryName}代表 {compLabel}{year}メンバー一覧
+        {statusSuffix && <span class="nt-status-inline">{statusSuffix}</span>}
       </h1>
 
       <p class="hero-desc">
-        {countryName}代表の{compLabel}{
+        {countryName}代表{statusSuffix ? ` ${statusSuffix}` : ""}の{compLabel}{
           year
-        }メンバー一覧。</br>最新招集メンバーをハイライト表示。 背番号・所属クラブ・代表デビュー・過去大会招集も掲載。
+        }メンバー一覧。
+        最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。
       </p>
+
+      {
+        statusSuffix && (
+          <div class="nt-status-note">
+            ※ このページは {countryName}代表の
+            {statusSuffix.replace(/[()（）]/g, "")}
+            時点の候補・招集状況を掲載しています。
+          </div>
+        )
+      }
 
       {metaLine && <div class="nt-hero-meta">{metaLine}</div>}
     </div>
@@ -659,6 +718,23 @@ const heading = `${countryName}代表`;
       }
     }
 
+    .nt-status-inline {
+      display: inline-block;
+      margin-left: 8px;
+      font-size: 0.62em;
+      font-weight: 700;
+      line-height: 1.2;
+      color: var(--theme-color);
+      vertical-align: middle;
+    }
+
+    .nt-status-note {
+      margin-top: 6px;
+      font-size: 12px;
+      line-height: 1.45;
+      color: #666;
+    }
+
     @media (max-width: 640px) {
       .nt-hero {
         display: block;
@@ -668,6 +744,17 @@ const heading = `${countryName}代表`;
       .nt-hero-title {
         font-size: 18px;
         line-height: 1.3;
+      }
+
+      .nt-status-inline {
+        display: block;
+        margin-left: 0;
+        margin-top: 4px;
+        font-size: 0.68em;
+      }
+
+      .nt-status-note {
+        font-size: 11px;
       }
 
       .nt-hero-meta {
