@@ -231,14 +231,18 @@ const statusSuffix = (() => {
       "INTERCONFED_PO",
       "INTERCONTINENTAL_PO",
       "IC_PO",
-    ].some((v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`))
+    ].some(
+      (v) =>
+        confederationBucket === v || confederationBucket.startsWith(`${v}_`),
+    )
   ) {
     return "（大陸間プレーオフ）";
   }
 
   if (
     ["UEFA_PO", "EU_PO", "EURO_PO", "EUROPE_PO"].some(
-      (v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`),
+      (v) =>
+        confederationBucket === v || confederationBucket.startsWith(`${v}_`),
     )
   ) {
     return "（欧州プレーオフ）";
@@ -246,7 +250,8 @@ const statusSuffix = (() => {
 
   if (
     ["ELIM", "ELIMINATED"].some(
-      (v) => confederationBucket === v || confederationBucket.startsWith(`${v}_`),
+      (v) =>
+        confederationBucket === v || confederationBucket.startsWith(`${v}_`),
     )
   ) {
     return "（予選敗退）";
@@ -524,10 +529,13 @@ const heading = pageLabel;
       </h1>
 
       <p class="hero-desc">
-        {countryName}代表{statusSuffix ? ` ${statusSuffix}` : ""}の{compLabel}{
-          year
-        }メンバー一覧。
-        最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。
+        <span
+          >{countryName}代表{statusSuffix ? ` ${statusSuffix}` : ""}の{
+            compLabel
+          }{
+            year
+          }メンバー一覧。最新招集をハイライト表示。背番号・所属クラブ・代表デビュー・過去大会も掲載。</span
+        >
       </p>
 
       {
@@ -542,12 +550,14 @@ const heading = pageLabel;
 
       {metaLine && <div class="nt-hero-meta">{metaLine}</div>}
     </div>
+  </section>
 
+  <div class="nt-updated-row">
     <div class="nt-updated">
       更新日：
       <span class="updated-date">{toYMD(maxSnapshot) || "—"}</span>
     </div>
-  </section>
+  </div>
 
   <section class="star-block" aria-label="注目選手">
     <h2 class="star-title">⭐ 注目選手</h2>
@@ -762,9 +772,11 @@ const heading = pageLabel;
       }
 
       .nt-updated {
-        margin-top: 4px;
+        display: block;
+        margin-top: 6px;
         text-align: left;
         white-space: normal;
+        padding-top: 0;
       }
 
       .star-grid {
@@ -826,11 +838,7 @@ const heading = pageLabel;
 
     /* タイトルブロック */
     .nt-hero {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 12px;
-      margin: 0 0 10px;
+      margin: 0 0 6px;
     }
 
     .nt-hero-main {
@@ -840,7 +848,7 @@ const heading = pageLabel;
     .nt-hero-title {
       margin: 0;
       font-size: clamp(20px, 2.8vw, 26px);
-      line-height: 1.25;
+      line-height: 1.18;
       font-weight: 800;
       color: #111;
       letter-spacing: 0.01em;
@@ -850,9 +858,10 @@ const heading = pageLabel;
       margin-top: 4px;
       font-weight: 700;
       font-size: 16px;
-      line-height: 1.3;
+      line-height: 1.35;
       color: var(--theme-color);
-      word-break: keep-all;
+      word-break: normal;
+      overflow-wrap: anywhere;
     }
 
     .page-nt h2,
@@ -861,10 +870,18 @@ const heading = pageLabel;
     }
 
     .hero-desc {
-      margin: 6px 0 4px;
+      margin: 4px 0 2px;
       font-size: 13px;
-      line-height: 1.45;
+      line-height: 1.35;
       color: #666;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .hero-desc span {
+      display: block;
     }
 
     @media (max-width: 640px) {
@@ -882,13 +899,18 @@ const heading = pageLabel;
       white-space: normal;
     }
 
+    .nt-updated-row {
+      display: flex;
+      justify-content: flex-end;
+      margin: 0 0 10px;
+    }
+
     .nt-updated {
       font-size: 12px;
       opacity: 0.78;
       line-height: 1.2;
       text-align: right;
       white-space: nowrap;
-      flex: 0 0 auto;
     }
 
     .nt-meta {
@@ -928,6 +950,13 @@ const heading = pageLabel;
       .nt-meta {
         font-size: 13px;
       }
+      .nt-updated-row {
+        margin: 2px 0 8px;
+      }
+
+      .nt-updated {
+        font-size: 12px;
+      }
     }
 
     .team-stats {
@@ -935,6 +964,17 @@ const heading = pageLabel;
       color: var(--theme-color);
       font-weight: 600;
       margin: 8px 0;
+    }
+
+    @media (max-width: 640px) {
+      .page-wc table {
+        font-size: 12px;
+      }
+
+      .page-wc th,
+      .page-wc td {
+        padding: 6px 6px;
+      }
     }
   </style>
 </BaseLayout>
