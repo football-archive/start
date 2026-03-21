@@ -210,11 +210,111 @@ const norm = (s: any) =>
     .replace(/　/g, " ")
     .replace(/\s+/g, " ");
 
+// その国の大陸（callupsの最初の行から取れる想定）
+const continent = rowsAll[0]?.confederation ?? "";
+
 const group =
   groups.find((g: any) => norm(g.route_param) === norm(countryName))?.group ??
   groups.find((g: any) => norm(g.country_name_ja) === norm(countryName))
     ?.group ??
   "";
+
+// ====================
+// 関連国リンク（慎重追加）
+//  - 同グループ
+//  - 同大陸
+//  - PO未確定枠はリンクなし表示
+// ====================
+
+const isUndecidedPlayoffLabel = (s: string) => {
+  const t = String(s || "").trim();
+  return (
+    !t ||
+    /プレーオフ/i.test(t) ||
+    /PO/i.test(t) ||
+    /勝者/i.test(t) ||
+    /Winner/i.test(t)
+  );
+};
+
+const makeTeamHref = (name: string) =>
+  `/wc/${encodeURIComponent(String(year))}/team/${encodeURIComponent(name)}`;
+
+// groups.csv から同グループ国を作る
+const groupRows = group
+  ? groups.filter(
+      (g: any) => String(g.group ?? "").trim() === String(group).trim(),
+    )
+  : [];
+
+const groupLinks = groupRows
+  .map((g: any) => {
+    const label =
+      String(g.country_name_ja ?? "").trim() ||
+      String(g.route_param ?? "").trim();
+
+    if (!label || norm(label) === norm(countryName)) return null;
+
+    const undecided = isUndecidedPlayoffLabel(label);
+
+    return {
+      label: undecided ? "プレーオフ勝者（未定）" : label,
+      href: undecided ? "" : makeTeamHref(label),
+      isCurrent: false,
+      isUndecided: undecided,
+    };
+  })
+  .filter(Boolean) as {
+  label: string;
+  href: string;
+  isCurrent: boolean;
+  isUndecided: boolean;
+}[];
+
+// callups から同大陸国を作る（2026同大会のみ）
+const continentRowsAll = loadCallups()
+  .filter((r: any) => String(r.competition ?? "").toUpperCase() === "WC")
+  .filter((r: any) => String(r.edition ?? "") === String(year))
+  .filter(
+    (r: any) =>
+      String(r.confederation ?? "").trim() === String(continent ?? "").trim(),
+  );
+
+const continentMap = new Map<
+  string,
+  { label: string; bucket: string; href: string }
+>();
+
+for (const r of continentRowsAll as any[]) {
+  const label = String(r.country ?? "").trim();
+  if (!label) continue;
+  if (norm(label) === norm(countryName)) continue;
+
+  const bucket = String(r.confederation_bucket ?? "")
+    .trim()
+    .toUpperCase();
+
+  if (!continentMap.has(label)) {
+    continentMap.set(label, {
+      label,
+      bucket,
+      href: makeTeamHref(label),
+    });
+  }
+}
+
+// グループ表示と重複する国は除外
+const groupLabelSet = new Set(groupLinks.map((x) => norm(x.label)));
+
+const continentLinks = Array.from(continentMap.values())
+  .filter((item) => !groupLabelSet.has(norm(item.label)))
+  .sort((a, b) => {
+    const aQualified = a.bucket === "QUALIFIED" ? 0 : 1;
+    const bQualified = b.bucket === "QUALIFIED" ? 0 : 1;
+    if (aQualified !== bQualified) return aQualified - bQualified;
+    return a.label.localeCompare(b.label, "ja");
+  })
+  .slice(0, 12);
 
 // 出場ステータス注記（2026のPO/敗退国向け）
 const confederationBucket = String(rowsAll[0]?.confederation_bucket ?? "")
@@ -259,9 +359,6 @@ const statusSuffix = (() => {
 
   return "";
 })();
-
-// その国の大陸（callupsの最初の行から取れる想定）
-const continent = rowsAll[0]?.confederation ?? "";
 
 const rows = rowsAll.sort(sortForRoster);
 
@@ -455,13 +552,19 @@ const topHref = `/wc/${year}`;
 // <title> 用（共通ヘッダーのページ名にも出る）
 const pageLabel = `${countryName}代表${statusSuffix ? ` ${statusSuffix}` : ""}`;
 
-const title = `${countryName}代表 ${compLabel}${year}メンバー一覧${
-  statusSuffix ? ` ${statusSuffix}` : ""
-}・最新招集【海外サッカーDB】`;
+const isJapan = countryName === "日本";
 
-const description = `${countryName}代表${
-  statusSuffix ? `（${statusSuffix.replace(/[()（）]/g, "")}）` : ""
-}の${compLabel}${year}メンバー一覧。最新招集メンバーをハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集も掲載。`;
+const title = isJapan
+  ? `日本代表メンバー2026｜最新招集・背番号・所属クラブ一覧【海外サッカーDB】`
+  : `${countryName}代表 ${compLabel}${year}メンバー一覧${
+      statusSuffix ? ` ${statusSuffix}` : ""
+    }｜最新招集・背番号・所属クラブ【海外サッカーDB】`;
+
+const description = isJapan
+  ? `日本代表の最新メンバー一覧。W杯${year}候補、背番号、所属クラブ、代表デビュー、過去大会招集を掲載。`
+  : `${countryName}代表${
+      statusSuffix ? `（${statusSuffix.replace(/[()（）]/g, "")}）` : ""
+    }の${compLabel}${year}メンバー一覧。最新招集をハイライト表示。背番号・所属クラブ・代表デビュー・過去大会も掲載。`;
 
 const heading = pageLabel;
 ---
@@ -496,23 +599,57 @@ const heading = pageLabel;
   }
 
   {
-    (continent || group) && (
+    (continent ||
+      group ||
+      continentLinks.length > 0 ||
+      groupLinks.length > 0) && (
       <div class="nt-nav-pills">
-        {continent && (
-          <a
-            class="pill"
-            href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
-          >
-            🌍 {continent}
-          </a>
+        {/* ===== 大陸 ===== */}
+        {(continent || continentLinks.length > 0) && (
+          <div class="nt-nav-row">
+            {continent && (
+              <a
+                class="pill"
+                href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
+              >
+                🌍 {continent}
+              </a>
+            )}
+
+            {continentLinks.map((item) =>
+              item.href ? (
+                <a class="pill nt-related-pill" href={item.href}>
+                  {item.label}
+                </a>
+              ) : (
+                <span class="pill nt-related-pill is-muted">{item.label}</span>
+              ),
+            )}
+          </div>
         )}
-        {group && (
-          <a
-            class="pill"
-            href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
-          >
-            🔠 グループ {group}
-          </a>
+
+        {/* ===== グループ ===== */}
+        {(group || groupLinks.length > 0) && (
+          <div class="nt-nav-row">
+            {group && (
+              <a
+                class="pill"
+                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+              >
+                🔠 グループ {group}
+              </a>
+            )}
+
+            {groupLinks.map((item) =>
+              item.href ? (
+                <a class="pill nt-related-pill" href={item.href}>
+                  {item.label}
+                </a>
+              ) : (
+                <span class="pill nt-related-pill is-muted">{item.label}</span>
+              ),
+            )}
+          </div>
         )}
       </div>
     )
@@ -936,10 +1073,8 @@ const heading = pageLabel;
       margin-bottom: 8px;
     }
     .nt-nav-pills {
-      margin: 0 0 6px;
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
+      display: block;
+      margin: 0 0 8px;
     }
 
     @media (max-width: 640px) {
@@ -975,6 +1110,43 @@ const heading = pageLabel;
       .page-wc td {
         padding: 6px 6px;
       }
+    }
+
+    .nt-related-block {
+      margin: 0 0 8px;
+    }
+
+    .nt-related-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin: 0 0 6px;
+    }
+
+    .nt-related-pill {
+      font-size: 12px;
+    }
+
+    .nt-related-pill.is-muted {
+      opacity: 0.72;
+      cursor: default;
+    }
+
+    @media (max-width: 640px) {
+      .nt-related-pill {
+        font-size: 11px;
+      }
+    }
+
+    .nt-nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .nt-nav-row:last-child {
+      margin-bottom: 0;
     }
   </style>
 </BaseLayout>
