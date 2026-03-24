@@ -553,20 +553,21 @@ const topHref = `/wc/${year}`;
 const pageLabel = `${countryName}代表${statusSuffix ? ` ${statusSuffix}` : ""}`;
 
 const isJapan = countryName === "日本";
+const statusText = statusSuffix ? statusSuffix.replace(/[()（）]/g, "") : "";
 
 const title = isJapan
   ? `日本代表メンバー2026｜最新招集・背番号・所属クラブ一覧【海外サッカーDB】`
-  : `${countryName}代表 ${compLabel}${year}メンバー一覧${
-      statusSuffix ? ` ${statusSuffix}` : ""
-    }｜最新招集・背番号・所属クラブ【海外サッカーDB】`;
+  : `${countryName}代表 メンバー一覧｜${compLabel}${year}最新招集・背番号・所属クラブ${
+      statusText ? `【${statusText}】` : ""
+    }【海外サッカーDB】`;
 
 const description = isJapan
-  ? `日本代表の最新メンバー一覧。W杯${year}候補、背番号、所属クラブ、代表デビュー、過去大会招集を掲載。`
-  : `${countryName}代表${
-      statusSuffix ? `（${statusSuffix.replace(/[()（）]/g, "")}）` : ""
-    }の${compLabel}${year}メンバー一覧。最新招集をハイライト表示。背番号・所属クラブ・代表デビュー・過去大会も掲載。`;
+  ? `日本代表の最新メンバー一覧。W杯${year}の招集候補、背番号、所属クラブ、代表デビュー、過去大会招集歴を掲載。`
+  : `${countryName}代表の最新メンバー一覧。${compLabel}${year}${
+      statusText ? `（${statusText}）` : ""
+    }の招集メンバーを掲載。背番号・所属クラブ・代表デビュー・過去大会招集歴も確認できます。`;
 
-const heading = pageLabel;
+const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 ---
 
 <BaseLayout
@@ -666,21 +667,19 @@ const heading = pageLabel;
       </h1>
 
       <p class="hero-desc">
-        <span
-          >{countryName}代表{statusSuffix ? ` ${statusSuffix}` : ""}の{
-            compLabel
-          }{
+        <span>
+          {countryName}代表の最新メンバー一覧（{compLabel}{
             year
-          }メンバー一覧。最新招集をハイライト表示。背番号・所属クラブ・代表デビュー・過去大会も掲載。</span
-        >
+          }）。直近の招集選手をハイライト表示。背番号・所属クラブ・代表デビュー・過去大会招集歴まで確認できます。
+        </span>
       </p>
 
       {
         statusSuffix && (
           <div class="nt-status-note">
-            ※ このページは {countryName}代表の
-            {statusSuffix.replace(/[()（）]/g, "")}
-            時点の候補・招集状況を掲載しています。
+            ※ このページは {countryName}代表
+            {statusSuffix ? `（${statusSuffix.replace(/[()（）]/g, "")}）` : ""}
+            の 時点の候補・招集状況を掲載しています。
           </div>
         )
       }
