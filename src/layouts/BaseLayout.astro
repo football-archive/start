@@ -69,7 +69,9 @@ const canonicalUrl = Astro.site
  * OGP画像はできれば絶対URLが堅い（SNSクローラ対策）
  * Astro.site が無い場合は相対のまま
  */
-const ogImage = Astro.site ? new URL("/ogp.png", Astro.site).toString() : "/ogp.png";
+const ogImage = Astro.site
+  ? new URL("/ogp.png", Astro.site).toString()
+  : "/ogp.png";
 
 /**
  * JSON-LD: BreadcrumbList
@@ -420,13 +422,30 @@ const pageHeading = heading || title;
     <link rel="icon" type="image/png" href="/favicon.png" />
 
     {/* ✅ JSON-LD: WebSite / Organization / Breadcrumbs */}
-    {websiteJsonLd && (
-      <script type="application/ld+json" set:html={websiteJsonLd} />
-    )}
+    {
+      websiteJsonLd && (
+        <script type="application/ld+json" set:html={websiteJsonLd} />
+      )
+    }
     {orgJsonLd && <script type="application/ld+json" set:html={orgJsonLd} />}
-    {breadcrumbJsonLd && (
-      <script type="application/ld+json" set:html={breadcrumbJsonLd} />
-    )}
+    {
+      breadcrumbJsonLd && (
+        <script type="application/ld+json" set:html={breadcrumbJsonLd} />
+      )
+    }
+
+    <!-- ←ここに追加 -->
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CD6RYL0J10"
+    ></script>
+    <script is:inline>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        window.dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+      gtag("config", "G-CD6RYL0J10");
+    </script>
   </head>
 
   <body
