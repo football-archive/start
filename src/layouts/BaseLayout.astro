@@ -135,11 +135,34 @@ const orgJsonLd = Astro.site
 
 // heading（既存）
 const pageHeading = heading || title;
+
+const gaMeasurementId = "G-CD6RYL0J10";
+const isProd = import.meta.env.PROD;
 ---
 
 <!doctype html>
 <html lang="ja">
   <head>
+        {/* ✅ Google Analytics（本番のみ） */}
+    {
+      isProd && (
+        <>
+          <script
+            async
+            src={`https://www.googletagmanager.com/gtag/js?id=${gaMeasurementId}`}
+          ></script>
+          <script
+            is:inline
+            define:vars={{ gaMeasurementId }}
+          >
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){window.dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', gaMeasurementId);
+          </script>
+        </>
+      )
+    }
     <style is:global>
       :root {
         --container-max: 1100px;
