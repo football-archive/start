@@ -457,18 +457,6 @@ const isProd = import.meta.env.PROD;
       )
     }
 
-    <!-- ←ここに追加 -->
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-CD6RYL0J10"
-    ></script>
-    <script is:inline>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() {
-        window.dataLayer.push(arguments);
-      }
-      gtag("js", new Date());
-      gtag("config", "G-CD6RYL0J10");
-    </script>
   </head>
 
   <body
