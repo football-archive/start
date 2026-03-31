@@ -253,12 +253,14 @@ const wcEditionPills = wcEditionCandidates
 const wcTitle = `FIFAワールドカップ${year}`;
 const teamsHeading = `${wcTitle} 出場国・代表メンバー一覧`;
 
-const pageTitle = `${wcTitle} 出場国・代表メンバー一覧｜日程・グループ・得点ランキング｜海外サッカーDB`;
-const pageDesc = isCurrentEdition
-  ? `${wcTitle}の出場国一覧と各国の代表メンバーを掲載。グループ、試合日程、得点ランキングも確認できます。最新チーム情報を一覧でチェック。`
-  : `${wcTitle}の出場国一覧と各国の代表メンバーを掲載。グループ、試合日程、得点ランキングも確認できます。`;
----
+const pageTitle = isCurrentEdition
+  ? `${wcTitle} 出場国・代表メンバー一覧【48カ国確定】｜日程・グループ・得点ランキング｜海外サッカーDB`
+  : `${wcTitle} 出場国・代表メンバー一覧｜日程・グループ・得点ランキング｜海外サッカーDB`;
 
+const pageDesc = isCurrentEdition
+  ? `${wcTitle}の出場48カ国一覧と各国代表メンバーを掲載。背番号・所属クラブ・グループ・試合日程・得点ランキングまでまとめて確認できます。最新のチーム情報を一覧でチェック。`
+  : `${wcTitle}の出場国一覧と各国代表メンバーを掲載。グループ、試合日程、得点ランキングも確認できます。`;
+---
 <BaseLayout
   title={pageTitle}
   description={pageDesc}
@@ -883,7 +885,7 @@ const pageDesc = isCurrentEdition
 
   <p class="quick-title" style="margin: 0 0 10px;">
     {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
-    出場国は大陸別・グループ別に絞り込みできます。
+    各チームページでは招集メンバー、所属クラブ、代表歴も確認できます。
     {
       latestCallupSnapshot ? (
         <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
