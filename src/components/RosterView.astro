@@ -131,4 +131,198 @@ const thClass = (c: any) =>
   :global(.roster-table tbody tr.row-highlight:hover td) {
     background: color-mix(in srgb, var(--theme-color) 18%, #ffffff) !important;
   }
+
+  :global(.namecell-mobile) {
+    display: block;
+  }
+
+  :global(.mob-meta-line) {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 1.35;
+    color: #555;
+    word-break: break-word;
+  }
+
+  :global(.mob-sep) {
+    color: var(--theme-color);
+    font-weight: 800;
+    margin: 0 4px;
+  }
+
+  :global(.mob-label) {
+    font-weight: 700;
+    margin-right: 4px;
+  }
+
+  :global(.mob-label-join) {
+    color: var(--theme-color);
+    font-weight: 600;
+  }
+
+  :global(.mob-label-debut) {
+    color: var(--theme-color);
+    font-weight: 600;
+  }
+
+  /* ===== デフォルト（PC）は補助行を隠す ===== */
+  :global(.namecell-mobile .mob-meta-line),
+  :global(.namecell-mobile .sub),
+  :global(.namecell-mobile .sub2) {
+    display: none !important;
+  }
+
+  :global(.namecell-mobile .namecell-main) {
+    display: block;
+  }
+
+  @media (max-width: 768px) {
+    .roster-table th:nth-child(4),
+    .roster-table td:nth-child(4),
+    .roster-table th:nth-child(5),
+    .roster-table td:nth-child(5),
+    .roster-table th:nth-child(6),
+    .roster-table td:nth-child(6),
+    .roster-table th:nth-child(7),
+    .roster-table td:nth-child(7),
+    .roster-table th:nth-child(8),
+    .roster-table td:nth-child(8),
+    .roster-table th:nth-child(9),
+    .roster-table td:nth-child(9) {
+      display: none !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
+    }
+
+    .roster-table {
+      min-width: 100% !important;
+      table-layout: fixed;
+    }
+
+    .roster-table th:nth-child(1),
+    .roster-table td:nth-child(1) {
+      width: 28px;
+    }
+
+    .roster-table th:nth-child(2),
+    .roster-table td:nth-child(2) {
+      width: 36px;
+      white-space: nowrap;
+    }
+
+    .roster-table th:nth-child(3),
+    .roster-table td:nth-child(3) {
+      width: auto;
+    }
+
+    .roster-table td:nth-child(3) {
+      vertical-align: top;
+    }
+
+    .roster-table td {
+      padding-top: 8px;
+      padding-bottom: 8px;
+    }
+
+    :global(.roster-table .rep2) {
+      display: inline;
+    }
+
+    :global(.roster-table .rep2-team) {
+      display: inline;
+      margin-right: 6px;
+      font-size: 12px;
+    }
+
+    :global(.roster-table .rep2-links) {
+      display: inline;
+      font-size: 12px;
+    }
+
+    /* ===== モバイルだけ補助行を出す ===== */
+    :global(.namecell-mobile .mob-meta-line),
+    :global(.namecell-mobile .sub),
+    :global(.namecell-mobile .sub2) {
+      display: block !important;
+    }
+  }
+
+  /* ===== 名前表示：PCは2段、モバイルは1行 ===== */
+
+  /* PCデフォルト */
+  :global(.name-desktop) {
+    display: block;
+  }
+
+  :global(.name-mobile-inline) {
+    display: none;
+  }
+
+  /* PC側の2段表示 */
+  :global(.name-desktop .name2-ja) {
+    font-weight: 700;
+  }
+
+  :global(.name-desktop .name2-en) {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.2;
+  }
+
+  /* デフォルト（PC）は非表示 */
+  :global(.mob-note-line) {
+    display: none;
+  }
+
+  /* モバイルだけ切替 */
+  @media (max-width: 768px) {
+    :global(.name-desktop) {
+      display: none !important;
+    }
+
+    :global(.name-mobile-inline) {
+      display: block !important;
+      font-weight: 700;
+      font-size: 13px;
+      line-height: 1.35;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    :global(.name-en-inline) {
+      font-weight: 400;
+      font-size: 11px;
+      color: #666;
+      margin-left: 4px;
+      white-space: nowrap;
+    }
+    .roster-table th:nth-child(10),
+    .roster-table td:nth-child(10) {
+      display: none !important;
+      width: 0 !important;
+      min-width: 0 !important;
+      max-width: 0 !important;
+      padding: 0 !important;
+      border: 0 !important;
+      overflow: hidden !important;
+    }
+
+    :global(.mob-note-line) {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      line-height: 1.3;
+      color: #b03a3a;
+    }
+
+    :global(.row-highlight .mob-note-line) {
+      color: #b03a3a;
+      font-weight: 600;
+    }
+  }
 </style>

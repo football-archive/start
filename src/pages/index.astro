@@ -40,7 +40,7 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(26);
+const updates = loadUpdates(9);
 
 // --------------------
 // 代表（WC2026 / 日本）
@@ -564,7 +564,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
         color-mix(in srgb, var(--theme-color) 75%, #ffffff)
       );
       border-radius: 14px;
-      padding: 20px;
+      padding: 16px;
     }
     .card-portal h2 {
       margin: 0 0 12px;
@@ -576,7 +576,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 6px; /* ←ここが“空きすぎ”の本丸 */
+      margin: 0 0 4px; /* ←ここが“空きすぎ”の本丸 */
     }
 
     .page-home .card-ico {
@@ -611,7 +611,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
     /* 区切り線は card-sep 1本に統一 */
     .card-sep {
-      margin-top: 10px;
+      margin-top: 8px;
       border-top: 1px dashed var(--border);
     }
 
@@ -637,27 +637,87 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
       color: rgba(255, 255, 255, 0.92);
       border-color: rgba(255, 255, 255, 0.25);
     }
+
     .portal-links {
       display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 8px;
     }
+
+    .portal-sub-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .portal-sub {
+      width: 100%;
+      text-align: center;
+    }
+
     .portal-btn {
-      background: rgba(255, 255, 255, 0.15);
-      padding: 8px 14px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
       border-radius: 999px;
       text-decoration: none;
-      color: #fff;
-      font-size: 0.9rem;
-      transition: 0.2s;
+      transition:
+        transform 0.08s ease,
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        opacity 0.15s ease;
     }
+
     .portal-btn:hover {
-      background: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
     }
+
     .portal-main {
       background: #fff;
       color: #111;
-      font-weight: bold;
+      font-weight: 800;
+      font-size: 15px;
+      line-height: 1.2;
+      padding: 10px 14px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+    }
+
+    .portal-main:hover {
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .portal-sub {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+      font-weight: 700;
+      font-size: 12px;
+      line-height: 1.2;
+      padding: 6px 8px;
+      opacity: 0.95;
+      width: 100%;
+      text-align: center;
+    }
+
+    .portal-sub:hover {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    @media (max-width: 768px) {
+      .grid-nt-main .wc-past-links,
+      .grid-nt-main > .legend-btn {
+        display: none;
+      }
+
+      .wc-mobile-more {
+        display: block;
+        margin-top: 8px;
+        font-size: 13px;
+      }
+
+      .wc-mobile-more a {
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 12px;
+      }
     }
 
     /* ==========================
@@ -894,7 +954,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
     /* ✅ WCカード内：代表ポータル導線 */
     .grid-nt-main .nt-portal-row {
-      margin-top: 10px;
+      margin-top: 8px;
     }
 
     .grid-nt-main .nt-portal-btn {
@@ -921,8 +981,8 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
     /* ✅ WCカード内：過去大会ミニ導線 */
     .grid-nt-main .wc-past-links {
-      margin-top: 10px;
-      padding-top: 10px;
+      margin-top: 8px;
+      padding-top: 8px;
       border-top: 1px dashed rgba(255, 255, 255, 0.35);
     }
 
@@ -1044,38 +1104,6 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
   <div class="container">
     <div class="hero">
-      <p class="subtitle">
-        Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
-        />
-        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。<br
-        /><br />
-        代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。
-      </p>
-
-      <section class="updates">
-        <h2>🆕 更新情報</h2>
-        {
-          updates.length === 0 ? (
-            <p class="muted">更新情報は準備中です。</p>
-          ) : (
-            <ul>
-              {updates.map((u, i) => (
-                <li class={i === 0 ? "is-latest" : ""}>
-                  <span class="date">{u.date.replaceAll("-", "/")}</span>
-                  {u.href ? (
-                    <a class="title-link" href={u.href}>
-                      <span class="title">{u.title}</span>
-                    </a>
-                  ) : (
-                    <span class="title">{u.title}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )
-        }
-      </section>
-
       <div class="grid">
         <!-- 🏆 WCポータルカード -->
         <div class="card card-portal theme-wc grid-nt-main">
@@ -1101,21 +1129,27 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             <a href="/wc/2026/#schedule" class="portal-btn portal-main"
               >試合日程・結果</a
             >
-            <a href="/wc/2026/#groups" class="portal-btn"
-              >グループリーグ勝敗表</a
-            >
-            <a href="/wc/2026/#rankings" class="portal-btn"
-              >得点・アシストランキング</a
-            >
-            <a href="/wc/2026/#awards" class="portal-btn">表彰</a>
+
+            <div class="portal-sub-grid">
+              <a href="/wc/2026/#groups" class="portal-btn portal-sub"
+                >グループリーグ勝敗表</a
+              >
+              <a href="/wc/2026/#rankings" class="portal-btn portal-sub"
+                >得点・アシストランキング</a
+              >
+              <a href="/wc/2026/#awards" class="portal-btn portal-sub">表彰</a>
+            </div>
           </div>
 
           <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
           <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
           <div class="nt-portal-row">
             <a class="nt-portal-btn" href="/nt">
-              代表トップへ（強豪国・日本代表・各国あゆみ）
+              強豪国・日本代表・各国あゆみを見る
             </a>
+          </div>
+          <div class="wc-mobile-more">
+            <a href="/nt/wc/legends">過去大会・歴代代表メンバーを見る</a>
           </div>
 
           <!-- ✅ 追加：過去大会ミニ導線 -->
@@ -1342,6 +1376,38 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
           </div>
         </div>
       </div>
+
+      <section class="updates">
+        <h2>🆕 更新情報</h2>
+        {
+          updates.length === 0 ? (
+            <p class="muted">更新情報は準備中です。</p>
+          ) : (
+            <ul>
+              {updates.map((u, i) => (
+                <li class={i === 0 ? "is-latest" : ""}>
+                  <span class="date">{u.date.replaceAll("-", "/")}</span>
+                  {u.href ? (
+                    <a class="title-link" href={u.href}>
+                      <span class="title">{u.title}</span>
+                    </a>
+                  ) : (
+                    <span class="title">{u.title}</span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )
+        }
+      </section>
+
+      <p class="subtitle">
+        Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
+        />
+        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。<br
+        /><br />
+        代表チーム / 海外クラブ / ワールドカップ の3つの軸から、世界サッカーを整理しています。
+      </p>
 
       <div class="footer">
         ※ 各更新日は、代表・クラブそれぞれの最新データ反映日を示しています。

@@ -184,6 +184,24 @@ const club2Html = (clubName?: string, href?: string) => {
   return `<a class="club-link" href="${h}">${esc(c)}</a>`;
 };
 
+const mobileMetaLineHtml = (parts: (string | undefined)[]) => {
+  const items = parts.map((x) => String(x ?? "").trim()).filter(Boolean);
+  if (!items.length) return "";
+  return `<div class="mob-meta-line">${items.map(esc).join(`<span class="mob-sep">｜</span>`)}</div>`;
+};
+
+const mobileLinkMetaLineHtml = (parts: string[]) => {
+  const items = parts.map((x) => String(x ?? "").trim()).filter(Boolean);
+  if (!items.length) return "";
+  return `<div class="mob-meta-line">${items.join(`<span class="mob-sep">｜</span>`)}</div>`;
+};
+
+const mobileNoteLineHtml = (note?: string) => {
+  const v = String(note ?? "").trim();
+  if (!v) return "";
+  return `<div class="mob-note-line">備考：${esc(v)}</div>`;
+};
+
 type BuildClubColumnsArgs = {
   isLatestView: boolean;
   repLabel: (row: { name_en?: string; birth_date?: string }) => string;
@@ -197,6 +215,86 @@ type BuildClubColumnsArgs = {
   }) => { label: string; href: string }[];
   tournamentLinks?: (row: ClubRow) => { label: string; href: string }[];
   showStats?: boolean;
+};
+
+const clubNameMobileHtml = ({
+  row,
+  repLabel,
+  repLinks,
+  repHistoryLinks,
+}: {
+  row: ClubRow;
+  repLabel: (row: { name_en?: string; birth_date?: string }) => string;
+  repLinks: (row: {
+    name_en?: string;
+    birth_date?: string;
+  }) => { label: string; href: string }[];
+  repHistoryLinks?: (row: {
+    name_en?: string;
+    birth_date?: string;
+  }) => { label: string; href: string }[];
+}) => {
+  const ja = String(row.name_ja ?? "").trim();
+  const en = String(row.name_en ?? "").trim();
+
+  const mobileName =
+    !ja && !en
+      ? ""
+      : !ja
+        ? esc(en)
+        : !en || ja === en
+          ? esc(ja)
+          : `${esc(ja)}<span class="name-en-inline">（${esc(en)}）</span>`;
+
+  const nameHtml = `
+    <div class="name-desktop">
+      ${name2Html(row.name_ja, row.name_en)}
+    </div>
+    <div class="name-mobile-inline">
+      ${mobileName}
+    </div>
+  `;
+
+  // 2段目：選手属性
+  const birth = toYMD(row.birth_date);
+  const age = calcAge(row.birth_date, row.snapshot_date);
+  const height = toInt(row.height_cm);
+  const natRaw = String(row.nationality ?? "").trim();
+
+  const line2 = mobileLinkMetaLineHtml([
+    birth ? `${birth}生` : "",
+    age ? `${age}歳` : "",
+    height ? `${height}cm` : "",
+    natRaw ? `国籍：${natRaw}` : "",
+  ]);
+
+  // 3段目：加入日（将来GA等を足す段）
+  const joinDate = toYM(row.join_date);
+
+  const line3 = mobileLinkMetaLineHtml([
+    joinDate ? `<span class="mob-label-join">加入日：</span>${joinDate}` : "",
+  ]);
+
+  // 4段目：代表情報 + 備考
+  const repHtml = rep2Html(
+    repLabel(row),
+    repLinks(row),
+    repHistoryLinks?.(row) ?? [],
+  );
+
+  const note = String(row.notes ?? "").trim();
+
+  const line4 = mobileLinkMetaLineHtml([repHtml || ""]);
+
+  const noteLine = mobileNoteLineHtml(note);
+
+  return `<div class="namecell-mobile">
+  <div class="namecell-main">${nameHtml}</div>
+  ${line2}
+  ${line3}
+  ${line4}
+  ${noteLine}
+</div>`;
 };
 
 export const buildClubColumns = ({
@@ -223,8 +321,14 @@ export const buildClubColumns = ({
     {
       key: "name",
       header: "選手名",
-      html: true, // ✅ 追加
-      render: (r) => name2Html(r.name_ja, r.name_en),
+      html: true,
+      render: (r) =>
+        clubNameMobileHtml({
+          row: r,
+          repLabel,
+          repLinks,
+          repHistoryLinks,
+        }),
     },
 
     // 加入日
@@ -322,6 +426,88 @@ type BuildNtColumnsArgs = {
   tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
 };
 
+const ntNameMobileHtml = ({
+  row,
+  clubLabel,
+  clubHref,
+  tournamentLinks,
+}: {
+  row: NtRow;
+  clubLabel?: (clubName: string) => string;
+  clubHref?: (clubName: string) => string;
+  tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
+}) => {
+  const ja = String(row.name_ja ?? "").trim();
+  const en = String(row.name_en ?? "").trim();
+
+  const mobileName =
+    !ja && !en
+      ? ""
+      : !ja
+        ? esc(en)
+        : !en || ja === en
+          ? esc(ja)
+          : `${esc(ja)}<span class="name-en-inline">（${esc(en)}）</span>`;
+
+  const nameHtml = `
+    <div class="name-desktop">
+      ${name2Html(row.name_ja, row.name_en)}
+    </div>
+    <div class="name-mobile-inline">
+      ${mobileName}
+    </div>
+  `;
+
+  // 2段目：選手属性
+  const birth = toYMD(row.birth_date);
+  const age = calcAge(row.birth_date, row.snapshot_date);
+  const height = toInt(row.height_cm);
+
+  const line2 = mobileLinkMetaLineHtml([
+    birth ? `${birth}生` : "",
+    age ? `${age}歳` : "",
+    height ? `${height}cm` : "",
+  ]);
+
+  // 3段目：代表履歴（デビュー + 招集歴）
+  const debut = toYM(row.national_debut);
+  const editions = editionLinksHtml(tournamentLinks?.(row) ?? []);
+
+  const debutText = debut
+    ? `<span class="mob-label-debut">代表デビュー：</span>${esc(debut)}`
+    : "";
+
+  const editionsText = editions
+    ? `<span class="mob-label-debut">招集歴：${editions}`
+    : "";
+
+  const line3 = mobileLinkMetaLineHtml([debutText, editionsText]);
+
+  // 4段目：所属クラブ + 備考
+  const rawClub = String(row.current_club ?? "").trim();
+  const clubText = rawClub
+    ? clubHref?.(rawClub)
+      ? `<a class="club-link" href="${esc(clubHref(rawClub))}">${esc(
+          clubLabel ? clubLabel(rawClub) : rawClub,
+        )}</a>`
+      : esc(clubLabel ? clubLabel(rawClub) : rawClub)
+    : "";
+
+  const note = String(row.notes ?? "").trim();
+
+  const line4 = mobileLinkMetaLineHtml([clubText]);
+
+  const noteLine = mobileNoteLineHtml(note);
+
+  return `<div class="namecell-mobile">
+  <div class="namecell-main">${nameHtml}</div>
+  ${line2}
+  ${line3}
+  ${line4}
+  ${noteLine}
+</div>`;
+};
+
 export const buildNtColumns = ({
   isLatestView,
   showStats = false,
@@ -347,7 +533,13 @@ export const buildNtColumns = ({
       key: "name",
       header: "選手名",
       html: true,
-      render: (r) => name2Html(r.name_ja, r.name_en),
+      render: (r) =>
+        ntNameMobileHtml({
+          row: r,
+          clubLabel,
+          clubHref,
+          tournamentLinks,
+        }),
     },
     {
       key: "nt_debut_date",
@@ -360,7 +552,7 @@ export const buildNtColumns = ({
       header: "W杯招集歴",
       align: "center",
       html: true,
-      render: (r) => editionLinksHtml(tournamentLinks(r) ?? []),
+      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
     },
     {
       key: "club",

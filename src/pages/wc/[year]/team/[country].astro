@@ -532,10 +532,16 @@ const clubHref = (clubName: string) => {
   )}&window=${encodeURIComponent(win)}`;
 };
 
+const clubLabel = (clubName: string) => {
+  const c = resolveClubMaster(clubName);
+  return c?.club_display_ja || clubName;
+};
+
 const columns = buildNtColumns({
   isLatestView: true,
   showStats: false,
   clubHref,
+  clubLabel, // ← ★追加
 
   tournamentLinks: (r) => {
     const k = `${normalize(r.name_en || r.name_ja)}|${normalize(r.birth_date)}`;
@@ -1142,6 +1148,37 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .nt-nav-row:last-child {
       margin-bottom: 0;
+    }
+
+    @media (max-width: 768px) {
+      .star-block {
+        padding: 10px 12px;
+      }
+
+      .star-title {
+        font-size: 14px;
+        margin-bottom: 8px;
+      }
+
+      .star-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .star-card {
+        padding: 6px 8px;
+        border-radius: 10px;
+      }
+
+      .star-name {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .star-pos {
+        font-size: 11px;
+      }
     }
   </style>
 </BaseLayout>

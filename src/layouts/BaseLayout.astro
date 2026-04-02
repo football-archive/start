@@ -481,6 +481,35 @@ const isProd = import.meta.env.PROD;
         }
 
         <slot />
+
+
+<footer class="site-footer">
+  <a href="/about">運営者情報</a>
+  <span>｜</span>
+  <a href="/privacy">プライバシーポリシー</a>
+  <span>｜</span>
+  <a href="/contact">お問い合わせ</a>
+</footer>
+
+<style>
+.site-footer {
+  margin-top: 40px;
+  padding-top: 16px;
+  border-top: 1px solid #e6e6e6;
+  font-size: 12px;
+  text-align: center;
+}
+
+.site-footer a {
+  color: #888;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
+}
+</style>
+
       </div>
     </main>
   </body>
