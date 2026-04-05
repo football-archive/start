@@ -7,6 +7,7 @@ import { parseCsv } from "../../../lib/csvSimple";
 
 import { loadClubMaster } from "../../../lib/clubMaster";
 import { loadLeagueMaster } from "../../../lib/leagueMaster";
+import { clubUrl } from "../../../lib/urls";
 import { loadClubSquads } from "../../../lib/clubSquads";
 import { toYMD } from "../../../lib/rosterFormat";
 
@@ -228,7 +229,11 @@ function seasonSquadCount(season: string) {
 // link: 既存クラブ詳細（スカッド）へ season クエリで飛ばす
 const clubSquadHref = (season: string) =>
   leagueKey && clubKey
-    ? `/clubs/${encodeURIComponent(leagueKey)}/${encodeURIComponent(clubKey)}?season=${encodeURIComponent(season)}`
+    ? clubUrl({
+        leagueKey,
+        clubKey,
+        season: season as `${number}${number}${number}${number}-${number}${number}`,
+      })
     : `/clubs`;
 
 // meta

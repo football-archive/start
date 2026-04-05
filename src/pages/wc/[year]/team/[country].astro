@@ -17,6 +17,8 @@ import { toYMD } from "../../../../lib/rosterFormat";
 
 import { loadLeagueMaster } from "../../../../lib/leagueMaster";
 
+import { clubUrl } from "../../../../lib/urls";
+
 // ====================
 // getStaticPaths
 // 重要：params.country は「未エンコードの国名」を返す
@@ -527,9 +529,13 @@ const clubHref = (clubName: string) => {
   }
 
   // ✅ clubページ側は ?season= &window= を受け取って初期表示を切替できる
-  return `/clubs/${c.league_key}/${c.club_key}?season=${encodeURIComponent(
-    mapped.season,
-  )}&window=${encodeURIComponent(win)}`;
+  return (
+    clubUrl({
+      leagueKey: c.league_key,
+      clubKey: c.club_key,
+      season: mapped.season as any,
+    }) + `&window=${encodeURIComponent(win)}`
+  );
 };
 
 const clubLabel = (clubName: string) => {

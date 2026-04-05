@@ -90,7 +90,7 @@ function expectedClubRoutes(clubRows) {
   // league_key/club_key は基本ASCII slugなので encode は不要（念のため enc してもOK）
   return [...keys].map((k) => {
     const [leagueKey, clubKey] = k.split("|||");
-    return `/clubs/${leagueKey}/${clubKey}`;
+    return `/clubs/${leagueKey}/club/${clubKey}`;
   });
 }
 

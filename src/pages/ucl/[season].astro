@@ -2,6 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../../lib/ucl";
 import { loadClubMaster } from "../../lib/clubMaster";
+import { clubUrl } from "../../lib/urls";
 
 // ✅ 静的生成
 export function getStaticPaths() {
@@ -14,13 +15,6 @@ const season = String(Astro.params.season ?? "").trim();
 const rows = loadUclLeaguePhaseBySeason(season);
 const clubMaster = loadClubMaster();
 const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
-
-const clubUrl = (clubKey: string) => {
-  const c: any = clubMap.get(clubKey);
-  if (!c) return "";
-  // clubs側は encode しても安全（キーに空白など入らない前提でも保険）
-  return `/clubs/${encodeURIComponent(c.league_key)}/${encodeURIComponent(c.club_key)}`;
-};
 
 const fmt = (v: any) => ((v ?? v === 0) ? String(v) : "—");
 
@@ -88,7 +82,15 @@ const seasons = getUclSeasons()
       <tbody>
         {
           rows.map((r: any) => {
-            const href = r.club_key ? clubUrl(String(r.club_key)) : "";
+            const href =
+              r.club_key && clubMap.get(String(r.club_key))
+                ? clubUrl({
+                    leagueKey: String(
+                      clubMap.get(String(r.club_key)).league_key,
+                    ),
+                    clubKey: String(r.club_key),
+                  })
+                : "";
             return (
               <tr>
                 <td>{fmt(r.rank)}</td>
