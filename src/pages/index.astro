@@ -243,7 +243,7 @@ const leagueShortcutsVisible = leagueShortcuts.filter(
   (x) => publicLeagueKeys.has(x.league) && leaguesInData.has(x.league),
 );
 
-const leagueHref = (leagueKey: string) => clubsListUrl({ leagueKey });
+const leagueHref = (leagueKey: string) => `/clubs/${leagueKey}`;
 
 // --------------------
 // UCL

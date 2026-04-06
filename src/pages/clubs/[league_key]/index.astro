@@ -1,0 +1,597 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+import { loadClubSquads } from "../../../lib/clubSquads";
+import { loadClubMaster } from "../../../lib/clubMaster";
+import { loadLeagueMaster } from "../../../lib/leagueMaster";
+import { clubUrl } from "../../../lib/urls";
+import { toYMD } from "../../../lib/rosterFormat";
+
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "../../../lib/csvSimple";
+
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+type LatestMeta = {
+  season: string;
+  window: string;
+  snapshot_date: string;
+};
+
+const isTrue = (v: any) => {
+  if (typeof v === "boolean") return v;
+  const s = String(v ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "true" || s === "1" || s === "yes" || s === "y" || s === "t";
+};
+
+const seasonStartYear = (season: any): number => {
+  const s = String(season ?? "").trim();
+  const m = s.match(/(\d{4})/);
+  if (!m) return 0;
+  const y = Number(m[1]);
+  return Number.isFinite(y) ? y : 0;
+};
+
+const windowRank = (w: any): number => {
+  const s = String(w ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "winter" ? 2 : 1;
+};
+
+const isNewerMeta = (a: LatestMeta, b: LatestMeta): boolean => {
+  const ay = seasonStartYear(a.season);
+  const by = seasonStartYear(b.season);
+  if (ay !== by) return ay > by;
+
+  const aw = windowRank(a.window);
+  const bw = windowRank(b.window);
+  if (aw !== bw) return aw > bw;
+
+  return String(a.snapshot_date ?? "") > String(b.snapshot_date ?? "");
+};
+
+// --------------------
+// league_key 正規化
+// --------------------
+const leagueMasterRows = loadLeagueMaster();
+
+const leagueAliasToKey = new Map<string, string>();
+for (const l of leagueMasterRows as any[]) {
+  const key = String(l.league_key ?? "").trim();
+  if (!key) continue;
+
+  const aliases = [
+    l.league_key,
+    l.league,
+    l.league_display_ja,
+    l.league_display_en,
+  ];
+
+  for (const a of aliases) {
+    const s = String(a ?? "").trim();
+    if (!s) continue;
+    leagueAliasToKey.set(s, key);
+    leagueAliasToKey.set(s.toLowerCase(), key);
+  }
+}
+
+function normalizeLeagueKey(v: any): string {
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  return leagueAliasToKey.get(s) ?? leagueAliasToKey.get(s.toLowerCase()) ?? s;
+}
+
+// --------------------
+// 公開リーグ / 公開クラブ
+// --------------------
+const publicLeagues = leagueMasterRows.filter((l: any) => isTrue(l.is_public));
+const publicLeagueKeys = new Set(
+  publicLeagues.map((l: any) => normalizeLeagueKey(l.league_key)),
+);
+
+const leagueByKey = new Map(
+  publicLeagues.map((l: any) => [normalizeLeagueKey(l.league_key), l]),
+);
+
+const rankByLeagueKey = new Map(
+  publicLeagues.map((l: any) => {
+    const key = normalizeLeagueKey(l.league_key);
+    const raw = String(l.sort_rank ?? "").trim();
+    const n = Number(raw);
+    return [key, Number.isFinite(n) ? n : 999] as const;
+  }),
+);
+
+const clubMasterRows = loadClubMaster().filter((c: any) => {
+  if ((c.status ?? "active") === "inactive") return false;
+  if (!isTrue(c.is_public ?? true)) return false;
+  return true;
+});
+
+const clubByKey = new Map(
+  clubMasterRows.map((c: any) => [String(c.club_key ?? "").trim(), c]),
+);
+
+function leagueSort(a: string, b: string) {
+  const ra = rankByLeagueKey.get(a) ?? 999;
+  const rb = rankByLeagueKey.get(b) ?? 999;
+  if (ra !== rb) return ra - rb;
+
+  const da = String(leagueByKey.get(a)?.league_display_ja ?? a);
+  const db = String(leagueByKey.get(b)?.league_display_ja ?? b);
+  return da.localeCompare(db, "ja");
+}
+
+// --------------------
+// getStaticPaths
+// --------------------
+export async function getStaticPaths() {
+  const rows = loadClubSquads();
+  const leagueMasterRows = loadLeagueMaster();
+  const clubMasterRows = loadClubMaster();
+
+  const isTrue = (v: any) => {
+    if (typeof v === "boolean") return v;
+    const s = String(v ?? "")
+      .trim()
+      .toLowerCase();
+    return s === "true" || s === "1" || s === "yes" || s === "y" || s === "t";
+  };
+
+  const leagueAliasToKey = new Map<string, string>();
+  for (const l of leagueMasterRows as any[]) {
+    const key = String(l.league_key ?? "").trim();
+    if (!key) continue;
+
+    const aliases = [
+      l.league_key,
+      l.league,
+      l.league_display_ja,
+      l.league_display_en,
+    ];
+
+    for (const a of aliases) {
+      const s = String(a ?? "").trim();
+      if (!s) continue;
+      leagueAliasToKey.set(s, key);
+      leagueAliasToKey.set(s.toLowerCase(), key);
+    }
+  }
+
+  const normalizeLeagueKey = (v: any): string => {
+    const s = String(v ?? "").trim();
+    if (!s) return "";
+    return (
+      leagueAliasToKey.get(s) ?? leagueAliasToKey.get(s.toLowerCase()) ?? s
+    );
+  };
+
+  const publicLeagues = leagueMasterRows.filter((l: any) =>
+    isTrue(l.is_public),
+  );
+  const publicLeagueKeys = new Set(
+    publicLeagues.map((l: any) => normalizeLeagueKey(l.league_key)),
+  );
+
+  const rankByLeagueKey = new Map(
+    publicLeagues.map((l: any) => {
+      const key = normalizeLeagueKey(l.league_key);
+      const raw = String(l.sort_rank ?? "").trim();
+      const n = Number(raw);
+      return [key, Number.isFinite(n) ? n : 999] as const;
+    }),
+  );
+
+  const leagueByKey = new Map(
+    publicLeagues.map((l: any) => [normalizeLeagueKey(l.league_key), l]),
+  );
+
+  const clubByKey = new Map(
+    clubMasterRows
+      .filter((c: any) => {
+        if ((c.status ?? "active") === "inactive") return false;
+        if (!isTrue(c.is_public ?? true)) return false;
+        return true;
+      })
+      .map((c: any) => [String(c.club_key ?? "").trim(), c]),
+  );
+
+  const leagueSort = (a: string, b: string) => {
+    const ra = rankByLeagueKey.get(a) ?? 999;
+    const rb = rankByLeagueKey.get(b) ?? 999;
+    if (ra !== rb) return ra - rb;
+
+    const da = String(leagueByKey.get(a)?.league_display_ja ?? a);
+    const db = String(leagueByKey.get(b)?.league_display_ja ?? b);
+    return da.localeCompare(db, "ja");
+  };
+
+  const keys = new Set<string>();
+  for (const r of rows as any[]) {
+    const lk = normalizeLeagueKey(r.league_key ?? r.league);
+    const ck = String(r.club_key ?? "").trim();
+    if (!lk || !ck) continue;
+    if (!publicLeagueKeys.has(lk)) continue;
+    if (!clubByKey.has(ck)) continue;
+    keys.add(lk);
+  }
+
+  return [...keys].sort(leagueSort).map((league_key) => ({
+    params: { league_key },
+  }));
+}
+
+// --------------------
+// Params
+// --------------------
+const { league_key } = Astro.params;
+const leagueKey = normalizeLeagueKey(league_key);
+
+const leagueInfo: any = leagueByKey.get(leagueKey);
+
+if (!leagueKey || !leagueInfo) {
+  throw new Error(`Unknown league_key: ${league_key}`);
+}
+
+// --------------------
+// rows
+// --------------------
+const rowsAll = loadClubSquads().filter((r: any) => {
+  const lk = normalizeLeagueKey(r.league_key ?? r.league);
+  const ck = String(r.club_key ?? "").trim();
+  if (!lk || !ck) return false;
+  if (lk !== leagueKey) return false;
+  if (!clubByKey.has(ck)) return false;
+  return true;
+});
+
+// league 内の club_key ごとに最新メタを決める
+const latestMetaByClub = new Map<string, LatestMeta>();
+
+for (const r of rowsAll as any[]) {
+  const clubKey = String(r.club_key ?? "").trim();
+  if (!clubKey) continue;
+
+  const meta: LatestMeta = {
+    season: String(r.season ?? "").trim(),
+    window: String(r.window ?? "")
+      .trim()
+      .toLowerCase(),
+    snapshot_date: String(r.snapshot_date ?? "").trim(),
+  };
+
+  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
+
+  const prev = latestMetaByClub.get(clubKey);
+  if (!prev || isNewerMeta(meta, prev)) latestMetaByClub.set(clubKey, meta);
+}
+
+// 最新行だけ拾って人数集計
+const clubCount = new Map<string, number>();
+
+for (const r of rowsAll as any[]) {
+  const clubKey = String(r.club_key ?? "").trim();
+  if (!clubKey) continue;
+
+  const meta: LatestMeta = {
+    season: String(r.season ?? "").trim(),
+    window: String(r.window ?? "")
+      .trim()
+      .toLowerCase(),
+    snapshot_date: String(r.snapshot_date ?? "").trim(),
+  };
+
+  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
+
+  const latest = latestMetaByClub.get(clubKey);
+  if (!latest) continue;
+
+  if (
+    meta.season !== latest.season ||
+    meta.window !== latest.window ||
+    meta.snapshot_date !== latest.snapshot_date
+  ) {
+    continue;
+  }
+
+  clubCount.set(clubKey, (clubCount.get(clubKey) ?? 0) + 1);
+}
+
+// 掲載シーズン一覧
+const standingsRows = readCsv("league_standings.csv") as any[];
+
+const seasons = Array.from(
+  new Set(
+    standingsRows
+      .filter((r: any) => normalizeLeagueKey(r.league_key) === leagueKey)
+      .map((r: any) => String(r.season ?? "").trim())
+      .filter(Boolean),
+  ),
+).sort((a, b) => seasonStartYear(b) - seasonStartYear(a));
+
+const latestSeason = Array.from(latestMetaByClub.values())
+  .map((m) => String(m.season ?? "").trim())
+  .filter(Boolean)
+  .sort((a, b) => {
+    const ay = seasonStartYear(a);
+    const by = seasonStartYear(b);
+    if (ay !== by) return by - ay;
+    return b.localeCompare(a);
+  })[0] ?? "";
+
+// 最新更新日
+let latestSnapshot = "";
+for (const r of rowsAll as any[]) {
+  const s = toYMD(String(r.snapshot_date ?? ""));
+  if (s && s > latestSnapshot) latestSnapshot = s;
+}
+
+// クラブ一覧
+const clubItems = [...latestMetaByClub.keys()]
+  .map((clubKey) => {
+    const c: any = clubByKey.get(clubKey);
+    if (!c) return null;
+
+    return {
+      club_key: clubKey,
+      name: String(c.club_display_ja ?? clubKey).trim(),
+      count: clubCount.get(clubKey) ?? 0,
+      href: clubUrl({ leagueKey, clubKey }),
+    };
+  })
+  .filter(Boolean) as {
+  club_key: string;
+  name: string;
+  count: number;
+  href: string;
+}[];
+
+clubItems.sort((a, b) => a.name.localeCompare(b.name, "ja"));
+
+// 他リーグピル
+const leaguePills = [...publicLeagueKeys]
+  .filter((lk) => lk !== leagueKey)
+  .sort(leagueSort)
+  .map((lk) => ({
+    league_key: lk,
+    label: String(leagueByKey.get(lk)?.league_display_ja ?? lk),
+    href: `/clubs/${lk}`,
+  }));
+
+const leagueName =
+  String(leagueInfo?.league_display_ja ?? "").trim() ||
+  String(leagueInfo?.league_display ?? "").trim() ||
+  leagueKey;
+
+const title = `${leagueName}｜クラブ一覧・シーズン別入口`;
+const description = `${leagueName}のクラブ一覧と掲載シーズン一覧です。各クラブの登録メンバー（スカッド）ページへ移動できます。`;
+
+const heading = leagueName;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-club"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "クラブ一覧", href: "/clubs" },
+    { label: leagueName },
+  ]}
+  heading={heading}
+>
+  <div
+    slot="under-title"
+    class="pills league-pills"
+    style="margin: 10px 0 14px;"
+  >
+    <a class="pill is-active" href={`/clubs/${leagueKey}`}>
+      <span class="dot" aria-hidden="true"></span>
+      {leagueName}
+    </a>
+
+    {
+      leaguePills.map((p) => (
+        <a class="pill" href={p.href}>
+          <span class="dot" aria-hidden="true" />
+          {p.label}
+        </a>
+      ))
+    }
+
+    <a class="pill" href="/clubs">
+      <span class="dot" aria-hidden="true"></span>
+      クラブ一覧へ
+    </a>
+  </div>
+
+  <section class="league-summary">
+    <div class="summary-meta">
+      <span>クラブ数：{clubItems.length}</span>
+      <span>掲載シーズン数：{seasons.length}</span>
+      <span>最終更新：{latestSnapshot || "—"}</span>
+    </div>
+  </section>
+
+  <section style="margin: 18px 0 20px;">
+    <h2 class="sec-title">掲載シーズン</h2>
+
+    <div class="season-pills">
+      {
+        seasons.length > 0 ? (
+          seasons.map((season) => (
+            <a
+              class={`season-pill ${season === latestSeason ? "is-active" : ""}`}
+              href={`/clubs/${leagueKey}/${season}`}
+            >
+              {season}
+            </a>
+          ))
+        ) : (
+          <span class="muted">準備中</span>
+        )
+      }
+    </div>
+
+    <p class="season-note">※ シーズン別ポータルページは順次追加予定です</p>
+  </section>
+
+  <section style="margin: 18px 0;">
+    <h2 class="sec-title">
+      {leagueName} クラブ一覧{latestSeason ? `（${latestSeason}）` : ""}
+    </h2>
+
+    <ul class="clubGrid">
+      {
+        clubItems.map((it) => (
+          <li class="clubRow">
+            <a class="clubLink" href={it.href}>
+              {it.name}　<span class="cnt">({it.count})</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <style is:global>
+    .page-club .league-summary {
+      margin: 6px 0 10px;
+    }
+
+    .page-club .summary-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .page-club .sec-title {
+      margin: 0 0 8px;
+      color: var(--theme-color);
+    }
+
+    .page-club .season-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-club .season-pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--theme-soft-border);
+      background: #fff;
+      color: #111;
+      font-size: 13px;
+      line-height: 1;
+    }
+
+    .page-club .season-pill.is-active {
+      background: var(--theme-soft-bg);
+      border-color: var(--theme-color);
+      font-weight: 700;
+    }
+
+    .page-club .season-note {
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .page-club .clubGrid {
+      list-style: none;
+      padding-left: 0;
+      margin: 10px 0 0;
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px 32px;
+    }
+
+    @media (max-width: 640px) {
+      .page-club .clubGrid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (min-width: 1100px) {
+      .page-club .clubGrid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px 36px;
+      }
+    }
+
+    @media (min-width: 1500px) {
+      .page-club .clubGrid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px 40px;
+      }
+    }
+
+    .page-club .clubRow {
+      min-width: 0;
+    }
+
+    .page-club .clubLink {
+      display: inline-block;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-club .cnt {
+      opacity: 0.55;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .page-club section a:link,
+    .page-club section a:visited {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club section a:hover {
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .pill {
+      border-color: var(--theme-soft-border);
+    }
+
+    .page-club .pill:hover {
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .pill .dot {
+      background: var(--theme-color);
+      opacity: 0.6;
+    }
+
+    .page-club .pill.is-active {
+      border-color: var(--theme-color);
+      background: var(--theme-soft-bg);
+      font-weight: 700;
+    }
+
+    .page-club .pill.is-active .dot {
+      opacity: 1;
+    }
+  </style>
+</BaseLayout>

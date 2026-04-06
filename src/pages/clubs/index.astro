@@ -262,6 +262,19 @@ const sections = leagueKeys.map((lk) => {
   heading="一覧"
 >
   {/* パンくず＆H1の直下に “リーグピル” を差し込む */}
+  <section style="margin: 10px 0 18px;">
+    <h2 style="margin: 0 0 8px;">主要リーグ</h2>
+
+    <div class="leagueGrid">
+      {
+        pillLeagues.map((p) => (
+          <a class="leagueCard" href={`/clubs/${p.league_key}`}>
+            {p.label}
+          </a>
+        ))
+      }
+    </div>
+  </section>
   <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
     {
       pillLeagues.map((p) => (
@@ -446,6 +459,36 @@ const sections = leagueKeys.map((lk) => {
     }
     .page-club .pill.is-active .dot {
       opacity: 1;
+    }
+
+    .page-club .leagueGrid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    @media (min-width: 768px) {
+      .page-club .leagueGrid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .page-club .leagueCard {
+      display: block;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: var(--theme-soft-bg);
+      border: 1px solid var(--theme-soft-border);
+      text-decoration: none;
+      color: #111;
+      font-weight: 700;
+      transition: 0.1s ease;
+    }
+
+    .page-club .leagueCard:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
     }
   </style>
 </BaseLayout>

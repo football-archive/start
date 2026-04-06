@@ -1,0 +1,740 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+
+import fs from "node:fs";
+import path from "node:path";
+
+import { parseCsv } from "../../../lib/csvSimple";
+import { loadLeagueMaster } from "../../../lib/leagueMaster";
+import { loadClubMaster } from "../../../lib/clubMaster";
+import { clubUrl } from "../../../lib/urls";
+import { loadClubSquads } from "../../../lib/clubSquads";
+
+type LeagueStandingRow = {
+  league_key: string;
+  season: string;
+  rank: string;
+  club_key: string;
+  played?: string;
+  win?: string;
+  draw?: string;
+  loss?: string;
+  gf?: string;
+  ga?: string;
+  gd?: string;
+  points?: string;
+  status_code?: string;
+  status_note?: string;
+};
+
+type LeagueSeasonSummaryRow = {
+  league_key: string;
+  season: string;
+  champion_club_key?: string;
+  runnerup_club_key?: string;
+  third_club_key?: string;
+  top_scorer_name?: string;
+  top_scorer_goals?: string;
+  top_scorer_club_keys?: string;
+  note?: string;
+};
+
+const isTrue = (v: any) => {
+  if (typeof v === "boolean") return v;
+  const s = String(v ?? "")
+    .trim()
+    .toLowerCase();
+  return s === "true" || s === "1" || s === "yes" || s === "y" || s === "t";
+};
+
+function readCsv(fileName: string) {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+}
+
+function seasonStartYear(season: any): number {
+  const s = String(season ?? "").trim();
+  const m = s.match(/(\d{4})/);
+  if (!m) return 0;
+  const y = Number(m[1]);
+  return Number.isFinite(y) ? y : 0;
+}
+
+// --------------------
+// league_key 正規化
+// --------------------
+const leagueMasterRows = loadLeagueMaster();
+
+const leagueAliasToKey = new Map<string, string>();
+for (const l of leagueMasterRows as any[]) {
+  const key = String(l.league_key ?? "").trim();
+  if (!key) continue;
+
+  const aliases = [
+    l.league_key,
+    l.league,
+    l.league_display_ja,
+    l.league_display_en,
+  ];
+
+  for (const a of aliases) {
+    const s = String(a ?? "").trim();
+    if (!s) continue;
+    leagueAliasToKey.set(s, key);
+    leagueAliasToKey.set(s.toLowerCase(), key);
+  }
+}
+
+function normalizeLeagueKey(v: any): string {
+  const s = String(v ?? "").trim();
+  if (!s) return "";
+  return leagueAliasToKey.get(s) ?? leagueAliasToKey.get(s.toLowerCase()) ?? s;
+}
+
+// --------------------
+// 公開リーグ / 公開クラブ
+// --------------------
+const publicLeagues = leagueMasterRows.filter((l: any) => isTrue(l.is_public));
+const leagueByKey = new Map(
+  publicLeagues.map((l: any) => [normalizeLeagueKey(l.league_key), l]),
+);
+
+const clubMasterRows = loadClubMaster().filter((c: any) => {
+  if ((c.status ?? "active") === "inactive") return false;
+  if (!isTrue(c.is_public ?? true)) return false;
+  return true;
+});
+
+const clubByKey = new Map(
+  clubMasterRows.map((c: any) => [String(c.club_key ?? "").trim(), c]),
+);
+
+// --------------------
+// getStaticPaths
+// standings.csv ベースで生成
+// --------------------
+export async function getStaticPaths() {
+  const ROOT = process.cwd();
+
+  const readCsvLocal = (fileName: string) => {
+    const p = path.join(ROOT, "src", "data", fileName);
+    const text = fs.readFileSync(p, "utf-8");
+    return parseCsv(text);
+  };
+
+  const isTrueLocal = (v: any) => {
+    if (typeof v === "boolean") return v;
+    const s = String(v ?? "")
+      .trim()
+      .toLowerCase();
+    return s === "true" || s === "1" || s === "yes" || s === "y" || s === "t";
+  };
+
+  const leagueMasterRowsLocal = loadLeagueMaster();
+  const clubMasterRowsLocal = loadClubMaster();
+
+  const leagueAliasToKeyLocal = new Map<string, string>();
+  for (const l of leagueMasterRowsLocal as any[]) {
+    const key = String(l.league_key ?? "").trim();
+    if (!key) continue;
+
+    const aliases = [
+      l.league_key,
+      l.league,
+      l.league_display_ja,
+      l.league_display_en,
+    ];
+
+    for (const a of aliases) {
+      const s = String(a ?? "").trim();
+      if (!s) continue;
+      leagueAliasToKeyLocal.set(s, key);
+      leagueAliasToKeyLocal.set(s.toLowerCase(), key);
+    }
+  }
+
+  const normalizeLeagueKeyLocal = (v: any): string => {
+    const s = String(v ?? "").trim();
+    if (!s) return "";
+    return (
+      leagueAliasToKeyLocal.get(s) ??
+      leagueAliasToKeyLocal.get(s.toLowerCase()) ??
+      s
+    );
+  };
+
+  const publicLeaguesLocal = leagueMasterRowsLocal.filter((l: any) =>
+    isTrueLocal(l.is_public),
+  );
+
+  const leagueByKeyLocal = new Map(
+    publicLeaguesLocal.map((l: any) => [
+      normalizeLeagueKeyLocal(l.league_key),
+      l,
+    ]),
+  );
+
+  const clubByKeyLocal = new Map(
+    clubMasterRowsLocal
+      .filter((c: any) => {
+        if ((c.status ?? "active") === "inactive") return false;
+        if (!isTrueLocal(c.is_public ?? true)) return false;
+        return true;
+      })
+      .map((c: any) => [String(c.club_key ?? "").trim(), c]),
+  );
+
+  const rows = readCsvLocal("league_standings.csv") as any[];
+
+  const keys = new Set<string>();
+  for (const r of rows) {
+    const league_key = normalizeLeagueKeyLocal(r.league_key);
+    const season = String(r.season ?? "").trim();
+    const club_key = String(r.club_key ?? "").trim();
+
+    if (!league_key || !season || !club_key) continue;
+    if (!leagueByKeyLocal.has(league_key)) continue;
+    if (!clubByKeyLocal.has(club_key)) continue;
+
+    keys.add(`${league_key}|||${season}`);
+  }
+
+  return [...keys].map((k) => {
+    const [league_key, season] = k.split("|||");
+    return { params: { league_key, season } };
+  });
+}
+
+// --------------------
+// Params
+// --------------------
+const { league_key, season } = Astro.params;
+
+const leagueKey = normalizeLeagueKey(league_key);
+const seasonKey = String(season ?? "").trim();
+
+const leagueInfo: any = leagueByKey.get(leagueKey);
+
+if (!leagueKey || !seasonKey || !leagueInfo) {
+  throw new Error(`Unknown route: ${league_key} / ${season}`);
+}
+
+// --------------------
+// CSV読込
+// --------------------
+const standingsAll = readCsv("league_standings.csv") as LeagueStandingRow[];
+const summaryAll = readCsv(
+  "league_season_summary.csv",
+) as LeagueSeasonSummaryRow[];
+
+const standings = standingsAll
+  .filter((r) => normalizeLeagueKey(r.league_key) === leagueKey)
+  .filter((r) => String(r.season ?? "").trim() === seasonKey)
+  .sort((a, b) => Number(a.rank) - Number(b.rank));
+
+const summary = summaryAll.find(
+  (r) =>
+    normalizeLeagueKey(r.league_key) === leagueKey &&
+    String(r.season ?? "").trim() === seasonKey,
+);
+
+// --------------------
+// シーズン一覧（そのリーグに存在するもの）
+// --------------------
+const seasons = Array.from(
+  new Set(
+    standingsAll
+      .filter((r) => normalizeLeagueKey(r.league_key) === leagueKey)
+      .map((r) => String(r.season ?? "").trim())
+      .filter(Boolean),
+  ),
+).sort((a, b) => seasonStartYear(b) - seasonStartYear(a));
+
+// --------------------
+// 表示補助
+// --------------------
+const leagueName =
+  String(leagueInfo?.league_display_ja ?? "").trim() ||
+  String(leagueInfo?.league_display ?? "").trim() ||
+  leagueKey;
+
+const clubName = (clubKey: string) => {
+  const c: any = clubByKey.get(String(clubKey ?? "").trim());
+  return String(c?.club_display_ja ?? clubKey).trim();
+};
+
+const clubHref = (clubKey: string) => {
+  const ck = String(clubKey ?? "").trim();
+  if (!ck || !hasClubSquad(ck)) return "";
+
+  return clubUrl({
+    leagueKey,
+    clubKey: ck,
+    season: seasonKey as any,
+  });
+};
+
+const squadRows = loadClubSquads();
+
+const availableClubSquadKeys = new Set(
+  squadRows
+    .filter(
+      (r: any) => normalizeLeagueKey(r.league_key ?? r.league) === leagueKey,
+    )
+    .filter((r: any) => String(r.season ?? "").trim() === seasonKey)
+    .map((r: any) => String(r.club_key ?? "").trim())
+    .filter(Boolean),
+);
+
+const hasClubSquad = (clubKey: string) =>
+  availableClubSquadKeys.has(String(clubKey ?? "").trim());
+
+const championName = summary?.champion_club_key
+  ? clubName(summary.champion_club_key)
+  : "";
+const runnerupName = summary?.runnerup_club_key
+  ? clubName(summary.runnerup_club_key)
+  : "";
+const thirdName = summary?.third_club_key
+  ? clubName(summary.third_club_key)
+  : "";
+
+const topScorerRaw = String(summary?.top_scorer_name ?? "").trim();
+const topScorerGoals = String(summary?.top_scorer_goals ?? "").trim();
+const topScorerClubRaw = String(summary?.top_scorer_club_key ?? "").trim();
+
+const topScorerNames = topScorerRaw
+  ? topScorerRaw
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : [];
+
+const topScorerClubKeys = topScorerClubRaw
+  ? topScorerClubRaw
+      .split("|")
+      .map((s) => s.trim())
+      .filter(Boolean)
+  : [];
+
+const topScorers = topScorerNames.map((name, i) => {
+  const clubKey = topScorerClubKeys[i] ?? "";
+  return {
+    name,
+    clubKey,
+    clubName: clubKey ? clubName(clubKey) : "",
+    href: clubKey && hasClubSquad(clubKey) ? clubHref(clubKey) : "",
+  };
+});
+
+const topScorerLabel =
+  topScorerNames.length > 0 ? topScorerNames.join(" / ") : "";
+
+const noteText = String(summary?.note ?? "").trim();
+
+const title = `${leagueName} ${seasonKey} 順位表｜最終順位・得点王・各クラブメンバー一覧`;
+const description = `${leagueName} ${seasonKey} の最終順位表です。優勝・上位クラブ・得点王と、各クラブのメンバー一覧ページへのリンクを掲載しています。`;
+const heading = `${leagueName} ${seasonKey}`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-club"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "クラブ一覧", href: "/clubs" },
+    { label: leagueName, href: `/clubs/${leagueKey}` },
+    { label: seasonKey },
+  ]}
+  heading={heading}
+>
+  <div
+    slot="under-title"
+    class="pills season-nav-pills"
+    style="margin: 10px 0 14px;"
+  >
+    <a class="pill" href={`/clubs/${leagueKey}`}>
+      <span class="dot" aria-hidden="true"></span>
+      {leagueName} トップ
+    </a>
+
+    {
+      seasons.map((s) => (
+        <a
+          class={`pill ${s === seasonKey ? "is-active" : ""}`}
+          href={`/clubs/${leagueKey}/${s}`}
+        >
+          <span class="dot" aria-hidden="true" />
+          {s}
+        </a>
+      ))
+    }
+
+    <a class="pill" href="/clubs">
+      <span class="dot" aria-hidden="true"></span>
+      クラブ一覧へ
+    </a>
+  </div>
+
+  <section class="season-summary">
+    <h2 class="sec-title">{leagueName} {seasonKey} シーズン概要</h2>
+
+    <div class="summary-grid">
+      <div class="summary-stack">
+        <div class="summary-card summary-card-podium">
+          <div class="k">上位クラブ</div>
+
+          <div class="podium-list">
+            <div class="podium-row">
+              <span class="podium-rank">1位</span>
+              <span class="podium-name">
+                {
+                  summary?.champion_club_key ? (
+                    hasClubSquad(summary.champion_club_key) ? (
+                      <a href={clubHref(summary.champion_club_key)}>
+                        {championName}
+                      </a>
+                    ) : (
+                      championName
+                    )
+                  ) : (
+                    "—"
+                  )
+                }
+              </span>
+            </div>
+
+            <div class="podium-row">
+              <span class="podium-rank">2位</span>
+              <span class="podium-name">
+                {
+                  summary?.runnerup_club_key ? (
+                    hasClubSquad(summary.runnerup_club_key) ? (
+                      <a href={clubHref(summary.runnerup_club_key)}>
+                        {runnerupName}
+                      </a>
+                    ) : (
+                      runnerupName
+                    )
+                  ) : (
+                    "—"
+                  )
+                }
+              </span>
+            </div>
+
+            <div class="podium-row">
+              <span class="podium-rank">3位</span>
+              <span class="podium-name">
+                {
+                  summary?.third_club_key ? (
+                    hasClubSquad(summary.third_club_key) ? (
+                      <a href={clubHref(summary.third_club_key)}>{thirdName}</a>
+                    ) : (
+                      thirdName
+                    )
+                  ) : (
+                    "—"
+                  )
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="summary-card summary-card-scorer">
+          <div class="k">得点王</div>
+
+          {
+            topScorers.length > 0 ? (
+              <div class="scorer-list">
+                {topScorers.map((p) => (
+                  <div class="scorer-row">
+                    <span class="scorer-name">🔥 {p.name}</span>
+                    {p.clubName &&
+                      (p.href ? (
+                        <a class="scorer-club" href={p.href}>
+                          {p.clubName}
+                        </a>
+                      ) : (
+                        <span class="scorer-club">{p.clubName}</span>
+                      ))}
+                  </div>
+                ))}
+                <div class="scorer-goals">
+                  {topScorerGoals ? `${topScorerGoals}得点` : ""}
+                </div>
+              </div>
+            ) : (
+              <div class="v">—</div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+
+    {noteText && <p class="summary-note">※ {noteText}</p>}
+  </section>
+
+  <section class="season-standings">
+    <h2 class="sec-title">{leagueName} {seasonKey} 順位表（最終順位）</h2>
+
+    {
+      standings.length > 0 ? (
+        <div class="table-wrap">
+          <table class="tbl standings-tbl">
+            <thead>
+              <tr>
+                <th class="num">順位</th>
+                <th>クラブ</th>
+                <th class="num">試</th>
+                <th class="num">勝</th>
+                <th class="num">分</th>
+                <th class="num">敗</th>
+                <th class="num">得</th>
+                <th class="num">失</th>
+                <th class="num">差</th>
+                <th class="num">点</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody>
+              {standings.map((r) => (
+                <tr>
+                  <td class="num">{r.rank}</td>
+                  <td>
+                    {hasClubSquad(String(r.club_key ?? "").trim()) ? (
+                      <a href={clubHref(String(r.club_key ?? "").trim())}>
+                        {clubName(String(r.club_key ?? "").trim())}
+                      </a>
+                    ) : (
+                      <span>{clubName(String(r.club_key ?? "").trim())}</span>
+                    )}
+                  </td>
+                  <td class="num">{r.played || "—"}</td>
+                  <td class="num">{r.win || "—"}</td>
+                  <td class="num">{r.draw || "—"}</td>
+                  <td class="num">{r.loss || "—"}</td>
+                  <td class="num">{r.gf || "—"}</td>
+                  <td class="num">{r.ga || "—"}</td>
+                  <td class="num">{r.gd || "—"}</td>
+                  <td class="num points">{r.points || "—"}</td>
+                  <td>{r.status_note || "—"}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : (
+        <p class="muted">順位表データは準備中です。</p>
+      )
+    }
+  </section>
+
+  <style is:global>
+    .page-club .sec-title {
+      margin: 0 0 10px;
+      color: var(--theme-color);
+    }
+
+    .page-club .season-summary,
+    .page-club .season-standings {
+      margin: 18px 0 22px;
+    }
+
+    .page-club .summary-stack {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .page-club .summary-card {
+      border: 1px solid var(--theme-soft-border);
+      background: var(--theme-soft-bg);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+
+    .page-club .summary-card .k {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .page-club .summary-card .v {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.45;
+    }
+
+    .page-club .summary-card-podium {
+      background: color-mix(in srgb, var(--theme-color) 20%, #ffffff);
+      border-color: color-mix(
+        in srgb,
+        var(--theme-color) 38%,
+        var(--theme-soft-border)
+      );
+    }
+
+    .page-club .podium-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .page-club .podium-row {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      padding: 2px 0;
+    }
+
+    .page-club .podium-rank {
+      min-width: 30px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--theme-color);
+    }
+
+    .page-club .podium-name {
+      font-size: 17px;
+      font-weight: 800;
+      line-height: 1.35;
+    }
+
+    .page-club .summary-card-scorer {
+      background: #fff;
+      border-color: var(--theme-soft-border);
+    }
+
+    .page-club .summary-card-scorer .v {
+      line-height: 1.5;
+      white-space: normal;
+    }
+
+    .page-club .summary-note {
+      margin: 10px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .page-club .table-wrap {
+      overflow: auto;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .page-club .tbl {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 860px;
+    }
+
+    .page-club .tbl thead th {
+      position: sticky;
+      top: 0;
+      background: color-mix(in srgb, var(--theme-color) 14%, white);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+      font-size: 12px;
+      font-weight: 800;
+      text-align: left;
+      padding: 10px 10px;
+      white-space: nowrap;
+      z-index: 3;
+    }
+
+    .page-club .tbl tbody td {
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      padding: 10px 10px;
+      font-size: 13px;
+      white-space: nowrap;
+      vertical-align: middle;
+    }
+
+    .page-club .tbl tbody tr:hover td {
+      background: rgba(0, 0, 0, 0.02);
+    }
+
+    .page-club .tbl .num {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .page-club .tbl .points {
+      font-weight: 800;
+    }
+
+    .page-club .pill {
+      border-color: var(--theme-soft-border);
+    }
+
+    .page-club .pill:hover {
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .pill .dot {
+      background: var(--theme-color);
+      opacity: 0.6;
+    }
+
+    .page-club .pill.is-active {
+      border-color: var(--theme-color);
+      background: var(--theme-soft-bg);
+      font-weight: 700;
+    }
+
+    .page-club .pill.is-active .dot {
+      opacity: 1;
+    }
+
+    .page-club section a:link,
+    .page-club section a:visited {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club section a:hover {
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .muted {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .page-club .scorer-list {
+  display: grid;
+  gap: 6px;
+}
+
+.page-club .scorer-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.page-club .scorer-name {
+  font-weight: 800;
+}
+
+.page-club .scorer-club {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.page-club .scorer-goals {
+  margin-top: 2px;
+  font-size: 13px;
+  color: var(--muted);
+  font-weight: 700;
+}
+  </style>
+</BaseLayout>
