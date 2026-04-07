@@ -317,15 +317,16 @@ const seasons = Array.from(
   ),
 ).sort((a, b) => seasonStartYear(b) - seasonStartYear(a));
 
-const latestSeason = Array.from(latestMetaByClub.values())
-  .map((m) => String(m.season ?? "").trim())
-  .filter(Boolean)
-  .sort((a, b) => {
-    const ay = seasonStartYear(a);
-    const by = seasonStartYear(b);
-    if (ay !== by) return by - ay;
-    return b.localeCompare(a);
-  })[0] ?? "";
+const latestSeason =
+  Array.from(latestMetaByClub.values())
+    .map((m) => String(m.season ?? "").trim())
+    .filter(Boolean)
+    .sort((a, b) => {
+      const ay = seasonStartYear(a);
+      const by = seasonStartYear(b);
+      if (ay !== by) return by - ay;
+      return b.localeCompare(a);
+    })[0] ?? "";
 
 // 最新更新日
 let latestSnapshot = "";
@@ -415,6 +416,11 @@ const heading = leagueName;
     </a>
   </div>
 
+  <p class="clubs-desc">
+    {
+      leagueName
+    }のクラブ一覧と掲載シーズン。シーズンごとの所属選手・背番号・移籍情報などを掲載しています。
+  </p>
   <section class="league-summary">
     <div class="summary-meta">
       <span>クラブ数：{clubItems.length}</span>
@@ -592,6 +598,13 @@ const heading = leagueName;
 
     .page-club .pill.is-active .dot {
       opacity: 1;
+    }
+
+    .clubs-desc {
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
     }
   </style>
 </BaseLayout>

@@ -382,6 +382,11 @@ const heading = `${leagueName} ${seasonKey}`;
 
   <section class="season-summary">
     <h2 class="sec-title">{leagueName} {seasonKey} シーズン概要</h2>
+    <p class="season-desc">
+      {leagueName}{
+        seasonKey
+      }シーズンの最終順位、勝点、得失点差、欧州大会出場クラブ（CL・EL）、得点王などを一覧で掲載。
+    </p>
 
     <div class="summary-grid">
       <div class="summary-stack">
@@ -710,31 +715,38 @@ const heading = `${leagueName} ${seasonKey}`;
     }
 
     .page-club .scorer-list {
-  display: grid;
-  gap: 6px;
-}
+      display: grid;
+      gap: 6px;
+    }
 
-.page-club .scorer-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: baseline;
-}
+    .page-club .scorer-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: baseline;
+    }
 
-.page-club .scorer-name {
-  font-weight: 800;
-}
+    .page-club .scorer-name {
+      font-weight: 800;
+    }
 
-.page-club .scorer-club {
-  font-size: 13px;
-  color: var(--muted);
-}
+    .page-club .scorer-club {
+      font-size: 13px;
+      color: var(--muted);
+    }
 
-.page-club .scorer-goals {
-  margin-top: 2px;
-  font-size: 13px;
-  color: var(--muted);
-  font-weight: 700;
-}
+    .page-club .scorer-goals {
+      margin-top: 2px;
+      font-size: 13px;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .page-club .season-desc {
+      margin: 0 0 10px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
   </style>
 </BaseLayout>

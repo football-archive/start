@@ -261,6 +261,9 @@ const sections = leagueKeys.map((lk) => {
   crumbs={[{ label: "トップ", href: "/" }, { label: "クラブ一覧" }]}
   heading="一覧"
 >
+  <p class="clubs-desc">
+    海外主要リーグのクラブ一覧。リーグごとにクラブ一覧やシーズン別データを見ることができます。
+  </p>
   {/* パンくず＆H1の直下に “リーグピル” を差し込む */}
   <section style="margin: 10px 0 18px;">
     <h2 style="margin: 0 0 8px;">主要リーグ</h2>
@@ -489,6 +492,13 @@ const sections = leagueKeys.map((lk) => {
     .page-club .leagueCard:hover {
       transform: translateY(-1px);
       box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+    }
+
+    .clubs-desc {
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.5;
     }
   </style>
 </BaseLayout>
