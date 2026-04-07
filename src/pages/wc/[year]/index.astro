@@ -74,8 +74,6 @@ const teamHref = (country: string) =>
 const teamHrefIfExists = (country: string) =>
   hasTeamPage(country) ? teamHref(country) : "";
 
-
-
 const latestCallupSnapshotRaw = filtered.reduce((max, r) => {
   const s = toYMD(String(r.snapshot_date ?? ""));
   if (!s) return max;
@@ -156,10 +154,10 @@ const eliminatedCountries = allCountries.filter(({ country }) =>
 
 const featuredCountryCandidates = [
   "日本",
-  "スコットランド",
-  "イングランド",
+  "アイスランド",
   "オランダ",
   "チュニジア",
+  "スウェーデン",
   "ブラジル",
   "モロッコ",
 ];
@@ -234,7 +232,15 @@ for (const [g, list] of standingsByGroup.entries()) {
 
 const awardGroups = getAwards("WC", String(year));
 
-const wcEditionCandidates = ["2026", "2022", "2018", "2014", "2010", "2006", "2002"];
+const wcEditionCandidates = [
+  "2026",
+  "2022",
+  "2018",
+  "2014",
+  "2010",
+  "2006",
+  "2002",
+];
 
 const wcEditionPills = wcEditionCandidates
   .filter((y) =>
@@ -261,6 +267,7 @@ const pageDesc = isCurrentEdition
   ? `${wcTitle}の出場48カ国一覧と各国代表メンバーを掲載。背番号・所属クラブ・グループ・試合日程・得点ランキングまでまとめて確認できます。最新のチーム情報を一覧でチェック。`
   : `${wcTitle}の出場国一覧と各国代表メンバーを掲載。グループ、試合日程、得点ランキングも確認できます。`;
 ---
+
 <BaseLayout
   title={pageTitle}
   description={pageDesc}
@@ -790,7 +797,7 @@ const pageDesc = isCurrentEdition
       color: var(--theme-color);
     }
 
-        /* ===== tournament pills ===== */
+    /* ===== tournament pills ===== */
     .page-wc .edition-switch {
       margin: 8px 0 12px;
     }

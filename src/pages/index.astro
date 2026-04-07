@@ -40,7 +40,7 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(9);
+const updates = loadUpdates(10);
 
 // --------------------
 // 代表（WC2026 / 日本）
@@ -1103,6 +1103,30 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
     }
   </style>
 
+  <section class="updates">
+    <h2>🆕 更新情報</h2>
+    {
+      updates.length === 0 ? (
+        <p class="muted">更新情報は準備中です。</p>
+      ) : (
+        <ul>
+          {updates.map((u, i) => (
+            <li class={i === 0 ? "is-latest" : ""}>
+              <span class="date">{u.date.replaceAll("-", "/")}</span>
+              {u.href ? (
+                <a class="title-link" href={u.href}>
+                  <span class="title">{u.title}</span>
+                </a>
+              ) : (
+                <span class="title">{u.title}</span>
+              )}
+            </li>
+          ))}
+        </ul>
+      )
+    }
+  </section>
+
   <div class="container">
     <div class="hero">
       <p class="subtitle">
@@ -1385,30 +1409,6 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
           </div>
         </div>
       </div>
-
-      <section class="updates">
-        <h2>🆕 更新情報</h2>
-        {
-          updates.length === 0 ? (
-            <p class="muted">更新情報は準備中です。</p>
-          ) : (
-            <ul>
-              {updates.map((u, i) => (
-                <li class={i === 0 ? "is-latest" : ""}>
-                  <span class="date">{u.date.replaceAll("-", "/")}</span>
-                  {u.href ? (
-                    <a class="title-link" href={u.href}>
-                      <span class="title">{u.title}</span>
-                    </a>
-                  ) : (
-                    <span class="title">{u.title}</span>
-                  )}
-                </li>
-              ))}
-            </ul>
-          )
-        }
-      </section>
 
       <div class="footer">
         ※ 各更新日は、代表・クラブそれぞれの最新データ反映日を示しています。

@@ -442,16 +442,30 @@ const leagueKeyToName = new Map(
 
 const leagueCounts: Record<string, number> = {};
 
-for (const r of rows as any[]) {
-  const club = String(r.current_club ?? "").trim();
-  const c = resolveClubMaster(club);
-  if (!c) continue;
+const clubSquads = loadClubSquads();
+const mapped = mapWcToClubSeason(String(year));
 
-  const name = leagueKeyToName.get(c.league_key);
-  if (!name) continue;
+if (mapped) {
+  for (const r of rows as any[]) {
+    const club = String(r.current_club ?? "").trim();
+    const c = resolveClubMaster(club);
+    if (!c) continue;
 
-  if (!leagueCounts[name]) leagueCounts[name] = 0;
-  leagueCounts[name]++;
+    const squad = clubSquads.find(
+      (s) =>
+        s.season === mapped.season &&
+        s.window === mapped.window &&
+        s.club_key === c.club_key,
+    );
+
+    if (!squad) continue;
+
+    const name = leagueKeyToName.get(squad.league_key);
+    if (!name) continue;
+
+    if (!leagueCounts[name]) leagueCounts[name] = 0;
+    leagueCounts[name]++;
+  }
 }
 
 // 5大リーグ順
