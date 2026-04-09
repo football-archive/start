@@ -125,79 +125,48 @@ function isNewerMeta(a: any, b: any): boolean {
 }
 
 // league_key -> Set<club_key>
+// league_key -> 最新掲載シーズン
+const latestSeasonByLeague = new Map<string, string>();
+
+// league_key -> Set<club_key>（最新掲載シーズンに所属するクラブのみ）
 const leagueClubs = new Map<string, Set<string>>();
 
-// league_key|||club_key -> count（最新の season+window+snapshot の行だけ数える）
+// league_key|||club_key -> count（最新掲載シーズンの人数）
 const clubCount = new Map<string, number>();
 
-// 1) league|||club ごとの最新メタ（season/window/snapshot_date）を作る
-type LatestMeta = {
-  season: string;
-  window: string; // "summer" | "winter" | ""
-  snapshot_date: string; // "YYYY-MM-DD" etc
-};
-
-const latestMetaByClub = new Map<string, LatestMeta>();
-
+// 1) リーグごとの最新シーズンを決める
 for (const r of rows as any[]) {
   const league_key = normalizeLeagueKey(r.league_key ?? r.league);
   const club_key = String(r.club_key || "").trim();
-  if (!league_key || !club_key) continue;
+  const season = String(r.season ?? "").trim();
 
-  // 公開リーグ以外は対象外
+  if (!league_key || !club_key || !season) continue;
   if (!leagueByKey.has(league_key)) continue;
-  // 公開クラブ以外は対象外
   if (!clubByKey.has(club_key)) continue;
 
-  const meta: LatestMeta = {
-    season: String(r.season ?? "").trim(),
-    window: String(r.window ?? "")
-      .trim()
-      .toLowerCase(),
-    snapshot_date: String(r.snapshot_date ?? "").trim(),
-  };
-
-  // window の値が変でも、比較上は summer 扱いに落ちるだけにしておく
-  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
-
-  const k = `${league_key}|||${club_key}`;
-  const prev = latestMetaByClub.get(k);
-  if (!prev || isNewerMeta(meta, prev)) latestMetaByClub.set(k, meta);
+  const prev = latestSeasonByLeague.get(league_key);
+  if (!prev || seasonStartYear(season) > seasonStartYear(prev)) {
+    latestSeasonByLeague.set(league_key, season);
+  }
 }
 
-// 2) 最新メタに一致する行だけ count / leagueClubs に入れる
+// 2) 最新掲載シーズンのクラブだけを leagueClubs / clubCount に入れる
 for (const r of rows as any[]) {
   const league_key = normalizeLeagueKey(r.league_key ?? r.league);
   const club_key = String(r.club_key || "").trim();
-  if (!league_key || !club_key) continue;
+  const season = String(r.season ?? "").trim();
 
+  if (!league_key || !club_key || !season) continue;
   if (!leagueByKey.has(league_key)) continue;
   if (!clubByKey.has(club_key)) continue;
 
-  const meta: LatestMeta = {
-    season: String(r.season ?? "").trim(),
-    window: String(r.window ?? "")
-      .trim()
-      .toLowerCase(),
-    snapshot_date: String(r.snapshot_date ?? "").trim(),
-  };
-  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
-
-  const k = `${league_key}|||${club_key}`;
-  const latest = latestMetaByClub.get(k);
-
-  if (!latest) continue;
-  if (
-    meta.season !== latest.season ||
-    meta.window !== latest.window ||
-    meta.snapshot_date !== latest.snapshot_date
-  ) {
-    continue;
-  }
+  const latestSeason = latestSeasonByLeague.get(league_key);
+  if (!latestSeason || season !== latestSeason) continue;
 
   if (!leagueClubs.has(league_key)) leagueClubs.set(league_key, new Set());
   leagueClubs.get(league_key)!.add(club_key);
 
+  const k = `${league_key}|||${club_key}`;
   clubCount.set(k, (clubCount.get(k) ?? 0) + 1);
 }
 
@@ -214,6 +183,7 @@ leagueKeys.sort(leagueSort);
 
 const sections = leagueKeys.map((lk) => {
   const leagueLabel = leagueByKey.get(lk)?.league_display_ja ?? lk;
+  const latestSeason = latestSeasonByLeague.get(lk) ?? "";
 
   const clubKeys = [...(leagueClubs.get(lk) ?? new Set<string>())];
 
@@ -248,7 +218,13 @@ const sections = leagueKeys.map((lk) => {
     href: string;
   }[];
 
-  return { league_key: lk, leagueLabel, count: items.length, items };
+  return {
+    league_key: lk,
+    leagueLabel,
+    latestSeason,
+    count: items.length,
+    items,
+  };
 });
 ---
 
@@ -296,7 +272,8 @@ const sections = leagueKeys.map((lk) => {
     sections.map((s) => (
       <section data-league={s.league_key} style="margin: 18px 0;">
         <h2 style="margin: 0 0 6px;">
-          {s.leagueLabel} ({s.count})
+          {s.leagueLabel}
+          {s.latestSeason ? `（${s.latestSeason}）` : ""} ({s.count})
         </h2>
 
         <ul class="clubGrid">

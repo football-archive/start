@@ -274,36 +274,7 @@ for (const r of rowsAll as any[]) {
   if (!prev || isNewerMeta(meta, prev)) latestMetaByClub.set(clubKey, meta);
 }
 
-// 最新行だけ拾って人数集計
-const clubCount = new Map<string, number>();
 
-for (const r of rowsAll as any[]) {
-  const clubKey = String(r.club_key ?? "").trim();
-  if (!clubKey) continue;
-
-  const meta: LatestMeta = {
-    season: String(r.season ?? "").trim(),
-    window: String(r.window ?? "")
-      .trim()
-      .toLowerCase(),
-    snapshot_date: String(r.snapshot_date ?? "").trim(),
-  };
-
-  if (meta.window !== "summer" && meta.window !== "winter") meta.window = "";
-
-  const latest = latestMetaByClub.get(clubKey);
-  if (!latest) continue;
-
-  if (
-    meta.season !== latest.season ||
-    meta.window !== latest.window ||
-    meta.snapshot_date !== latest.snapshot_date
-  ) {
-    continue;
-  }
-
-  clubCount.set(clubKey, (clubCount.get(clubKey) ?? 0) + 1);
-}
 
 // 掲載シーズン一覧
 const standingsRows = readCsv("league_standings.csv") as any[];
@@ -328,6 +299,27 @@ const latestSeason =
       return b.localeCompare(a);
     })[0] ?? "";
 
+const visibleClubKeys = Array.from(
+  new Set(
+    rowsAll
+      .filter((r: any) => String(r.season ?? "").trim() === latestSeason)
+      .map((r: any) => String(r.club_key ?? "").trim())
+      .filter(Boolean),
+  ),
+);
+
+// 最新行だけ拾って人数集計
+const clubCount = new Map<string, number>();
+
+for (const r of rowsAll as any[]) {
+  const season = String(r.season ?? "").trim();
+  const clubKey = String(r.club_key ?? "").trim();
+  if (!clubKey) continue;
+  if (season !== latestSeason) continue;
+
+  clubCount.set(clubKey, (clubCount.get(clubKey) ?? 0) + 1);
+}
+
 // 最新更新日
 let latestSnapshot = "";
 for (const r of rowsAll as any[]) {
@@ -336,7 +328,7 @@ for (const r of rowsAll as any[]) {
 }
 
 // クラブ一覧
-const clubItems = [...latestMetaByClub.keys()]
+const clubItems = visibleClubKeys
   .map((clubKey) => {
     const c: any = clubByKey.get(clubKey);
     if (!c) return null;
