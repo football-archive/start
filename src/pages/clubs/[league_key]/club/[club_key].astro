@@ -652,7 +652,7 @@ const searchTextFn = (r: any) =>
           style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
           aria-label={`注目選手（冬 ${p.season}）`}
         >
-          <h2 class="star-title">⭐ 注目選手</h2>
+          <h2 class="star-title">⭐ 注目選手（新加入など）</h2>
           {p.starRowsWinter.length > 0 ? (
             <div class="star-grid">
               {p.starRowsWinter.map((r) => (
