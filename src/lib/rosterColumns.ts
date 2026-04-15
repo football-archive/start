@@ -255,37 +255,36 @@ const clubNameMobileHtml = ({
     </div>
   `;
 
-  // 2段目：選手属性
-  const birth = toYMD(row.birth_date);
-  const age = calcAge(row.birth_date, row.snapshot_date);
-  const height = toInt(row.height_cm);
-  const natRaw = String(row.nationality ?? "").trim();
-
-  const line2 = mobileLinkMetaLineHtml([
-    birth ? `${birth}生` : "",
-    age ? `${age}歳` : "",
-    height ? `${height}cm` : "",
-    natRaw ? `国籍：${natRaw}` : "",
-  ]);
-
-  // 3段目：加入日（将来GA等を足す段）
-  const joinDate = toYM(row.join_date);
-
-  const line3 = mobileLinkMetaLineHtml([
-    joinDate ? `<span class="mob-label-join">加入日：</span>${joinDate}` : "",
-  ]);
-
-  // 4段目：代表情報 + 備考
+  // 2段目：代表情報
   const repHtml = rep2Html(
     repLabel(row),
     repLinks(row),
     repHistoryLinks?.(row) ?? [],
   );
 
+  const line2 = mobileLinkMetaLineHtml([repHtml || ""]);
+
+  // 3段目：加入日
+  const joinDate = toYM(row.join_date);
+
+  const line3 = mobileLinkMetaLineHtml([
+    joinDate ? `<span class="mob-label-join">加入日：</span>${joinDate}` : "",
+  ]);
+
+  // 4段目：選手属性
+  const birth = toYMD(row.birth_date);
+  const age = calcAge(row.birth_date, row.snapshot_date);
+  const height = toInt(row.height_cm);
+  const natRaw = String(row.nationality ?? "").trim();
+
+  const line4 = mobileLinkMetaLineHtml([
+    birth ? `${birth}生` : "",
+    age ? `${age}歳` : "",
+    height ? `${height}cm` : "",
+    natRaw ? `国籍：${natRaw}` : "",
+  ]);
+
   const note = String(row.notes ?? "").trim();
-
-  const line4 = mobileLinkMetaLineHtml([repHtml || ""]);
-
   const noteLine = mobileNoteLineHtml(note);
 
   return `<div class="namecell-mobile">
@@ -458,18 +457,33 @@ const ntNameMobileHtml = ({
     </div>
   `;
 
-  // 2段目：選手属性
+  // 2段目：所属クラブ
+  const rawClub = String(row.current_club ?? "").trim();
+
+  const clubText = rawClub
+    ? clubHref?.(rawClub)
+      ? `<a class="club-link" href="${esc(clubHref(rawClub))}">${esc(
+          clubLabel ? clubLabel(rawClub) : rawClub,
+        )}</a>`
+      : esc(clubLabel ? clubLabel(rawClub) : rawClub)
+    : "";
+
+  const line2 = mobileLinkMetaLineHtml([
+    clubText, // ← 最優先に配置
+  ]);
+
+  // 3段目：選手属性
   const birth = toYMD(row.birth_date);
   const age = calcAge(row.birth_date, row.snapshot_date);
   const height = toInt(row.height_cm);
 
-  const line2 = mobileLinkMetaLineHtml([
+  const line3 = mobileLinkMetaLineHtml([
     birth ? `${birth}生` : "",
     age ? `${age}歳` : "",
     height ? `${height}cm` : "",
   ]);
 
-  // 3段目：代表履歴（デビュー + 招集歴）
+  // 4段目：代表履歴（デビュー + 招集歴）
   const debut = toYM(row.national_debut);
   const editions = editionLinksHtml(tournamentLinks?.(row) ?? []);
 
@@ -481,22 +495,10 @@ const ntNameMobileHtml = ({
     ? `<span class="mob-label-debut">招集歴：${editions}`
     : "";
 
-  const line3 = mobileLinkMetaLineHtml([debutText, editionsText]);
+  const line4 = mobileLinkMetaLineHtml([debutText, editionsText]);
 
-  // 4段目：所属クラブ + 備考
-  const rawClub = String(row.current_club ?? "").trim();
-  const clubText = rawClub
-    ? clubHref?.(rawClub)
-      ? `<a class="club-link" href="${esc(clubHref(rawClub))}">${esc(
-          clubLabel ? clubLabel(rawClub) : rawClub,
-        )}</a>`
-      : esc(clubLabel ? clubLabel(rawClub) : rawClub)
-    : "";
-
+  // 4段目：備考
   const note = String(row.notes ?? "").trim();
-
-  const line4 = mobileLinkMetaLineHtml([clubText]);
-
   const noteLine = mobileNoteLineHtml(note);
 
   return `<div class="namecell-mobile">
@@ -542,19 +544,6 @@ export const buildNtColumns = ({
         }),
     },
     {
-      key: "nt_debut_date",
-      header: "代表デビュー",
-      align: "center",
-      render: (r) => toYM(r.national_debut),
-    },
-    {
-      key: "editions",
-      header: "W杯招集歴",
-      align: "center",
-      html: true,
-      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
-    },
-    {
       key: "club",
       header: "所属クラブ",
       html: true,
@@ -570,6 +559,20 @@ export const buildNtColumns = ({
         return href ? `<a href="${href}">${label}</a>` : label;
       },
     },
+    {
+      key: "nt_debut_date",
+      header: "代表デビュー",
+      align: "center",
+      render: (r) => toYM(r.national_debut),
+    },
+    {
+      key: "editions",
+      header: "W杯招集歴",
+      align: "center",
+      html: true,
+      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
+    },
+
     {
       key: "birth",
       header: "生年月日",

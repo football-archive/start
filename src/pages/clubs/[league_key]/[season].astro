@@ -251,6 +251,19 @@ const seasons = Array.from(
   ),
 ).sort((a, b) => seasonStartYear(b) - seasonStartYear(a));
 
+const currentSeasonIndex = seasons.findIndex((s) => s === seasonKey);
+
+const prevSeason =
+  currentSeasonIndex >= 0 && currentSeasonIndex < seasons.length - 1
+    ? seasons[currentSeasonIndex + 1]
+    : "";
+
+const nextSeason =
+  currentSeasonIndex > 0 ? seasons[currentSeasonIndex - 1] : "";
+
+const prevSeasonHref = prevSeason ? `/clubs/${leagueKey}/${prevSeason}` : "";
+const nextSeasonHref = nextSeason ? `/clubs/${leagueKey}/${nextSeason}` : "";
+
 // --------------------
 // 表示補助
 // --------------------
@@ -333,6 +346,18 @@ const topScorerLabel =
 
 const noteText = String(summary?.note ?? "").trim();
 
+function getStatusClass(note: string | undefined) {
+  const n = String(note ?? "").trim();
+
+  if (!n) return "";
+  if (n.includes("降格")) return "is-relegation";
+  if (n.includes("ECL")) return "is-ecl";
+  if (n.includes("EL")) return "is-el";
+  if (n.includes("CL")) return "is-cl";
+
+  return "";
+}
+
 const title = `${leagueName} ${seasonKey} 順位表｜最終順位・得点王・各クラブメンバー一覧`;
 const description = `${leagueName} ${seasonKey} の最終順位表です。優勝・上位クラブ・得点王と、各クラブのメンバー一覧ページへのリンクを掲載しています。`;
 const heading = `${leagueName} ${seasonKey}`;
@@ -382,111 +407,137 @@ const heading = `${leagueName} ${seasonKey}`;
 
   <section class="season-summary">
     <h2 class="sec-title">{leagueName} {seasonKey} シーズン概要</h2>
+
+    {
+      (prevSeason || nextSeason) && (
+        <div class="season-jump">
+          <div class="season-jump-inner">
+            {prevSeason ? (
+              <a class="season-jump-link is-prev" href={prevSeasonHref}>
+                ← 前シーズン（{prevSeason}）
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">← 前シーズン</span>
+            )}
+
+            {nextSeason ? (
+              <a class="season-jump-link is-next" href={nextSeasonHref}>
+                次シーズン（{nextSeason}） →
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">次シーズン →</span>
+            )}
+          </div>
+        </div>
+      )
+    }
+
     <p class="season-desc">
       {leagueName}{
         seasonKey
       }シーズンの最終順位、勝点、得失点差、欧州大会出場クラブ（CL・EL）、得点王などを一覧で掲載。
     </p>
+  </section>
 
-    <div class="summary-grid">
-      <div class="summary-stack">
-        <div class="summary-card summary-card-podium">
-          <div class="k">上位クラブ</div>
+  <div class="summary-grid">
+    <div class="summary-stack">
+      <div class="summary-card summary-card-podium">
+        <div class="k">上位クラブ</div>
 
-          <div class="podium-list">
-            <div class="podium-row">
-              <span class="podium-rank">1位</span>
-              <span class="podium-name">
-                {
-                  summary?.champion_club_key ? (
-                    hasClubSquad(summary.champion_club_key) ? (
-                      <a href={clubHref(summary.champion_club_key)}>
-                        {championName}
-                      </a>
-                    ) : (
-                      championName
-                    )
+        <div class="podium-list">
+          <div class="podium-row">
+            <span class="podium-rank">1位</span>
+            <span class="podium-name">
+              {
+                summary?.champion_club_key ? (
+                  hasClubSquad(summary.champion_club_key) ? (
+                    <a href={clubHref(summary.champion_club_key)}>
+                      {championName}
+                    </a>
                   ) : (
-                    "—"
+                    championName
                   )
-                }
-              </span>
-            </div>
+                ) : (
+                  "—"
+                )
+              }
+            </span>
+          </div>
 
-            <div class="podium-row">
-              <span class="podium-rank">2位</span>
-              <span class="podium-name">
-                {
-                  summary?.runnerup_club_key ? (
-                    hasClubSquad(summary.runnerup_club_key) ? (
-                      <a href={clubHref(summary.runnerup_club_key)}>
-                        {runnerupName}
-                      </a>
-                    ) : (
-                      runnerupName
-                    )
+          <div class="podium-row">
+            <span class="podium-rank">2位</span>
+            <span class="podium-name">
+              {
+                summary?.runnerup_club_key ? (
+                  hasClubSquad(summary.runnerup_club_key) ? (
+                    <a href={clubHref(summary.runnerup_club_key)}>
+                      {runnerupName}
+                    </a>
                   ) : (
-                    "—"
+                    runnerupName
                   )
-                }
-              </span>
-            </div>
+                ) : (
+                  "—"
+                )
+              }
+            </span>
+          </div>
 
-            <div class="podium-row">
-              <span class="podium-rank">3位</span>
-              <span class="podium-name">
-                {
-                  summary?.third_club_key ? (
-                    hasClubSquad(summary.third_club_key) ? (
-                      <a href={clubHref(summary.third_club_key)}>{thirdName}</a>
-                    ) : (
-                      thirdName
-                    )
+          <div class="podium-row">
+            <span class="podium-rank">3位</span>
+            <span class="podium-name">
+              {
+                summary?.third_club_key ? (
+                  hasClubSquad(summary.third_club_key) ? (
+                    <a href={clubHref(summary.third_club_key)}>{thirdName}</a>
                   ) : (
-                    "—"
+                    thirdName
                   )
-                }
-              </span>
-            </div>
+                ) : (
+                  "—"
+                )
+              }
+            </span>
           </div>
         </div>
+      </div>
 
-        <div class="summary-card summary-card-scorer">
-          <div class="k">得点王</div>
+      <div class="summary-card summary-card-scorer">
+        <div class="k">得点王</div>
 
-          {
-            topScorers.length > 0 ? (
-              <div class="scorer-list">
-                {topScorers.map((p) => (
-                  <div class="scorer-row">
-                    <span class="scorer-name">🔥 {p.name}</span>
-                    {p.clubName &&
-                      (p.href ? (
-                        <a class="scorer-club" href={p.href}>
-                          {p.clubName}
-                        </a>
-                      ) : (
-                        <span class="scorer-club">{p.clubName}</span>
-                      ))}
-                  </div>
-                ))}
-                <div class="scorer-goals">
-                  {topScorerGoals ? `${topScorerGoals}得点` : ""}
+        {
+          topScorers.length > 0 ? (
+            <div class="scorer-list">
+              {topScorers.map((p) => (
+                <div class="scorer-row">
+                  <span class="scorer-name">🔥 {p.name}</span>
+                  {p.clubName &&
+                    (p.href ? (
+                      <a class="scorer-club" href={p.href}>
+                        {p.clubName}
+                      </a>
+                    ) : (
+                      <span class="scorer-club">{p.clubName}</span>
+                    ))}
                 </div>
+              ))}
+              <div class="scorer-goals">
+                {topScorerGoals ? `${topScorerGoals}得点` : ""}
               </div>
-            ) : (
-              <div class="v">—</div>
-            )
-          }
-        </div>
+            </div>
+          ) : (
+            <div class="v">—</div>
+          )
+        }
       </div>
     </div>
+  </div>
 
-    {noteText && <p class="summary-note">※ {noteText}</p>}
-  </section>
+  {noteText && <p class="summary-note">※ {noteText}</p>}
 
   <section class="season-standings">
     <h2 class="sec-title">{leagueName} {seasonKey} 順位表（最終順位）</h2>
+    <p class="standings-legend">紺：CL / 橙：EL / 緑：ECL / 赤：降格</p>
 
     {
       standings.length > 0 ? (
@@ -494,8 +545,8 @@ const heading = `${leagueName} ${seasonKey}`;
           <table class="tbl standings-tbl">
             <thead>
               <tr>
-                <th class="num">順位</th>
-                <th>クラブ</th>
+                <th class="num rank-col">順位</th>
+                <th class="club-col">クラブ</th>
                 <th class="num">試</th>
                 <th class="num">勝</th>
                 <th class="num">分</th>
@@ -509,9 +560,9 @@ const heading = `${leagueName} ${seasonKey}`;
             </thead>
             <tbody>
               {standings.map((r) => (
-                <tr>
-                  <td class="num">{r.rank}</td>
-                  <td>
+                <tr class={getStatusClass(r.status_note)}>
+                  <td class="num rank-col">{r.rank}</td>
+                  <td class="club-col">
                     {hasClubSquad(String(r.club_key ?? "").trim()) ? (
                       <a href={clubHref(String(r.club_key ?? "").trim())}>
                         {clubName(String(r.club_key ?? "").trim())}
@@ -528,7 +579,9 @@ const heading = `${leagueName} ${seasonKey}`;
                   <td class="num">{r.ga || "—"}</td>
                   <td class="num">{r.gd || "—"}</td>
                   <td class="num points">{r.points || "—"}</td>
-                  <td>{r.status_note || "—"}</td>
+                  <td class={`status ${getStatusClass(r.status_note)}`}>
+                    {r.status_note || "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -539,214 +592,401 @@ const heading = `${leagueName} ${seasonKey}`;
       )
     }
   </section>
-
-  <style is:global>
-    .page-club .sec-title {
-      margin: 0 0 10px;
-      color: var(--theme-color);
-    }
-
-    .page-club .season-summary,
-    .page-club .season-standings {
-      margin: 18px 0 22px;
-    }
-
-    .page-club .summary-stack {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-    }
-
-    .page-club .summary-card {
-      border: 1px solid var(--theme-soft-border);
-      background: var(--theme-soft-bg);
-      border-radius: 12px;
-      padding: 12px 14px;
-    }
-
-    .page-club .summary-card .k {
-      font-size: 12px;
-      color: var(--muted);
-      margin-bottom: 6px;
-    }
-
-    .page-club .summary-card .v {
-      font-size: 16px;
-      font-weight: 800;
-      line-height: 1.45;
-    }
-
-    .page-club .summary-card-podium {
-      background: color-mix(in srgb, var(--theme-color) 20%, #ffffff);
-      border-color: color-mix(
-        in srgb,
-        var(--theme-color) 38%,
-        var(--theme-soft-border)
-      );
-    }
-
-    .page-club .podium-list {
-      display: grid;
-      gap: 8px;
-    }
-
-    .page-club .podium-row {
-      display: flex;
-      align-items: baseline;
-      gap: 10px;
-      padding: 2px 0;
-    }
-
-    .page-club .podium-rank {
-      min-width: 30px;
-      font-size: 13px;
-      font-weight: 800;
-      color: var(--theme-color);
-    }
-
-    .page-club .podium-name {
-      font-size: 17px;
-      font-weight: 800;
-      line-height: 1.35;
-    }
-
-    .page-club .summary-card-scorer {
-      background: #fff;
-      border-color: var(--theme-soft-border);
-    }
-
-    .page-club .summary-card-scorer .v {
-      line-height: 1.5;
-      white-space: normal;
-    }
-
-    .page-club .summary-note {
-      margin: 10px 0 0;
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .page-club .table-wrap {
-      overflow: auto;
-      border: 1px solid rgba(0, 0, 0, 0.08);
-      border-radius: 12px;
-      background: #fff;
-    }
-
-    .page-club .tbl {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      min-width: 860px;
-    }
-
-    .page-club .tbl thead th {
-      position: sticky;
-      top: 0;
-      background: color-mix(in srgb, var(--theme-color) 14%, white);
-      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-      font-size: 12px;
-      font-weight: 800;
-      text-align: left;
-      padding: 10px 10px;
-      white-space: nowrap;
-      z-index: 3;
-    }
-
-    .page-club .tbl tbody td {
-      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-      padding: 10px 10px;
-      font-size: 13px;
-      white-space: nowrap;
-      vertical-align: middle;
-    }
-
-    .page-club .tbl tbody tr:hover td {
-      background: rgba(0, 0, 0, 0.02);
-    }
-
-    .page-club .tbl .num {
-      text-align: center;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .page-club .tbl .points {
-      font-weight: 800;
-    }
-
-    .page-club .pill {
-      border-color: var(--theme-soft-border);
-    }
-
-    .page-club .pill:hover {
-      background: var(--theme-soft-bg);
-    }
-
-    .page-club .pill .dot {
-      background: var(--theme-color);
-      opacity: 0.6;
-    }
-
-    .page-club .pill.is-active {
-      border-color: var(--theme-color);
-      background: var(--theme-soft-bg);
-      font-weight: 700;
-    }
-
-    .page-club .pill.is-active .dot {
-      opacity: 1;
-    }
-
-    .page-club section a:link,
-    .page-club section a:visited {
-      color: #111;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
-    .page-club section a:hover {
-      color: var(--theme-link);
-      background: var(--theme-soft-bg);
-    }
-
-    .page-club .muted {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .page-club .scorer-list {
-      display: grid;
-      gap: 6px;
-    }
-
-    .page-club .scorer-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      align-items: baseline;
-    }
-
-    .page-club .scorer-name {
-      font-weight: 800;
-    }
-
-    .page-club .scorer-club {
-      font-size: 13px;
-      color: var(--muted);
-    }
-
-    .page-club .scorer-goals {
-      margin-top: 2px;
-      font-size: 13px;
-      color: var(--muted);
-      font-weight: 700;
-    }
-
-    .page-club .season-desc {
-      margin: 0 0 10px;
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.5;
-    }
-  </style>
 </BaseLayout>
+
+<style is:global>
+  .page-club .sec-title {
+    margin: 0 0 10px;
+    color: var(--theme-color);
+  }
+
+  .page-club .season-summary,
+  .page-club .season-standings {
+    margin: 18px 0 22px;
+  }
+
+  .page-club .summary-stack {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .page-club .summary-card {
+    border: 1px solid var(--theme-soft-border);
+    background: var(--theme-soft-bg);
+    border-radius: 12px;
+    padding: 12px 14px;
+  }
+
+  .page-club .summary-card .k {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 6px;
+  }
+
+  .page-club .summary-card .v {
+    font-size: 16px;
+    font-weight: 800;
+    line-height: 1.45;
+  }
+
+  .page-club .summary-card-podium {
+    background: color-mix(in srgb, var(--theme-color) 20%, #ffffff);
+    border-color: color-mix(
+      in srgb,
+      var(--theme-color) 38%,
+      var(--theme-soft-border)
+    );
+  }
+
+  .page-club .podium-list {
+    display: grid;
+    gap: 8px;
+  }
+
+  .page-club .podium-row {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    padding: 2px 0;
+  }
+
+  .page-club .podium-rank {
+    min-width: 30px;
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--theme-color);
+  }
+
+  .page-club .podium-name {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.35;
+  }
+
+  .page-club .summary-card-scorer {
+    background: #fff;
+    border-color: var(--theme-soft-border);
+  }
+
+  .page-club .summary-card-scorer .v {
+    line-height: 1.5;
+    white-space: normal;
+  }
+
+  .page-club .summary-note {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  .page-club .table-wrap {
+    overflow: auto;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: 12px;
+    background: #fff;
+  }
+
+  .page-club .tbl {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    min-width: 720px;
+  }
+
+  .page-club .tbl thead th {
+    position: sticky;
+    top: 0;
+    background: color-mix(in srgb, var(--theme-color) 14%, white);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    font-size: 12px;
+    font-weight: 800;
+    text-align: left;
+    padding: 10px 10px;
+    white-space: nowrap;
+    z-index: 3;
+  }
+
+  .page-club .tbl tbody td {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    padding: 10px 10px;
+    font-size: 13px;
+    white-space: nowrap;
+    vertical-align: middle;
+  }
+
+  .page-club .tbl tbody tr:hover td {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .page-club .tbl .num {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .page-club .tbl .points {
+    font-weight: 800;
+  }
+
+  .page-club .pill {
+    border-color: var(--theme-soft-border);
+  }
+
+  .page-club .pill:hover {
+    background: var(--theme-soft-bg);
+  }
+
+  .page-club .pill .dot {
+    background: var(--theme-color);
+    opacity: 0.6;
+  }
+
+  .page-club .pill.is-active {
+    border-color: var(--theme-color);
+    background: var(--theme-soft-bg);
+    font-weight: 700;
+  }
+
+  .page-club .pill.is-active .dot {
+    opacity: 1;
+  }
+
+  .page-club section a:link,
+  .page-club section a:visited {
+    color: #111;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .page-club section a:hover {
+    color: var(--theme-link);
+    background: var(--theme-soft-bg);
+  }
+
+  .page-club .muted {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .page-club .scorer-list {
+    display: grid;
+    gap: 6px;
+  }
+
+  .page-club .scorer-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: baseline;
+  }
+
+  .page-club .scorer-name {
+    font-weight: 800;
+  }
+
+  .page-club .scorer-club {
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .page-club .scorer-goals {
+    margin-top: 2px;
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 700;
+  }
+
+  .page-club .season-desc {
+    margin: 0 0 10px;
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .page-club .season-jump {
+    margin: 4px 0 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .page-club .season-jump-inner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    width: 100%;
+    min-width: 0;
+    font-size: 13px;
+    line-height: 1.3;
+  }
+
+  .page-club .season-jump-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-weight: 700;
+    min-width: 0;
+  }
+
+  .page-club .season-jump-link:hover {
+    color: var(--theme-color);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .page-club .season-jump-link.is-disabled {
+    color: #9ca3af;
+    pointer-events: none;
+  }
+
+  @media (max-width: 640px) {
+    .page-club .season-jump-inner {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+      font-size: 12px;
+    }
+  }
+
+  .page-club .standings-tbl {
+    table-layout: auto;
+  }
+
+  .page-club .standings-tbl th.rank-col,
+  .page-club .standings-tbl td.rank-col {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: #fff;
+    width: 48px;
+    min-width: 48px;
+    max-width: 48px;
+  }
+
+  .page-club .standings-tbl thead th.rank-col {
+    z-index: 5;
+    background: color-mix(in srgb, var(--theme-color) 14%, white);
+  }
+
+  .page-club .standings-tbl th.club-col,
+  .page-club .standings-tbl td.club-col {
+    position: sticky;
+    left: 48px;
+    z-index: 2;
+    background: #fff;
+    min-width: 92px;
+    max-width: 132px;
+    width: 112px;
+  }
+
+  .page-club .standings-tbl thead th.club-col {
+    z-index: 5;
+    background: color-mix(in srgb, var(--theme-color) 14%, white);
+  }
+
+  .page-club .standings-tbl td.club-col {
+    white-space: normal;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .page-club .standings-tbl tbody tr:hover td.rank-col,
+  .page-club .standings-tbl tbody tr:hover td.club-col {
+    background: rgba(0, 0, 0, 0.02);
+  }
+
+  .page-club .standings-tbl td.club-col a {
+    display: inline-block;
+    padding: 2px 2px;
+  }
+
+  .page-club .standings-tbl .points {
+    font-weight: 900;
+    font-size: 14px;
+  }
+
+  .page-club .tbl tbody tr:hover td {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  @media (max-width: 640px) {
+    .page-club .standings-tbl th.club-col,
+    .page-club .standings-tbl td.club-col {
+      min-width: 84px;
+      max-width: 108px;
+      width: 96px;
+      font-size: 12px;
+    }
+
+    .page-club .standings-tbl th.rank-col,
+    .page-club .standings-tbl td.rank-col {
+      width: 36px;
+      min-width: 36px;
+      max-width: 36px;
+    }
+
+    .page-club .standings-tbl th.club-col,
+    .page-club .standings-tbl td.club-col {
+      left: 36px;
+    }
+  }
+
+  .page-club .standings-tbl td.status {
+    font-weight: 700;
+    font-size: 12px;
+  }
+
+  /* CL */
+  .page-club .standings-tbl td.status.is-cl {
+    color: #0b2a5b;
+  }
+
+  /* EL */
+  .page-club .standings-tbl td.status.is-el {
+    color: #d97706;
+  }
+
+  /* ECL */
+  .page-club .standings-tbl td.status.is-ecl {
+    color: #15803d;
+  }
+
+  /* 降格 */
+  .page-club .standings-tbl td.status.is-relegation {
+    color: #b91c1c;
+    font-weight: 800;
+  }
+
+  /* 左端アクセント */
+  .page-club .standings-tbl tr.is-cl td.rank-col {
+    border-left: 3px solid #0b2a5b;
+    font-weight: 900;
+  }
+
+  .page-club .standings-tbl tr.is-el td.rank-col {
+    border-left: 3px solid #d97706;
+  }
+
+  .page-club .standings-tbl tr.is-ecl td.rank-col {
+    border-left: 3px solid #15803d;
+  }
+
+  .page-club .standings-tbl tr.is-relegation {
+    background: rgba(185, 28, 28, 0.06);
+  }
+  .page-club .standings-tbl tr.is-relegation td.rank-col {
+    border-left: 3px solid #b91c1c;
+  }
+
+  .page-club .standings-legend {
+    font-size: 11px;
+    color: var(--muted);
+    margin: 4px 0 8px;
+    line-height: 1.4;
+  }
+
+  .page-club .standings-tbl tbody tr:first-child td.rank-col {
+    font-weight: 900;
+    font-size: 14px;
+  }
+</style>

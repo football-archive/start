@@ -17,7 +17,7 @@ import { toYMD } from "../../../../lib/rosterFormat";
 
 import { loadLeagueMaster } from "../../../../lib/leagueMaster";
 
-import { clubUrl } from "../../../../lib/urls";
+import { clubUrl, tournamentTopUrl } from "../../../../lib/urls";
 
 // ====================
 // getStaticPaths
@@ -139,15 +139,17 @@ const tournamentLabel = String(metaRow?.host_ja ?? "").trim()
   ? `${String(metaRow?.host_ja ?? "").trim()}${String(year)}`
   : "";
 
-const metaLine = (() => {
+const tournamentHref = tournamentTopUrl({
+  competition: "WC",
+  edition: String(year),
+});
+
+const tournamentText = tournamentLabel || `W杯${year}`;
+
+const heroMetaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
   const coach = String(metaRow?.coach_ja ?? "").trim();
-
-  const parts = [tournamentLabel, result, coach].filter((x) =>
-    String(x ?? "").trim(),
-  );
-
-  return parts.join(" ｜ ");
+  return [result, coach].filter(Boolean).join(" ｜ ");
 })();
 
 // 更新日（その国×その年 の callups の最新スナップショット）
@@ -205,6 +207,13 @@ for (const [k, arr] of editionsByPlayer) {
 }
 const groups = loadGroups("WC", String(year), "group");
 
+const callupCountrySetForYear = new Set(
+  loadCallups()
+    .filter((r: any) => String(r.competition ?? "").toUpperCase() === "WC")
+    .filter((r: any) => String(r.edition ?? "").trim() === String(year))
+    .map((r: any) => normKey(r.country ?? "")),
+);
+
 // その国のグループ（groups.csv から探す）
 const norm = (s: any) =>
   String(s ?? "")
@@ -251,17 +260,20 @@ const groupRows = group
 
 const groupLinks = groupRows
   .map((g: any) => {
-    const label =
+    const rawLabel =
       String(g.country_name_ja ?? "").trim() ||
       String(g.route_param ?? "").trim();
 
-    if (!label || norm(label) === norm(countryName)) return null;
+    if (!rawLabel || norm(rawLabel) === norm(countryName)) return null;
 
-    const undecided = isUndecidedPlayoffLabel(label);
+    const undecided = isUndecidedPlayoffLabel(rawLabel);
+    const label = undecided ? "プレーオフ勝者（未定）" : rawLabel;
+
+    const hasCallups = !undecided && callupCountrySetForYear.has(normKey(rawLabel));
 
     return {
-      label: undecided ? "プレーオフ勝者（未定）" : label,
-      href: undecided ? "" : makeTeamHref(label),
+      label,
+      href: hasCallups ? makeTeamHref(rawLabel) : "",
       isCurrent: false,
       isUndecided: undecided,
     };
@@ -497,6 +509,18 @@ const starRows = rows
   .filter((r) => String((r as any).is_star ?? "").trim() === "1")
   .slice(0, 3);
 
+const getStarClubInfo = (r: any) => {
+  const rawClub = String(r.current_club ?? "").trim();
+  const href = clubHref(rawClub);
+  const label = clubLabel(rawClub);
+
+  return {
+    rawClub,
+    href,
+    label,
+  };
+};
+
 // club_squads の存在判定（season + window + league_key + club_key）
 const clubSquadKeySet = new Set(
   loadClubSquads().map(
@@ -685,16 +709,24 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
   <section class="nt-hero" aria-label="代表ページ見出し">
     <div class="nt-hero-main">
       <h1 class="nt-hero-title">
-        {countryName}代表 {compLabel}{year}メンバー一覧
+        {countryName}代表 {compLabel}{
+          year
+        }メンバー一覧｜背番号・所属クラブ・代表歴（最新）
         {statusSuffix && <span class="nt-status-inline">{statusSuffix}</span>}
       </h1>
 
       <p class="hero-desc">
         <span>
           {countryName}代表の最新メンバー・背番号一覧（{compLabel}{year}）。
-          所属クラブ、代表デビュー、過去大会招集歴まで確認できます。
+          背番号、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。
         </span>
       </p>
+
+      <div class="nt-tournament-link">
+        <a href={tournamentHref}>
+          ← {tournamentText} ポータルページへ
+        </a>
+      </div>
 
       {
         statusSuffix && (
@@ -706,16 +738,26 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         )
       }
 
-      {metaLine && <div class="nt-hero-meta">{metaLine}</div>}
+      <div class="nt-meta-block">
+        {heroMetaLine && <div class="nt-hero-meta">{heroMetaLine}</div>}
+
+        {
+          showTeamStats && avgAge && (
+            <div class="nt-team-stats">
+              平均年齢：{avgAge}歳{leagueText ? ` ｜ ${leagueText}` : ""}
+            </div>
+          )
+        }
+
+        <div class="nt-updated-row">
+          <div class="nt-updated">
+            更新日：
+            <span class="updated-date">{toYMD(maxSnapshot) || "—"}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
-
-  <div class="nt-updated-row">
-    <div class="nt-updated">
-      更新日：
-      <span class="updated-date">{toYMD(maxSnapshot) || "—"}</span>
-    </div>
-  </div>
 
   <section class="star-block" aria-label="注目選手">
     <h2 class="star-title">⭐ 注目選手</h2>
@@ -723,30 +765,40 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     {
       starRows.length > 0 ? (
         <div class="star-grid">
-          {starRows.map((r) => (
-            <div class="star-card">
-              <div class="star-name">
-                {r.name_ja || r.name_en || r.name}
-                <span class="star-pos">
-                  （{r.position_primary || r.position}）
-                </span>
+          {starRows.map((r) => {
+            const starClub = getStarClubInfo(r);
+
+            return (
+              <div class="star-card">
+                <div class="star-main">
+                  <div class="star-name">
+                    {r.name_ja || r.name_en || r.name}
+                    <span class="star-pos">
+                      （{r.position_primary || r.position}）
+                    </span>
+                  </div>
+
+                  {starClub.label && (
+                    <div class="star-club">
+                      {starClub.href ? (
+                        <a class="club-link" href={starClub.href}>
+                          {starClub.label}
+                        </a>
+                      ) : (
+                        <span class="club-link is-text">{starClub.label}</span>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       ) : (
         <div class="star-empty">準備中</div>
       )
     }
   </section>
-
-  {
-    showTeamStats && avgAge && (
-      <div class="team-stats">
-        平均年齢：{avgAge}歳{leagueText ? ` ｜ ${leagueText}` : ""}
-      </div>
-    )
-  }
 
   <RosterView {rows} {columns} rowClass={rowHighlightClass} />
 
@@ -852,11 +904,37 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       align-items: center;
     }
 
+    .star-main {
+      display: grid;
+      gap: 2px;
+      min-width: 0;
+    }
+
     .star-name {
       font-weight: 600;
       font-size: 13px;
       line-height: 1.35;
       word-break: keep-all;
+    }
+
+    .star-club {
+      font-size: 12px;
+      line-height: 1.3;
+    }
+
+    .club-link {
+      color: var(--theme-color);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .club-link:hover {
+      opacity: 0.82;
+    }
+
+    .club-link.is-text {
+      text-decoration: none;
     }
 
     .star-pos {
@@ -904,6 +982,14 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     @media (max-width: 640px) {
+      .star-main {
+        gap: 3px;
+      }
+
+      .star-club {
+        font-size: 11px;
+        line-height: 1.3;
+      }
       .nt-hero {
         display: block;
         margin-bottom: 8px;
@@ -911,7 +997,16 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
       .nt-hero-title {
         font-size: 18px;
-        line-height: 1.3;
+        line-height: 1.28;
+      }
+
+      .hero-desc {
+        font-size: 12px;
+        line-height: 1.35;
+      }
+
+      .nt-tournament-link a {
+        font-size: 13px;
       }
 
       .nt-status-inline {
@@ -925,16 +1020,21 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         font-size: 11px;
       }
 
-      .nt-hero-meta {
-        font-size: 14px;
+      .nt-hero-meta,
+      .nt-team-stats {
+        font-size: 13px;
+        line-height: 1.3;
+      }
+
+      .nt-updated-row {
+        margin: 4px 0 0;
       }
 
       .nt-updated {
         display: block;
-        margin-top: 6px;
         text-align: left;
         white-space: normal;
-        padding-top: 0;
+        font-size: 12px;
       }
 
       .star-grid {
@@ -996,20 +1096,32 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     /* タイトルブロック */
     .nt-hero {
-      margin: 0 0 6px;
+      margin: 0 0 10px;
     }
 
     .nt-hero-main {
       min-width: 0;
+      display: grid;
+      gap: 0;
     }
 
     .nt-hero-title {
       margin: 0;
       font-size: clamp(20px, 2.8vw, 26px);
-      line-height: 1.18;
+      line-height: 1.16;
       font-weight: 800;
       color: #111;
       letter-spacing: 0.01em;
+    }
+
+    .hero-desc {
+      margin: 6px 0 0;
+      font-size: 13px;
+      line-height: 1.35;
+      color: #666;
+      white-space: normal;
+      overflow: visible;
+      text-overflow: unset;
     }
 
     .nt-hero-meta {
@@ -1042,19 +1154,70 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       display: block;
     }
 
+    .nt-tournament-link {
+      margin: 4px 0 0;
+    }
+
+    .nt-tournament-link a {
+      color: var(--theme-color);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .nt-tournament-link a:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .nt-status-note {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    .nt-meta-block {
+      margin-top: 8px;
+    }
+
+    .nt-hero-meta {
+      margin-top: 0;
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--meta-color, #7a2e2e);
+      word-break: normal;
+      overflow-wrap: anywhere;
+    }
+
+    .nt-team-stats {
+      margin: 2px 0 0;
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--meta-color, #7a2e2e);
+    }
+
+    .nt-updated-row {
+      display: flex;
+      justify-content: flex-end;
+      margin: 4px 0 0;
+    }
+
+    .nt-updated {
+      font-size: 12px;
+      opacity: 0.82;
+      line-height: 1.25;
+      text-align: right;
+      white-space: nowrap;
+    }
+
     @media (max-width: 640px) {
       .hero-desc {
         font-size: 12px;
       }
-    }
-
-    /* 代表側：更新日（注記） + メタ1行 */
-    .nt-meta-line {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      margin: 4px 0 10px;
-      white-space: normal;
     }
 
     .nt-updated-row {
@@ -1069,20 +1232,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       line-height: 1.2;
       text-align: right;
       white-space: nowrap;
-    }
-
-    .nt-meta {
-      align-self: flex-start;
-      text-align: left;
-      margin-top: 0;
-      font-weight: 700;
-      font-size: 14px;
-      line-height: 1.25;
-      color: var(--theme-color);
-      opacity: 1;
-      word-break: keep-all;
-      border-left: 4px solid var(--theme-color);
-      padding-left: 8px;
     }
 
     .updated-date {
@@ -1113,13 +1262,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       .nt-updated {
         font-size: 12px;
       }
-    }
-
-    .team-stats {
-      font-size: 13px;
-      color: var(--theme-color);
-      font-weight: 600;
-      margin: 8px 0;
     }
 
     @media (max-width: 640px) {
@@ -1195,7 +1337,10 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         font-size: 12px;
         line-height: 1.35;
       }
-
+      .star-club {
+        font-size: 11px;
+        line-height: 1.3;
+      }
       .star-pos {
         font-size: 11px;
       }

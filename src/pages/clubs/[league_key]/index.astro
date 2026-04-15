@@ -274,8 +274,6 @@ for (const r of rowsAll as any[]) {
   if (!prev || isNewerMeta(meta, prev)) latestMetaByClub.set(clubKey, meta);
 }
 
-
-
 // 掲載シーズン一覧
 const standingsRows = readCsv("league_standings.csv") as any[];
 
@@ -411,18 +409,19 @@ const heading = leagueName;
   <p class="clubs-desc">
     {
       leagueName
-    }のクラブ一覧と掲載シーズン。シーズンごとの所属選手・背番号・移籍情報などを掲載しています。
+    }のクラブ一覧と掲載シーズン。各シーズンの順位表・得点王・クラブ詳細ページへ移動できます。
   </p>
-  <section class="league-summary">
-    <div class="summary-meta">
-      <span>クラブ数：{clubItems.length}</span>
-      <span>掲載シーズン数：{seasons.length}</span>
-      <span>最終更新：{latestSnapshot || "—"}</span>
-    </div>
-  </section>
 
   <section style="margin: 18px 0 20px;">
-    <h2 class="sec-title">掲載シーズン</h2>
+    <h2 class="sec-title">掲載シーズン（順位表・シーズンページ）</h2>
+
+    <section class="league-summary">
+      <div class="summary-meta">
+        <span>クラブ数：{clubItems.length}</span>
+        <span>掲載シーズン数：{seasons.length}</span>
+        <span>最終更新：{latestSnapshot || "—"}</span>
+      </div>
+    </section>
 
     <div class="season-pills">
       {
@@ -441,7 +440,9 @@ const heading = leagueName;
       }
     </div>
 
-    <p class="season-note">※ シーズン別ポータルページは順次追加予定です</p>
+    <p class="season-note">
+      ※ 各シーズンページでは順位表・得点王・クラブ詳細へのリンクを掲載
+    </p>
   </section>
 
   <section style="margin: 18px 0;">
@@ -468,6 +469,7 @@ const heading = leagueName;
     }
 
     .page-club .summary-meta {
+        margin: 4px 0 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
