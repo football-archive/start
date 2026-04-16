@@ -319,10 +319,11 @@ for (const r of rowsAll as any[]) {
 }
 
 // 最新更新日
-let latestSnapshot = "";
-for (const r of rowsAll as any[]) {
-  const s = toYMD(String(r.snapshot_date ?? ""));
-  if (s && s > latestSnapshot) latestSnapshot = s;
+let latestStandingUpdate = "";
+for (const r of standingsRows as any[]) {
+  if (normalizeLeagueKey(r.league_key) !== leagueKey) continue;
+  const s = toYMD(String(r.updated_at ?? ""));
+  if (s && s > latestStandingUpdate) latestStandingUpdate = s;
 }
 
 // クラブ一覧
@@ -419,7 +420,12 @@ const heading = leagueName;
       <div class="summary-meta">
         <span>クラブ数：{clubItems.length}</span>
         <span>掲載シーズン数：{seasons.length}</span>
-        <span>最終更新：{latestSnapshot || "—"}</span>
+        <span>
+          最終更新：
+          <span class="updated-date">
+            {latestStandingUpdate || "—"}
+          </span>
+        </span>
       </div>
     </section>
 
@@ -469,7 +475,7 @@ const heading = leagueName;
     }
 
     .page-club .summary-meta {
-        margin: 4px 0 10px;
+      margin: 4px 0 10px;
       display: flex;
       flex-wrap: wrap;
       gap: 12px;

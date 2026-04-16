@@ -1,4 +1,4 @@
-league_key,season,champion_club_key,runnerup_club_key,third_club_key,top_scorer_name,top_scorer_goals,top_scorer_club_key,note
+league_key,season,champion_club_key,runnerup_club_key,third_club_key,top_scorer_names,top_scorer_goals,top_scorer_club_keys,note
 premier-league,2024-25,liverpool,arsenal,manchester-city,モハメド・サラー,29,liverpool,
 premier-league,2023-24,manchester-city,arsenal,liverpool,エルリング・ブラウト・ホランド,27,manchester-city,
 premier-league,2022-23,manchester-city,arsenal,manchester-united,エルリング・ブラウト・ホランド,36,manchester-city,
@@ -41,3 +41,8 @@ serie-a,2018-19,juventus,napoli,atalanta,ファビオ・クアリャレッラ,26
 serie-a,2017-18,juventus,napoli,roma,マウロ・イカルディ,29,inter,
 serie-a,2016-17,juventus,roma,napoli,エディン・ジェコ,29,roma,
 serie-a,2015-16,juventus,napoli,roma,ゴンサロ・イグアイン,36,napoli,
+premier-league,2025-26,,,,,,,"途中経過（32節時点）"
+laliga,2025-26,,,,,,,"途中経過（31節時点）"
+serie-a,2025-26,,,,,,,"途中経過（32節時点）"
+bundesliga,2025-26,,,,,,,"途中経過（29節時点）"
+ligue-1,2025-26,,,,,,,"途中経過（29節時点）"

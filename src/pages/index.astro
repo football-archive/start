@@ -16,6 +16,7 @@ import {
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../lib/ucl";
 import { loadTransfers } from "../lib/transfers";
 import { toYMD } from "../lib/rosterFormat";
+import { loadLeagueStandings } from "../lib/leagueStandings";
 
 const wcYear = String(DEFAULTS.currentWcYear); // 最新大会のYYYY
 
@@ -40,7 +41,17 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(12);
+const updates = loadUpdates(11);
+
+const groupedUpdates = Object.entries(
+  updates.reduce((acc: Record<string, any[]>, u: any) => {
+    const key = String(u.date ?? "").trim();
+    if (!key) return acc;
+    if (!acc[key]) acc[key] = [];
+    acc[key].push(u);
+    return acc;
+  }, {}),
+).sort((a, b) => (a[0] < b[0] ? 1 : -1));
 
 // --------------------
 // 代表（WC2026 / 日本）
@@ -224,14 +235,25 @@ const clubsLeagueCount = new Set(
 const clubsClubCount = clubLatestMeta.size;
 const clubsPlayerCount = clubRowsPublicLatest.length;
 
-const clubSnapMax =
-  clubLatestMeta.size > 0
-    ? Array.from(clubLatestMeta.values())
-        .map((m) => m.snapshot_date)
-        .reduce((a, b) => (a > b ? a : b))
-    : null;
+const standingRowsAll = loadLeagueStandings();
 
-const updatedAtClub = ymdToJa(clubSnapMax);
+// トップで見せたい対象リーグ
+const topClubLeagueKeys = new Set([
+  "premier-league",
+  "laliga",
+  "bundesliga",
+  "serie-a",
+  "ligue-1",
+  "eredivisie",
+]);
+
+const standingRowsTop = standingRowsAll.filter((r: any) => {
+  const lk = normalizeLeagueKey(r.league_key);
+  return topClubLeagueKeys.has(lk);
+});
+
+const standingUpdatedMax = maxYmd(standingRowsTop, "updated_at");
+const updatedAtClub = ymdToJa(standingUpdatedMax);
 
 const leaguesInData = new Set(
   clubRowsPublicLatest.map((r: any) =>
@@ -380,15 +402,53 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
       line-height: 1.5;
       font-size: 12.5px;
     }
-    .updates .date {
-      display: inline-block;
-      min-width: 86px;
-      color: var(--date-red);
-      font-variant-numeric: tabular-nums;
-      margin-right: 8px;
-      font-size: 13px;
-      font-weight: 700;
+
+    .updates {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
     }
+
+    .updates h2 {
+      margin: 0 0 8px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .updates-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .updates-group {
+      padding-top: 2px;
+    }
+
+    .updates-group-date {
+      color: var(--date-red);
+      font-weight: 800;
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .updates-group-list {
+      margin: 0;
+      padding-left: 16px;
+    }
+
+    .updates-group-list li {
+      margin: 3px 0;
+      line-height: 1.5;
+      font-size: 13px;
+    }
+
     .updates .title {
       font-weight: 400;
       font-size: 14px;
@@ -402,6 +462,44 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
     .updates .title-link:hover {
       opacity: 0.82;
+    }
+
+    @media (max-width: 640px) {
+      .updates {
+        padding: 10px 12px;
+      }
+
+      .updates h2 {
+        font-size: 14px;
+        margin-bottom: 6px;
+      }
+
+      .updates-groups {
+        gap: 8px;
+      }
+
+      .updates-group-date {
+        font-size: 12.5px;
+        margin-bottom: 3px;
+      }
+
+      .updates-group-list {
+        padding-left: 14px;
+      }
+
+      .updates-group-list li {
+        margin: 2px 0;
+        font-size: 12.5px;
+        line-height: 1.45;
+      }
+
+      .updates .title {
+        font-size: 13px;
+      }
+    }
+
+    .updates-group-list li:first-child .title {
+      font-weight: 600;
     }
 
     .quick-title {
@@ -1101,33 +1199,90 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
     .jp-opponents a:hover {
       opacity: 0.9;
     }
+
+    .club-season-links {
+      margin-top: 10px;
+    }
+
+    .season-link-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin-top: 4px;
+    }
+
+    .season-link {
+      font-size: 13px;
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .card-club .card-desc,
+    .card-club .quick-title {
+      color: rgba(17, 17, 17, 0.78);
+    }
+
+    .card-club .season-link {
+      color: #163a2b;
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .card-club .season-link:hover {
+      color: #0f2a1f;
+    }
+
+    .card-club .see-now {
+      color: #163a2b;
+      font-weight: 700;
+    }
+
+    .card-club .see-now:hover {
+      color: #0f2a1f;
+    }
+
+    .card-club .club-season-links .quick-title {
+      color: #163a2b;
+      font-weight: 700;
+    }
   </style>
 
-  <section class="updates">
-    <h2>🆕 更新情報</h2>
-    {
-      updates.length === 0 ? (
-        <p class="muted">更新情報は準備中です。</p>
-      ) : (
-        <ul>
-          {updates.map((u, i) => (
-            <li class={i === 0 ? "is-latest" : ""}>
-              <span class="date">{u.date.replaceAll("-", "/")}</span>
-              {u.href ? (
-                <a class="title-link" href={u.href}>
-                  <span class="title">{u.title}</span>
-                </a>
-              ) : (
-                <span class="title">{u.title}</span>
-              )}
-            </li>
-          ))}
-        </ul>
-      )
-    }
-  </section>
-
   <div class="container">
+    <section class="updates">
+      <h2>🆕 更新情報</h2>
+      {
+        updates.length === 0 ? (
+          <p class="muted">更新情報は準備中です。</p>
+        ) : (
+          <div class="updates-groups">
+            {groupedUpdates.map(([date, items]) => (
+              <section class="updates-group">
+                <div class="updates-group-date">
+                  {date.replaceAll("-", "/")}
+                </div>
+
+                <ul class="updates-group-list">
+                  {items.map((u) => (
+                    <li>
+                      {u.href ? (
+                        <a class="title-link" href={u.href}>
+                          <span class="title">{u.title}</span>
+                        </a>
+                      ) : (
+                        <span class="title">{u.title}</span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))}
+          </div>
+        )
+      }
+    </section>
+
     <div class="hero">
       <p class="subtitle">
         海外サッカーの代表・クラブ・選手情報を一覧で見られるデータベースサイトです。<br
@@ -1181,9 +1336,6 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               強豪国・日本代表・各国あゆみを見る
             </a>
           </div>
-          <div class="wc-mobile-more">
-            <a href="/nt/wc/legends">過去大会・歴代代表メンバーを見る</a>
-          </div>
 
           <!-- ✅ 追加：過去大会ミニ導線 -->
           <div class="wc-past-links">
@@ -1223,7 +1375,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             </p>
             <div class="card-meta">
               <span
-                >クラブ更新：<span class="date-red">{updatedAtClub}</span></span
+                >順位表更新：<span class="date-red">{updatedAtClub}</span></span
               >
               <span>
                 クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
@@ -1236,7 +1388,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
           <div class="card-shortcuts">
             <div class="shortcut-head">
-              <p class="quick-title">ショートカット：主要リーグから探す</p>
+              <p class="quick-title">⚡ショートカット：主要リーグから探す</p>
               <a class="see-now" href="/clubs">クラブ一覧へ →</a>
             </div>
 
@@ -1257,6 +1409,22 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                 <span class="dot" aria-hidden="true"></span>
                 全リーグ
               </a>
+            </div>
+            {/* ▼ 最新シーズン順位表 導線 */}
+            <div class="club-season-links">
+              <p class="quick-title">📊最新シーズン順位表：</p>
+              <div class="season-link-row">
+                {
+                  leagueShortcutsVisible.map((x) => (
+                    <a
+                      href={`/clubs/${x.league}/${DEFAULTS.currentClubSeason}`}
+                      class="season-link"
+                    >
+                      {x.label}
+                    </a>
+                  ))
+                }
+              </div>
             </div>
             <a class="legend-btn" href="/clubs/history">
               欧州強豪クラブのあゆみ（歴代メンバー）

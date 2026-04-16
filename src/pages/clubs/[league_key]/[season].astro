@@ -25,6 +25,7 @@ type LeagueStandingRow = {
   points?: string;
   status_code?: string;
   status_note?: string;
+  updated_at?: string;
 };
 
 type LeagueSeasonSummaryRow = {
@@ -33,9 +34,11 @@ type LeagueSeasonSummaryRow = {
   champion_club_key?: string;
   runnerup_club_key?: string;
   third_club_key?: string;
-  top_scorer_name?: string;
+  top_scorer_names?: string;
+  top_scorer_name?: string; // 後方互換
   top_scorer_goals?: string;
   top_scorer_club_keys?: string;
+  top_scorer_club_key?: string; // 後方互換
   note?: string;
 };
 
@@ -239,6 +242,13 @@ const summary = summaryAll.find(
     String(r.season ?? "").trim() === seasonKey,
 );
 
+const seasonUpdatedAt =
+  standings
+    .map((r) => String(r.updated_at ?? "").trim())
+    .filter(Boolean)
+    .sort()
+    .slice(-1)[0] ?? "";
+
 // --------------------
 // シーズン一覧（そのリーグに存在するもの）
 // --------------------
@@ -313,9 +323,15 @@ const thirdName = summary?.third_club_key
   ? clubName(summary.third_club_key)
   : "";
 
-const topScorerRaw = String(summary?.top_scorer_name ?? "").trim();
+const topScorerRaw = String(
+  summary?.top_scorer_names ?? summary?.top_scorer_names ?? "",
+).trim();
+
 const topScorerGoals = String(summary?.top_scorer_goals ?? "").trim();
-const topScorerClubRaw = String(summary?.top_scorer_club_key ?? "").trim();
+
+const topScorerClubRaw = String(
+  summary?.top_scorer_club_keys ?? summary?.top_scorer_club_keys ?? "",
+).trim();
 
 const topScorerNames = topScorerRaw
   ? topScorerRaw
@@ -345,6 +361,10 @@ const topScorerLabel =
   topScorerNames.length > 0 ? topScorerNames.join(" / ") : "";
 
 const noteText = String(summary?.note ?? "").trim();
+const isInProgressSeason = noteText.includes("途中経過");
+const standingsHeading = isInProgressSeason
+  ? `${leagueName} ${seasonKey} 順位表`
+  : `${leagueName} ${seasonKey} 順位表（最終順位）`;
 
 function getStatusClass(note: string | undefined) {
   const n = String(note ?? "").trim();
@@ -358,8 +378,10 @@ function getStatusClass(note: string | undefined) {
   return "";
 }
 
-const title = `${leagueName} ${seasonKey} 順位表｜最終順位・得点王・各クラブメンバー一覧`;
-const description = `${leagueName} ${seasonKey} の最終順位表です。優勝・上位クラブ・得点王と、各クラブのメンバー一覧ページへのリンクを掲載しています。`;
+const title = `${leagueName} ${seasonKey} 順位表｜得点王・各クラブメンバー一覧`;
+const description = isInProgressSeason
+  ? `${leagueName} ${seasonKey} の順位表です。各クラブの順位、勝点、得失点差とメンバー一覧ページへのリンクを掲載しています。`
+  : `${leagueName} ${seasonKey} の順位表です。上位クラブ・得点王と、各クラブのメンバー一覧ページへのリンクを掲載しています。`;
 const heading = `${leagueName} ${seasonKey}`;
 ---
 
@@ -406,7 +428,21 @@ const heading = `${leagueName} ${seasonKey}`;
   </div>
 
   <section class="season-summary">
-    <h2 class="sec-title">{leagueName} {seasonKey} シーズン概要</h2>
+    <div class="season-head">
+      <h2 class="sec-title">
+        {leagueName}
+        {seasonKey} シーズン概要
+      </h2>
+
+      {
+        seasonUpdatedAt && (
+          <div class="season-updated">
+            最終更新：
+            <span class="updated-date">{seasonUpdatedAt}</span>
+          </div>
+        )
+      }
+    </div>
 
     {
       (prevSeason || nextSeason) && (
@@ -439,104 +475,99 @@ const heading = `${leagueName} ${seasonKey}`;
     </p>
   </section>
 
-  <div class="summary-grid">
-    <div class="summary-stack">
-      <div class="summary-card summary-card-podium">
-        <div class="k">上位クラブ</div>
+  {
+    !isInProgressSeason && (
+      <div class="summary-grid">
+        <div class="summary-stack">
+          <div class="summary-card summary-card-podium">
+            <div class="k">上位クラブ</div>
 
-        <div class="podium-list">
-          <div class="podium-row">
-            <span class="podium-rank">1位</span>
-            <span class="podium-name">
-              {
-                summary?.champion_club_key ? (
-                  hasClubSquad(summary.champion_club_key) ? (
-                    <a href={clubHref(summary.champion_club_key)}>
-                      {championName}
-                    </a>
+            <div class="podium-list">
+              <div class="podium-row">
+                <span class="podium-rank">1位</span>
+                <span class="podium-name">
+                  {summary?.champion_club_key ? (
+                    hasClubSquad(summary.champion_club_key) ? (
+                      <a href={clubHref(summary.champion_club_key)}>
+                        {championName}
+                      </a>
+                    ) : (
+                      championName
+                    )
                   ) : (
-                    championName
-                  )
-                ) : (
-                  "—"
-                )
-              }
-            </span>
+                    "—"
+                  )}
+                </span>
+              </div>
+
+              <div class="podium-row">
+                <span class="podium-rank">2位</span>
+                <span class="podium-name">
+                  {summary?.runnerup_club_key ? (
+                    hasClubSquad(summary.runnerup_club_key) ? (
+                      <a href={clubHref(summary.runnerup_club_key)}>
+                        {runnerupName}
+                      </a>
+                    ) : (
+                      runnerupName
+                    )
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </div>
+
+              <div class="podium-row">
+                <span class="podium-rank">3位</span>
+                <span class="podium-name">
+                  {summary?.third_club_key ? (
+                    hasClubSquad(summary.third_club_key) ? (
+                      <a href={clubHref(summary.third_club_key)}>{thirdName}</a>
+                    ) : (
+                      thirdName
+                    )
+                  ) : (
+                    "—"
+                  )}
+                </span>
+              </div>
+            </div>
           </div>
 
-          <div class="podium-row">
-            <span class="podium-rank">2位</span>
-            <span class="podium-name">
-              {
-                summary?.runnerup_club_key ? (
-                  hasClubSquad(summary.runnerup_club_key) ? (
-                    <a href={clubHref(summary.runnerup_club_key)}>
-                      {runnerupName}
-                    </a>
-                  ) : (
-                    runnerupName
-                  )
-                ) : (
-                  "—"
-                )
-              }
-            </span>
-          </div>
+          <div class="summary-card summary-card-scorer">
+            <div class="k">得点王</div>
 
-          <div class="podium-row">
-            <span class="podium-rank">3位</span>
-            <span class="podium-name">
-              {
-                summary?.third_club_key ? (
-                  hasClubSquad(summary.third_club_key) ? (
-                    <a href={clubHref(summary.third_club_key)}>{thirdName}</a>
-                  ) : (
-                    thirdName
-                  )
-                ) : (
-                  "—"
-                )
-              }
-            </span>
+            {topScorers.length > 0 ? (
+              <div class="scorer-list">
+                {topScorers.map((p) => (
+                  <div class="scorer-row">
+                    <span class="scorer-name">🔥 {p.name}</span>
+                    {p.clubName &&
+                      (p.href ? (
+                        <a class="scorer-club" href={p.href}>
+                          {p.clubName}
+                        </a>
+                      ) : (
+                        <span class="scorer-club">{p.clubName}</span>
+                      ))}
+                  </div>
+                ))}
+                <div class="scorer-goals">
+                  {topScorerGoals ? `${topScorerGoals}得点` : ""}
+                </div>
+              </div>
+            ) : (
+              <div class="v">—</div>
+            )}
           </div>
         </div>
       </div>
-
-      <div class="summary-card summary-card-scorer">
-        <div class="k">得点王</div>
-
-        {
-          topScorers.length > 0 ? (
-            <div class="scorer-list">
-              {topScorers.map((p) => (
-                <div class="scorer-row">
-                  <span class="scorer-name">🔥 {p.name}</span>
-                  {p.clubName &&
-                    (p.href ? (
-                      <a class="scorer-club" href={p.href}>
-                        {p.clubName}
-                      </a>
-                    ) : (
-                      <span class="scorer-club">{p.clubName}</span>
-                    ))}
-                </div>
-              ))}
-              <div class="scorer-goals">
-                {topScorerGoals ? `${topScorerGoals}得点` : ""}
-              </div>
-            </div>
-          ) : (
-            <div class="v">—</div>
-          )
-        }
-      </div>
-    </div>
-  </div>
-
+    )
+  }
   {noteText && <p class="summary-note">※ {noteText}</p>}
 
   <section class="season-standings">
-    <h2 class="sec-title">{leagueName} {seasonKey} 順位表（最終順位）</h2>
+    <h2 class="sec-title">{standingsHeading}</h2>
     <p class="standings-legend">紺：CL / 橙：EL / 緑：ECL / 赤：降格</p>
 
     {
@@ -988,5 +1019,28 @@ const heading = `${leagueName} ${seasonKey}`;
   .page-club .standings-tbl tbody tr:first-child td.rank-col {
     font-weight: 900;
     font-size: 14px;
+  }
+
+  .season-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+  }
+
+  .season-updated {
+    font-size: 0.9rem;
+    white-space: nowrap;
+  }
+
+  @media (max-width: 640px) {
+    .season-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .season-updated {
+      margin-top: 4px;
+    }
   }
 </style>

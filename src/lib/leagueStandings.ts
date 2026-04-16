@@ -17,6 +17,7 @@ export type LeagueStandingRow = {
   points: number;
   status_code: string;
   status_note: string;
+  updated_at: string;
 };
 
 let cache: LeagueStandingRow[] | null = null;
@@ -53,6 +54,7 @@ export function loadLeagueStandings(): LeagueStandingRow[] {
     points: toNum(r.points),
     status_code: String(r.status_code ?? "").trim(),
     status_note: String(r.status_note ?? "").trim(),
+    updated_at: String(r.updated_at ?? "").trim(),
   }));
 
   return cache;
