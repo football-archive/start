@@ -269,7 +269,8 @@ const groupLinks = groupRows
     const undecided = isUndecidedPlayoffLabel(rawLabel);
     const label = undecided ? "プレーオフ勝者（未定）" : rawLabel;
 
-    const hasCallups = !undecided && callupCountrySetForYear.has(normKey(rawLabel));
+    const hasCallups =
+      !undecided && callupCountrySetForYear.has(normKey(rawLabel));
 
     return {
       label,
@@ -760,7 +761,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
   </section>
 
   <section class="star-block" aria-label="注目選手">
-    <h2 class="star-title">⭐ 注目選手</h2>
+    <h2 class="star-title">🔥 今大会の主力・注目選手</h2>
 
     {
       starRows.length > 0 ? (
@@ -1344,6 +1345,29 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       .star-pos {
         font-size: 11px;
       }
+    }
+
+    @media (max-width: 640px) {
+      .star-block {
+        display: block;
+      }
+
+      .star-title {
+        display: block;
+        margin-bottom: 8px;
+      }
+
+      .star-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+    }
+
+    .star-desc {
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 6px;
     }
   </style>
 </BaseLayout>

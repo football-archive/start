@@ -953,6 +953,82 @@ const searchTextFn = (r: any) =>
             </section>
           );
         })}
+
+        {seasonPacks.map((p) => {
+          const currentIndex = seasonCandidates.findIndex(
+            (s) => s === p.season,
+          );
+          const pastSeasons = seasonCandidates
+            .filter((s) => seasonStart(s) < seasonStart(p.season))
+            .slice(0, 4);
+
+          if (!pastSeasons.length) return null;
+
+          return (
+            <section
+              class="season-reco"
+              data-season={p.season}
+              data-season-reco-window="summer"
+              style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+              aria-label={`過去シーズン導線（夏 ${p.season}）`}
+            >
+              <div class="season-reco-title">このチームの過去シーズン</div>
+
+              <div class="season-reco-links">
+                {pastSeasons.map((s, idx) => (
+                  <>
+                    {idx > 0 && <span class="season-reco-sep"> / </span>}
+                    <a
+                      href={`?season=${encodeURIComponent(s)}&window=${p.defaultWindow}`}
+                    >
+                      {s}
+                    </a>
+                  </>
+                ))}
+              </div>
+
+              <div class="season-reco-more">
+                <a href={clubsListUrl({ leagueKey: league_key })}>
+                  {leagueLabel}のクラブ一覧へ
+                </a>
+              </div>
+            </section>
+          );
+        })}
+
+        {seasonPacks.map((p) => (
+          <section
+            class="season-reco"
+            data-season={p.season}
+            data-season-reco-window="winter"
+            style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+            aria-label={`過去シーズン導線（冬 ${p.season}）`}
+          >
+            <div class="season-reco-title">このチームの過去シーズン</div>
+
+            <div class="season-reco-links">
+              {seasonCandidates
+                .filter((s) => seasonStart(s) < seasonStart(p.season))
+                .slice(0, 4)
+                .map((s, idx) => (
+                  <>
+                    {idx > 0 && <span class="season-reco-sep"> / </span>}
+                    <a
+                      href={`?season=${encodeURIComponent(s)}&window=${p.defaultWindow}`}
+                    >
+                      {s}
+                    </a>
+                  </>
+                ))}
+            </div>
+
+            <div class="season-reco-more">
+              <a href={clubsListUrl({ leagueKey: league_key })}>
+                {leagueLabel}のクラブ一覧へ
+              </a>
+            </div>
+          </section>
+        ))}
       </>
     )
   }
@@ -989,6 +1065,10 @@ const searchTextFn = (r: any) =>
 
         const recoSections = Array.from(
           document.querySelectorAll("[data-reco-window][data-season]"),
+        );
+
+        const seasonRecoSections = Array.from(
+          document.querySelectorAll("[data-season-reco-window][data-season]"),
         );
 
         const seasonNavBlocks = Array.from(
@@ -1108,6 +1188,12 @@ const searchTextFn = (r: any) =>
             ).trim();
             setActive(curSeason, win);
           });
+        });
+
+        seasonRecoSections.forEach((sec) => {
+          const s = sec.getAttribute("data-season");
+          const w = sec.getAttribute("data-season-reco-window");
+          sec.style.display = s === season && w === win ? "" : "none";
         });
 
         seasonBtns.forEach((b) => {
@@ -1527,6 +1613,81 @@ const searchTextFn = (r: any) =>
       }
 
       .league-reco-more {
+        font-size: 12px;
+      }
+    }
+    @media (max-width: 640px) {
+      .star-block {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .star-title {
+        width: 100%;
+        margin-bottom: 4px;
+      }
+    }
+
+    .season-reco {
+      margin: 12px 0 0;
+      padding-top: 10px;
+      border-top: 1px solid color-mix(in srgb, var(--theme-color) 14%, #d1d5db);
+    }
+
+    .season-reco-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--theme-color);
+      line-height: 1.4;
+    }
+
+    .season-reco-links {
+      margin-top: 6px;
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .season-reco-links a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .season-reco-links a:hover {
+      color: var(--theme-color);
+    }
+
+    .season-reco-sep {
+      opacity: 0.45;
+    }
+
+    .season-reco-more {
+      margin-top: 6px;
+      font-size: 12px;
+    }
+
+    .season-reco-more a {
+      color: var(--theme-color);
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .season-reco-more a:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .season-reco-title {
+        font-size: 12px;
+      }
+
+      .season-reco-links {
+        font-size: 13px;
+        line-height: 1.75;
+      }
+
+      .season-reco-more {
         font-size: 12px;
       }
     }

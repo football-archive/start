@@ -415,6 +415,21 @@ const heading = leagueName;
 
   <section style="margin: 18px 0 20px;">
     <h2 class="sec-title">掲載シーズン（順位表・シーズンページ）</h2>
+    {
+      latestSeason && (
+        <div class="league-start-nav">
+          <div class="league-start-label">まずはこちら</div>
+          <div class="league-start-links">
+            <a
+              class="league-start-link"
+              href={`/clubs/${leagueKey}/${latestSeason}`}
+            >
+              {latestSeason} 順位表を見る
+            </a>
+          </div>
+        </div>
+      )
+    }
 
     <section class="league-summary">
       <div class="summary-meta">
@@ -605,6 +620,61 @@ const heading = leagueName;
       font-size: 13px;
       color: var(--muted);
       line-height: 1.5;
+    }
+
+    .page-club .league-start-nav {
+      margin: 6px 0 12px;
+      padding: 10px 12px;
+      border: 1px solid var(--theme-soft-border);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--theme-color) 10%, #ffffff);
+    }
+
+    .page-club .league-start-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .page-club .league-start-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 14px;
+    }
+
+    .page-club .league-start-link {
+      font-size: 13px;
+      font-weight: 700;
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-club .league-start-link:hover {
+      color: var(--theme-link);
+    }
+
+    @media (max-width: 640px) {
+      .page-club .league-start-nav {
+        padding: 9px 10px;
+        margin: 4px 0 10px;
+      }
+
+      .page-club .league-start-label {
+        font-size: 11.5px;
+        margin-bottom: 5px;
+      }
+
+      .page-club .league-start-links {
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .page-club .league-start-link {
+        font-size: 12.5px;
+        line-height: 1.4;
+      }
     }
   </style>
 </BaseLayout>
