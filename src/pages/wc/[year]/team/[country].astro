@@ -93,6 +93,14 @@ type NtTournamentMetaRow = {
   host_ja?: string;
 };
 
+type FifaRankRow = {
+  competition: string;
+  year: string;
+  country_name_ja: string;
+  fifa_rank?: string;
+  rank_date?: string;
+};
+
 function readCsv(fileName: string) {
   const p = path.join(process.cwd(), "src", "data", fileName);
   const text = fs.readFileSync(p, "utf-8");
@@ -126,12 +134,34 @@ const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
   }),
 );
 
+const fifaRankAll: FifaRankRow[] = readCsv("fifa_rank.csv").map((r: any) => ({
+  competition: String(r.competition ?? "").trim(),
+  year: String(r.year ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  fifa_rank: String(r.fifa_rank ?? "").trim(),
+  rank_date: String(r.rank_date ?? "").trim(),
+}));
+
 const metaRow = metaAll.find(
   (m) =>
     String(m.competition ?? "").toUpperCase() === "WC" &&
     String(m.edition ?? "") === String(year) &&
     String(m.team_slug ?? "") === teamSlug,
 );
+
+const fifaRankRow = fifaRankAll
+  .filter(
+    (r) =>
+      String(r.competition ?? "").toUpperCase() === "WC" &&
+      String(r.year ?? "").trim() === String(year) &&
+      normKey(r.country_name_ja ?? "") === normKey(countryName),
+  )
+  .sort((a, b) =>
+    String(b.rank_date ?? "").localeCompare(String(a.rank_date ?? "")),
+  )[0];
+
+const fifaRank = String(fifaRankRow?.fifa_rank ?? "").trim();
+const fifaRankDate = String(fifaRankRow?.rank_date ?? "").trim();
 
 // 大会名（開催地）＋年：例「ロシア2018」
 // host_ja があれば付ける。無ければ年だけ（例「2018」）
@@ -149,8 +179,41 @@ const tournamentText = tournamentLabel || `W杯${year}`;
 const heroMetaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
   const coach = String(metaRow?.coach_ja ?? "").trim();
-  return [result, coach].filter(Boolean).join(" ｜ ");
+
+  const coachText = coach ? `監督：${coach}` : "";
+
+  return [result, coachText].filter(Boolean).join(" ｜ ");
 })();
+
+const previousMetaRow = metaAll
+  .filter(
+    (m) =>
+      String(m.competition ?? "").toUpperCase() === "WC" &&
+      String(m.team_slug ?? "").trim() === teamSlug &&
+      Number(String(m.edition ?? "").trim()) < Number(String(year)),
+  )
+  .sort(
+    (a, b) =>
+      Number(String(b.edition ?? "").trim()) -
+      Number(String(a.edition ?? "").trim()),
+  )[0];
+
+const previousEdition = String(previousMetaRow?.edition ?? "").trim();
+const previousResult = String(previousMetaRow?.result_ja ?? "").trim();
+
+const previousHasCallups =
+  previousEdition &&
+  loadCallups().some(
+    (r: any) =>
+      String(r.competition ?? "").toUpperCase() === "WC" &&
+      String(r.edition ?? "").trim() === String(previousEdition) &&
+      normKey(r.country ?? "") === normKey(countryName),
+  );
+
+const previousTournamentHref =
+  previousEdition && previousHasCallups
+    ? `/wc/${encodeURIComponent(previousEdition)}/team/${encodeURIComponent(countryName)}`
+    : "";
 
 // 更新日（その国×その年 の callups の最新スナップショット）
 const maxSnapshot = (() => {
@@ -390,6 +453,10 @@ const rowHighlightClass = (r: any) => {
 const currentWcYear = "2026"; // 手動更新：最新大会に合わせて切替
 const isCurrentEdition = String(year) === currentWcYear;
 
+const pastYears = yearsForCountry.filter((y) => Number(y) < Number(year));
+
+const isFirstAppearance = isCurrentEdition && pastYears.length === 0;
+
 // ====================
 // 統計（平均年齢 + 5大リーグ）
 // ※ 最新大会だけ表示
@@ -504,7 +571,7 @@ const leagueText = leagueOrder
     leagueCounts[l] ? `${leagueLabel(l)}: ${leagueCounts[l]}` : null,
   )
   .filter(Boolean)
-  .join(" / ");
+  .join("　|　");
 
 const starRows = rows
   .filter((r) => String((r as any).is_star ?? "").trim() === "1")
@@ -740,13 +807,67 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
 
       <div class="nt-meta-block">
-        {heroMetaLine && <div class="nt-hero-meta">{heroMetaLine}</div>}
+        <div class="nt-hero-meta-row">
+          {
+            group && (
+              <a
+                class="pill nt-meta-pill"
+                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+              >
+                🔠 グループ {group}
+              </a>
+            )
+          }
+
+          {
+            heroMetaLine && (
+              <span class="nt-hero-meta-text">{heroMetaLine}</span>
+            )
+          }
+        </div>
+
+        {
+          (fifaRank || previousEdition || isFirstAppearance) && (
+            <div class="nt-meta-row">
+              {fifaRank && <span>★ FIFAランク：{fifaRank}位</span>}
+
+              {fifaRank && (previousEdition || isFirstAppearance) && (
+                <span class="nt-meta-sep">｜</span>
+              )}
+
+              {previousEdition && (
+                <span>
+                  ★ 前回：{" "}
+                  {previousTournamentHref ? (
+                    <a
+                      class="pill nt-meta-pill nt-meta-pill-inline"
+                      href={previousTournamentHref}
+                    >
+                      {previousEdition}
+                    </a>
+                  ) : (
+                    <span class="pill nt-meta-pill nt-meta-pill-inline is-disabled">
+                      {previousEdition}
+                    </span>
+                  )}
+                  {previousResult ? ` ${previousResult}` : ""}
+                </span>
+              )}
+
+              {!previousEdition && isFirstAppearance && <span>㊗️ 初出場</span>}
+            </div>
+          )
+        }
 
         {
           showTeamStats && avgAge && (
-            <div class="nt-team-stats">
-              平均年齢：{avgAge}歳{leagueText ? ` ｜ ${leagueText}` : ""}
-            </div>
+            <div class="nt-meta-row">★ 平均年齢：{avgAge}歳</div>
+          )
+        }
+
+        {
+          showTeamStats && leagueText && (
+            <div class="nt-meta-row">★ 5大リーグ所属：{leagueText}</div>
           )
         }
 
@@ -952,13 +1073,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     /* 統計 */
-    .team-stats {
-      font-size: 13px;
-      color: var(--theme-color);
-      font-weight: 600;
-      margin: 8px 0;
-    }
-
     @media (max-width: 900px) {
       .star-grid {
         grid-template-columns: repeat(2, 1fr);
@@ -1193,6 +1307,42 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       overflow-wrap: anywhere;
     }
 
+    .nt-hero-meta-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+      margin-top: 0;
+    }
+
+    .nt-meta-pill {
+      font-size: 12px;
+      line-height: 1;
+      padding: 6px 10px;
+    }
+
+    .nt-hero-meta-text {
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--meta-color, #7a2e2e);
+    }
+
+    @media (max-width: 640px) {
+      .nt-hero-meta-row {
+        gap: 6px 8px;
+      }
+
+      .nt-meta-pill {
+        font-size: 11px;
+        padding: 6px 9px;
+      }
+
+      .nt-hero-meta-text {
+        font-size: 13px;
+      }
+    }
+
     .nt-team-stats {
       margin: 2px 0 0;
       font-size: 14px;
@@ -1347,27 +1497,103 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
     }
 
-    @media (max-width: 640px) {
-      .star-block {
-        display: block;
-      }
-
-      .star-title {
-        display: block;
-        margin-bottom: 8px;
-      }
-
-      .star-list {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 6px;
-      }
-    }
-
     .star-desc {
       font-size: 12px;
       color: #666;
       margin-bottom: 6px;
+    }
+
+    .nt-team-stats {
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--meta-color, #7a2e2e);
+    }
+
+    .nt-team-stats {
+      margin: 2px 0 0;
+    }
+
+    .nt-meta-row {
+      margin-top: 2px;
+      font-size: 14px;
+      line-height: 1.3;
+      font-weight: 700;
+      color: var(--meta-color, #7a2e2e);
+    }
+
+    .nt-meta-sep {
+      margin: 0 6px;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 640px) {
+      .nt-meta-row {
+        font-size: 13px;
+        line-height: 1.35;
+      }
+
+      .nt-meta-sep {
+        margin: 0 4px;
+      }
+    }
+
+    .nt-meta-pill-previous {
+      background: color-mix(in srgb, var(--theme-color) 10%, #ffffff);
+      border-color: color-mix(in srgb, var(--theme-color) 26%, var(--border));
+      color: var(--meta-color, #7a2e2e);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    .nt-meta-pill-previous:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .nt-meta-pill-inline {
+      display: inline-flex;
+      align-items: center;
+      margin: 0 4px;
+      padding: 4px 8px;
+      font-size: 11px;
+      line-height: 1;
+      vertical-align: middle;
+      text-decoration: none;
+    }
+
+    .nt-meta-pill-inline.is-disabled {
+      opacity: 0.72;
+      cursor: default;
+    }
+
+    .nt-meta-pill-inline:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    @media (max-width: 640px) {
+      .page-wc .star-block {
+        display: block !important;
+      }
+
+      .page-wc .star-title {
+        display: block;
+        width: 100%;
+        margin: 0 0 8px;
+      }
+
+      .page-wc .star-grid {
+        display: grid !important;
+        width: 100%;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+
+      .page-wc .star-card {
+        min-width: 0;
+        width: 100%;
+      }
     }
   </style>
 </BaseLayout>
