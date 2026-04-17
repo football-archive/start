@@ -955,9 +955,6 @@ const searchTextFn = (r: any) =>
         })}
 
         {seasonPacks.map((p) => {
-          const currentIndex = seasonCandidates.findIndex(
-            (s) => s === p.season,
-          );
           const pastSeasons = seasonCandidates
             .filter((s) => seasonStart(s) < seasonStart(p.season))
             .slice(0, 4);
@@ -1152,6 +1149,7 @@ const searchTextFn = (r: any) =>
             sec.style.display = s === season && w === win ? "" : "none";
           });
 
+
           windowBtns.forEach((b) => {
             b.classList.toggle(
               "is-active",
@@ -1188,12 +1186,6 @@ const searchTextFn = (r: any) =>
             ).trim();
             setActive(curSeason, win);
           });
-        });
-
-        seasonRecoSections.forEach((sec) => {
-          const s = sec.getAttribute("data-season");
-          const w = sec.getAttribute("data-season-reco-window");
-          sec.style.display = s === season && w === win ? "" : "none";
         });
 
         seasonBtns.forEach((b) => {
