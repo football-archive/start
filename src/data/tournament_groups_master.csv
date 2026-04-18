@@ -51,42 +51,34 @@ WC,2022,group,A,1,オランダ,netherlands,オランダ,0,,from wikipedia,1,3,2,
 WC,2022,group,A,2,セネガル,senegal,セネガル,0,,from wikipedia,2,3,2,0,1,5,4,1,6
 WC,2022,group,A,3,エクアドル,ecuador,エクアドル,0,,from wikipedia,3,3,1,1,1,4,3,1,4
 WC,2022,group,A,4,カタール,qatar,カタール,0,,from wikipedia,4,3,0,0,3,1,7,-6,0
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,B,1,イングランド,england,イングランド,0,,from wikipedia,1,3,2,1,0,9,2,7,7
 WC,2022,group,B,2,アメリカ,usa,アメリカ,0,,from wikipedia,2,3,1,2,0,2,1,1,5
 WC,2022,group,B,3,イラン,iran,イラン,0,,from wikipedia,3,3,1,0,2,4,7,-3,3
 WC,2022,group,B,4,ウェールズ,wales,ウェールズ,0,,from wikipedia,4,3,0,1,2,1,6,-5,1
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,C,1,アルゼンチン,argentina,アルゼンチン,0,,from wikipedia,1,3,2,0,1,5,2,3,6
 WC,2022,group,C,2,ポーランド,poland,ポーランド,0,,from wikipedia,2,3,1,1,1,2,2,0,4
 WC,2022,group,C,3,メキシコ,mexico,メキシコ,0,,from wikipedia,3,3,1,1,1,2,3,-1,4
 WC,2022,group,C,4,サウジアラビア,saudi-arabia,サウジアラビア,0,,from wikipedia,4,3,1,0,2,3,5,-2,3
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,D,1,フランス,france,フランス,0,,from wikipedia,1,3,2,0,1,6,3,3,6
 WC,2022,group,D,2,オーストラリア,australia,オーストラリア,0,,from wikipedia,2,3,2,0,1,3,4,-1,6
 WC,2022,group,D,3,チュニジア,tunisia,チュニジア,0,,from wikipedia,3,3,1,1,1,1,1,0,4
 WC,2022,group,D,4,デンマーク,denmark,デンマーク,0,,from wikipedia,4,3,0,1,2,1,3,-2,1
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,E,1,日本,japan,日本,0,,from wikipedia,1,3,2,0,1,4,3,1,6
 WC,2022,group,E,2,スペイン,spain,スペイン,0,,from wikipedia,2,3,1,1,1,9,3,6,4
 WC,2022,group,E,3,ドイツ,germany,ドイツ,0,,from wikipedia,3,3,1,1,1,6,5,1,4
 WC,2022,group,E,4,コスタリカ,costa-rica,コスタリカ,0,,from wikipedia,4,3,1,0,2,3,11,-8,3
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,F,1,モロッコ,morocco,モロッコ,0,,from wikipedia,1,3,2,1,0,4,1,3,7
 WC,2022,group,F,2,クロアチア,croatia,クロアチア,0,,from wikipedia,2,3,1,2,0,4,1,3,5
 WC,2022,group,F,3,ベルギー,belgium,ベルギー,0,,from wikipedia,3,3,1,1,1,1,2,-1,4
 WC,2022,group,F,4,カナダ,canada,カナダ,0,,from wikipedia,4,3,0,0,3,2,7,-5,0
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,G,1,ブラジル,brazil,ブラジル,0,,from wikipedia,1,3,2,0,1,3,1,2,6
 WC,2022,group,G,2,スイス,switzerland,スイス,0,,from wikipedia,2,3,2,0,1,4,3,1,6
 WC,2022,group,G,3,カメルーン,cameroon,カメルーン,0,,from wikipedia,3,3,1,1,1,4,4,0,4
 WC,2022,group,G,4,セルビア,serbia,セルビア,0,,from wikipedia,4,3,0,1,2,5,8,-3,1
-,,,,,,,,,,,,,,,,,,,
 WC,2022,group,H,1,ポルトガル,portugal,ポルトガル,0,,from wikipedia,1,3,2,0,1,6,4,2,6
 WC,2022,group,H,2,韓国,south-korea,韓国,0,,from wikipedia,2,3,1,1,1,4,4,0,4
 WC,2022,group,H,3,ウルグアイ,uruguay,ウルグアイ,0,,from wikipedia,3,3,1,1,1,2,2,0,4
 WC,2022,group,H,4,ガーナ,ghana,ガーナ,0,,from wikipedia,4,3,1,0,2,5,7,-2,3
-,,,,,,,,,,,,,,,,,,,
 WC,2018,group,A,1,ウルグアイ,ウルグアイ,ウルグアイ,0,,FIFA公式結果ベース,1,3,3,0,0,5,0,5,9
 WC,2018,group,A,2,ロシア,ロシア,ロシア,0,,FIFA公式結果ベース,2,3,2,0,1,8,4,4,6
 WC,2018,group,A,3,サウジアラビア,サウジアラビア,サウジアラビア,0,,FIFA公式結果ベース,3,3,1,0,2,2,7,-5,3

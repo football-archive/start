@@ -286,6 +286,8 @@ const seasons = Array.from(
   ),
 ).sort((a, b) => seasonStartYear(b) - seasonStartYear(a));
 
+const latestStandingSeason = seasons[0] ?? "";
+
 const latestSeason =
   Array.from(latestMetaByClub.values())
     .map((m) => String(m.season ?? "").trim())
@@ -416,15 +418,15 @@ const heading = leagueName;
   <section style="margin: 18px 0 20px;">
     <h2 class="sec-title">掲載シーズン（順位表・シーズンページ）</h2>
     {
-      latestSeason && (
+      latestStandingSeason && (
         <div class="league-start-nav">
           <div class="league-start-label">まずはこちら</div>
           <div class="league-start-links">
             <a
               class="league-start-link"
-              href={`/clubs/${leagueKey}/${latestSeason}`}
+              href={`/clubs/${leagueKey}/${latestStandingSeason}`}
             >
-              {latestSeason} 順位表を見る
+              {latestStandingSeason} 順位表を見る
             </a>
           </div>
         </div>
@@ -456,7 +458,7 @@ const heading = leagueName;
             </a>
           ))
         ) : (
-          <span class="muted">準備中</span>
+          <span class="muted">※各シーズン別の順位表データは掲載準備中です</span>
         )
       }
     </div>
