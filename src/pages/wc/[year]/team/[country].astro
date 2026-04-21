@@ -698,79 +698,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
   ]}
   heading={heading}
 >
-  {
-    yearsForCountry.length > 1 && (
-      <div class="pills nt-year-pills" aria-label="大会年切替">
-        {yearsForCountry.map((y) => (
-          <a
-            class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
-            href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
-          >
-            <span class="dot" aria-hidden="true" />
-            {y}
-          </a>
-        ))}
-      </div>
-    )
-  }
-
-  {
-    (continent ||
-      group ||
-      continentLinks.length > 0 ||
-      groupLinks.length > 0) && (
-      <div class="nt-nav-pills">
-        {/* ===== 大陸 ===== */}
-        {(continent || continentLinks.length > 0) && (
-          <div class="nt-nav-row">
-            {continent && (
-              <a
-                class="pill"
-                href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
-              >
-                🌍 {continent}
-              </a>
-            )}
-
-            {continentLinks.map((item) =>
-              item.href ? (
-                <a class="pill nt-related-pill" href={item.href}>
-                  {item.label}
-                </a>
-              ) : (
-                <span class="pill nt-related-pill is-muted">{item.label}</span>
-              ),
-            )}
-          </div>
-        )}
-
-        {/* ===== グループ ===== */}
-        {(group || groupLinks.length > 0) && (
-          <div class="nt-nav-row">
-            {group && (
-              <a
-                class="pill"
-                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
-              >
-                🔠 グループ {group}
-              </a>
-            )}
-
-            {groupLinks.map((item) =>
-              item.href ? (
-                <a class="pill nt-related-pill" href={item.href}>
-                  {item.label}
-                </a>
-              ) : (
-                <span class="pill nt-related-pill is-muted">{item.label}</span>
-              ),
-            )}
-          </div>
-        )}
-      </div>
-    )
-  }
-
   {/*  更新日 + メタ（注目選手の上に置く：状態 → 内容の順） */}
   <div class="nt-title-divider" aria-hidden="true"></div>
 
@@ -790,11 +717,101 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         </span>
       </p>
 
-      <div class="nt-tournament-link">
-        <a href={tournamentHref}>
-          ← {tournamentText} ポータルページへ
-        </a>
+      <div class="nt-guide-block" aria-label="関連ページへの導線">
+        {
+          yearsForCountry.length > 1 && (
+            <div class="nt-related-block">
+              <div class="nt-related-label">
+                👉 {countryName}の過去大会を見る
+              </div>
+              <div class="pills nt-year-pills">
+                {yearsForCountry.map((y) => (
+                  <a
+                    class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
+                    href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
+                  >
+                    <span class="dot" aria-hidden="true" />
+                    {y}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )
+        }
+
+        {
+          (continent || continentLinks.length > 0) && (
+            <div class="nt-related-block">
+              <div class="nt-related-label">
+                👉 {countryName}と同じ大陸の国を見る
+              </div>
+              <div class="nt-nav-row">
+                {continent && (
+                  <a
+                    class="pill"
+                    href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
+                  >
+                    🌍 {continent}
+                  </a>
+                )}
+
+                {continentLinks.map((item) =>
+                  item.href ? (
+                    <a class="pill nt-related-pill" href={item.href}>
+                      {item.label}
+                    </a>
+                  ) : (
+                    <span class="pill nt-related-pill is-muted">
+                      {item.label}
+                    </span>
+                  ),
+                )}
+              </div>
+            </div>
+          )
+        }
+
+        {
+          (group || groupLinks.length > 0) && (
+            <div class="nt-related-block">
+              <div class="nt-related-label">
+                👉 {countryName}と同じグループの国を見る
+              </div>
+              <div class="nt-nav-row">
+                {group && (
+                  <a
+                    class="pill"
+                    href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+                  >
+                    🔠 グループ {group}
+                  </a>
+                )}
+
+                {groupLinks.map((item) =>
+                  item.href ? (
+                    <a class="pill nt-related-pill" href={item.href}>
+                      {item.label}
+                    </a>
+                  ) : (
+                    <span class="pill nt-related-pill is-muted">
+                      {item.label}
+                    </span>
+                  ),
+                )}
+              </div>
+            </div>
+          )
+        }
+
+        <div class="nt-related-block">
+          <div class="nt-related-label">👉 大会全体を見る</div>
+          <div class="nt-tournament-link">
+            <a href={tournamentHref}>← {tournamentText} ポータルページへ</a>
+          </div>
+        </div>
       </div>
+
+      <div class="nt-guide-divider" aria-hidden="true"></div>
 
       {
         statusSuffix && (
@@ -807,24 +824,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
 
       <div class="nt-meta-block">
-        <div class="nt-hero-meta-row">
-          {
-            group && (
-              <a
-                class="pill nt-meta-pill"
-                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
-              >
-                🔠 グループ {group}
-              </a>
-            )
-          }
-
-          {
-            heroMetaLine && (
-              <span class="nt-hero-meta-text">{heroMetaLine}</span>
-            )
-          }
-        </div>
+        {heroMetaLine && <div class="nt-meta-row">{heroMetaLine}</div>}
 
         {
           (fifaRank || previousEdition || isFirstAppearance) && (
@@ -1115,11 +1115,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         line-height: 1.28;
       }
 
-      .hero-desc {
-        font-size: 12px;
-        line-height: 1.35;
-      }
-
       .nt-tournament-link a {
         font-size: 13px;
       }
@@ -1230,9 +1225,9 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .hero-desc {
-      margin: 6px 0 0;
+      margin: 4px 0 2px;
       font-size: 13px;
-      line-height: 1.35;
+      line-height: 1.5;
       color: #666;
       white-space: normal;
       overflow: visible;
@@ -1594,6 +1589,64 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         min-width: 0;
         width: 100%;
       }
+    }
+
+    .nt-guide-block {
+      margin: 10px 0 0;
+      display: grid;
+      gap: 6px;
+    }
+
+    .nt-related-block {
+      margin: 0;
+    }
+
+    .nt-related-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin: 0 0 2px;
+    }
+
+    .nt-year-pills {
+      margin: 0;
+    }
+
+    .nt-nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .nt-tournament-link {
+      margin: 0;
+    }
+
+    .nt-meta-block {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .nt-guide-block {
+        gap: 8px;
+      }
+
+      .nt-related-label {
+        font-size: 11px;
+        margin-bottom: 5px;
+      }
+    }
+
+    .nt-guide-divider {
+      height: 2px;
+      margin: 12px 0 14px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--theme-color) 35%, #999),
+        transparent
+      );
     }
   </style>
 </BaseLayout>

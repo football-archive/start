@@ -20,9 +20,6 @@ import {
   findCtSeasonMeta,
 } from "../../../../lib/ctSeasonMeta";
 
-// ★ URLヘルパー
-import { clubsListUrl } from "../../../../lib/urls";
-
 import { loadLeagueStandings } from "../../../../lib/leagueStandings";
 
 import { buildRepHistoryLinksFromCallups } from "../../../../lib/repCandidate";
@@ -62,6 +59,7 @@ const leagueInMaster = !!leagueInfo;
 
 const clubLabel = clubInfo?.club_display_ja ?? club_key;
 const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
+const leagueTopPath = `/clubs/${encodeURIComponent(league_key)}/`;
 
 // --------------------
 // country master
@@ -149,12 +147,21 @@ const buildClubStatsLine = (
   snapshot: string,
   enabled: boolean,
 ) => {
-  if (!enabled || !rows.length) return "";
+  if (!enabled || !rows.length) {
+    return {
+      avgAgeText: "",
+      continentText: "",
+    };
+  }
 
   const base = new Date(String(snapshot || "").replace(/\//g, "-"));
-  if (isNaN(base.getTime())) return "";
+  if (isNaN(base.getTime())) {
+    return {
+      avgAgeText: "",
+      continentText: "",
+    };
+  }
 
-  // 平均年齢
   const ages = rows
     .map((r) => calcAge(String(r.birth_date ?? ""), base))
     .filter((a) => a !== null) as number[];
@@ -164,7 +171,6 @@ const buildClubStatsLine = (
       ? (ages.reduce((a, b) => a + b, 0) / ages.length).toFixed(1)
       : "";
 
-  // 大陸別（先頭国籍のみ）
   const counts: Record<string, number> = {};
   for (const r of rows) {
     const nat = firstNationality(r.nationality);
@@ -180,13 +186,15 @@ const buildClubStatsLine = (
   }
 
   const order = ["欧州", "南米", "北中米", "アフリカ", "アジア", "オセアニア"];
-  const continentText = order
+  const continentBody = order
     .map((label) => (counts[label] ? `${label}: ${counts[label]}` : null))
     .filter(Boolean)
     .join(" / ");
 
-  if (!avgAge) return continentText ? `大陸別：${continentText}` : "";
-  return `平均年齢：${avgAge}歳${continentText ? ` ｜ ${continentText}` : ""}`;
+  return {
+    avgAgeText: avgAge ? `平均年齢：${avgAge}歳` : "",
+    continentText: continentBody ? `大陸別：${continentBody}` : "",
+  };
 };
 
 // --------------------
@@ -251,8 +259,14 @@ type SeasonPack = {
   starRowsWinter: any[];
   isLatestViewSummer: boolean;
   isLatestViewWinter: boolean;
-  statsSummer: string;
-  statsWinter: string;
+  statsSummer: {
+    avgAgeText: string;
+    continentText: string;
+  };
+  statsWinter: {
+    avgAgeText: string;
+    continentText: string;
+  };
 };
 
 const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
@@ -541,6 +555,16 @@ const leaguePills = leagueMaster
 // 検索テキスト共通
 const searchTextFn = (r: any) =>
   `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
+
+const initialRec = getRecommendedLeagueClubs(initialSeason);
+
+const topPastSeasons = seasonCandidates
+  .filter((s) => seasonStart(s) < seasonStart(initialSeason))
+  .slice(0, 6);
+
+const topLeagueClubLinks = initialRec.items;
+
+const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 ---
 
 <BaseLayout
@@ -552,58 +576,223 @@ const searchTextFn = (r: any) =>
   crumbs={[
     { label: "トップ", href: "/" },
     { label: "クラブ", href: "/clubs" },
-    { label: leagueLabel, href: clubsListUrl({ leagueKey: league_key }) },
+    { label: leagueLabel, href: leagueTopPath },
     { label: clubLabel },
   ]}
   heading={heading}
 >
+  {
+    seasonPacks.map((p) => {
+      const meta = ctMetaParts(p.season);
+
+      const seasonIndex = seasonCandidates.findIndex((s) => s === p.season);
+      const prevSeason =
+        seasonIndex >= 0 && seasonIndex < seasonCandidates.length - 1
+          ? seasonCandidates[seasonIndex + 1]
+          : "";
+      const nextSeason =
+        seasonIndex > 0 ? seasonCandidates[seasonIndex - 1] : "";
+
+      return (
+        <div
+          class="club-hero"
+          data-title-season={p.season}
+          style={`display:${p.season === initialSeason ? "" : "none"}`}
+        >
+          <h2 class="club-hero-title">
+            {clubLabel} {seasonLong(p.season)}{" "}
+            メンバー一覧｜背番号・代表歴・年齢（最新）
+          </h2>
+
+          <p class="hero-desc">
+            {clubLabel}の{seasonLong(p.season)}
+            所属選手一覧。背番号・国籍・加入日・代表歴・生年月日・身長などを掲載。
+          </p>
+        </div>
+      );
+    })
+  }
+
   {/* ✅ H1直下に「リーグピル＋同リーグ一覧＋全リーグ」を配置 */}
-  <div slot="under-title" class="club-top-block">
-    <div class="pills club-league-pills" style="margin: 10px 0 14px;">
+  <div class="club-top-block">
+    <div class="club-guide-block" aria-label="関連ページへの導線">
       {
-        leaguePills.map((p) => (
-          <a
-            class={`pill ${p.key === league_key ? "is-active" : ""}`}
-            href={clubsListUrl({ leagueKey: p.key })}
-          >
-            <span class="dot" aria-hidden="true" />
-            {p.label}
-          </a>
-        ))
+        topPastSeasons.length > 0 && (
+          <div class="club-related-block">
+            <div class="club-related-label">
+              👉 {clubLabel}の過去シーズンを見る
+            </div>
+            <div class="pills club-season-top-pills">
+              {seasonCandidates.map((s) => (
+                <button
+                  type="button"
+                  class={`pill ${s === initialSeason ? "is-active" : ""}`}
+                  data-season-top={s}
+                >
+                  {seasonShort(s)}
+                </button>
+              ))}
+            </div>
+          </div>
+        )
       }
 
-      <a class="pill" href={clubsListUrl({ leagueKey: league_key })}>
-        <span class="dot" aria-hidden="true"></span>同リーグのクラブ一覧
-      </a>
+      {
+        topLeagueClubLinks.length > 0 && (
+          <div class="club-related-block">
+            <div class="club-related-label">👉 同リーグのクラブを見る</div>
+            <div class="club-nav-row">
+              {topLeagueClubLinks.map((item) => (
+                <a class="pill" href={item.href}>
+                  {item.label}
+                </a>
+              ))}
+              <a class="pill" href={leagueTopPath}>
+                同リーグのクラブ一覧
+              </a>
+            </div>
+          </div>
+        )
+      }
 
-      <a class="pill" href="/clubs">
-        <span class="dot" aria-hidden="true"></span>全リーグ
-      </a>
+      {
+        topOtherLeaguePills.length > 0 && (
+          <div class="club-related-block">
+            <div class="club-related-label">👉 他のリーグを見る</div>
+            <div class="club-nav-row">
+              {topOtherLeaguePills.map((p) => (
+                <a class="pill" href={`/clubs/${encodeURIComponent(p.key)}/`}>
+                  <span class="dot" aria-hidden="true" />
+                  {p.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <div class="club-related-block">
+        <div class="club-related-label">👉 同リーグ全体を見る</div>
+        <div class="club-league-top-link">
+          <a href={leagueTopPath}>
+            ← {leagueLabel}トップへ
+          </a>
+        </div>
+      </div>
     </div>
   </div>
 
-  {/* ✅ season pills（JSで切替） */}
+  <div class="club-title-divider" aria-hidden="true"></div>
+
   {
-    seasonCandidates.length > 0 ? (
-      <div
-        class="pills season-toggle"
-        style="margin: 0 0 14px;"
-        data-default-season={initialSeason}
-      >
-        {seasonCandidates.map((s) => {
-          const active = s === initialSeason;
-          return (
-            <button
-              type="button"
-              class={`pill ${active ? "is-active" : ""}`}
-              data-season={s}
-            >
-              {seasonShort(s)}
-            </button>
-          );
-        })}
-      </div>
-    ) : null
+    seasonPacks.map((p) => {
+      const seasonIndex = seasonCandidates.findIndex((s) => s === p.season);
+      const prevSeason =
+        seasonIndex >= 0 && seasonIndex < seasonCandidates.length - 1
+          ? seasonCandidates[seasonIndex + 1]
+          : "";
+      const nextSeason =
+        seasonIndex > 0 ? seasonCandidates[seasonIndex - 1] : "";
+
+      return (
+        <div
+          class="season-jump"
+          data-nav-season={p.season}
+          style={`display:${p.season === initialSeason ? "" : "none"}`}
+        >
+          <div class="season-jump-inner">
+            {prevSeason ? (
+              <a
+                class="season-jump-link is-prev"
+                href={`?season=${prevSeason}&window=${p.defaultWindow}`}
+              >
+                ← 前シーズンへ（{seasonShort(prevSeason)}）
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">← 前シーズンへ</span>
+            )}
+
+            {nextSeason ? (
+              <a
+                class="season-jump-link is-next"
+                href={`?season=${nextSeason}&window=${p.defaultWindow}`}
+              >
+                次シーズンへ（{seasonShort(nextSeason)}） →
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">次シーズンへ →</span>
+            )}
+          </div>
+        </div>
+      );
+    })
+  }
+
+  {
+    seasonPacks.map((p) => {
+      const meta = ctMetaParts(p.season);
+
+      return (
+        <div
+          class="club-meta-block"
+          data-meta-season={p.season}
+          style={`display:${p.season === initialSeason ? "" : "none"}`}
+        >
+          {(meta.rank || meta.coach) && (
+            <div class="club-meta-row">
+              {meta.rank || "—"}
+              {meta.coach ? ` ｜ ${meta.coach}` : ""}
+            </div>
+          )}
+
+          {p.statsSummer.avgAgeText || p.statsSummer.continentText ? (
+            <>
+              {p.statsSummer.avgAgeText && (
+                <div
+                  class="club-meta-row"
+                  data-stats-window="summer"
+                  style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+                >
+                  ★ {p.statsSummer.avgAgeText}
+                </div>
+              )}
+              {p.statsSummer.continentText && (
+                <div
+                  class="club-meta-row"
+                  data-stats-window="summer"
+                  style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
+                >
+                  ★ {p.statsSummer.continentText}
+                </div>
+              )}
+            </>
+          ) : null}
+
+          {p.statsWinter.avgAgeText || p.statsWinter.continentText ? (
+            <>
+              {p.statsWinter.avgAgeText && (
+                <div
+                  class="club-meta-row"
+                  data-stats-window="winter"
+                  style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+                >
+                  ★ {p.statsWinter.avgAgeText}
+                </div>
+              )}
+              {p.statsWinter.continentText && (
+                <div
+                  class="club-meta-row"
+                  data-stats-window="winter"
+                  style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
+                >
+                  ★ {p.statsWinter.continentText}
+                </div>
+              )}
+            </>
+          ) : null}
+        </div>
+      );
+    })
   }
 
   {/* summer / winter toggle */}
@@ -640,90 +829,6 @@ const searchTextFn = (r: any) =>
     </button>
     <span class="wt-hint">※ 表示切替（シーズン前半 / 後半）</span>
   </div>
-
-  <div class="club-title-divider" aria-hidden="true"></div>
-
-  {
-    seasonPacks.map((p) => {
-      const meta = ctMetaParts(p.season);
-
-      const seasonIndex = seasonCandidates.findIndex((s) => s === p.season);
-      const prevSeason =
-        seasonIndex >= 0 && seasonIndex < seasonCandidates.length - 1
-          ? seasonCandidates[seasonIndex + 1]
-          : "";
-      const nextSeason =
-        seasonIndex > 0 ? seasonCandidates[seasonIndex - 1] : "";
-
-      return (
-        <div
-          class="club-hero"
-          data-title-season={p.season}
-          style={`display:${p.season === initialSeason ? "" : "none"}`}
-        >
-          <h2 class="club-hero-title">
-            {clubLabel} {seasonLong(p.season)}{" "}
-            メンバー一覧｜背番号・代表歴・年齢（最新）
-          </h2>
-
-          <p class="hero-desc">
-            {clubLabel}の{seasonLong(p.season)}
-            所属選手一覧。背番号・国籍・加入日・代表歴・生年月日・身長などを掲載。
-          </p>
-
-          <div class="season-jump" data-nav-season={p.season}>
-            <div class="season-jump-inner">
-              {prevSeason ? (
-                <a
-                  class="season-jump-link is-prev"
-                  href={`?season=${prevSeason}&window=${p.defaultWindow}`}
-                >
-                  ← 前シーズンへ（{seasonShort(prevSeason)}）
-                </a>
-              ) : (
-                <span class="season-jump-link is-disabled">← 前シーズンへ</span>
-              )}
-
-              {nextSeason ? (
-                <a
-                  class="season-jump-link is-next"
-                  href={`?season=${nextSeason}&window=${p.defaultWindow}`}
-                >
-                  次シーズンへ（{seasonShort(nextSeason)}） →
-                </a>
-              ) : (
-                <span class="season-jump-link is-disabled">次シーズンへ →</span>
-              )}
-            </div>
-          </div>
-
-          {meta.line && <div class="club-hero-meta">{meta.line}</div>}
-
-          {/* ✅ 1行統計（最新シーズンだけ表示、window追従） */}
-          {p.statsSummer ? (
-            <div
-              class="team-stats"
-              data-season={p.season}
-              data-stats-window="summer"
-              style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
-            >
-              {p.statsSummer}
-            </div>
-          ) : null}
-          {p.statsWinter ? (
-            <div
-              class="team-stats"
-              data-season={p.season}
-              data-stats-window="winter"
-              style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
-            >
-              {p.statsWinter}
-            </div>
-          ) : null}
-        </div>
-      );
-    })
-  }
 
   {/* ✅ 更新日：表の右肩注記 */}
   <div class="meta-top">
@@ -906,9 +1011,7 @@ const searchTextFn = (r: any) =>
               </div>
 
               <div class="league-reco-more">
-                <a href={clubsListUrl({ leagueKey: league_key })}>
-                  {leagueLabel}のクラブ一覧へ
-                </a>
+                <a href={leagueTopPath}>← {leagueLabel}リーグトップへ</a>
               </div>
             </section>
           );
@@ -946,9 +1049,7 @@ const searchTextFn = (r: any) =>
               </div>
 
               <div class="league-reco-more">
-                <a href={clubsListUrl({ leagueKey: league_key })}>
-                  {leagueLabel}のクラブ一覧へ
-                </a>
+                <a href={leagueTopPath}>{leagueLabel}のクラブ一覧へ</a>
               </div>
             </section>
           );
@@ -985,9 +1086,7 @@ const searchTextFn = (r: any) =>
               </div>
 
               <div class="season-reco-more">
-                <a href={clubsListUrl({ leagueKey: league_key })}>
-                  {leagueLabel}のクラブ一覧へ
-                </a>
+                <a href={leagueTopPath}>{leagueLabel}のクラブ一覧へ</a>
               </div>
             </section>
           );
@@ -1020,9 +1119,7 @@ const searchTextFn = (r: any) =>
             </div>
 
             <div class="season-reco-more">
-              <a href={clubsListUrl({ leagueKey: league_key })}>
-                {leagueLabel}のクラブ一覧へ
-              </a>
+              <a href={leagueTopPath}>{leagueLabel}のクラブ一覧へ</a>
             </div>
           </section>
         ))}
@@ -1033,16 +1130,16 @@ const searchTextFn = (r: any) =>
   <script is:inline>
     window.addEventListener("DOMContentLoaded", () => {
       try {
-        const seasonRoot = document.querySelector(".season-toggle");
         const windowRoot = document.querySelector(".window-toggle");
         if (!windowRoot) return;
 
         const windowBtns = Array.from(
           windowRoot.querySelectorAll("button[data-window]"),
         );
-        const seasonBtns = seasonRoot
-          ? Array.from(seasonRoot.querySelectorAll("button[data-season]"))
-          : [];
+
+        const seasonTopBtns = Array.from(
+          document.querySelectorAll("button[data-season-top]"),
+        );
 
         const sections = Array.from(
           document.querySelectorAll("section[data-window][data-season]"),
@@ -1080,10 +1177,7 @@ const searchTextFn = (r: any) =>
         const qWin = (params.get("window") || "").toLowerCase();
         const qSeason = (params.get("season") || "").trim();
 
-        const defaultSeason =
-          seasonRoot?.getAttribute("data-default-season") ||
-          packs[0]?.season ||
-          "";
+        const defaultSeason = packs[0]?.season || "";
         const initialSeason =
           qSeason && packs.some((p) => p.season === qSeason)
             ? qSeason
@@ -1149,7 +1243,6 @@ const searchTextFn = (r: any) =>
             sec.style.display = s === season && w === win ? "" : "none";
           });
 
-
           windowBtns.forEach((b) => {
             b.classList.toggle(
               "is-active",
@@ -1157,10 +1250,10 @@ const searchTextFn = (r: any) =>
             );
           });
 
-          seasonBtns.forEach((b) => {
+          seasonTopBtns.forEach((b) => {
             b.classList.toggle(
               "is-active",
-              b.getAttribute("data-season") === season,
+              b.getAttribute("data-season-top") === season,
             );
           });
 
@@ -1175,22 +1268,9 @@ const searchTextFn = (r: any) =>
           qWin === "winter" || qWin === "summer" ? qWin : defaultWinFromSeason;
         setActive(initialSeason, initialWin);
 
-        windowBtns.forEach((b) => {
+        seasonTopBtns.forEach((b) => {
           b.addEventListener("click", () => {
-            if (b.disabled) return;
-            const win = b.getAttribute("data-window");
-            if (!win) return;
-            const curSeason = (
-              new URLSearchParams(location.search).get("season") ||
-              initialSeason
-            ).trim();
-            setActive(curSeason, win);
-          });
-        });
-
-        seasonBtns.forEach((b) => {
-          b.addEventListener("click", () => {
-            const season = b.getAttribute("data-season");
+            const season = b.getAttribute("data-season-top");
             if (!season) return;
 
             const defaultWin = setWindowAvailability(season);
@@ -1211,6 +1291,19 @@ const searchTextFn = (r: any) =>
                   : win;
 
             setActive(season, finalWin);
+          });
+        });
+
+        windowBtns.forEach((b) => {
+          b.addEventListener("click", () => {
+            if (b.disabled) return;
+            const win = b.getAttribute("data-window");
+            if (!win) return;
+            const curSeason = (
+              new URLSearchParams(location.search).get("season") ||
+              initialSeason
+            ).trim();
+            setActive(curSeason, win);
           });
         });
       } catch (e) {
@@ -1238,14 +1331,6 @@ const searchTextFn = (r: any) =>
       font-weight: 900;
       letter-spacing: 0.01em;
       color: #111;
-    }
-
-    .club-hero-meta {
-      margin-top: 8px;
-      font-size: 14px;
-      line-height: 1.3;
-      font-weight: 700;
-      color: var(--theme-color);
     }
 
     .hero-desc {
@@ -1441,14 +1526,6 @@ const searchTextFn = (r: any) =>
     }
     .rep2-ed:not(.rep2-ed--latest) {
       opacity: 0.8;
-    }
-
-    .team-stats {
-      margin: 2px 0 0;
-      font-size: 14px;
-      line-height: 1.3;
-      font-weight: 700;
-      color: var(--theme-color);
     }
 
     .club-hero-meta,
@@ -1681,6 +1758,176 @@ const searchTextFn = (r: any) =>
 
       .season-reco-more {
         font-size: 12px;
+      }
+    }
+
+    .club-guide-block {
+      display: grid;
+      gap: 10px;
+      margin: 10px 0 12px;
+    }
+
+    .club-related-block {
+      margin: 0;
+    }
+
+    .club-related-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--theme-color);
+      margin: 0 0 6px;
+    }
+
+    .club-nav-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0;
+    }
+
+    .club-season-top-pills {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      padding-bottom: 4px;
+      margin: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .club-season-top-pills .pill {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .club-season-top-pills {
+        gap: 6px;
+        padding-bottom: 2px;
+      }
+
+      .club-season-top-pills .pill {
+        font-size: 12px;
+        padding: 6px 10px;
+      }
+    }
+
+    .club-league-top-link {
+      margin: 0;
+    }
+
+    .club-league-top-link a {
+      color: var(--theme-color);
+      text-decoration: none;
+      font-size: 14px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .club-league-top-link a:hover {
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .club-hero-meta {
+      margin-top: 8px;
+      display: grid;
+      gap: 2px;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: #2f4f46;
+    }
+
+    .club-meta-row {
+      margin: 0;
+    }
+
+    .team-stats {
+      margin: 2px 0 0;
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: #2f4f46;
+    }
+
+    .club-top-block {
+      display: grid;
+      gap: 8px;
+      margin: 6px 0 10px;
+    }
+
+    .club-guide-block {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+    }
+
+    .club-title-divider {
+      height: 1px;
+      background: color-mix(in srgb, var(--theme-color) 24%, #d1d5db);
+      margin: 8px 0 10px;
+    }
+
+    .page-club .window-toggle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 8px;
+      flex-wrap: wrap;
+    }
+
+    .club-meta-block {
+      margin: 6px 0 10px;
+      display: grid;
+      gap: 3px;
+    }
+
+    .club-meta-row {
+      margin: 0;
+      font-size: 13px;
+      line-height: 1.4;
+      font-weight: 700;
+      color: #2f4f46;
+    }
+
+    .club-top-block,
+    .club-guide-block,
+    .club-related-block {
+      min-width: 0;
+    }
+
+    .club-season-top-pills {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 8px;
+      overflow-x: auto;
+      overflow-y: hidden;
+      max-width: 100%;
+      min-width: 0;
+      width: 100%;
+      padding-bottom: 4px;
+      margin: 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: thin;
+    }
+
+    .club-season-top-pills .pill {
+      flex: 0 0 auto;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 640px) {
+      .club-season-top-pills {
+        gap: 6px;
+        padding-bottom: 2px;
+      }
+
+      .club-season-top-pills .pill {
+        font-size: 12px;
+        padding: 6px 10px;
       }
     }
   </style>
