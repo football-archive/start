@@ -169,12 +169,8 @@ const tournamentLabel = String(metaRow?.host_ja ?? "").trim()
   ? `${String(metaRow?.host_ja ?? "").trim()}${String(year)}`
   : "";
 
-const tournamentHref = tournamentTopUrl({
-  competition: "WC",
-  edition: String(year),
-});
-
-const tournamentText = tournamentLabel || `W杯${year}`;
+const tournamentHref = `/wc/${year}`;
+const tournamentText = `W杯${year}`;
 
 const heroMetaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
@@ -455,7 +451,10 @@ const isCurrentEdition = String(year) === currentWcYear;
 
 const pastYears = yearsForCountry.filter((y) => Number(y) < Number(year));
 
-const isFirstAppearance = isCurrentEdition && pastYears.length === 0;
+const isFirstAppearance =
+  isCurrentEdition &&
+  confederationBucket === "QUALIFIED" &&
+  pastYears.length === 0;
 
 // ====================
 // 統計（平均年齢 + 5大リーグ）
