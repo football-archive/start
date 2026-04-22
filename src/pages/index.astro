@@ -41,7 +41,7 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(11);
+const updates = loadUpdates(12);
 
 const groupedUpdates = Object.entries(
   updates.reduce((acc: Record<string, any[]>, u: any) => {

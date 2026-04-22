@@ -123,6 +123,48 @@ const teamSlug =
   ntMaster.find((r) => normKey(r.country_name_ja) === normKey(countryName))
     ?.team_slug ?? "";
 
+type NtLineupImageRow = {
+  competition: string;
+  year: string;
+  team_slug: string;
+  formation: string;
+  image: string;
+};
+
+const ntLineupImages: NtLineupImageRow[] = readCsv("nt_lineup_images.csv").map(
+  (r: any) => ({
+    competition: String(r.competition ?? "")
+      .trim()
+      .toLowerCase(),
+    year: String(r.year ?? "").trim(),
+    team_slug: String(r.team_slug ?? "").trim(),
+    formation: String(r.formation ?? "").trim(),
+    image: String(r.image ?? "").trim(),
+  }),
+);
+
+const ntLineupRow = ntLineupImages.find(
+  (r) =>
+    r.competition ===
+      String(competition ?? "")
+        .trim()
+        .toLowerCase() &&
+    r.year === String(year ?? "").trim() &&
+    r.team_slug === String(teamSlug ?? "").trim(),
+);
+
+const ntLineupImageSrc = ntLineupRow?.image
+  ? `/images/lineups/${ntLineupRow.image}`
+  : "";
+
+const ntLineupFormation = String(ntLineupRow?.formation ?? "").trim();
+
+const ntLineupAlt = ntLineupFormation
+  ? `${countryName}代表 想定スタメン ${ntLineupFormation}`
+  : `${countryName}代表 想定スタメン`;
+
+const hasNtLineupImage = !!ntLineupImageSrc;
+
 const metaAll: NtTournamentMetaRow[] = readCsv("nt_tournament_meta.csv").map(
   (r: any) => ({
     competition: String(r.competition ?? "").trim(),
@@ -880,6 +922,81 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     </div>
   </section>
 
+  {
+    hasNtLineupImage && (
+      <section class="nt-lineup-section" aria-label="想定スタメン">
+        <p class="nt-lineup-lead">
+          👇 {countryName}代表の想定スタメン
+          {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+          。直近の試合ベースのフォーメーション例です。
+        </p>
+
+        <button
+          type="button"
+          class="nt-lineup-card"
+          id="nt-lineup-open"
+          aria-haspopup="dialog"
+          aria-controls="nt-lineup-modal"
+        >
+          <div class="nt-lineup-thumb">
+            <img
+              src={ntLineupImageSrc}
+              alt={ntLineupAlt}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <div class="nt-lineup-copy">
+            <div class="nt-lineup-title">
+              🔥 想定スタメンを見る
+              {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+            </div>
+            <div class="nt-lineup-note">
+              直近の試合・起用傾向をもとにしたフォーメーション例です
+            </div>
+          </div>
+        </button>
+
+        <dialog
+          class="nt-lineup-modal"
+          id="nt-lineup-modal"
+          aria-label={ntLineupAlt}
+        >
+          <div class="nt-lineup-modal-inner">
+            <button
+              type="button"
+              class="nt-lineup-close"
+              id="nt-lineup-close"
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+
+            <div class="nt-lineup-modal-head">
+              <div class="nt-lineup-modal-title">
+                {countryName}代表 想定スタメン
+                {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+              </div>
+              <div class="nt-lineup-modal-note">
+                ※ 実際の先発・配置とは異なる場合があります
+              </div>
+            </div>
+
+            <div class="nt-lineup-modal-image">
+              <img
+                src={ntLineupImageSrc}
+                alt={ntLineupAlt}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </dialog>
+      </section>
+    )
+  }
+
   <section class="star-block" aria-label="注目選手">
     <h2 class="star-title">🔥 今大会の主力・注目選手</h2>
 
@@ -962,13 +1079,54 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     function boot() {
-      if (updateBackLink()) return;
+      updateBackLink();
+      initLineupModal();
 
       let tries = 0;
       const timer = setInterval(() => {
         tries++;
         if (updateBackLink() || tries >= 40) clearInterval(timer);
       }, 50);
+    }
+
+    function initLineupModal() {
+      const openBtn = document.getElementById("nt-lineup-open");
+      const closeBtn = document.getElementById("nt-lineup-close");
+      const modal = document.getElementById("nt-lineup-modal");
+
+      if (!openBtn || !closeBtn || !modal) return;
+
+      openBtn.addEventListener("click", () => {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+          document.body.classList.add("is-lineup-modal-open");
+        }
+      });
+
+      closeBtn.addEventListener("click", () => {
+        if (typeof modal.close === "function") {
+          modal.close();
+          document.body.classList.remove("is-lineup-modal-open");
+        }
+      });
+
+      modal.addEventListener("click", (e) => {
+        const rect = modal.getBoundingClientRect();
+        const isInDialog =
+          rect.top <= e.clientY &&
+          e.clientY <= rect.top + rect.height &&
+          rect.left <= e.clientX &&
+          e.clientX <= rect.left + rect.width;
+
+        if (!isInDialog && typeof modal.close === "function") {
+          modal.close();
+          document.body.classList.remove("is-lineup-modal-open");
+        }
+      });
+
+      modal.addEventListener("close", () => {
+        document.body.classList.remove("is-lineup-modal-open");
+      });
     }
 
     if (document.readyState === "loading") {
@@ -1646,6 +1804,168 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         color-mix(in srgb, var(--theme-color) 35%, #999),
         transparent
       );
+    }
+
+    .nt-lineup-section {
+      margin: 10px 0 14px;
+    }
+
+    .nt-lineup-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+      transition:
+        transform 0.06s ease,
+        box-shadow 0.06s ease,
+        background 0.12s ease;
+    }
+
+    .nt-lineup-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(0, 0, 0, 0.08);
+      background: var(--theme-soft-bg);
+    }
+
+    .nt-lineup-thumb {
+      width: 96px;
+      aspect-ratio: 5 / 7;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #f3f4f6;
+      flex: 0 0 auto;
+    }
+
+    .nt-lineup-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .nt-lineup-copy {
+      min-width: 0;
+    }
+
+    .nt-lineup-title {
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: var(--theme-color);
+    }
+
+    .nt-lineup-note {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    .nt-lineup-modal {
+      width: min(92vw, 560px);
+      max-width: 560px;
+      border: 0;
+      border-radius: 16px;
+      padding: 0;
+      background: transparent;
+    }
+
+    .nt-lineup-modal::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .nt-lineup-modal-inner {
+      position: relative;
+      background: #fff;
+      border-radius: 16px;
+      padding: 14px 14px 16px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .nt-lineup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 999px;
+      background: #fff;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .nt-lineup-modal-head {
+      padding-right: 42px;
+      margin-bottom: 10px;
+    }
+
+    .nt-lineup-modal-title {
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    .nt-lineup-modal-note {
+      margin-top: 4px;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    .nt-lineup-modal-image img {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #f8fafc;
+    }
+
+    @media (max-width: 640px) {
+      .nt-lineup-card {
+        grid-template-columns: 84px 1fr;
+        gap: 10px;
+        padding: 9px 10px;
+      }
+
+      .nt-lineup-thumb {
+        width: 84px;
+      }
+
+      .nt-lineup-title {
+        font-size: 14px;
+      }
+
+      .nt-lineup-note {
+        font-size: 11px;
+      }
+
+      .nt-lineup-modal {
+        width: min(96vw, 520px);
+      }
+
+      .nt-lineup-modal-inner {
+        padding: 12px 12px 14px;
+      }
+    }
+
+    .nt-lineup-lead {
+      margin: 6px 4px 8px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #444;
+      font-weight: 500;
     }
   </style>
 </BaseLayout>

@@ -257,6 +257,7 @@ const wcEditionPills = wcEditionCandidates
   }));
 
 const wcTitle = `FIFAワールドカップ${year}`;
+const portalHeading = `${wcTitle} 大会ポータルページ`;
 const teamsHeading = `${wcTitle} 出場国・代表メンバー一覧`;
 
 const pageTitle = isCurrentEdition
@@ -866,10 +867,12 @@ const pageDesc = isCurrentEdition
     }
   </style>
 
+  <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
+
   {
     wcEditionPills.length > 1 && (
       <div class="edition-switch">
-        <p class="edition-switch-head">大会を切り替える</p>
+        <p class="edition-switch-head">👉 大会を切り替える</p>
         <div class="pills">
           {wcEditionPills.map((item) =>
             item.isActive ? (
@@ -887,12 +890,11 @@ const pageDesc = isCurrentEdition
 
   <p class="quick-title" style="margin: 6px 0 6px;">
     {wcTitle}の出場国一覧と各国の代表メンバーを掲載しています。
-    各チームページでは招集メンバー、所属クラブ、代表歴などを確認できます。
   </p>
 
   <p class="quick-title" style="margin: 0 0 10px;">
     {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
-    各チームページでは招集メンバー、所属クラブ、代表歴も確認できます。
+    グループ・試合日程・得点ランキングまでまとめて確認できます。
     {
       latestCallupSnapshot ? (
         <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
@@ -904,7 +906,7 @@ const pageDesc = isCurrentEdition
     isCurrentEdition && (
       <p style="margin: 0 0 14px;">
         <a href={`${topHref}/team/${countrySlug("日本")}`} class="filter-link">
-          🇯🇵 日本代表メンバーを見る
+          👉 🇯🇵 日本代表メンバーを見る
         </a>
       </p>
     )
@@ -913,7 +915,7 @@ const pageDesc = isCurrentEdition
   {
     isCurrentEdition && featuredCountriesVisible.length > 0 && (
       <div class="featured-line">
-        <div class="filter-label">🔥 注目国</div>
+        <div class="filter-label">👉 注目国</div>
         <div class="pills">
           {featuredCountriesVisible.map((country) => {
             const href = teamHrefIfExists(country);
@@ -960,7 +962,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">大陸</div>
+        <div class="filter-label">👉 大陸</div>
         <div class="pills" id="teams-conf-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-conf="">
             <span class="dot" aria-hidden="true"></span>全大陸
@@ -1011,7 +1013,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">Group</div>
+        <div class="filter-label">👉 グループ</div>
         <div class="pills" id="teams-group-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-group="">
             <span class="dot" aria-hidden="true"></span>全
@@ -1032,7 +1034,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">状態</div>
+        <div class="filter-label">👉 状態</div>
         <div class="pills" id="teams-status-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-status="">
             <span class="dot" aria-hidden="true"></span>全部
@@ -1222,9 +1224,9 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="schedule" style="margin: 18px 0;">
-      <h2>日程・試合結果（マッチスケジュール）</h2>
+      <h2>{wcTitle} 日程・試合結果</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
-        全試合の日程・結果はコチラから（結果は随時更新）
+        {wcTitle} の全試合の日程・結果を掲載しています（結果は随時更新）。
       </p>
       <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
     </section>
@@ -1235,9 +1237,9 @@ const pageDesc = isCurrentEdition
      ========================= */
     }
     <section id="groups" style="margin: 18px 0;">
-      <h2>グループ勝敗表（グループステージ）</h2>
+      <h2>{wcTitle} グループ勝敗表</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
-        各グループの参加国（※プレーオフ枠は確定後にリンク化）
+        {wcTitle} の各グループ参加国と勝敗表を掲載しています。
       </p>
 
       <div class="group-grid">
@@ -1348,9 +1350,9 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="rankings" style="margin: 18px 0;">
-      <h2>得点・アシストランキング</h2>
+      <h2>{wcTitle} 得点・アシストランキング</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
-        試合結果・得点・アシストから自動集計しています。
+        {wcTitle} の得点・アシストを試合結果から随時更新していきます。
       </p>
       {
         showGARank ? (
@@ -1449,9 +1451,9 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="awards" style="margin: 18px 0;">
-      <h2>表彰（個人賞・ベストイレブン）</h2>
+      <h2>{wcTitle} 表彰</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
-        大会公式の個人賞・ベストイレブンを掲載
+        {wcTitle} の個人賞・ベストイレブンを掲載しています。
       </p>
 
       {
