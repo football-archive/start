@@ -382,38 +382,39 @@ const heading = leagueName;
     { label: "クラブ一覧", href: "/clubs" },
     { label: leagueName },
   ]}
-  heading={heading}
+  heading=""
 >
-  <div
-    slot="under-title"
-    class="pills league-pills"
-    style="margin: 10px 0 14px;"
-  >
-    <a class="pill is-active" href={`/clubs/${leagueKey}`}>
-      <span class="dot" aria-hidden="true"></span>
-      {leagueName}
-    </a>
-
-    {
-      leaguePills.map((p) => (
-        <a class="pill" href={p.href}>
-          <span class="dot" aria-hidden="true" />
-          {p.label}
-        </a>
-      ))
-    }
-
-    <a class="pill" href="/clubs">
-      <span class="dot" aria-hidden="true"></span>
-      クラブ一覧へ
-    </a>
-  </div>
-
+  <h1 class="page-title">
+    {leagueName} ポータルページ | クラブ一覧・シーズン別データ
+  </h1>
   <p class="clubs-desc">
     {
       leagueName
-    }のクラブ一覧と掲載シーズン。各シーズンの順位表・得点王・クラブ詳細ページへ移動できます。
+    }のクラブ一覧と掲載シーズンをまとめたページです。各シーズンの順位表・得点王・クラブ詳細ページへ移動できます。
   </p>
+
+  <div class="pill-block" style="margin: 10px 0 14px;">
+    <div class="pill-label">👉 リーグを切り替える</div>
+
+    <div class="pills league-pills">
+      <a class="pill is-active" href={`/clubs/${leagueKey}`}>
+        <span class="dot"></span>{leagueName}
+      </a>
+
+      {
+        leaguePills.map((p) => (
+          <a class="pill" href={p.href}>
+            <span class="dot" />
+            {p.label}
+          </a>
+        ))
+      }
+
+      <a class="pill" href="/clubs">
+        <span class="dot"></span>クラブ一覧へ
+      </a>
+    </div>
+  </div>
 
   <section style="margin: 18px 0 20px;">
     <h2 class="sec-title">掲載シーズン（順位表・シーズンページ）</h2>
@@ -677,6 +678,17 @@ const heading = leagueName;
         font-size: 12.5px;
         line-height: 1.4;
       }
+    }
+
+    .pill-block {
+      margin-bottom: 14px;
+    }
+
+    .pill-label {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-weight: 600;
     }
   </style>
 </BaseLayout>

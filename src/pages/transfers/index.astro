@@ -1,6 +1,5 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import SiteHeader from "../../components/SiteHeader.astro";
 import { loadTransfers } from "../../lib/transfers";
 
 // URL params
@@ -30,6 +29,11 @@ const defaultWindow = windows.includes("winter")
 
 const season = seasonParam || defaultSeason;
 const window = windowParam || defaultWindow;
+
+const windowLabel =
+  window === "winter" ? "冬" : window === "summer" ? "夏" : window;
+
+const pageTitle = `海外サッカー移籍情報 ${season} ${windowLabel}｜移籍一覧`;
 
 // 絞り込み
 const rows = loadTransfers({ season, window });
@@ -81,27 +85,38 @@ const dateText = (r) => {
 
 <BaseLayout
   title={`海外サッカー移籍情報 ${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window} 移籍一覧｜海外サッカーDB`}
-  description="主要な移籍イベント（簡易一覧）"
-  bodyClass="page-club"
+  description={`${season}シーズン${window === "winter" ? "冬" : window === "summer" ? "夏" : window}の海外サッカー主要移籍一覧です。移籍日、選手名、移籍元クラブ、移籍先クラブ、移籍種別を確認できます。`}
+  bodyClass="page-club page-transfer"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "移籍" },
+    {
+      label: `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}`,
+    },
+  ]}
+  heading=""
 >
-  <SiteHeader
-    crumbs={[
-      { label: "トップ", href: "/" },
-      { label: "移籍", href: "/transfers" },
-      {
-        label: `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}`,
-      },
-    ]}
-  >
-    <div class="toprow">
-      <div class="meta">
-        更新：<span class="date-red">{updatedJa}</span>
-        <span class="sep">/</span>
-        件数：{rows.length}
-      </div>
-    </div>
+  <h1 class="page-title">{pageTitle}</h1>
 
-    <div class="pills" style="margin-top:10px;">
+  <p class="transfer-lead">
+    {season}シーズン{
+      windowLabel
+    }の海外サッカー移籍一覧です。主要な移籍・注目移籍を厳選し、各選手の移籍日、移籍元クラブ、移籍先クラブ、移籍・レンタルなどの種別を一覧で確認できます。
+  </p>
+
+  <div class="toprow">
+    <div class="meta">
+      更新：<span class="date-red">{updatedJa}</span>
+      <span class="sep">/</span>
+      件数：{rows.length}
+    </div>
+  </div>
+
+  <div class="pill-block">
+    <div class="pill-label">👉 シーズンを切り替える</div>
+    <div class="pills">
       {
         seasons.map((s) => (
           <a
@@ -115,8 +130,11 @@ const dateText = (r) => {
         ))
       }
     </div>
+  </div>
 
-    <div class="pills" style="margin-top:8px;">
+  <div class="pill-block">
+    <div class="pill-label">👉 期間を切り替える</div>
+    <div class="pills">
       {
         ["winter", "summer"]
           .filter((w) => windows.includes(w))
@@ -145,9 +163,9 @@ const dateText = (r) => {
           ))
       }
     </div>
-  </SiteHeader>
+  </div>
 
-  <style>
+  <style is:global>
     .meta {
       font-size: 13px;
       color: #666;
@@ -230,6 +248,31 @@ const dateText = (r) => {
 
     .empty {
       margin-top: 16px;
+    }
+
+    .page-transfer .page-title {
+      margin: 6px 0 10px;
+      font-size: 28px;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    .page-transfer .transfer-lead {
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: var(--muted, #666);
+      line-height: 1.6;
+    }
+
+    .page-transfer .pill-block {
+      margin: 10px 0 14px;
+    }
+
+    .page-transfer .pill-label {
+      font-size: 13px;
+      color: var(--muted, #666);
+      margin-bottom: 6px;
+      font-weight: 600;
     }
   </style>
 

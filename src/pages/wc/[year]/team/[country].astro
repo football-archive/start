@@ -720,8 +720,8 @@ const title = isJapan
   : `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜所属クラブ・招集歴｜海外サッカーDB`;
 
 const description = isJapan
-  ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。`
-  : `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーを掲載。所属クラブ、代表デビュー、過去大会招集歴まで確認できます。`;
+  ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。 ※　当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
+  : `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーを掲載。所属クラブ、代表デビュー、過去大会招集歴まで確認できます。 ※　当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`;
 
 const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 ---
@@ -754,7 +754,8 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <p class="hero-desc">
         <span>
           {countryName}代表の最新メンバー・背番号一覧（{compLabel}{year}）。
-          選手一覧では背番号・所属クラブ・代表デビュー・過去大会招集歴まで確認できます。
+          選手一覧では背番号・所属クラブ・代表デビュー・招集歴まで。🔥過去大会のメンバーも当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。
+
         </span>
       </p>
 

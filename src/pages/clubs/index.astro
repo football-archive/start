@@ -230,15 +230,16 @@ const sections = leagueKeys.map((lk) => {
 
 <BaseLayout
   title="海外サッカークラブ一覧｜主要リーグ"
-  description="主要リーグのクラブ一覧（登録人数付き）"
+  description="海外主要リーグ別のクラブ一覧ページです。リーグごとにクラブ一覧やシーズン別データを確認できます。"
   bodyClass="page-club"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[{ label: "トップ", href: "/" }, { label: "クラブ一覧" }]}
-  heading="一覧"
+  heading="海外サッカークラブ一覧｜主要リーグ別"
 >
+  <h1 class="page-title">海外サッカークラブ一覧｜主要リーグ別</h1>
   <p class="clubs-desc">
-    海外主要リーグのクラブ一覧。リーグごとにクラブ一覧やシーズン別データを見ることができます。
+    海外主要リーグ別のクラブ一覧ページです。プレミアリーグ、ラ・リーガ、セリエAなど、リーグごとにクラブ一覧やシーズン別データを確認できます。
   </p>
   {/* パンくず＆H1の直下に “リーグピル” を差し込む */}
   <section style="margin: 10px 0 18px;">
@@ -254,7 +255,8 @@ const sections = leagueKeys.map((lk) => {
       }
     </div>
   </section>
-  <div slot="under-title" class="pills" style="margin: 10px 0 14px;">
+  <!--
+  <div class="pills" style="margin: 10px 0 14px;">
     {
       pillLeagues.map((p) => (
         <a class="pill" data-league={p.league_key} href={p.href}>
@@ -267,6 +269,7 @@ const sections = leagueKeys.map((lk) => {
       <span class="dot" aria-hidden="true"></span>全リーグ
     </a>
   </div>
+  -->
 
   {
     sections.map((s) => (

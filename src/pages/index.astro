@@ -87,7 +87,7 @@ const leagueShortcuts = [
   { label: "ブンデスリーガ", league: "bundesliga" },
   { label: "セリエA", league: "serie-a" },
   { label: "リーグ・アン", league: "ligue-1" },
- // { label: "エールディヴィジ", league: "eredivisie" },
+  // { label: "エールディヴィジ", league: "eredivisie" },
 ];
 
 // ✅ is_publicの型ブレ吸収
@@ -1285,308 +1285,339 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
     <div class="hero">
       <p class="subtitle">
-        海外サッカーの代表・クラブ・選手情報を一覧で見られるデータベースサイトです。<br
+        海外サッカーの選手情報を、代表は大会単位、クラブはリーグ別にシーズン単位で整理。<br
         />
-        Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
+        各時代や代表⇔所属クラブをサクッと横断可能で、軽く調べたい方からコアなファンまで、知りたい情報に素早くアクセスできるデータベースサイトです。<br
         />
-        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。
+        🔥 約30年分のデータを掲載。もちろん最新の情報も随時更新しています。<br
+        />
+        🔥 過去の代表・クラブ間を繋ぎ、「どの時代にどんな選手がいたか」、当時のサッカーシーンを振り返りたい・調べたい方向けにサイトを最適化。<br
+        />
+        📓 各国代表チーム：　FIFAワールドカップ2026はもちろん、過去W杯の歴代メンバー、当時の選手情報も振り返ることができます。<br
+        />
+        📓 海外主要クラブ：　各リーグ別・シーズン別に歴代の登録メンバー、当時の所属選手の情報を遡ることができます。<br
+        />
+        <!--
+        「Wikiよりサッと見れて、Transfermarktより軽快。ニュースを追うより、全体が一目でわかる。<br
+        />
+        FIFAワールドカップの代表チームや、海外クラブ登録メンバーの「今 / あの時」を行き来する、世界サッカーDB。」
       </p>
+-->
 
-      <div class="grid">
-        <!-- 🏆 WCポータルカード -->
-        <div class="card card-portal theme-wc grid-nt-main">
-          <h2 class="card-h2">
-            <span class="card-ico ico-wc" aria-hidden="true">🏆</span>
-            FIFAワールドカップ2026
-          </h2>
-          <div class="card-head">
-            <p class="wc-desc">
-              代表チームの最新メンバー、スケジュールはコチラから。
-            </p>
-            <div class="card-meta">
-              <span>代表更新：<span class="date-red">{wcUpdatedAt}</span></span>
-              <span>出場：{wcTeamCount}カ国 / {wcPlayerCount}選手</span>
+        <div class="grid">
+          <!-- 🏆 WCポータルカード -->
+          <div class="card card-portal theme-wc grid-nt-main">
+            <h2 class="card-h2">
+              <span class="card-ico ico-wc" aria-hidden="true">🏆</span>
+              FIFAワールドカップ2026
+            </h2>
+            <div class="card-head">
+              <p class="wc-desc">
+                代表チームの最新メンバー、スケジュールはコチラから。
+              </p>
+              <div class="card-meta">
+                <span
+                  >代表更新：<span class="date-red">{wcUpdatedAt}</span></span
+                >
+                <span>出場：{wcTeamCount}カ国 / {wcPlayerCount}選手</span>
+              </div>
             </div>
-          </div>
-          <div class="card-sep" aria-hidden="true"></div>
+            <div class="card-sep" aria-hidden="true"></div>
 
-          <div class="portal-links">
-            <a href="/wc/2026" class="portal-btn portal-main"
-              >出場国・代表メンバー一覧</a
-            >
-            <a href="/wc/2026/#schedule" class="portal-btn portal-main"
-              >試合日程・結果</a
-            >
-
-            <div class="portal-sub-grid">
-              <a href="/wc/2026/#groups" class="portal-btn portal-sub"
-                >グループリーグ勝敗表</a
+            <div class="portal-links">
+              <a href="/wc/2026" class="portal-btn portal-main"
+                >出場国・代表メンバー一覧</a
               >
-              <a href="/wc/2026/#rankings" class="portal-btn portal-sub"
-                >得点・アシストランキング</a
+              <a href="/wc/2026/#schedule" class="portal-btn portal-main"
+                >試合日程・結果</a
               >
-              <a href="/wc/2026/#awards" class="portal-btn portal-sub">表彰</a>
-            </div>
-          </div>
 
-          <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
-          <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
-          <div class="nt-portal-row">
-            <a class="nt-portal-btn" href="/nt">
-              強豪国・日本代表・各国あゆみを見る
-            </a>
-          </div>
-
-          <!-- ✅ 追加：過去大会ミニ導線 -->
-          <div class="wc-past-links">
-            <div class="wc-past-head">
-              <div class="wc-past-label">過去大会</div>
-              <div class="wc-past-note">大会ページを見る</div>
+              <div class="portal-sub-grid">
+                <a href="/wc/2026/#groups" class="portal-btn portal-sub"
+                  >グループリーグ勝敗表</a
+                >
+                <a href="/wc/2026/#rankings" class="portal-btn portal-sub"
+                  >得点・アシストランキング</a
+                >
+                <a href="/wc/2026/#awards" class="portal-btn portal-sub">表彰</a
+                >
+              </div>
             </div>
 
-            <div class="wc-past-pills">
-              {
-                wcPastEditions.map((edition) => (
-                  <a
-                    class="wc-past-pill"
-                    href={tournamentTopUrl({ tournament: "wc", year: edition })}
-                  >
-                    {edition}
-                  </a>
-                ))
-              }
-            </div>
-          </div>
-
-          <a class="legend-btn" href="/nt/wc/legends">
-            強豪国代表　W杯のあゆみ（歴代代表メンバー）
-          </a>
-        </div>
-
-        <!-- row1 col2: CLUB main -->
-        <div class="card card-club theme-club grid-club-main">
-          <h2 class="card-h2">
-            <span class="card-ico ico-club" aria-hidden="true">👕</span>
-            2025-26 主要クラブ 登録メンバー(スカッド)
-          </h2>
-          <div class="card-head">
-            <p class="card-desc">
-              最新シーズンの登録選手を、クラブ別・リーグ別に。
-            </p>
-            <div class="card-meta">
-              <span
-                >順位表更新：<span class="date-red">{updatedAtClub}</span></span
-              >
-              <span>
-                クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
-                  clubsPlayerCount
-                }選手
-              </span>
-            </div>
-          </div>
-          <div class="card-sep" aria-hidden="true"></div>
-
-          <div class="card-shortcuts">
-            <div class="shortcut-head">
-              <p class="quick-title">⚡ショートカット：主要リーグから探す</p>
-              <a class="see-now" href="/clubs">クラブ一覧へ →</a>
-            </div>
-
-            <div class="pills">
-              {
-                leagueShortcutsVisible.map((x) => (
-                  <a
-                    class="pill"
-                    href={leagueHref(x.league)}
-                    aria-label={`${x.label} のクラブ一覧へ`}
-                  >
-                    <span class="dot" aria-hidden="true" />
-                    {x.label}
-                  </a>
-                ))
-              }
-              <a class="pill" href="/clubs" aria-label="全リーグのクラブ一覧へ">
-                <span class="dot" aria-hidden="true"></span>
-                全リーグ
+            <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
+            <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
+            <div class="nt-portal-row">
+              <a class="nt-portal-btn" href="/nt">
+                強豪国・日本代表・各国あゆみを見る
               </a>
             </div>
-            {/* ▼ 最新シーズン順位表 導線 */}
-            <div class="club-season-links">
-              <p class="quick-title">📊最新シーズン順位表：</p>
-              <div class="season-link-row">
+
+            <!-- ✅ 追加：過去大会ミニ導線 -->
+            <div class="wc-past-links">
+              <div class="wc-past-head">
+                <div class="wc-past-label">過去大会</div>
+                <div class="wc-past-note">大会ページを見る</div>
+              </div>
+
+              <div class="wc-past-pills">
                 {
-                  leagueShortcutsVisible.map((x) => (
+                  wcPastEditions.map((edition) => (
                     <a
-                      href={`/clubs/${x.league}/${DEFAULTS.currentClubSeason}`}
-                      class="season-link"
+                      class="wc-past-pill"
+                      href={tournamentTopUrl({
+                        tournament: "wc",
+                        year: edition,
+                      })}
                     >
-                      {x.label}
+                      {edition}
                     </a>
                   ))
                 }
               </div>
             </div>
-            <a class="legend-btn" href="/clubs/history">
-              欧州強豪クラブのあゆみ（歴代メンバー）
+
+            <a class="legend-btn" href="/nt/wc/legends">
+              強豪国代表　W杯のあゆみ（歴代代表メンバー）
             </a>
           </div>
-        </div>
 
-        <!-- row2 col1: Japan -->
-        <div class="subcard jp-box theme-japan grid-nt-sub1">
-          <h3 class="subcard-title">
-            <a href={japanHref}>
-              <span class="card-ico ico-jp" aria-hidden="true">🔴</span>
-              SAMURAI BLUE（日本代表）
-            </a>
-          </h3>
-
-          <div class="jp-sub">
-            <a href="/wc/2026/team/日本">日本代表メンバー一覧</a><br />
-            更新：<span class="date-red">{japanUpdatedAt}</span>
-          </div>
-
-          <div class="jp-opponents">
-            <div class="jp-opponents-title">🔥 今後の対戦予定</div>
-
-            <div class="jp-opponents-row">
-              <span class="jp-opponents-label">3月：</span>
-              <a
-                href="/wc/2026/team/スコットランド"
-                title="スコットランド代表メンバー一覧"
-              >
-                スコットランド
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026/team/イングランド"
-                title="イングランド代表メンバー一覧"
-              >
-                イングランド
-              </a>
-              <span class="sep">｜</span>
-              <span class="jp-opponents-label">5月：</span>
-              <a
-                href="/wc/2026/team/アイスランド"
-                title="アイスランド代表メンバー一覧"
-              >
-                アイスランド
-              </a>
+          <!-- row1 col2: CLUB main -->
+          <div class="card card-club theme-club grid-club-main">
+            <h2 class="card-h2">
+              <span class="card-ico ico-club" aria-hidden="true">👕</span>
+              2025-26 主要クラブ 登録メンバー(スカッド)
+            </h2>
+            <div class="card-head">
+              <p class="card-desc">
+                最新シーズンの登録選手を、クラブ別・リーグ別に。
+              </p>
+              <div class="card-meta">
+                <span
+                  >順位表更新：<span class="date-red">{updatedAtClub}</span
+                  ></span
+                >
+                <span>
+                  クラブ：{clubsLeagueCount}リーグ / {clubsClubCount}クラブ / {
+                    clubsPlayerCount
+                  }選手
+                </span>
+              </div>
             </div>
+            <div class="card-sep" aria-hidden="true"></div>
 
-            <div class="jp-opponents-row">
-              <span class="jp-opponents-label">W杯GL：</span>
-              <a href="/wc/2026/team/オランダ" title="オランダ代表メンバー一覧">
-                オランダ
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026/team/チュニジア"
-                title="チュニジア代表メンバー一覧"
-              >
-                チュニジア
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026#teams"
-                class="muted"
-                title="W杯2026 出場国一覧へ"
-              >
-                欧州PO
-              </a>
-            </div>
+            <div class="card-shortcuts">
+              <div class="shortcut-head">
+                <p class="quick-title">⚡ショートカット：主要リーグから探す</p>
+                <a class="see-now" href="/clubs">クラブ一覧へ →</a>
+              </div>
 
-            <div class="jp-opponents-row small">
-              <a
-                href="/wc/2026/team/ポーランド"
-                title="ポーランド代表メンバー一覧"
-              >
-                ポーランド
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026/team/スウェーデン"
-                title="スウェーデン代表メンバー一覧"
-              >
-                スウェーデン
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026/team/ウクライナ"
-                title="ウクライナ代表メンバー一覧"
-              >
-                ウクライナ
-              </a>
-              <span class="sep">｜</span>
-              <a
-                href="/wc/2026/team/アルバニア"
-                title="アルバニア代表メンバー一覧"
-              >
-                アルバニア
+              <div class="pills">
+                {
+                  leagueShortcutsVisible.map((x) => (
+                    <a
+                      class="pill"
+                      href={leagueHref(x.league)}
+                      aria-label={`${x.label} のクラブ一覧へ`}
+                    >
+                      <span class="dot" aria-hidden="true" />
+                      {x.label}
+                    </a>
+                  ))
+                }
+                <a
+                  class="pill"
+                  href="/clubs"
+                  aria-label="全リーグのクラブ一覧へ"
+                >
+                  <span class="dot" aria-hidden="true"></span>
+                  全リーグ
+                </a>
+              </div>
+              {/* ▼ 最新シーズン順位表 導線 */}
+              <div class="club-season-links">
+                <p class="quick-title">📊最新シーズン順位表：</p>
+                <div class="season-link-row">
+                  {
+                    leagueShortcutsVisible.map((x) => (
+                      <a
+                        href={`/clubs/${x.league}/${DEFAULTS.currentClubSeason}`}
+                        class="season-link"
+                      >
+                        {x.label}
+                      </a>
+                    ))
+                  }
+                </div>
+              </div>
+              <a class="legend-btn" href="/clubs/history">
+                欧州強豪クラブのあゆみ（歴代メンバー）
               </a>
             </div>
           </div>
 
-          <!-- ★追加：歴代WC導線 -->
-          <div class="jp-history">
-            <a class="legend-btn" href="/nt/japan/wc"
-              >日本代表　W杯のあゆみ（歴代代表メンバー）</a
-            >
-          </div>
-        </div>
+          <!-- row2 col1: Japan -->
+          <div class="subcard jp-box theme-japan grid-nt-sub1">
+            <h3 class="subcard-title">
+              <a href={japanHref}>
+                <span class="card-ico ico-jp" aria-hidden="true">🔴</span>
+                SAMURAI BLUE（日本代表）
+              </a>
+            </h3>
 
-        <!-- row2 col2: UCL -->
-        <div class="subcard ucl-box theme-ucl grid-club-sub1">
-          <h3 class="subcard-title">
-            <a href={uclHref}>
-              <span class="card-ico ico-ucl" aria-hidden="true">👑</span>
-              UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）
-            </a>
-          </h3>
-          <div class="ucl-sub">
-            リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
-            更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{
-              uclClubCount
-            }クラブ
-          </div>
-        </div>
+            <div class="jp-sub">
+              <a href="/wc/2026/team/日本">日本代表メンバー一覧</a><br />
+              更新：<span class="date-red">{japanUpdatedAt}</span>
+            </div>
 
-        <!-- row3 col1: EURO -->
-        <div class="subcard euro-box theme-euro grid-nt-sub2">
-          <h3 class="subcard-title">
-            <span class="card-ico ico-euro" aria-hidden="true">🌍</span>
-            EURO 2028 予選
-          </h3>
-          <div class="euro-sub">準備中</div>
+            <div class="jp-opponents">
+              <div class="jp-opponents-title">🔥 今後の対戦予定</div>
+
+              <div class="jp-opponents-row">
+                <span class="jp-opponents-label">3月：</span>
+                <a
+                  href="/wc/2026/team/スコットランド"
+                  title="スコットランド代表メンバー一覧"
+                >
+                  スコットランド
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026/team/イングランド"
+                  title="イングランド代表メンバー一覧"
+                >
+                  イングランド
+                </a>
+                <span class="sep">｜</span>
+                <span class="jp-opponents-label">5月：</span>
+                <a
+                  href="/wc/2026/team/アイスランド"
+                  title="アイスランド代表メンバー一覧"
+                >
+                  アイスランド
+                </a>
+              </div>
+
+              <div class="jp-opponents-row">
+                <span class="jp-opponents-label">W杯GL：</span>
+                <a
+                  href="/wc/2026/team/オランダ"
+                  title="オランダ代表メンバー一覧"
+                >
+                  オランダ
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026/team/チュニジア"
+                  title="チュニジア代表メンバー一覧"
+                >
+                  チュニジア
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026#teams"
+                  class="muted"
+                  title="W杯2026 出場国一覧へ"
+                >
+                  欧州PO
+                </a>
+              </div>
+
+              <div class="jp-opponents-row small">
+                <a
+                  href="/wc/2026/team/ポーランド"
+                  title="ポーランド代表メンバー一覧"
+                >
+                  ポーランド
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026/team/スウェーデン"
+                  title="スウェーデン代表メンバー一覧"
+                >
+                  スウェーデン
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026/team/ウクライナ"
+                  title="ウクライナ代表メンバー一覧"
+                >
+                  ウクライナ
+                </a>
+                <span class="sep">｜</span>
+                <a
+                  href="/wc/2026/team/アルバニア"
+                  title="アルバニア代表メンバー一覧"
+                >
+                  アルバニア
+                </a>
+              </div>
+            </div>
+
+            <!-- ★追加：歴代WC導線 -->
+            <div class="jp-history">
+              <a class="legend-btn" href="/nt/japan/wc"
+                >日本代表　W杯のあゆみ（歴代代表メンバー）</a
+              >
+            </div>
+          </div>
+
+          <!-- row2 col2: UCL -->
+          <div class="subcard ucl-box theme-ucl grid-club-sub1">
+            <h3 class="subcard-title">
+              <a href={uclHref}>
+                <span class="card-ico ico-ucl" aria-hidden="true">👑</span>
+                UEFAチャンピオンズリーグ(CL) {uclSeason}（順位表）
+              </a>
+            </h3>
+            <div class="ucl-sub">
+              リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
+              更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{
+                uclClubCount
+              }クラブ
+            </div>
+          </div>
+
+          <!-- row3 col1: EURO -->
+          <div class="subcard euro-box theme-euro grid-nt-sub2">
+            <h3 class="subcard-title">
+              <span class="card-ico ico-euro" aria-hidden="true">🌍</span>
+              EURO 2028 予選
+            </h3>
+            <div class="euro-sub">2028年6月開催。今後データを追加予定</div>
+            <!--
           <div class="euro-sub">
             更新：<span class="date-red">—</span>
           </div>
-        </div>
+        -->
+          </div>
 
-        <!-- row3 col2: Transfers -->
-        <div class="subcard transfer-box theme-club grid-club-sub2">
-          <h3 class="subcard-title">
-            <a href="/transfers">
-              <span class="card-ico ico-transfer" aria-hidden="true">🔁</span>
-              2025-26冬 主な移籍一覧
-            </a>
-          </h3>
-          <div class="transfer-sub">
-            冬の主要選手の移籍はコチラから一覧で！<br />
-            更新：<span class="date-red">{transfersUpdatedAt}</span>
+          <!-- row3 col2: Transfers -->
+          <div class="subcard transfer-box theme-club grid-club-sub2">
+            <h3 class="subcard-title">
+              <a href="/transfers">
+                <span class="card-ico ico-transfer" aria-hidden="true">🔁</span>
+                2025-26冬 主な移籍一覧
+              </a>
+            </h3>
+            <div class="transfer-sub">
+              冬の主要選手の移籍はコチラから一覧で！<br />
+              更新：<span class="date-red">{transfersUpdatedAt}</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="footer">
-        ※ 各更新日は、代表・クラブそれぞれの最新データ反映日を示しています。
-      </div>
+        <div class="footer">
+          ※ 各更新日は、代表・クラブそれぞれの最新データ反映日を示しています。
+        </div>
 
-      <div
-        style="margin-top:28px; text-align:center; font-size:13px; color:#666;"
-      >
-        <a href="/about">World Football Archive について（このサイトの概要）</a>
-      </div>
+        <div
+          style="margin-top:28px; text-align:center; font-size:13px; color:#666;"
+        >
+          <a href="/about"
+            >World Football Archive について（このサイトの概要）</a
+          >
+        </div>
+      </p>
     </div>
   </div>
 </BaseLayout>

@@ -276,7 +276,7 @@ const pageDesc = isCurrentEdition
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[{ label: "トップ", href: "/" }, { label: wcTitle }]}
-  heading={teamsHeading}
+  heading={portalHeading}
 >
   <style is:global>
     .page-wc .featured-line {
@@ -869,6 +869,19 @@ const pageDesc = isCurrentEdition
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
 
+  <p class="quick-title" style="margin: 6px 0 6px;">
+    {wcTitle}の出場国一覧と各国の代表メンバーを掲載。🔥この１ページで大会全体を俯瞰することができます。
+  </p>
+
+  <p class="quick-title" style="margin: 0 0 10px;">
+    {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
+    出場国・日程・順位・得点ランキングをまとめて確認できます。
+    {
+      latestCallupSnapshot ? (
+        <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
+      ) : null
+    }
+  </p>
   {
     wcEditionPills.length > 1 && (
       <div class="edition-switch">
@@ -887,20 +900,6 @@ const pageDesc = isCurrentEdition
       </div>
     )
   }
-
-  <p class="quick-title" style="margin: 6px 0 6px;">
-    {wcTitle}の出場国一覧と各国の代表メンバーを掲載しています。
-  </p>
-
-  <p class="quick-title" style="margin: 0 0 10px;">
-    {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
-    グループ・試合日程・得点ランキングまでまとめて確認できます。
-    {
-      latestCallupSnapshot ? (
-        <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
-      ) : null
-    }
-  </p>
 
   {
     isCurrentEdition && (
@@ -936,6 +935,19 @@ const pageDesc = isCurrentEdition
     )
   }
 
+  <div class="toc-box" style="margin: 10px 0 16px;">
+    <p class="quick-title" style="margin-bottom:6px;">
+      👉 このページで確認できる内容
+    </p>
+    <div class="pills">
+      <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
+      <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
+      <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
+      <a class="pill" href="#rankings"><span class="dot"></span>得点ランキング</a>
+      <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
+    </div>
+  </div>
+
   {
     /* =========================
       (1) 出場国カード：検索/ピル絞り込み（軽量バッジ版）
@@ -944,7 +956,7 @@ const pageDesc = isCurrentEdition
   <section id="teams" style="margin: 18px 0;">
     <h2>{teamsHeading}</h2>
     <p class="quick-title" style="margin: 6px 0 10px;">
-      出場国を大陸・グループ・状態で絞り込みできます。国名検索にも対応。各カードをクリックすると代表メンバー一覧ページへ移動します。
+      出場国一覧では、各国の代表メンバー一覧ページへのリンク、所属大陸、グループ、出場状況を絞り込んで表示できます。
     </p>
 
     <div class="filterbar" id="teams-filterbar">
@@ -1458,7 +1470,7 @@ const pageDesc = isCurrentEdition
 
       {
         awardGroups.length === 0 ? (
-          <p class="rank-muted">大会前、またはデータ準備中です。</p>
+          <p class="rank-muted">発表され次第、更新します。</p>
         ) : (
           <div class="rank-grid">
             {awardGroups.map((g) => (
