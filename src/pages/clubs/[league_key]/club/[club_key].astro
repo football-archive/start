@@ -491,8 +491,8 @@ const title = season
 
 // description：検索語を明確に（seasonは補助）
 const description = season
-  ? `${clubLabel}の${seasonLongLabel}登録メンバー一覧。背番号・ポジション・国籍・加入日などを掲載。夏/冬の表示切替にも対応。`
-  : `${clubLabel}の登録メンバー一覧。背番号・ポジション・国籍・加入日などを掲載。`;
+  ? `${clubLabel}の${seasonLongLabel}メンバー一覧。背番号・ポジション・国籍・加入日などを掲載。過去のシーズンも当時の代表招集や年齢付きでメンバー構成を確認できるのが特徴です。`
+  : `${clubLabel}のメンバー一覧。背番号・ポジション・国籍・加入日などを掲載。過去のシーズンも当時の代表招集や年齢付きでメンバー構成を確認できるのが特徴です。`;
 
 // heading：UIの見出し（TitleBar用）
 const heading = season
@@ -1169,6 +1169,10 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           document.querySelectorAll("[data-nav-season]"),
         );
 
+        const metaBlocks = Array.from(
+          document.querySelectorAll("[data-meta-season]"),
+        );
+
         const packs = JSON.parse(
           windowRoot.getAttribute("data-season-packs") || "[]",
         );
@@ -1225,6 +1229,11 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
             el.style.display = s === season ? "" : "none";
           });
 
+          metaBlocks.forEach((el) => {
+            const s = el.getAttribute("data-meta-season");
+            el.style.display = s === season ? "" : "none";
+          });
+
           starSections.forEach((sec) => {
             const s = sec.getAttribute("data-season");
             const w = sec.getAttribute("data-star-window");
@@ -1263,6 +1272,13 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           history.replaceState(null, "", u.toString());
         }
 
+        function goToSeasonWindow(season, win) {
+          const u = new URL(location.href);
+          u.searchParams.set("season", season);
+          u.searchParams.set("window", win);
+          location.href = u.toString();
+        }
+
         const defaultWinFromSeason = setWindowAvailability(initialSeason);
         const initialWin =
           qWin === "winter" || qWin === "summer" ? qWin : defaultWinFromSeason;
@@ -1290,7 +1306,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                   ? "winter"
                   : win;
 
-            setActive(season, finalWin);
+            goToSeasonWindow(season, finalWin);
           });
         });
 
@@ -1303,7 +1319,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
               new URLSearchParams(location.search).get("season") ||
               initialSeason
             ).trim();
-            setActive(curSeason, win);
+            goToSeasonWindow(curSeason, win);
           });
         });
       } catch (e) {
