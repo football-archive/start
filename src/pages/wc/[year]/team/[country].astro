@@ -755,7 +755,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         <span>
           {countryName}代表の最新メンバー・背番号一覧（{compLabel}{year}）。
           選手一覧では背番号・所属クラブ・代表デビュー・招集歴まで。🔥過去大会のメンバーも当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。
-
         </span>
       </p>
 
@@ -1098,16 +1097,27 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       if (!openBtn || !closeBtn || !modal) return;
 
       openBtn.addEventListener("click", () => {
+        // 👇 追加（GAイベント）
+        if (typeof gtag === "function") {
+          gtag("event", "lineup_click", {
+            event_category: "engagement",
+            event_label: document.title,
+          });
+        }
+
+        closeBtn.addEventListener("click", (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+
+          if (typeof modal.close === "function") {
+            modal.close();
+            document.body.classList.remove("is-lineup-modal-open");
+          }
+        });
+
         if (typeof modal.showModal === "function") {
           modal.showModal();
           document.body.classList.add("is-lineup-modal-open");
-        }
-      });
-
-      closeBtn.addEventListener("click", () => {
-        if (typeof modal.close === "function") {
-          modal.close();
-          document.body.classList.remove("is-lineup-modal-open");
         }
       });
 
@@ -2058,5 +2068,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     .header * {
       min-width: 0;
     }
+
   </style>
 </BaseLayout>
