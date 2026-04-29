@@ -331,6 +331,10 @@ const group =
     ?.group ??
   "";
 
+const allGroupLetters = Array.from(
+  new Set(groups.map((g: any) => String(g.group ?? "").trim()).filter(Boolean)),
+).sort((a, b) => a.localeCompare(b, "en"));
+
 // ====================
 // 関連国リンク（慎重追加）
 //  - 同グループ
@@ -754,7 +758,8 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <p class="hero-desc">
         <span>
           {countryName}代表の最新メンバー・背番号一覧（{compLabel}{year}）。
-          選手一覧では背番号・所属クラブ・代表デビュー・招集歴まで。🔥過去大会のメンバーも当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。
+          選手一覧では背番号・ポジション・所属クラブ・代表デビュー・招集歴まで。<br />
+          🔥過去大会のメンバーも当時の所属クラブ・年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
         </span>
       </p>
 
@@ -844,6 +849,24 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           )
         }
 
+        {
+          allGroupLetters.length > 0 && (
+            <div class="nt-related-block">
+              <div class="nt-related-label">👉 グループを切り替える</div>
+              <div class="nt-nav-row">
+                {allGroupLetters.map((g) => (
+                  <a
+                    class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
+                    href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
+                  >
+                    {g}
+                  </a>
+                ))}
+              </div>
+            </div>
+          )
+        }
+
         <div class="nt-related-block">
           <div class="nt-related-label">👉 大会全体を見る</div>
           <div class="nt-tournament-link">
@@ -927,7 +950,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <section class="nt-lineup-section" aria-label="想定スタメン">
         <p class="nt-lineup-lead">
           👇 {countryName}代表の想定スタメン
-          {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+          {ntLineupFormation ? `（${ntLineupFormation}） システム` : ""}
           。直近の試合ベースのフォーメーション例です。
         </p>
 
@@ -950,7 +973,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           <div class="nt-lineup-copy">
             <div class="nt-lineup-title">
               🔥 想定スタメンを見る
-              {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+              {ntLineupFormation ? `（${ntLineupFormation} システム）` : ""}
             </div>
             <div class="nt-lineup-note">
               直近の試合・起用傾向をもとにしたフォーメーション例です
@@ -2069,5 +2092,10 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       min-width: 0;
     }
 
+    .pill.is-active {
+      background: var(--theme-color);
+      color: #fff;
+      font-weight: 700;
+    }
   </style>
 </BaseLayout>
