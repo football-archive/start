@@ -606,7 +606,8 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
           <p class="hero-desc">
             {clubLabel}の{seasonLong(p.season)}
-            所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・生年月日・身長などを掲載。<br />
+            所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・生年月日・身長などを掲載。
+            <br />
             🔥過去のシーズンも当時の代表招集や年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
           </p>
         </div>
@@ -1946,6 +1947,19 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         font-size: 12px;
         padding: 6px 10px;
       }
+    }
+
+    .page-club .club-season-top-pills .pill.is-active {
+      background: var(--theme-color);
+      color: #fff;
+      border-color: var(--theme-color);
+      font-weight: 800;
+    }
+
+    .page-club .club-season-top-pills .pill.is-active:hover {
+      background: var(--theme-color);
+      color: #fff;
+      opacity: 0.92;
     }
   </style>
 </BaseLayout>
