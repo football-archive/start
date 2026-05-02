@@ -719,13 +719,23 @@ const isJapan = countryName === "日本";
 const statusText = statusSuffix ? statusSuffix.replace(/[()（）]/g, "") : "";
 const statusForText = statusText ? `【${statusText}】` : "";
 
+const hasLineup = hasNtLineupImage;
+
 const title = isJapan
-  ? `日本代表メンバー・背番号一覧【W杯${year}最新】｜所属クラブ・招集歴｜海外サッカーDB`
-  : `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜所属クラブ・招集歴｜海外サッカーDB`;
+  ? hasLineup
+    ? `日本代表メンバー・背番号一覧【W杯${year}最新】｜スタメン・フォーメーション・所属クラブ｜海外サッカーDB`
+    : `日本代表メンバー・背番号一覧【W杯${year}最新】｜所属クラブ・招集歴｜海外サッカーDB`
+  : hasLineup
+    ? `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜スタメン・フォーメーション・所属クラブ｜海外サッカーDB`
+    : `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜所属クラブ・招集歴｜海外サッカーDB`;
 
 const description = isJapan
-  ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。 ※　当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
-  : `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーを掲載。所属クラブ、代表デビュー、過去大会招集歴まで確認できます。 ※　当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`;
+  ? hasLineup
+    ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補に加え、スタメン・フォーメーション例、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
+    : `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
+  : hasLineup
+    ? `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーに加え、スタメン・フォーメーション例、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
+    : `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーを掲載。所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`;
 
 const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 ---
@@ -758,7 +768,16 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <p class="hero-desc">
         <span>
           {countryName}代表の最新メンバー・背番号一覧（{compLabel}{year}）。
-          選手一覧では背番号・ポジション・所属クラブ・代表デビュー・招集歴まで。<br />
+          選手一覧では背番号・ポジション・所属クラブ・代表デビュー・招集歴まで。<br
+          />
+          {
+            hasLineup && (
+              <>
+                ⚽ 直近の試合ベースの想定スタメン・フォーメーション例も掲載。
+                <br />
+              </>
+            )
+          }
           🔥過去大会のメンバーも当時の所属クラブ・年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
         </span>
       </p>
