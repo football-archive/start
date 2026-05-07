@@ -1,6 +1,7 @@
 ---
 import TitleBar from "../components/TitleBar.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import SideNav from "../components/SideNav.astro";
 
 type Crumb = { label: string; href?: string };
 
@@ -475,51 +476,51 @@ const isProd = import.meta.env.PROD;
     style={bodyStyle}
   >
     <TitleBar siteTitle={siteNameBar} pageTitle={barPageTitle} homeHref="/" />
-
+    <SideNav />
     <main class="app-main">
       <div class="page-wrap">
-        {
-          showPageHeader && (
-            <SiteHeader
-              crumbs={crumbs}
-              variant={
-                /\b(page-nt|page-club)\b/.test(bodyClass) ? "slim" : "boxed"
+
+            {
+              showPageHeader && (
+                <SiteHeader
+                  crumbs={crumbs}
+                  variant={
+                    /\b(page-nt|page-club)\b/.test(bodyClass) ? "slim" : "boxed"
+                  }
+                >
+                  {hasUnderTitle && <slot name="under-title" />}
+                </SiteHeader>
+              )
+            }
+
+            <slot />
+
+            <footer class="site-footer">
+              <a href="/about">運営者情報</a>
+              <span>｜</span>
+              <a href="/privacy">プライバシーポリシー</a>
+              <span>｜</span>
+              <a href="/contact">お問い合わせ</a>
+            </footer>
+
+            <style>
+              .site-footer {
+                margin-top: 40px;
+                padding-top: 16px;
+                border-top: 1px solid #e6e6e6;
+                font-size: 12px;
+                text-align: center;
               }
-            >
-              {hasUnderTitle && <slot name="under-title" />}
-            </SiteHeader>
-          )
-        }
 
-        <slot />
+              .site-footer a {
+                color: #888;
+                text-decoration: none;
+              }
 
-
-<footer class="site-footer">
-  <a href="/about">運営者情報</a>
-  <span>｜</span>
-  <a href="/privacy">プライバシーポリシー</a>
-  <span>｜</span>
-  <a href="/contact">お問い合わせ</a>
-</footer>
-
-<style>
-.site-footer {
-  margin-top: 40px;
-  padding-top: 16px;
-  border-top: 1px solid #e6e6e6;
-  font-size: 12px;
-  text-align: center;
-}
-
-.site-footer a {
-  color: #888;
-  text-decoration: none;
-}
-
-.site-footer a:hover {
-  text-decoration: underline;
-}
-</style>
+              .site-footer a:hover {
+                text-decoration: underline;
+              }
+            </style>
 
       </div>
     </main>

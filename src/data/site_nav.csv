@@ -1,0 +1,33 @@
+id,parent_id,level,label,href,visible,sort_order
+top,,1,トップページ,/,true,01
+update,,2,更新情報,/,true,02
+nt,,1,🌍代表,/nt,true,10
+wc-japan,wc2026,2,🔴日本代表,/wc/2026/team/日本,true,15
+wc,nt,2,🏆W杯,/wc/2026/,true,20
+wc2026,wc,3,🔥2026大会,/wc/2026/,true,21
+wc2026-teams,wc2026,4,出場国一覧,/wc/2026#teams,true,22
+wc2026-schedule,wc2026,4,スケジュール・結果,/wc/2026#schedule,true,23
+wc2026-groups,wc2026,4,グループ勝敗表,/wc/2026#groups,true,24
+wc2022,wc,3,→ 2022大会,/wc/2022/,true,30
+wc2018,wc,3,→ 2018大会,/wc/2018/,true,40
+wc2014,wc,3,→ 2014大会,/wc/2014/,true,50
+wc2010,wc,3,→ 2010大会,/wc/2010/,true,60
+wc2006,wc,3,→ 2006大会,/wc/2006/,true,70
+wc2002,wc,3,→ 2002大会,/wc/2002/,true,80
+nt-archive,nt,2,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true,90
+nt-teams,nt,2,代表国一覧,/nt/,false,95
+clubs,,1,👕クラブ,/clubs/,true,100
+club-leagues,clubs,2,リーグ一覧,/clubs/,true,110
+club-premier,club-leagues,3,→ プレミアリーグ,/clubs/premier-league/,true,111
+club-laliga,club-leagues,3,→ ラ・リーガ,/clubs/laliga/,true,112
+club-seriea,club-leagues,3,→ セリエA,/clubs/serie-a/,true,113
+club-bundesliga,club-leagues,3,→ ブンデス,/clubs/bundesliga/,true,114
+club-ligue1,club-leagues,3,→ リーグ・アン,/clubs/ligue-1/,true,115
+club-eredivisie,club-leagues,3,→ エールディヴィジ,/clubs/eredivisie/,true,116
+club-primeira-liga,club-leagues,3,→ プリメイラ,/clubs/primeira-liga/,true,117
+club-scottish-premiership,club-leagues,3,→ スコティッシュ,/clubs/scottish-premiership/,true,118
+club-history,clubs,2,📓歴代強豪クラブ アーカイブ,/clubs/history/,true,120
+transfers,clubs,2,🔁移籍情報,/transfers/,true,130
+ucl,,1,👑CL,/ucl/,true,200
+ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,210
+about,,1,サイト情報,/about/,true,900
