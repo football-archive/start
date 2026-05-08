@@ -1,22 +1,22 @@
 id,parent_id,level,label,href,visible,sort_order
 top,,1,トップページ,/,true,01
-update,,2,更新情報,/,true,02
-nt,,1,🌍代表,/nt,true,10
+update,,2,🆕 更新情報,/,true,02
+nt,,1,🌍各国代表,/nt,true,10
 wc-japan,wc2026,2,🔴日本代表,/wc/2026/team/日本,true,15
-wc,nt,2,🏆W杯,/wc/2026/,true,20
-wc2026,wc,3,🔥2026大会,/wc/2026/,true,21
+wc,nt,2,🏆FIFAワールドカップ,/wc/2026/,true,20
+wc2026,wc,3,🔥2026 北中米,/wc/2026/,true,21
 wc2026-teams,wc2026,4,出場国一覧,/wc/2026#teams,true,22
 wc2026-schedule,wc2026,4,スケジュール・結果,/wc/2026#schedule,true,23
 wc2026-groups,wc2026,4,グループ勝敗表,/wc/2026#groups,true,24
-wc2022,wc,3,→ 2022大会,/wc/2022/,true,30
-wc2018,wc,3,→ 2018大会,/wc/2018/,true,40
-wc2014,wc,3,→ 2014大会,/wc/2014/,true,50
-wc2010,wc,3,→ 2010大会,/wc/2010/,true,60
-wc2006,wc,3,→ 2006大会,/wc/2006/,true,70
-wc2002,wc,3,→ 2002大会,/wc/2002/,true,80
+wc2022,wc,3,→ 2022 カタール,/wc/2022/,true,30
+wc2018,wc,3,→ 2018 ロシア,/wc/2018/,true,40
+wc2014,wc,3,→ 2014 ブラジル,/wc/2014/,true,50
+wc2010,wc,3,→ 2010 南アフリカ,/wc/2010/,true,60
+wc2006,wc,3,→ 2006 ドイツ,/wc/2006/,true,70
+wc2002,wc,3,→ 2002 日韓,/wc/2002/,true,80
 nt-archive,nt,2,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true,90
 nt-teams,nt,2,代表国一覧,/nt/,false,95
-clubs,,1,👕クラブ,/clubs/,true,100
+clubs,,1,👕欧州主要リーグ・クラブ,/clubs/,true,100
 club-leagues,clubs,2,リーグ一覧,/clubs/,true,110
 club-premier,club-leagues,3,→ プレミアリーグ,/clubs/premier-league/,true,111
 club-laliga,club-leagues,3,→ ラ・リーガ,/clubs/laliga/,true,112
