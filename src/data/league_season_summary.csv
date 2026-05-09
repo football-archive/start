@@ -1,10 +1,10 @@
 league_key,season,champion_club_key,runnerup_club_key,third_club_key,top_scorer_names,top_scorer_goals,top_scorer_club_keys,note
-premier-league,2025-26,,,,,,,途中経過（34節時点）
-laliga,2025-26,,,,,,,途中経過（33節時点）
-serie-a,2025-26,,,,,,,途中経過（34節時点）
-bundesliga,2025-26,,,,,,,途中経過（31節時点）
-ligue-1,2025-26,,,,,,,途中経過（31節時点）
-eredivisie,2025-26,,,,,,,途中経過（31節時点）
+premier-league,2025-26,,,,,,,途中経過（35節時点）
+laliga,2025-26,,,,,,,途中経過（34節時点）
+serie-a,2025-26,,,,,,,途中経過（35節時点）
+bundesliga,2025-26,,,,,,,途中経過（32節時点）
+ligue-1,2025-26,,,,,,,途中経過（32節時点）
+eredivisie,2025-26,,,,,,,途中経過（32節時点）
 premier-league,2024-25,liverpool,arsenal,manchester-city,モハメド・サラー,29,liverpool,
 premier-league,2023-24,manchester-city,arsenal,liverpool,エルリング・ブラウト・ホランド,27,manchester-city,
 premier-league,2022-23,manchester-city,arsenal,manchester-united,エルリング・ブラウト・ホランド,36,manchester-city,
@@ -86,8 +86,8 @@ laliga,2000-01,real-madrid,deportivo-la-coruna,mallorca,ラウル・ゴンサレ
 laliga,1999-00,deportivo-la-coruna,barcelona,valencia,サルバ・バジェスタ,27,racing-santander,
 laliga,1998-99,barcelona,real-madrid,mallorca,ラウル・ゴンサレス,25,real-madrid,
 laliga,1997-98,barcelona,athletic-bilbao,real-sociedad,クリスティアン・ヴィエリ,24,atletico-madrid,
-serie-a,2014-15,juventus,roma,lazio,マウロ・イカルディ|ルカ・トーニ,22,inter|hellas-verona
-,
+serie-a,2014-15,juventus,roma,lazio,マウロ・イカルディ|ルカ・トーニ,22,inter|hellas-verona,
+,,,,,,,,
 serie-a,2013-14,juventus,roma,napoli,チーロ・インモービレ,22,torino,
 serie-a,2012-13,juventus,napoli,milan,エディンソン・カバーニ,29,napoli,
 serie-a,2011-12,juventus,milan,udinese,ズラタン・イブラヒモビッチ,28,milan,
@@ -105,4 +105,4 @@ serie-a,2000-01,roma,juventus,lazio,エルナン・クレスポ,26,lazio,
 serie-a,1999-00,lazio,juventus,milan,アンドリー・シェフチェンコ,24,milan,
 serie-a,1998-99,milan,lazio,fiorentina,マルシオ・アモローゾ,22,udinese,
 serie-a,1997-98,juventus,inter,udinese,オリバー・ビアホフ,27,udinese,
-
+,,,,,,,,

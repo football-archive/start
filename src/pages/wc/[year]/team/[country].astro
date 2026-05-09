@@ -761,7 +761,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <h1 class="nt-hero-title">
         {countryName}代表 {compLabel}{
           year
-        }メンバー一覧｜背番号・所属クラブ・代表歴（最新）
+        }メンバー一覧｜背番号・ポジション・所属クラブ・代表歴
         {statusSuffix && <span class="nt-status-inline">{statusSuffix}</span>}
       </h1>
 
@@ -787,7 +787,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           yearsForCountry.length > 1 && (
             <div class="nt-related-block">
               <div class="nt-related-label">
-                👉 {countryName}の過去大会を見る
+                👉 {countryName}の出場大会を切り替える
               </div>
               <div class="pills nt-year-pills">
                 {yearsForCountry.map((y) => (
