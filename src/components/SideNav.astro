@@ -251,10 +251,12 @@ for (const row of rows) {
       transform: translateX(calc(-100% - 24px));
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
+      z-index: 1000;
     }
 
     .side-nav.is-open {
       transform: translateX(0);
+      pointer-events: auto;
     }
 
     .side-nav-toggle {
@@ -263,12 +265,19 @@ for (const row of rows) {
       gap: 2px;
       top: 90px;
       left: 16px;
+      z-index: 1100;
+      pointer-events: auto;
     }
 
     .side-nav__close {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      z-index: 1101;
+    }
+
+    .side-nav-backdrop {
+      z-index: 900;
     }
   }
 
@@ -337,6 +346,29 @@ for (const row of rows) {
     }
     .side-nav__item--lv4 {
       padding-left: 24px;
+    }
+  }
+
+  /* ===== SideNav 重なり順の最終補正 ===== */
+  @media (max-width: 1700px) {
+    .side-nav-backdrop {
+      z-index: 900 !important;
+      pointer-events: auto;
+    }
+
+    .side-nav {
+      z-index: 1000 !important;
+      pointer-events: auto !important;
+    }
+
+    .side-nav-toggle {
+      z-index: 1100 !important;
+      pointer-events: auto !important;
+    }
+
+    .side-nav__close {
+      z-index: 1101 !important;
+      pointer-events: auto !important;
     }
   }
 </style>
