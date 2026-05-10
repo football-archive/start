@@ -16,6 +16,10 @@ export type CallupRow = {
   birth_date?: string;
   height_cm?: string;
   current_club?: string;
+  apps?: string;
+  starts?: string;
+  goals?: string;
+  assists?: string;
   [key: string]: any;
 };
 

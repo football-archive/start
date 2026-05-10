@@ -694,9 +694,11 @@ const clubLabel = (clubName: string) => {
   return c?.club_display_ja || clubName;
 };
 
+const showTournamentStats = competition === "WC" && String(year) === "2026";
+
 const columns = buildNtColumns({
   isLatestView: true,
-  showStats: false,
+  showStats: showTournamentStats,
   clubHref,
   clubLabel, // ← ★追加
 
@@ -723,15 +725,15 @@ const hasLineup = hasNtLineupImage;
 
 const title = isJapan
   ? hasLineup
-    ? `日本代表メンバー・背番号一覧【W杯${year}最新】｜スタメン・フォーメーション・所属クラブ｜海外サッカーDB`
+    ? `日本代表メンバー・背番号一覧【W杯${year}最新】｜スタメン・フォーメーション・得点・アシスト・所属クラブ｜海外サッカーDB`
     : `日本代表メンバー・背番号一覧【W杯${year}最新】｜所属クラブ・招集歴｜海外サッカーDB`
   : hasLineup
-    ? `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜スタメン・フォーメーション・所属クラブ｜海外サッカーDB`
+    ? `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜スタメン・フォーメーション・得点・アシスト・所属クラブ｜海外サッカーDB`
     : `${countryName}代表メンバー・背番号一覧【${compLabel}${year}最新】${statusForText}｜所属クラブ・招集歴｜海外サッカーDB`;
 
 const description = isJapan
   ? hasLineup
-    ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補に加え、スタメン・フォーメーション例、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
+    ? `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補に加え、スタメン・フォーメーション例、得点・アシスト・所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
     : `日本代表の最新メンバー・背番号一覧です。W杯${year}の招集候補、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
   : hasLineup
     ? `${countryName}代表の最新メンバー・背番号一覧です。${compLabel}${year}${statusText ? `（${statusText}）` : ""}の招集メンバーに加え、スタメン・フォーメーション例、所属クラブ、代表デビュー、過去大会招集歴まで確認できます。※当時の所属クラブ・年齢付きでメンバー構成を確認できるのが特徴です。`
@@ -761,7 +763,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       <h1 class="nt-hero-title">
         {countryName}代表 {compLabel}{
           year
-        }メンバー一覧｜背番号・ポジション・所属クラブ・代表歴
+        }メンバー一覧｜背番号・ポジション・所属クラブ・代表歴・得点・アシスト
         {statusSuffix && <span class="nt-status-inline">{statusSuffix}</span>}
       </h1>
 
@@ -1255,7 +1257,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .club-link {
-      color: var(--theme-color);
+      color: #2e7d32;
       font-weight: 700;
       text-decoration: underline;
       text-underline-offset: 2px;
@@ -2115,6 +2117,69 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       background: var(--theme-color);
       color: #fff;
       font-weight: 700;
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .mob-stat-line {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .mob-stat-line {
+        display: block;
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 1.35;
+        font-weight: 700;
+        color: var(--meta-color, #7a2e2e);
+      }
+    }
+
+    /* モバイルでは大会成績を選手名セル内に出すため、右端3列は隠す */
+    @media (max-width: 640px) {
+      .page-wc table th:nth-child(11),
+      .page-wc table td:nth-child(11),
+      .page-wc table th:nth-child(12),
+      .page-wc table td:nth-child(12),
+      .page-wc table th:nth-child(13),
+      .page-wc table td:nth-child(13) {
+        display: none;
+      }
+    }
+
+    /* ===== WC代表ページ：所属クラブ列の横幅抑制 ===== */
+    .page-wc .club-cell {
+      display: inline-block;
+      max-width: 150px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .page-wc .club-cell a {
+      color: #2e7d32;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* PC〜タブレットではクラブ名を折り返して表幅を抑える */
+    @media (min-width: 641px) {
+      .page-wc .club-cell {
+        max-width: 150px;
+      }
+    }
+
+    /* モバイルは選手名セル内のクラブリンクもあるため、少し広め */
+    @media (max-width: 640px) {
+      .page-wc .club-cell {
+        max-width: 220px;
+      }
     }
   </style>
 </BaseLayout>

@@ -61,8 +61,27 @@ for (const row of rows) {
 }
 ---
 
-<aside class="side-nav" aria-label="サイト内ナビゲーション">
-  <div class="side-nav__title">サイトマップ</div>
+<button
+  class="side-nav-toggle"
+  type="button"
+  aria-controls="side-nav"
+  aria-expanded="false"
+>
+  ☰ サイトマップ
+</button>
+
+<div class="side-nav-backdrop" hidden></div>
+
+<aside id="side-nav" class="side-nav" aria-label="サイト内ナビゲーション">
+  <div class="side-nav__head">
+    <div class="side-nav__title">サイトマップ</div>
+    <button
+      class="side-nav__close"
+      type="button"
+      aria-label="サイトマップを閉じる">×</button
+    >
+  </div>
+
   <nav>
     <ul class="side-nav__list">
       {
@@ -160,9 +179,197 @@ for (const row of rows) {
     font-weight: 800;
   }
 
-  @media (max-width: 1500px) {
+  .side-nav-toggle {
+    position: fixed;
+    left: 12px;
+    top: 96px;
+    z-index: 35;
+    display: none;
+    border: 1px solid var(--border, #e6e6e6);
+    border-radius: 999px;
+    background: #fff;
+    padding: 7px 11px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #333;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+    cursor: pointer;
+  }
+
+  .side-nav-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 30;
+    background: rgba(0, 0, 0, 0.28);
+  }
+
+  .side-nav__head {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin: 0 -12px 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border, #e6e6e6);
+  }
+
+  .side-nav__title {
+    font-weight: 800;
+    font-size: 13px;
+    margin: 0;
+    padding: 0;
+    border-bottom: 0;
+  }
+
+  .side-nav__close {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--border, #e6e6e6);
+    border-radius: 999px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    font-weight: 700;
+  }
+
+  @media (max-width: 1700px) {
     .side-nav {
-      display: none;
+      top: 188px;
+      height: calc(100vh - 220px);
+      max-height: calc(100vh - 220px);
+      padding: 0 10px 12px;
+      font-size: 12px;
+      width: min(300px, calc(100vw - 28px));
+      left: 14px;
+      border-radius: 14px;
+      transform: translateX(calc(-100% - 24px));
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .side-nav.is-open {
+      transform: translateX(0);
+    }
+
+    .side-nav-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      top: 90px;
+      left: 16px;
+    }
+
+    .side-nav__close {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .side-nav-toggle {
+      top: 186px;
+      left: 8px;
+      font-size: 10px;
+      padding: 3px 8px;
+      z-index: 45;
+      line-height: 1.1;
+      border-radius: 999px;
+      width: auto;
+      min-width: 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      background: rgba(255, 247, 204, 0.88);
+      border-color: #e0c15a;
+      color: #111;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+
+      backdrop-filter: blur(2px);
+    }
+
+    .side-nav {
+      top: 192px;
+      left: 8px;
+      width: min(260px, 70vw);
+      height: calc(100vh - 224px);
+      max-height: calc(100vh - 224px);
+      padding: 0 10px 12px;
+      font-size: 12px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      z-index: 40;
+      overflow-x: hidden;
+    }
+
+    .side-nav__head {
+      margin: 0 -10px 6px;
+      padding: 8px 10px;
+    }
+
+    .side-nav__title {
+      font-size: 12px;
+    }
+
+    .side-nav__close {
+      width: 28px;
+      height: 28px;
+      font-size: 16px;
+    }
+
+    .side-nav__link {
+      padding: 4px 6px;
+      line-height: 1.28;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .side-nav__item--lv2 {
+      padding-left: 8px;
+    }
+    .side-nav__item--lv3 {
+      padding-left: 16px;
+    }
+    .side-nav__item--lv4 {
+      padding-left: 24px;
     }
   }
 </style>
+
+<script>
+  const toggle = document.querySelector(".side-nav-toggle");
+  const nav = document.querySelector(".side-nav");
+  const close = document.querySelector(".side-nav__close");
+  const backdrop = document.querySelector(".side-nav-backdrop");
+
+  const openNav = () => {
+    nav?.classList.add("is-open");
+    backdrop?.removeAttribute("hidden");
+    toggle?.setAttribute("aria-expanded", "true");
+    document.body.classList.add("is-side-nav-open");
+  };
+
+  const closeNav = () => {
+    nav?.classList.remove("is-open");
+    backdrop?.setAttribute("hidden", "");
+    toggle?.setAttribute("aria-expanded", "false");
+    document.body.classList.remove("is-side-nav-open");
+  };
+
+  toggle?.addEventListener("click", openNav);
+  close?.addEventListener("click", closeNav);
+  backdrop?.addEventListener("click", closeNav);
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeNav();
+  });
+
+  nav?.querySelectorAll("a").forEach((a) => {
+    a.addEventListener("click", closeNav);
+  });
+</script>

@@ -10,6 +10,13 @@ export type CtSeasonMetaRow = {
   rank_ja: string;
   coach_ja: string;
   comment_ja: string;
+  cup1: string;
+  cup1_rank: string;
+  cup2: string;
+  cup2_rank: string;
+  uefa_cup: string;
+  uefa_cup_rank: string;
+  note: string;
 };
 
 // ct_season_meta.csv を読み込む（クラブ“あゆみ”の子ページ/メタ表示で共通利用）
@@ -22,10 +29,17 @@ export function loadCtSeasonMeta(): CtSeasonMetaRow[] {
     season: String(r.season ?? "").trim(),
     league_key: String(r.league_key ?? "").trim(),
     club_key: String(r.club_key ?? "").trim(),
-    // 互換：result_ja を使っていた場合も拾えるようにしておく
-    rank_ja: String((r.rank_ja ?? r.result_ja) ?? "").trim(),
+    rank_ja: String(r.rank_ja ?? r.result_ja ?? "").trim(),
     coach_ja: String(r.coach_ja ?? "").trim(),
     comment_ja: String(r.comment_ja ?? "").trim(),
+
+    cup1: String(r.cup1 ?? "").trim(),
+    cup1_rank: String(r.cup1_rank ?? "").trim(),
+    cup2: String(r.cup2 ?? "").trim(),
+    cup2_rank: String(r.cup2_rank ?? "").trim(),
+    uefa_cup: String(r.uefa_cup ?? "").trim(),
+    uefa_cup_rank: String(r.uefa_cup_rank ?? "").trim(),
+    note: String(r.note ?? "").trim(),
   }));
 }
 

@@ -58,6 +58,7 @@ export type NtRow = {
   notes?: string;
 
   apps?: string;
+  starts?: string;
   goals?: string;
   assists?: string;
 };
@@ -184,6 +185,26 @@ const club2Html = (clubName?: string, href?: string) => {
   return `<a class="club-link" href="${h}">${esc(c)}</a>`;
 };
 
+const appsStartsHtml = (apps?: string, starts?: string) => {
+  const a = String(apps ?? "").trim();
+  const s = String(starts ?? "").trim();
+
+  if (!a) return "-";
+
+  if (!s) return esc(a);
+
+  return `<div class="stat-apps">
+    <div>${esc(a)}</div>
+    <div class="stat-sub">(先発${esc(s)})</div>
+  </div>`;
+};
+
+const statNumberHtml = (v?: string) => {
+  const s = String(v ?? "").trim();
+  if (!s || s === "0") return "";
+  return esc(s);
+};
+
 const mobileMetaLineHtml = (parts: (string | undefined)[]) => {
   const items = parts.map((x) => String(x ?? "").trim()).filter(Boolean);
   if (!items.length) return "";
@@ -200,6 +221,30 @@ const mobileNoteLineHtml = (note?: string) => {
   const v = String(note ?? "").trim();
   if (!v) return "";
   return `<div class="mob-note-line">備考：${esc(v)}</div>`;
+};
+
+const mobileStatsLineHtml = (row: NtRow) => {
+  const apps = String(row.apps ?? "").trim();
+  const starts = String((row as any).starts ?? "").trim();
+  const goals = String(row.goals ?? "").trim();
+  const assists = String(row.assists ?? "").trim();
+
+  const appsText = apps
+    ? starts
+      ? `出場：${esc(apps)}試合（先発${esc(starts)}）`
+      : `出場：${esc(apps)}試合`
+    : "出場：-";
+
+  const gaParts = [
+    goals && goals !== "0" ? `${esc(goals)}G` : "",
+    assists && assists !== "0" ? `${esc(assists)}A` : "",
+  ].filter(Boolean);
+
+  const gaText = gaParts.length ? gaParts.join(" / ") : "";
+
+  return `<div class="mob-stat-line">
+    ${appsText}${gaText ? `<span class="mob-sep">｜</span>${gaText}` : ""}
+  </div>`;
 };
 
 type BuildClubColumnsArgs = {
@@ -430,11 +475,13 @@ const ntNameMobileHtml = ({
   clubLabel,
   clubHref,
   tournamentLinks,
+  showStats = false,
 }: {
   row: NtRow;
   clubLabel?: (clubName: string) => string;
   clubHref?: (clubName: string) => string;
   tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
+  showStats?: boolean;
 }) => {
   const ja = String(row.name_ja ?? "").trim();
   const en = String(row.name_en ?? "").trim();
@@ -498,6 +545,8 @@ const ntNameMobileHtml = ({
   const line4 = mobileLinkMetaLineHtml([debutText, editionsText]);
 
   // 4段目：備考
+  const statsLine = showStats ? mobileStatsLineHtml(row) : "";
+
   const note = String(row.notes ?? "").trim();
   const noteLine = mobileNoteLineHtml(note);
 
@@ -506,6 +555,7 @@ const ntNameMobileHtml = ({
   ${line2}
   ${line3}
   ${line4}
+  ${statsLine}
   ${noteLine}
 </div>`;
 };
@@ -541,6 +591,7 @@ export const buildNtColumns = ({
           clubLabel,
           clubHref,
           tournamentLinks,
+          showStats,
         }),
     },
     {
@@ -556,7 +607,9 @@ export const buildNtColumns = ({
         const href = clubHref ? clubHref(raw) : "";
 
         // リンク作れるならリンク、無理なら文字だけ
-        return href ? `<a href="${href}">${label}</a>` : label;
+        return href
+          ? `<span class="club-cell"><a href="${esc(href)}">${esc(label)}</a></span>`
+          : `<span class="club-cell">${esc(label)}</span>`;
       },
     },
     {
@@ -606,24 +659,27 @@ export const buildNtColumns = ({
 
     {
       key: "apps",
-      header: "Apps",
+      header: "出場",
       align: "center",
+      html: true,
       show: showStats,
-      render: (r) => toInt(r.apps),
+      render: (r) => appsStartsHtml(r.apps, r.starts),
     },
     {
       key: "g",
       header: "G",
       align: "center",
+      html: true,
       show: showStats,
-      render: (r) => toInt(r.goals),
+      render: (r) => statNumberHtml(r.goals),
     },
     {
       key: "a",
       header: "A",
       align: "center",
+      html: true,
       show: showStats,
-      render: (r) => toInt(r.assists),
+      render: (r) => statNumberHtml(r.assists),
     },
   ];
 };
