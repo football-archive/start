@@ -679,14 +679,12 @@ const clubHref = (clubName: string) => {
     }
   }
 
-  // ✅ clubページ側は ?season= &window= を受け取って初期表示を切替できる
-  return (
-    clubUrl({
-      leagueKey: c.league_key,
-      clubKey: c.club_key,
-      season: mapped.season as any,
-    }) + `&window=${encodeURIComponent(win)}`
-  );
+  // ✅ clubページ側は season をパスで受け取り、window は必要に応じてクエリで初期表示を切替
+  return clubUrl({
+    leagueKey: c.league_key,
+    clubKey: c.club_key,
+    season: mapped.season as any,
+  });
 };
 
 const clubLabel = (clubName: string) => {

@@ -109,11 +109,7 @@ const seasons = getUclSeasons()
                 <td>{fmt(r.rank)}</td>
                 <td class="left">
                   {href ? (
-                    <a
-                      href={`${href}?from=${encodeURIComponent(`/ucl/${season}`)}`}
-                    >
-                      {r.club_name_raw ?? r.club_key}
-                    </a>
+                    <a href={href}>{r.club_name_raw ?? r.club_key}</a>
                   ) : (
                     (r.club_name_raw ?? "—")
                   )}

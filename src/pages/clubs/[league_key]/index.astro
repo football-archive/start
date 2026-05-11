@@ -319,7 +319,9 @@ for (const r of rowsAll as any[]) {
   if (!latest) continue;
 
   const season = String(r.season ?? "").trim();
-  const win = String(r.window ?? "").trim().toLowerCase();
+  const win = String(r.window ?? "")
+    .trim()
+    .toLowerCase();
   const snap = String(r.snapshot_date ?? "").trim();
 
   if (season !== latest.season) continue;
@@ -343,11 +345,17 @@ const clubItems = visibleClubKeys
     const c: any = clubByKey.get(clubKey);
     if (!c) return null;
 
+    const latest = latestMetaByClub.get(clubKey);
+
     return {
       club_key: clubKey,
       name: String(c.club_display_ja ?? clubKey).trim(),
       count: clubCount.get(clubKey) ?? 0,
-      href: clubUrl({ leagueKey, clubKey }),
+      href: clubUrl({
+        leagueKey,
+        clubKey,
+        season: latest?.season as any,
+      }),
     };
   })
   .filter(Boolean) as {

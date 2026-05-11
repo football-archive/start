@@ -77,16 +77,24 @@ export function clubsListUrl(args: ClubsListUrlArgs = {}): string {
   return base + qs({ league: args.leagueKey, season: args.season });
 }
 
-/** Club detail (latest default). Season uses query param to avoid breaking canonical URL. */
+/** Club detail.
+ * seasonあり：/clubs/[league]/club/[club]/[season]
+ * seasonなし：旧URL互換として /clubs/[league]/club/[club]
+ */
 export function clubUrl({ leagueKey, clubKey, season }: ClubUrlArgs): string {
   const base = join("clubs", leagueKey, "club", clubKey);
-  // season omitted = latest (canonical)
-  return base + qs({ season });
+  return season ? join(base, season) : base;
 }
 
-/** Canonical URL for a club page (always latest, no season query). */
-export function clubCanonicalUrl(leagueKey: string, clubKey: string): string {
-  return join("clubs", leagueKey, "club", clubKey);
+/** Club season canonical URL */
+export function clubCanonicalUrl(
+  leagueKey: string,
+  clubKey: string,
+  season?: Season,
+): string {
+  return season
+    ? join("clubs", leagueKey, "club", clubKey, season)
+    : join("clubs", leagueKey, "club", clubKey);
 }
 
 /* ---------------------------
