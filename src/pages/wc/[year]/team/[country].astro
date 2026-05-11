@@ -482,14 +482,21 @@ const statusSuffix = (() => {
 
 const rows = rowsAll.sort(sortForRoster);
 
-const highlightToken = "2026.03";
+const highlightTokens = [
+  "2026.03",
+  "最終メンバー",
+  "追加招集",
+  "初招集",
+];
 
 const rowHighlightClass = (r: any) => {
   const noteText = String(
     r.notes ?? r.note ?? r.remarks ?? r.note_ja ?? "",
   ).trim();
 
-  return noteText.includes(highlightToken) ? "row-highlight" : "";
+  return highlightTokens.some((t) => noteText.includes(t))
+    ? "row-highlight"
+    : "";
 };
 
 const currentWcYear = "2026"; // 手動更新：最新大会に合わせて切替
