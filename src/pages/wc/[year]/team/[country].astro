@@ -218,7 +218,7 @@ const heroMetaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
   const coach = String(metaRow?.coach_ja ?? "").trim();
 
-  const coachText = coach ? `監督：${coach}` : "";
+  const coachText = coach ? `🎬監督：${coach}` : "";
 
   return [result, coachText].filter(Boolean).join(" ｜ ");
 })();
