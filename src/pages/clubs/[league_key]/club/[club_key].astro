@@ -35,12 +35,24 @@ const seasonStart = (s: string) => {
   return m ? Number(m[1]) : 0;
 };
 
-const latestSeason =
-  Array.from(new Set(rows.map((r) => String(r.season ?? "").trim()).filter(Boolean)))
-    .sort((a, b) => seasonStart(b) - seasonStart(a))[0] ?? "";
+const url = new URL(Astro.request.url);
+const seasonParam = String(url.searchParams.get("season") ?? "").trim();
 
-const href = latestSeason
-  ? clubUrl({ leagueKey: league_key, clubKey: club_key, season: latestSeason as any })
+const seasons = Array.from(
+  new Set(rows.map((r) => String(r.season ?? "").trim()).filter(Boolean))
+).sort((a, b) => seasonStart(b) - seasonStart(a));
+
+const targetSeason =
+  seasonParam && seasons.includes(seasonParam)
+    ? seasonParam
+    : seasons[0] ?? "";
+
+const href = targetSeason
+  ? clubUrl({
+      leagueKey: league_key,
+      clubKey: club_key,
+      season: targetSeason as any,
+    })
   : `/clubs/${encodeURIComponent(league_key)}/`;
 
 return Astro.redirect(href, 301);

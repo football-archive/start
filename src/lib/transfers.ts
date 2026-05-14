@@ -173,6 +173,7 @@ function buildClubIndex() {
 function resolveClubDisplay(
   clubKeyOrRaw: string,
   byKey: Map<string, any>,
+  season?: string,
 ): { ja: string; en: string; href: string } {
   const raw = normalizeText(clubKeyOrRaw);
   if (!raw) return { ja: "", en: "", href: "" };
@@ -188,7 +189,12 @@ function resolveClubDisplay(
 
   const leagueKey = normalizeText(hit.league_key);
   const clubKey = normalizeText(hit.club_key);
-  const href = leagueKey && clubKey ? clubUrl({ leagueKey, clubKey }) : "";
+  const href =
+    leagueKey && clubKey && season
+      ? clubUrl({ leagueKey, clubKey, season: season as any })
+      : leagueKey && clubKey
+        ? clubUrl({ leagueKey, clubKey })
+        : "";
 
   return { ja, en, href };
 }
@@ -232,8 +238,8 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
     // 最低限：名前が無い行は落とす（事故防止）
     if (!player_name) continue;
 
-    const fromRes = resolveClubDisplay(from_club_key, clubIndex);
-    const toRes = resolveClubDisplay(to_club_key, clubIndex);
+    const fromRes = resolveClubDisplay(from_club_key, clubIndex, season);
+    const toRes = resolveClubDisplay(to_club_key, clubIndex, season);
 
     out.push({
       season,

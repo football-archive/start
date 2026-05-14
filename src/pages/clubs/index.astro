@@ -208,7 +208,11 @@ const sections = leagueKeys.map((lk) => {
         club_key: ck,
         name,
         count,
-        href: clubUrl({ leagueKey: lk, clubKey: ck }),
+        href: clubUrl({
+          leagueKey: lk,
+          clubKey: ck,
+          season: latestSeason as any,
+        }),
       };
     })
     .filter(Boolean) as {

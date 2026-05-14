@@ -102,6 +102,7 @@ const seasons = getUclSeasons()
                       clubMap.get(String(r.club_key)).league_key,
                     ),
                     clubKey: String(r.club_key),
+                    season: season as any,
                   })
                 : "";
             return (

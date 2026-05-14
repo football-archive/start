@@ -1,2 +1,5 @@
+/clubs/:league/club/:club/ season=:season  /clubs/:league/club/:club/:season/  301!
+/clubs/:league/club/:club season=:season  /clubs/:league/club/:club/:season/  301!
+
 https://world-football-archive.netlify.app/*  https://worldfootballarchive.com/:splat  301!
 /sitemap.xml  /sitemap-index.xml  301!
