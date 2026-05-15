@@ -138,18 +138,89 @@ for (const conf of confs) {
   for (const country of countries) allCountries.push({ country, conf });
 }
 
+// ===== 最終メンバー確定国 =====
+const finalizedCountrySet = new Set(
+  filtered
+    .filter((r: any) => {
+      const text = [r.note, r.notes, r.memo, r.status, r.comment, r.remarks]
+        .map((v) => String(v ?? ""))
+        .join(" ");
+
+      return text.includes("最終メンバー");
+    })
+    .map((r: any) => String(r.country ?? "").trim())
+    .filter(Boolean),
+);
+
+const finalizedCountryMeta = Array.from(finalizedCountrySet)
+  .map((country) => {
+    const finalRows = filtered.filter(
+      (r: any) =>
+        String(r.country ?? "").trim() === country &&
+        [r.note, r.notes, r.memo, r.status, r.comment, r.remarks]
+          .map((v) => String(v ?? ""))
+          .join(" ")
+          .includes("最終メンバー"),
+    );
+
+    const finalDate =
+      finalRows
+        .map((r: any) => toYMD(String(r.snapshot_date ?? "")))
+        .filter(Boolean)
+        .sort()[0] ?? "";
+
+    return { country, finalDate };
+  })
+  .sort((a, b) => {
+    if (a.finalDate !== b.finalDate)
+      return a.finalDate.localeCompare(b.finalDate);
+    return a.country.localeCompare(b.country, "ja");
+  });
+
+const finalizedCountries = finalizedCountryMeta.map((x) => x.country);
+
 const totalCountries = allCountries.length;
 const currentWcYear = "2026";
 const isCurrentEdition = String(year) === currentWcYear;
 
-const qualifiedCountries = allCountries.filter(({ country }) =>
-  statusMap.qualified.has(country),
+const getFinalDate = (country: string) =>
+  finalizedCountryMeta.find((x) => x.country === country)?.finalDate ?? "";
+
+const sortCountriesForCards = (list: { country: string; conf: string }[]) =>
+  [...list].sort((a, b) => {
+    // 1. 大陸順
+    if (a.conf !== b.conf) {
+      return confOrder.indexOf(a.conf) - confOrder.indexOf(b.conf);
+    }
+
+    // 2. 同じ大陸内では「確定」を先
+    const aFinal = finalizedCountrySet.has(a.country) ? 1 : 0;
+    const bFinal = finalizedCountrySet.has(b.country) ? 1 : 0;
+    if (aFinal !== bFinal) {
+      return bFinal - aFinal;
+    }
+
+    // 3. 確定同士なら古い発表日を先
+    const aDate = getFinalDate(a.country);
+    const bDate = getFinalDate(b.country);
+    if (aDate !== bDate) {
+      return aDate.localeCompare(bDate);
+    }
+
+    // 4. 最後は国名順
+    return a.country.localeCompare(b.country, "ja");
+  });
+
+const qualifiedCountries = sortCountriesForCards(
+  allCountries.filter(({ country }) => statusMap.qualified.has(country)),
 );
-const playoffCountries = allCountries.filter(({ country }) =>
-  statusMap.playoff.has(country),
+
+const playoffCountries = sortCountriesForCards(
+  allCountries.filter(({ country }) => statusMap.playoff.has(country)),
 );
-const eliminatedCountries = allCountries.filter(({ country }) =>
-  statusMap.eliminated.has(country),
+
+const eliminatedCountries = sortCountriesForCards(
+  allCountries.filter(({ country }) => statusMap.eliminated.has(country)),
 );
 
 const featuredCountryCandidates = [
@@ -865,13 +936,55 @@ const pageDesc = isCurrentEdition
         font-size: 12px;
       }
     }
+
+    .page-wc .badge.final {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #b91c1c;
+      font-weight: 700;
+    }
+
+    .page-wc .final-summary {
+      margin: 4px 0 12px;
+      padding: 8px 10px;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      background: #fff1f2;
+      color: #7f1d1d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .page-wc .final-summary a {
+      color: #8b1a1a;
+      font-weight: 700;
+    }
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
 
   <p class="quick-title" style="margin: 6px 0 6px;">
-    {wcTitle}の出場国一覧と各国の代表メンバーを掲載。🔥この１ページで大会全体を俯瞰することができます。
+    {
+      wcTitle
+    }の出場国一覧と各国の代表メンバーを掲載。🔥この１ページで大会全体を俯瞰することができます。
   </p>
+  {
+    isCurrentEdition && finalizedCountries.length > 0 && (
+      <p class="final-summary">
+        🔥 最終メンバー発表済：
+        {finalizedCountries.map((country, idx) => {
+          const href = teamHrefIfExists(country);
+
+          return (
+            <>
+              {idx > 0 ? "・" : ""}
+              {href ? <a href={href}>{country}</a> : <span>{country}</span>}
+            </>
+          );
+        })}
+      </p>
+    )
+  }
 
   <p class="quick-title" style="margin: 0 0 10px;">
     {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
@@ -943,7 +1056,9 @@ const pageDesc = isCurrentEdition
       <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
       <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
       <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
-      <a class="pill" href="#rankings"><span class="dot"></span>得点ランキング</a>
+      <a class="pill" href="#rankings"
+        ><span class="dot"></span>得点ランキング</a
+      >
       <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
     </div>
   </div>
@@ -1092,6 +1207,9 @@ const pageDesc = isCurrentEdition
                 <div class="meta">
                   <span class="badge">{conf}</span>
                   {g ? <span class="badge">grp {g}</span> : null}
+                  {finalizedCountries.includes(country) && (
+                    <span class="badge final">確定</span>
+                  )}
                 </div>
               </>
             );
