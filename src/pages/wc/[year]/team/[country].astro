@@ -482,7 +482,7 @@ const statusSuffix = (() => {
 
 const rows = rowsAll.sort(sortForRoster);
 
-const highlightTokens = ["2026.03", "最終メンバー", "追加招集", "初招集"];
+const highlightTokens = ["2026.03", "2026.05", "最終メンバー", "追加招集", "初招集"];
 
 const rowHighlightClass = (r: any) => {
   const noteText = String(
@@ -979,6 +979,53 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
   <div class="nt-guide-block" aria-label="関連ページへの導線">
     {
+      (group || groupLinks.length > 0) && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">
+            👉 {countryName}と同じグループの国を見る
+          </div>
+          <div class="nt-nav-row">
+            {group && (
+              <a
+                class="pill"
+                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+              >
+                🔠 グループ {group}
+              </a>
+            )}
+
+            {groupLinks.map((item) =>
+              item.href ? (
+                <a class="pill nt-related-pill" href={item.href}>
+                  {item.label}
+                </a>
+              ) : (
+                <span class="pill nt-related-pill is-muted">{item.label}</span>
+              ),
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      allGroupLetters.length > 0 && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">👉 グループを切り替える</div>
+          <div class="nt-nav-row">
+            {allGroupLetters.map((g) => (
+              <a
+                class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
+                href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
+              >
+                {g}
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
+    {
       yearsForCountry.length > 1 && (
         <div class="nt-related-block">
           <div class="nt-related-label">
@@ -1024,54 +1071,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
                 <span class="pill nt-related-pill is-muted">{item.label}</span>
               ),
             )}
-          </div>
-        </div>
-      )
-    }
-
-    {
-      (group || groupLinks.length > 0) && (
-        <div class="nt-related-block">
-          <div class="nt-related-label">
-            👉 {countryName}と同じグループの国を見る
-          </div>
-          <div class="nt-nav-row">
-            {group && (
-              <a
-                class="pill"
-                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
-              >
-                🔠 グループ {group}
-              </a>
-            )}
-
-            {groupLinks.map((item) =>
-              item.href ? (
-                <a class="pill nt-related-pill" href={item.href}>
-                  {item.label}
-                </a>
-              ) : (
-                <span class="pill nt-related-pill is-muted">{item.label}</span>
-              ),
-            )}
-          </div>
-        </div>
-      )
-    }
-
-    {
-      allGroupLetters.length > 0 && (
-        <div class="nt-related-block">
-          <div class="nt-related-label">👉 グループを切り替える</div>
-          <div class="nt-nav-row">
-            {allGroupLetters.map((g) => (
-              <a
-                class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
-                href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
-              >
-                {g}
-              </a>
-            ))}
           </div>
         </div>
       )
