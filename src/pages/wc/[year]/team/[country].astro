@@ -482,12 +482,7 @@ const statusSuffix = (() => {
 
 const rows = rowsAll.sort(sortForRoster);
 
-const highlightTokens = [
-  "2026.03",
-  "最終メンバー",
-  "追加招集",
-  "初招集",
-];
+const highlightTokens = ["2026.03", "最終メンバー", "追加招集", "初招集"];
 
 const rowHighlightClass = (r: any) => {
   const noteText = String(
@@ -791,120 +786,6 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         </span>
       </p>
 
-      <div class="nt-guide-block" aria-label="関連ページへの導線">
-        {
-          yearsForCountry.length > 1 && (
-            <div class="nt-related-block">
-              <div class="nt-related-label">
-                👉 {countryName}の出場大会を切り替える
-              </div>
-              <div class="pills nt-year-pills">
-                {yearsForCountry.map((y) => (
-                  <a
-                    class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
-                    href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
-                  >
-                    <span class="dot" aria-hidden="true" />
-                    {y}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )
-        }
-
-        {
-          (continent || continentLinks.length > 0) && (
-            <div class="nt-related-block">
-              <div class="nt-related-label">
-                👉 {countryName}と同じ大陸の国を見る
-              </div>
-              <div class="nt-nav-row">
-                {continent && (
-                  <a
-                    class="pill"
-                    href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
-                  >
-                    🌍 {continent}
-                  </a>
-                )}
-
-                {continentLinks.map((item) =>
-                  item.href ? (
-                    <a class="pill nt-related-pill" href={item.href}>
-                      {item.label}
-                    </a>
-                  ) : (
-                    <span class="pill nt-related-pill is-muted">
-                      {item.label}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-          )
-        }
-
-        {
-          (group || groupLinks.length > 0) && (
-            <div class="nt-related-block">
-              <div class="nt-related-label">
-                👉 {countryName}と同じグループの国を見る
-              </div>
-              <div class="nt-nav-row">
-                {group && (
-                  <a
-                    class="pill"
-                    href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
-                  >
-                    🔠 グループ {group}
-                  </a>
-                )}
-
-                {groupLinks.map((item) =>
-                  item.href ? (
-                    <a class="pill nt-related-pill" href={item.href}>
-                      {item.label}
-                    </a>
-                  ) : (
-                    <span class="pill nt-related-pill is-muted">
-                      {item.label}
-                    </span>
-                  ),
-                )}
-              </div>
-            </div>
-          )
-        }
-
-        {
-          allGroupLetters.length > 0 && (
-            <div class="nt-related-block">
-              <div class="nt-related-label">👉 グループを切り替える</div>
-              <div class="nt-nav-row">
-                {allGroupLetters.map((g) => (
-                  <a
-                    class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
-                    href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
-                  >
-                    {g}
-                  </a>
-                ))}
-              </div>
-            </div>
-          )
-        }
-
-        <div class="nt-related-block">
-          <div class="nt-related-label">👉 大会全体を見る</div>
-          <div class="nt-tournament-link">
-            <a href={tournamentHref}>← {tournamentText} ポータルページへ</a>
-          </div>
-        </div>
-      </div>
-
-      <div class="nt-guide-divider" aria-hidden="true"></div>
-
       {
         statusSuffix && (
           <div class="nt-status-note">
@@ -970,126 +851,245 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           </div>
         </div>
       </div>
-    </div>
-  </section>
 
-  {
-    hasNtLineupImage && (
-      <section class="nt-lineup-section" aria-label="想定スタメン">
-        <p class="nt-lineup-lead">
-          👇 {countryName}代表の想定スタメン
-          {ntLineupFormation ? `（${ntLineupFormation}） システム` : ""}
-          。直近の試合ベースのフォーメーション例です。
-        </p>
+      {
+        hasNtLineupImage && (
+          <section class="nt-lineup-section" aria-label="想定スタメン">
+            <p class="nt-lineup-lead">
+              👇 {countryName}代表の想定スタメン
+              {ntLineupFormation ? `（${ntLineupFormation}） システム` : ""}
+              。直近の試合ベースのフォーメーション例です。
+            </p>
 
-        <button
-          type="button"
-          class="nt-lineup-card"
-          id="nt-lineup-open"
-          aria-haspopup="dialog"
-          aria-controls="nt-lineup-modal"
-        >
-          <div class="nt-lineup-thumb">
-            <img
-              src={ntLineupImageSrc}
-              alt={ntLineupAlt}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
-
-          <div class="nt-lineup-copy">
-            <div class="nt-lineup-title">
-              🔥 想定スタメンを見る
-              {ntLineupFormation ? `（${ntLineupFormation} システム）` : ""}
-            </div>
-            <div class="nt-lineup-note">
-              直近の試合・起用傾向をもとにしたフォーメーション例です
-            </div>
-          </div>
-        </button>
-
-        <dialog
-          class="nt-lineup-modal"
-          id="nt-lineup-modal"
-          aria-label={ntLineupAlt}
-        >
-          <div class="nt-lineup-modal-inner">
             <button
               type="button"
-              class="nt-lineup-close"
-              id="nt-lineup-close"
-              aria-label="閉じる"
+              class="nt-lineup-card"
+              id="nt-lineup-open"
+              aria-haspopup="dialog"
+              aria-controls="nt-lineup-modal"
             >
-              ×
-            </button>
-
-            <div class="nt-lineup-modal-head">
-              <div class="nt-lineup-modal-title">
-                {countryName}代表 想定スタメン
-                {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+              <div class="nt-lineup-thumb">
+                <img
+                  src={ntLineupImageSrc}
+                  alt={ntLineupAlt}
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
-              <div class="nt-lineup-modal-note">
-                ※ メンバーが変更され次第、更新します
-              </div>
-            </div>
 
-            <div class="nt-lineup-modal-image">
-              <img
-                src={ntLineupImageSrc}
-                alt={ntLineupAlt}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </div>
-        </dialog>
-      </section>
-    )
-  }
-
-  <section class="star-block" aria-label="注目選手">
-    <h2 class="star-title">🔥 今大会の主力・注目選手</h2>
-
-    {
-      starRows.length > 0 ? (
-        <div class="star-grid">
-          {starRows.map((r) => {
-            const starClub = getStarClubInfo(r);
-
-            return (
-              <div class="star-card">
-                <div class="star-main">
-                  <div class="star-name">
-                    {r.name_ja || r.name_en || r.name}
-                    <span class="star-pos">
-                      （{r.position_primary || r.position}）
-                    </span>
-                  </div>
-
-                  {starClub.label && (
-                    <div class="star-club">
-                      {starClub.href ? (
-                        <a class="club-link" href={starClub.href}>
-                          {starClub.label}
-                        </a>
-                      ) : (
-                        <span class="club-link is-text">{starClub.label}</span>
-                      )}
-                    </div>
-                  )}
+              <div class="nt-lineup-copy">
+                <div class="nt-lineup-title">
+                  🔥 想定スタメンを見る
+                  {ntLineupFormation ? `（${ntLineupFormation} システム）` : ""}
+                </div>
+                <div class="nt-lineup-note">
+                  直近の試合・起用傾向をもとにしたフォーメーション例です
                 </div>
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div class="star-empty">準備中</div>
-      )
-    }
+            </button>
+
+            <dialog
+              class="nt-lineup-modal"
+              id="nt-lineup-modal"
+              aria-label={ntLineupAlt}
+            >
+              <div class="nt-lineup-modal-inner">
+                <button
+                  type="button"
+                  class="nt-lineup-close"
+                  id="nt-lineup-close"
+                  aria-label="閉じる"
+                >
+                  ×
+                </button>
+
+                <div class="nt-lineup-modal-head">
+                  <div class="nt-lineup-modal-title">
+                    {countryName}代表 想定スタメン
+                    {ntLineupFormation ? `（${ntLineupFormation}）` : ""}
+                  </div>
+                  <div class="nt-lineup-modal-note">
+                    ※ メンバーが変更され次第、更新します
+                  </div>
+                </div>
+
+                <div class="nt-lineup-modal-image">
+                  <img
+                    src={ntLineupImageSrc}
+                    alt={ntLineupAlt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+            </dialog>
+          </section>
+        )
+      }
+
+      <section class="star-block" aria-label="注目選手">
+        <h2 class="star-title">🔥 今大会の主力・注目選手</h2>
+
+        {
+          starRows.length > 0 ? (
+            <div class="star-grid">
+              {starRows.map((r) => {
+                const starClub = getStarClubInfo(r);
+
+                return (
+                  <div class="star-card">
+                    <div class="star-main">
+                      <div class="star-name">
+                        {r.name_ja || r.name_en || r.name}
+                        <span class="star-pos">
+                          （{r.position_primary || r.position}）
+                        </span>
+                      </div>
+
+                      {starClub.label && (
+                        <div class="star-club">
+                          {starClub.href ? (
+                            <a class="club-link" href={starClub.href}>
+                              {starClub.label}
+                            </a>
+                          ) : (
+                            <span class="club-link is-text">
+                              {starClub.label}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div class="star-empty">準備中</div>
+          )
+        }
+      </section>
+    </div>
+    <p class="nt-roster-jump">
+      <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
+    </p>
   </section>
 
-  <RosterView {rows} {columns} rowClass={rowHighlightClass} />
+  <div class="nt-guide-divider" aria-hidden="true"></div>
+
+  <div class="nt-guide-block" aria-label="関連ページへの導線">
+    {
+      yearsForCountry.length > 1 && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">
+            👉 {countryName}の出場大会を切り替える
+          </div>
+          <div class="pills nt-year-pills">
+            {yearsForCountry.map((y) => (
+              <a
+                class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
+                href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
+              >
+                <span class="dot" aria-hidden="true" />
+                {y}
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      (continent || continentLinks.length > 0) && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">
+            👉 {countryName}と同じ大陸の国を見る
+          </div>
+          <div class="nt-nav-row">
+            {continent && (
+              <a
+                class="pill"
+                href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
+              >
+                🌍 {continent}
+              </a>
+            )}
+
+            {continentLinks.map((item) =>
+              item.href ? (
+                <a class="pill nt-related-pill" href={item.href}>
+                  {item.label}
+                </a>
+              ) : (
+                <span class="pill nt-related-pill is-muted">{item.label}</span>
+              ),
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      (group || groupLinks.length > 0) && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">
+            👉 {countryName}と同じグループの国を見る
+          </div>
+          <div class="nt-nav-row">
+            {group && (
+              <a
+                class="pill"
+                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+              >
+                🔠 グループ {group}
+              </a>
+            )}
+
+            {groupLinks.map((item) =>
+              item.href ? (
+                <a class="pill nt-related-pill" href={item.href}>
+                  {item.label}
+                </a>
+              ) : (
+                <span class="pill nt-related-pill is-muted">{item.label}</span>
+              ),
+            )}
+          </div>
+        </div>
+      )
+    }
+
+    {
+      allGroupLetters.length > 0 && (
+        <div class="nt-related-block">
+          <div class="nt-related-label">👉 グループを切り替える</div>
+          <div class="nt-nav-row">
+            {allGroupLetters.map((g) => (
+              <a
+                class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
+                href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
+              >
+                {g}
+              </a>
+            ))}
+          </div>
+        </div>
+      )
+    }
+
+    <div class="nt-related-block">
+      <div class="nt-related-label">👉 大会全体を見る</div>
+      <div class="nt-tournament-link">
+        <a href={tournamentHref}>← {tournamentText} ポータルページへ</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="nt-guide-divider" aria-hidden="true"></div>
+
+  <section id="roster" aria-label={`${countryName}代表メンバー一覧`}>
+    <RosterView {rows} {columns} rowClass={rowHighlightClass} />
+  </section>
 
   <script is:inline define:vars={{ topHref }}>
     const TOP = topHref;
@@ -2187,6 +2187,18 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       .page-wc .club-cell {
         max-width: 220px;
       }
+    }
+
+    .nt-roster-jump {
+      margin: 10px 0 14px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .nt-roster-jump a {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
   </style>
 </BaseLayout>

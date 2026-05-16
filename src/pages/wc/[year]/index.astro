@@ -959,6 +959,16 @@ const pageDesc = isCurrentEdition
       color: #8b1a1a;
       font-weight: 700;
     }
+
+    .nt-divider {
+      height: 2px;
+      margin: 12px 0 14px;
+      background: linear-gradient(
+        to right,
+        transparent,
+        color-mix(in srgb, var(--theme-color) 35%, #999),
+        transparent
+      );
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
@@ -967,6 +977,16 @@ const pageDesc = isCurrentEdition
     {
       wcTitle
     }の出場国一覧と各国の代表メンバーを掲載。🔥この１ページで大会全体を俯瞰することができます。
+  </p>
+
+    <p class="quick-title" style="margin: 0 0 10px;">
+    {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
+    出場国・日程・順位・得点ランキングをまとめて確認できます。
+    {
+      latestCallupSnapshot ? (
+        <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
+      ) : null
+    }
   </p>
   {
     isCurrentEdition && finalizedCountries.length > 0 && (
@@ -986,15 +1006,24 @@ const pageDesc = isCurrentEdition
     )
   }
 
-  <p class="quick-title" style="margin: 0 0 10px;">
-    {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
-    出場国・日程・順位・得点ランキングをまとめて確認できます。
-    {
-      latestCallupSnapshot ? (
-        <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
-      ) : null
-    }
-  </p>
+
+  <div class="toc-box" style="margin: 10px 0 16px;">
+    <p class="quick-title" style="margin-bottom:6px;">
+      ⚽ このページで確認できる内容
+    </p>
+    <div class="pills">
+      <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
+      <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
+      <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
+      <a class="pill" href="#rankings"
+        ><span class="dot"></span>得点ランキング</a
+      >
+      <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
+    </div>
+  </div>
+
+
+
   {
     wcEditionPills.length > 1 && (
       <div class="edition-switch">
@@ -1011,16 +1040,6 @@ const pageDesc = isCurrentEdition
           )}
         </div>
       </div>
-    )
-  }
-
-  {
-    isCurrentEdition && (
-      <p style="margin: 0 0 14px;">
-        <a href={`${topHref}/team/${countrySlug("日本")}`} class="filter-link">
-          👉 🇯🇵 日本代表メンバーを見る
-        </a>
-      </p>
     )
   }
 
@@ -1048,20 +1067,17 @@ const pageDesc = isCurrentEdition
     )
   }
 
-  <div class="toc-box" style="margin: 10px 0 16px;">
-    <p class="quick-title" style="margin-bottom:6px;">
-      👉 このページで確認できる内容
-    </p>
-    <div class="pills">
-      <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
-      <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
-      <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
-      <a class="pill" href="#rankings"
-        ><span class="dot"></span>得点ランキング</a
-      >
-      <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
-    </div>
-  </div>
+  {
+    isCurrentEdition && (
+      <p style="margin: 0 0 14px;">
+        <a href={`${topHref}/team/${countrySlug("日本")}`} class="filter-link">
+          👉 🇯🇵 日本代表メンバーを見る
+        </a>
+      </p>
+    )
+  }
+
+  <div class="nt-divider" aria-hidden="true"></div>
 
   {
     /* =========================
@@ -1069,7 +1085,7 @@ const pageDesc = isCurrentEdition
      ========================= */
   }
   <section id="teams" style="margin: 18px 0;">
-    <h2>{teamsHeading}</h2>
+    <h2>⚽ {teamsHeading}</h2>
     <p class="quick-title" style="margin: 6px 0 10px;">
       出場国一覧では、各国の代表メンバー一覧ページへのリンク、所属大陸、グループ、出場状況を絞り込んで表示できます。
     </p>
@@ -1354,7 +1370,7 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="schedule" style="margin: 18px 0;">
-      <h2>{wcTitle} 日程・試合結果</h2>
+      <h2>⚽ {wcTitle} 日程・試合結果</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
         {wcTitle} の全試合の日程・結果を掲載しています（結果は随時更新）。
       </p>
@@ -1367,7 +1383,7 @@ const pageDesc = isCurrentEdition
      ========================= */
     }
     <section id="groups" style="margin: 18px 0;">
-      <h2>{wcTitle} グループ勝敗表</h2>
+      <h2>⚽ {wcTitle} グループ勝敗表</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
         {wcTitle} の各グループ参加国と勝敗表を掲載しています。
       </p>
@@ -1480,7 +1496,7 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="rankings" style="margin: 18px 0;">
-      <h2>{wcTitle} 得点・アシストランキング</h2>
+      <h2>⚽ {wcTitle} 得点・アシストランキング</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
         {wcTitle} の得点・アシストを試合結果から随時更新していきます。
       </p>
@@ -1581,7 +1597,7 @@ const pageDesc = isCurrentEdition
    ========================= */
     }
     <section id="awards" style="margin: 18px 0;">
-      <h2>{wcTitle} 表彰</h2>
+      <h2>⚽ {wcTitle} 表彰</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
         {wcTitle} の個人賞・ベストイレブンを掲載しています。
       </p>
