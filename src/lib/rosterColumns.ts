@@ -321,12 +321,13 @@ const clubNameMobileHtml = ({
   const age = calcAge(row.birth_date, row.snapshot_date);
   const height = toInt(row.height_cm);
   const natRaw = String(row.nationality ?? "").trim();
+  const natShort = natRaw.length > 18 ? `${natRaw.slice(0, 18)}…` : natRaw;
 
   const line4 = mobileLinkMetaLineHtml([
     birth ? `${birth}生` : "",
     age ? `${age}歳` : "",
     height ? `${height}cm` : "",
-    natRaw ? `国籍：${natRaw}` : "",
+    natShort ? `国籍：${natShort}` : "",
   ]);
 
   const note = String(row.notes ?? "").trim();

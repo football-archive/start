@@ -331,4 +331,14 @@ const thClass = (c: any) =>
     text-decoration: underline;
     text-underline-offset: 2px;
   }
+
+  :global(.mob-meta-line) {
+    overflow: hidden;
+  }
+
+  :global(.mob-meta-line),
+  :global(.mob-meta-line *) {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
 </style>

@@ -637,132 +637,6 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     })
   }
 
-  {/* ✅ H1直下に「リーグピル＋同リーグ一覧＋全リーグ」を配置 */}
-  <div class="club-top-block">
-    <div class="club-guide-block" aria-label="関連ページへの導線">
-      {
-        topPastSeasons.length > 0 && (
-          <div class="club-related-block">
-            <div class="club-related-label">
-              👉 {clubLabel}の他のシーズンと比較する
-            </div>
-            <div class="pills club-season-top-pills">
-              {seasonCandidates.map((s) => (
-                <a
-                  class={`pill ${s === initialSeason ? "is-active" : ""}`}
-                  href={clubUrl({
-                    leagueKey: league_key,
-                    clubKey: club_key,
-                    season: s as any,
-                  })}
-                >
-                  {seasonShort(s)}
-                </a>
-              ))}
-            </div>
-          </div>
-        )
-      }
-
-      {
-        topLeagueClubLinks.length > 0 && (
-          <div class="club-related-block">
-            <div class="club-related-label">👉 同リーグのクラブを見る</div>
-            <div class="club-nav-row">
-              {topLeagueClubLinks.map((item) => (
-                <a class="pill" href={item.href}>
-                  {item.label}
-                </a>
-              ))}
-              <a class="pill" href={leagueTopPath}>
-                同リーグのクラブ一覧
-              </a>
-            </div>
-          </div>
-        )
-      }
-
-      {
-        topOtherLeaguePills.length > 0 && (
-          <div class="club-related-block">
-            <div class="club-related-label">👉 他のリーグを見る</div>
-            <div class="club-nav-row">
-              {topOtherLeaguePills.map((p) => (
-                <a class="pill" href={`/clubs/${encodeURIComponent(p.key)}/`}>
-                  <span class="dot" aria-hidden="true" />
-                  {p.label}
-                </a>
-              ))}
-            </div>
-          </div>
-        )
-      }
-
-      <div class="club-related-block">
-        <div class="club-related-label">👉 同リーグ全体を見る</div>
-        <div class="club-league-top-link">
-          <a href={leagueTopPath}>
-            ← {leagueLabel}トップへ
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div class="club-title-divider" aria-hidden="true"></div>
-
-  {
-    seasonPacks.map((p) => {
-      const seasonIndex = seasonCandidates.findIndex((s) => s === p.season);
-      const prevSeason =
-        seasonIndex >= 0 && seasonIndex < seasonCandidates.length - 1
-          ? seasonCandidates[seasonIndex + 1]
-          : "";
-      const nextSeason =
-        seasonIndex > 0 ? seasonCandidates[seasonIndex - 1] : "";
-
-      return (
-        <div
-          class="season-jump"
-          data-nav-season={p.season}
-          style={`display:${p.season === initialSeason ? "" : "none"}`}
-        >
-          <div class="season-jump-inner">
-            {prevSeason ? (
-              <a
-                class="season-jump-link is-prev"
-                href={clubUrl({
-                  leagueKey: league_key,
-                  clubKey: club_key,
-                  season: prevSeason as any,
-                })}
-              >
-                ← 前シーズンへ（{seasonShort(prevSeason)}）
-              </a>
-            ) : (
-              <span class="season-jump-link is-disabled">← 前シーズンへ</span>
-            )}
-
-            {nextSeason ? (
-              <a
-                class="season-jump-link is-next"
-                href={clubUrl({
-                  leagueKey: league_key,
-                  clubKey: club_key,
-                  season: nextSeason as any,
-                })}
-              >
-                次シーズンへ（{seasonShort(nextSeason)}） →
-              </a>
-            ) : (
-              <span class="season-jump-link is-disabled">次シーズンへ →</span>
-            )}
-          </div>
-        </div>
-      );
-    })
-  }
-
   {
     seasonPacks.map((p) => {
       const meta = ctMetaParts(p.season);
@@ -828,6 +702,83 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         </div>
       );
     })
+  }
+
+  <div class="club-related-label">
+    👉 {clubLabel}の他のシーズンと比較する
+  </div>
+
+  {
+    seasonPacks.map((p) => {
+      const seasonIndex = seasonCandidates.findIndex((s) => s === p.season);
+      const prevSeason =
+        seasonIndex >= 0 && seasonIndex < seasonCandidates.length - 1
+          ? seasonCandidates[seasonIndex + 1]
+          : "";
+      const nextSeason =
+        seasonIndex > 0 ? seasonCandidates[seasonIndex - 1] : "";
+
+      return (
+        <div
+          class="season-jump"
+          data-nav-season={p.season}
+          style={`display:${p.season === initialSeason ? "" : "none"}`}
+        >
+          <div class="season-jump-inner">
+            {nextSeason ? (
+              <a
+                class="season-jump-link is-next"
+                href={clubUrl({
+                  leagueKey: league_key,
+                  clubKey: club_key,
+                  season: nextSeason as any,
+                })}
+              >
+                ← 次シーズンへ（{seasonShort(nextSeason)}）
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">← 次シーズンへ</span>
+            )}
+
+            {prevSeason ? (
+              <a
+                class="season-jump-link is-prev"
+                href={clubUrl({
+                  leagueKey: league_key,
+                  clubKey: club_key,
+                  season: prevSeason as any,
+                })}
+              >
+                前シーズンへ（{seasonShort(prevSeason)}） →
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">前シーズンへ →</span>
+            )}
+          </div>
+        </div>
+      );
+    })
+  }
+
+  {
+    topPastSeasons.length > 0 && (
+      <div class="club-related-block">
+        <div class="pills club-season-top-pills">
+          {seasonCandidates.map((s) => (
+            <a
+              class={`pill ${s === initialSeason ? "is-active" : ""}`}
+              href={clubUrl({
+                leagueKey: league_key,
+                clubKey: club_key,
+                season: s as any,
+              })}
+            >
+              {seasonShort(s)}
+            </a>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   {/* summer / winter toggle */}
@@ -961,6 +912,68 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     ))
   }
 
+  <p class="club-roster-jump">
+    <a
+      id="club-roster-jump-link"
+      href={`#club-roster-${initialSeason}-${initialWindow}-section`}
+    >
+      👉 {clubLabel}
+      {seasonShort(initialSeason)} メンバー一覧を見る
+    </a>
+  </p>
+
+  <div class="club-title-divider" aria-hidden="true"></div>
+
+  {/* ✅ H1直下に「リーグピル＋同リーグ一覧＋全リーグ」を配置 */}
+  <div class="club-top-block">
+    <div class="club-guide-block" aria-label="関連ページへの導線">
+      {
+        topLeagueClubLinks.length > 0 && (
+          <div class="club-related-block">
+            <div class="club-related-label">👉 同リーグのクラブを見る</div>
+            <div class="club-nav-row">
+              {topLeagueClubLinks.map((item) => (
+                <a class="pill" href={item.href}>
+                  {item.label}
+                </a>
+              ))}
+              <a class="pill" href={leagueTopPath}>
+                同リーグのクラブ一覧
+              </a>
+            </div>
+          </div>
+        )
+      }
+
+      {
+        topOtherLeaguePills.length > 0 && (
+          <div class="club-related-block">
+            <div class="club-related-label">👉 他のリーグを見る</div>
+            <div class="club-nav-row">
+              {topOtherLeaguePills.map((p) => (
+                <a class="pill" href={`/clubs/${encodeURIComponent(p.key)}/`}>
+                  <span class="dot" aria-hidden="true" />
+                  {p.label}
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
+
+      <div class="club-related-block">
+        <div class="club-related-label">👉 同リーグ全体を見る</div>
+        <div class="club-league-top-link">
+          <a href={leagueTopPath}>
+            ← {leagueLabel}トップへ
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="club-title-divider" aria-hidden="true"></div>
+
   {
     !clubInMaster || !leagueInMaster || !hasRoster ? (
       <div class="empty">
@@ -983,6 +996,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         {seasonPacks.map((p) => (
           <>
             <section
+              id={`club-roster-${p.season}-summer-section`}
               data-season={p.season}
               data-window="summer"
               style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
@@ -999,6 +1013,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
             </section>
 
             <section
+              id={`club-roster-${p.season}-winter-section`}
               data-season={p.season}
               data-window="winter"
               style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
@@ -1300,6 +1315,14 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
               b.getAttribute("data-window") === win,
             );
           });
+
+          const jumpLink = document.getElementById("club-roster-jump-link");
+          if (jumpLink) {
+            jumpLink.setAttribute(
+              "href",
+              `#club-roster-${season}-${win}-section`,
+            );
+          }
         }
 
         function goToSeasonWindow(season, win) {
@@ -1971,6 +1994,60 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     .rep2-ed--latest:hover,
     .rep2-ed--past:hover {
       opacity: 0.82;
+    }
+
+    @media (max-width: 640px) {
+      .page-club td,
+      .page-club th {
+        max-width: 160px;
+      }
+
+      .page-club td {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .page-club td a {
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+    }
+
+    .club-roster-jump {
+      margin: 8px 0 12px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .club-roster-jump a {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 640px) {
+      .page-club .star-block {
+        overflow: hidden;
+      }
+
+      .page-club .star-grid {
+        display: grid !important;
+        grid-template-columns: 1fr !important;
+        gap: 8px;
+      }
+
+      .page-club .star-card {
+        width: 100%;
+        min-width: 0 !important;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      .page-club .star-name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
     }
   </style>
 </BaseLayout>
