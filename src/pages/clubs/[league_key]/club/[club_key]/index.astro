@@ -1,0 +1,479 @@
+---
+import BaseLayout from "../../../../../layouts/BaseLayout.astro";
+import { loadClubSquads } from "../../../../../lib/clubSquads";
+import { loadClubMaster } from "../../../../../lib/clubMaster";
+import { loadLeagueMaster } from "../../../../../lib/leagueMaster";
+import { loadCtSeasonMeta } from "../../../../../lib/ctSeasonMeta";
+import { clubUrl } from "../../../../../lib/urls";
+import { toYMD } from "../../../../../lib/rosterFormat";
+
+export async function getStaticPaths() {
+  const rows = loadClubSquads();
+
+  const keys = new Set(
+    rows
+      .map((r) => {
+        const league_key = String(r.league_key ?? "").trim();
+        const club_key = String(r.club_key ?? "").trim();
+        if (!league_key || !club_key) return "";
+        return `${league_key}|||${club_key}`;
+      })
+      .filter(Boolean),
+  );
+
+  return [...keys].map((k) => {
+    const [league_key, club_key] = k.split("|||");
+    return { params: { league_key, club_key } };
+  });
+}
+
+const leagueKey = String(Astro.params.league_key ?? "").trim();
+const clubKey = String(Astro.params.club_key ?? "").trim();
+
+const squads = loadClubSquads().filter(
+  (r) =>
+    String(r.league_key ?? "").trim() === leagueKey &&
+    String(r.club_key ?? "").trim() === clubKey,
+);
+
+const clubMaster = loadClubMaster();
+const leagueMaster = loadLeagueMaster();
+const seasonMetaAll = loadCtSeasonMeta();
+
+const club = clubMaster.find(
+  (c) =>
+    String(c.league_key ?? "").trim() === leagueKey &&
+    String(c.club_key ?? "").trim() === clubKey,
+);
+
+const league = leagueMaster.find(
+  (l) => String(l.league_key ?? "").trim() === leagueKey,
+);
+
+const clubName =
+  String(club?.club_display_ja ?? "").trim() ||
+  String(squads[0]?.club ?? "").trim() ||
+  clubKey;
+
+const clubNameEn = String(club?.club_display_en ?? "").trim();
+
+const leagueName =
+  String(league?.league_display_ja ?? "").trim() ||
+  String(club?.league_display ?? "").trim() ||
+  String(squads[0]?.league ?? "").trim() ||
+  leagueKey;
+
+const seasonStart = (s: string) => {
+  const m = String(s ?? "")
+    .trim()
+    .match(/^(\d{4})/);
+  return m ? Number(m[1]) : 0;
+};
+
+const uniq = (arr: string[]) => Array.from(new Set(arr.filter(Boolean)));
+
+const squadSeasons = uniq(squads.map((r) => String(r.season ?? "").trim()));
+const squadSeasonCount = squadSeasons.length;
+
+const metaRows = seasonMetaAll.filter(
+  (r) =>
+    String(r.league_key ?? "").trim() === leagueKey &&
+    String(r.club_key ?? "").trim() === clubKey,
+);
+
+const metaSeasons = uniq(metaRows.map((r) => String(r.season ?? "").trim()));
+
+const seasons = uniq([...squadSeasons, ...metaSeasons]).sort(
+  (a, b) => seasonStart(b) - seasonStart(a),
+);
+const hasLeagueRank = metaRows.some((r) => String(r.rank_ja ?? "").trim());
+const hasCoach = metaRows.some((r) => String(r.coach_ja ?? "").trim());
+const hasCup = metaRows.some(
+  (r) =>
+    String(r.cup1 ?? "").trim() ||
+    String(r.cup1_rank ?? "").trim() ||
+    String(r.cup2 ?? "").trim() ||
+    String(r.cup2_rank ?? "").trim(),
+);
+const hasUefa = metaRows.some(
+  (r) =>
+    String(r.uefa_cup ?? "").trim() || String(r.uefa_cup_rank ?? "").trim(),
+);
+const hasNote = metaRows.some((r) => String(r.note ?? "").trim());
+
+const latestUpdate = squads
+  .map((r) => toYMD(String(r.snapshot_date ?? "")))
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+const countMembers = (season: string) => {
+  const rows = squads.filter((r) => String(r.season ?? "").trim() === season);
+
+  return uniq(rows.map((r) => String(r.name_en || r.name_ja || "").trim()))
+    .length;
+};
+
+const findMeta = (season: string) =>
+  metaRows.find((r) => String(r.season ?? "").trim() === season);
+
+const formatCup = (name: string, result: string) => {
+  const n = String(name ?? "").trim();
+  const r = String(result ?? "").trim();
+  if (!n && !r) return "";
+  if (n && r) return `${n}：${r}`;
+  return n || r;
+};
+
+const splitLines = (v: string) =>
+  String(v ?? "")
+    .split(/[、,/／⇐]+/)
+    .map((x) => x.trim())
+    .filter(Boolean);
+
+const title = `${clubName}｜クラブポータルページ`;
+const description = `${clubName}のシーズン別成績と掲載スカッドをまとめたクラブ別ポータルページです。`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-club page-club-hub"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "クラブ一覧", href: "/clubs" },
+    { label: leagueName, href: `/clubs/${leagueKey}` },
+    { label: clubName },
+  ]}
+>
+  <main style="padding:16px">
+    <h1>{clubName}｜クラブポータルページ</h1>
+
+    <p class="lead">
+      {
+        clubName
+      }のシーズン別成績と掲載スカッドをまとめたクラブ別ポータルページです。
+    </p>
+
+    <p class="page-update">
+      最終更新：<span class="update-date">{latestUpdate || "—"}</span>
+    </p>
+
+    <section class="infoBox" aria-label="基本情報">
+      <div><span>英字名</span><b>{clubNameEn || "—"}</b></div>
+      <div><span>所属リーグ</span><b>{leagueName}</b></div>
+      <div><span>掲載シーズン</span><b>{squadSeasonCount}シーズン</b></div>
+      {
+        club?.notes && (
+          <div>
+            <>
+              <span>メモ</span>
+              <b>{club.notes}</b>
+            </>
+          </div>
+        )
+      }
+    </section>
+
+    <h2 class="sec">シーズン別データ</h2>
+
+    <p class="tableHint">
+      横にスクロールして、各シーズンの成績・監督・メンバー一覧を確認できます。
+    </p>
+
+    <div class="tableWrap">
+      <table class="seasonTable">
+        <thead>
+          <tr>
+            <th>シーズン</th>
+            {hasLeagueRank && <th>国内リーグ</th>}
+            {hasCoach && <th>監督</th>}
+            {hasCup && <th>国内カップ</th>}
+            {hasUefa && <th>UEFA大会</th>}
+            {hasNote && <th>メモ</th>}
+            <th>メンバー</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            seasons.map((season) => {
+              const meta = findMeta(season);
+              const members = countMembers(season);
+
+              const cup1 = formatCup(meta?.cup1 ?? "", meta?.cup1_rank ?? "");
+              const cup2 = formatCup(meta?.cup2 ?? "", meta?.cup2_rank ?? "");
+              const uefa = formatCup(
+                meta?.uefa_cup ?? "",
+                meta?.uefa_cup_rank ?? "",
+              );
+
+              const href = season
+                ? clubUrl({
+                    leagueKey,
+                    clubKey,
+                    season: season as any,
+                  })
+                : "";
+
+              return (
+                <tr class={href ? "clickableRow" : ""} data-href={href}>
+                  <td class="seasonCell">{season}</td>
+
+                  {hasLeagueRank && <td>{meta?.rank_ja || "—"}</td>}
+
+                  {hasCoach && (
+                    <td>
+                      {splitLines(meta?.coach_ja ?? "").length > 0
+                        ? splitLines(meta?.coach_ja ?? "").map((c) => (
+                            <div>{c}</div>
+                          ))
+                        : "—"}
+                    </td>
+                  )}
+
+                  {hasCup && (
+                    <td>
+                      {cup1 && <div>{cup1}</div>}
+                      {cup2 && <div>{cup2}</div>}
+                      {!cup1 && !cup2 && "—"}
+                    </td>
+                  )}
+
+                  {hasUefa && <td>{uefa || "—"}</td>}
+
+                  {hasNote && <td>{meta?.note || "—"}</td>}
+
+                  <td>
+                    {members > 0 && href ? (
+                      <a class="memberLink" href={href}>
+                        メンバー一覧 <span>({members})</span>
+                      </a>
+                    ) : (
+                      <span class="muted">準備中</span>
+                    )}
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <style>
+      .lead {
+        margin: 8px 0 10px;
+        color: #374151;
+        font-size: 14px;
+        line-height: 1.7;
+      }
+
+      .page-update {
+        margin: 0 0 12px;
+        font-size: 13px;
+        color: var(--muted, #666);
+        text-align: right;
+      }
+
+      .update-date {
+        color: #c62828;
+        font-weight: 700;
+      }
+
+      .infoBox {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 8px;
+        margin: 12px 0 18px;
+      }
+
+      .infoBox div {
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        border-radius: 12px;
+        background: #fff;
+        padding: 10px;
+      }
+
+      .infoBox span {
+        display: block;
+        font-size: 12px;
+        color: #666;
+        margin-bottom: 4px;
+      }
+
+      .infoBox b {
+        font-size: 14px;
+      }
+
+      .sec {
+        margin: 18px 0 10px;
+        font-size: 20px;
+        color: var(--theme-color);
+      }
+
+      .tableHint {
+        margin: -4px 0 8px;
+        font-size: 12px;
+        color: var(--muted, #666);
+        line-height: 1.5;
+      }
+
+      .tableWrap {
+        overflow: auto;
+        max-height: none;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+        border-radius: 12px;
+        background: #fff;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .seasonTable {
+        width: 100%;
+        min-width: 560px;
+        border-collapse: separate;
+        border-spacing: 0;
+        font-size: 13px;
+      }
+
+      .seasonTable th,
+      .seasonTable td {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        padding: 9px 10px;
+        vertical-align: top;
+        text-align: left;
+        background: #fff;
+      }
+
+      .seasonTable th {
+        position: sticky;
+        top: 0;
+        z-index: 3;
+        background: var(--theme-color);
+        color: #fff;
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .seasonCell {
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .seasonTable th:first-child,
+      .seasonTable td:first-child {
+        position: sticky;
+        left: 0;
+        z-index: 2;
+        background: #fff;
+        min-width: 72px;
+        width: 72px;
+      }
+
+      .seasonTable thead th:first-child {
+        z-index: 5;
+        background: var(--theme-color);
+        color: #fff;
+      }
+
+      .memberLink {
+        font-weight: 800;
+        white-space: nowrap;
+      }
+
+      .memberLink span {
+        font-weight: 600;
+        color: #666;
+      }
+
+      .muted {
+        color: #888;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 760px) {
+        .infoBox {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        .tableHint {
+          display: block;
+        }
+
+        .tableWrap {
+          margin-left: -2px;
+          margin-right: -2px;
+        }
+
+        .seasonTable {
+          min-width: 520px;
+          font-size: 12.5px;
+        }
+
+        .seasonTable th,
+        .seasonTable td {
+          padding: 8px 9px;
+        }
+
+        .seasonTable th:first-child,
+        .seasonTable td:first-child {
+          min-width: 68px;
+          width: 68px;
+        }
+
+        .seasonTable th:nth-child(3),
+        .seasonTable td:nth-child(3) {
+          min-width: 140px;
+        }
+
+        .seasonTable th:last-child,
+        .seasonTable td:last-child {
+          display: none;
+        }
+
+        .seasonTable th:nth-child(2),
+        .seasonTable td:nth-child(2) {
+          min-width: 58px;
+          width: 58px;
+        }
+      }
+
+      .seasonTable th:nth-child(2),
+      .seasonTable td:nth-child(2) {
+        min-width: 64px;
+        width: 64px;
+        white-space: nowrap;
+      }
+
+      .seasonTable th:nth-child(3),
+      .seasonTable td:nth-child(3) {
+        min-width: 150px;
+        white-space: normal;
+        line-height: 1.45;
+      }
+
+      .seasonTable th:last-child,
+      .seasonTable td:last-child {
+        min-width: 120px;
+        white-space: nowrap;
+      }
+
+      .clickableRow {
+        cursor: pointer;
+      }
+
+      .clickableRow:hover td {
+        background: rgba(0, 0, 0, 0.025);
+      }
+    </style>
+
+    <script>
+      document.querySelectorAll(".clickableRow").forEach((row) => {
+        row.addEventListener("click", () => {
+          const href = row.getAttribute("data-href");
+          if (href) window.location.href = href;
+        });
+      });
+    </script>
+  </main>
+</BaseLayout>

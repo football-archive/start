@@ -131,6 +131,29 @@ const latestSeasonByLeague = new Map<string, string>();
 // league_key -> Set<club_key>（最新掲載シーズンに所属するクラブのみ）
 const leagueClubs = new Map<string, Set<string>>();
 
+const latestMetaByClub = new Map<string, any>();
+
+for (const r of rows as any[]) {
+  const league_key = normalizeLeagueKey(r.league_key ?? r.league);
+  const club_key = String(r.club_key || "").trim();
+
+  if (!league_key || !club_key) continue;
+
+  const meta = {
+    season: String(r.season ?? "").trim(),
+    window: String(r.window ?? "")
+      .trim()
+      .toLowerCase(),
+    snapshot_date: String(r.snapshot_date ?? "").trim(),
+  };
+
+  const prev = latestMetaByClub.get(`${league_key}|||${club_key}`);
+
+  if (!prev || isNewerMeta(meta, prev)) {
+    latestMetaByClub.set(`${league_key}|||${club_key}`, meta);
+  }
+}
+
 // league_key|||club_key -> count（最新掲載シーズンの人数）
 const clubCount = new Map<string, number>();
 
@@ -167,6 +190,16 @@ for (const r of rows as any[]) {
   leagueClubs.get(league_key)!.add(club_key);
 
   const k = `${league_key}|||${club_key}`;
+  const latestMeta = latestMetaByClub.get(k);
+  if (!latestMeta) continue;
+
+  const rowWindow = String(r.window ?? "")
+    .trim()
+    .toLowerCase();
+  const rowSnapshot = String(r.snapshot_date ?? "").trim();
+
+  if (rowWindow !== latestMeta.window) continue;
+  if (rowSnapshot !== latestMeta.snapshot_date) continue;
   clubCount.set(k, (clubCount.get(k) ?? 0) + 1);
 }
 
@@ -208,6 +241,7 @@ const sections = leagueKeys.map((lk) => {
         club_key: ck,
         name,
         count,
+        portalHref: `/clubs/${lk}/club/${ck}/`,
         href: clubUrl({
           leagueKey: lk,
           clubKey: ck,
@@ -220,6 +254,7 @@ const sections = leagueKeys.map((lk) => {
     name: string;
     count: number;
     href: string;
+    portalHref: string;
   }[];
 
   return {
@@ -279,16 +314,21 @@ const sections = leagueKeys.map((lk) => {
     sections.map((s) => (
       <section data-league={s.league_key} style="margin: 18px 0;">
         <h2 style="margin: 0 0 6px;">
-          {s.leagueLabel}
-          {s.latestSeason ? `（${s.latestSeason}）` : ""} ({s.count})
+          {s.leagueLabel} ({s.count})
         </h2>
 
         <ul class="clubGrid">
           {s.items.map((it) => (
             <li class="clubRow">
-              <a class="clubLink" href={it.href}>
-                {it.name}　<span class="cnt">({it.count})</span>
-              </a>
+              <div class="clubLinkWrap">
+                <a class="clubPortalLink" href={it.portalHref}>
+                  {it.name}
+                </a>
+                <a class="clubSubLink" href={it.href}>
+                  {s.latestSeason} 最新メンバー{" "}
+                  <span class="cnt">({it.count})</span>
+                </a>
+              </div>
             </li>
           ))}
         </ul>
@@ -393,12 +433,36 @@ const sections = leagueKeys.map((lk) => {
       min-width: 0;
     }
 
-    .page-club .clubLink {
+    .page-club .clubLinkWrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .page-club .clubPortalLink {
       display: inline-block;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 1.4;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-club .clubSubLink {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club .clubPortalLink:hover,
+    .page-club .clubSubLink:hover {
+      color: var(--theme-link);
     }
 
     .page-club .cnt {
@@ -416,16 +480,27 @@ const sections = leagueKeys.map((lk) => {
       color: var(--theme-color);
     }
 
-    /* クラブ一覧のリンク（黒字維持しつつ hover はテーマ） */
-    .page-club section a:link,
-    .page-club section a:visited {
-      color: #111;
+    .page-club .clubPortalLink:link,
+    .page-club .clubPortalLink:visited {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-club .clubPortalLink:hover {
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .clubSubLink:link,
+    .page-club .clubSubLink:visited {
+      color: var(--muted);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
-    .page-club section a:hover {
+
+    .page-club .clubSubLink:hover {
       color: var(--theme-link);
-      background: var(--theme-soft-bg);
     }
 
     /* pills */

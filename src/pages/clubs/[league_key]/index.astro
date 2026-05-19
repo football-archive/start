@@ -351,11 +351,14 @@ const clubItems = visibleClubKeys
       club_key: clubKey,
       name: String(c.club_display_ja ?? clubKey).trim(),
       count: clubCount.get(clubKey) ?? 0,
-      href: clubUrl({
-        leagueKey,
-        clubKey,
-        season: latest?.season as any,
-      }),
+      href: latest?.season
+        ? clubUrl({
+            leagueKey,
+            clubKey,
+            season: latest.season as any,
+          })
+        : "",
+      portalHref: `/clubs/${leagueKey}/club/${clubKey}/`,
     };
   })
   .filter(Boolean) as {
@@ -363,6 +366,7 @@ const clubItems = visibleClubKeys
   name: string;
   count: number;
   href: string;
+  portalHref: string;
 }[];
 
 clubItems.sort((a, b) => a.name.localeCompare(b.name, "ja"));
@@ -488,16 +492,29 @@ const heading = leagueName;
 
   <section style="margin: 18px 0;">
     <h2 class="sec-title">
-      {leagueName} クラブ一覧{latestSeason ? `（${latestSeason}）` : ""}
+      {leagueName} クラブ一覧
     </h2>
+    <p class="clubListGuide">
+      👇各クラブポータルページの入口です。シーズンごとのリーグ戦成績・歴代監督・メンバー一覧などを確認できます。
+    </p>
 
     <ul class="clubGrid">
       {
         clubItems.map((it) => (
           <li class="clubRow">
-            <a class="clubLink" href={it.href}>
-              {it.name}　<span class="cnt">({it.count})</span>
-            </a>
+            <div class="clubLinkWrap">
+              <a class="clubPortalLink" href={it.portalHref}>
+                {it.name}
+              </a>
+              {it.href ? (
+                <a class="clubSubLink" href={it.href}>
+                  {latestSeason} 最新メンバー{" "}
+                  <span class="cnt">({it.count})</span>
+                </a>
+              ) : (
+                <span class="clubSubLink muted">メンバー準備中</span>
+              )}
+            </div>
           </li>
         ))
       }
@@ -586,12 +603,46 @@ const heading = leagueName;
       min-width: 0;
     }
 
-    .page-club .clubLink {
+    .page-club .clubPortalLink {
       display: inline-block;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      font-weight: 800;
+      font-size: 16px;
+      line-height: 1.4;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-club .clubListGuide {
+      margin: -2px 0 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    .page-club .clubPortalLink:hover {
+      color: var(--theme-color);
+    }
+
+    .page-club .clubLinkWrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .page-club .clubSubLink {
+      font-size: 12px;
+      color: var(--muted);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-club .clubSubLink:hover {
+      color: var(--theme-link);
     }
 
     .page-club .cnt {
@@ -600,16 +651,27 @@ const heading = leagueName;
       white-space: nowrap;
     }
 
-    .page-club section a:link,
-    .page-club section a:visited {
-      color: #111;
+    .page-club .clubPortalLink:link,
+    .page-club .clubPortalLink:visited {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-club .clubPortalLink:hover {
+      color: var(--theme-link);
+      background: var(--theme-soft-bg);
+    }
+
+    .page-club .clubSubLink:link,
+    .page-club .clubSubLink:visited {
+      color: var(--muted);
       text-decoration: underline;
       text-underline-offset: 2px;
     }
 
-    .page-club section a:hover {
+    .page-club .clubSubLink:hover {
       color: var(--theme-link);
-      background: var(--theme-soft-bg);
     }
 
     .page-club .pill {
