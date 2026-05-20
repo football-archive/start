@@ -458,20 +458,20 @@ const heading = `${leagueName} ${seasonKey}`;
         (prevSeason || nextSeason) && (
           <div class="season-jump">
             <div class="season-jump-inner">
-              {prevSeason ? (
-                <a class="season-jump-link is-prev" href={prevSeasonHref}>
-                  ← 前シーズン（{prevSeason}）
-                </a>
-              ) : (
-                <span class="season-jump-link is-disabled">← 前シーズン</span>
-              )}
-
               {nextSeason ? (
                 <a class="season-jump-link is-next" href={nextSeasonHref}>
-                  次シーズン（{nextSeason}） →
+                  ← 次シーズンへ（{nextSeason}）
                 </a>
               ) : (
-                <span class="season-jump-link is-disabled">次シーズン →</span>
+                <span class="season-jump-link is-disabled">← 次シーズン</span>
+              )}
+
+              {prevSeason ? (
+                <a class="season-jump-link is-prev" href={prevSeasonHref}>
+                  前シーズンへ（{prevSeason}） →
+                </a>
+              ) : (
+                <span class="season-jump-link is-disabled">前シーズン →</span>
               )}
             </div>
           </div>

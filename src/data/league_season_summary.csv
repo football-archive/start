@@ -1,10 +1,10 @@
 league_key,season,champion_club_key,runnerup_club_key,third_club_key,top_scorer_names,top_scorer_goals,top_scorer_club_keys,note
-premier-league,2025-26,,,,,,,途中経過（36節時点）
-laliga,2025-26,,,,,,,途中経過（36節時点）
-serie-a,2025-26,,,,,,,途中経過（36節時点）
-bundesliga,2025-26,,,,,,,途中経過（33節時点）
-ligue-1,2025-26,,,,,,,途中経過（33節時点）
-eredivisie,2025-26,,,,,,,途中経過（33節時点）
+premier-league,2025-26,,,,,,,途中経過（37節終了時点）
+laliga,2025-26,,,,,,,途中経過（37節終了時点）
+serie-a,2025-26,,,,,,,途中経過（37節終了時点）
+bundesliga,2025-26,bayern-munich,borussia-dortmund,rb-leipzig,ハリー・ケイン,36,bayern-munich,全34節終了
+ligue-1,2025-26,paris-saint-germain,rc-lens,lille,エステバン・ルポール,21,rennes,全34節終了
+eredivisie,2025-26,psv,feyenoord,nec,上田綺世,25,feyenoord,全34節終了
 premier-league,2024-25,liverpool,arsenal,manchester-city,モハメド・サラー,29,liverpool,
 premier-league,2023-24,manchester-city,arsenal,liverpool,エルリング・ブラウト・ホランド,27,manchester-city,
 premier-league,2022-23,manchester-city,arsenal,manchester-united,エルリング・ブラウト・ホランド,36,manchester-city,
