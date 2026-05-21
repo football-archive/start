@@ -77,6 +77,7 @@ const leagueInMaster = !!leagueInfo;
 const clubLabel = clubInfo?.club_display_ja ?? club_key;
 const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
 const leagueTopPath = `/clubs/${encodeURIComponent(league_key)}/`;
+const clubTopPath = `/clubs/${encodeURIComponent(league_key)}/club/${encodeURIComponent(club_key)}/`;
 
 // --------------------
 // country master
@@ -599,7 +600,8 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     { label: "トップ", href: "/" },
     { label: "クラブ", href: "/clubs" },
     { label: leagueLabel, href: leagueTopPath },
-    { label: clubLabel },
+    { label: clubLabel, href: clubTopPath },
+    { label: season },
   ]}
   heading={heading}
 >
@@ -921,6 +923,17 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       {seasonShort(initialSeason)} メンバー一覧を見る
     </a>
   </p>
+  <p class="club-roster-jump">
+    <a href={clubTopPath}>
+      👉 {clubLabel} ポータルページを見る
+    </a>
+  </p>
+
+  <p class="club-roster-jump">
+    <a href={leagueTopPath}>
+      👉 {leagueLabel}トップへ
+    </a>
+  </p>
 
   <div class="club-title-divider" aria-hidden="true"></div>
 
@@ -960,15 +973,6 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           </div>
         )
       }
-
-      <div class="club-related-block">
-        <div class="club-related-label">👉 同リーグ全体を見る</div>
-        <div class="club-league-top-link">
-          <a href={leagueTopPath}>
-            ← {leagueLabel}トップへ
-          </a>
-        </div>
-      </div>
     </div>
   </div>
 
