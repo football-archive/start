@@ -6,6 +6,7 @@ import { loadLeagueMaster } from "../../../../../lib/leagueMaster";
 import { loadCtSeasonMeta } from "../../../../../lib/ctSeasonMeta";
 import { clubUrl } from "../../../../../lib/urls";
 import { toYMD } from "../../../../../lib/rosterFormat";
+import { loadLeagueStandings } from "../../../../../lib/leagueStandings";
 
 export async function getStaticPaths() {
   const rows = loadClubSquads();
@@ -63,6 +64,8 @@ const leagueName =
   String(squads[0]?.league ?? "").trim() ||
   leagueKey;
 
+const leagueTopPath = `/clubs/${encodeURIComponent(leagueKey)}/`;
+
 const seasonStart = (s: string) => {
   const m = String(s ?? "")
     .trim()
@@ -86,6 +89,15 @@ const metaSeasons = uniq(metaRows.map((r) => String(r.season ?? "").trim()));
 const seasons = uniq([...squadSeasons, ...metaSeasons]).sort(
   (a, b) => seasonStart(b) - seasonStart(a),
 );
+
+const leagueStandings = loadLeagueStandings();
+const seasonHubSeasons = new Set(
+  leagueStandings
+    .filter((r) => String(r.league_key ?? "").trim() === leagueKey)
+    .map((r) => String(r.season ?? "").trim())
+    .filter(Boolean),
+);
+
 const hasLeagueRank = metaRows.some((r) => String(r.rank_ja ?? "").trim());
 const hasCoach = metaRows.some((r) => String(r.coach_ja ?? "").trim());
 const hasCup = metaRows.some(
@@ -162,7 +174,12 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
 
     <section class="infoBox" aria-label="基本情報">
       <div><span>英字名</span><b>{clubNameEn || "—"}</b></div>
-      <div><span>所属リーグ</span><b>{leagueName}</b></div>
+      <div>
+        <span>所属リーグ</span>
+        <b>
+          <a class="infoLink" href={leagueTopPath}>{leagueName}</a>
+        </b>
+      </div>
       <div><span>掲載シーズン</span><b>{squadSeasonCount}シーズン</b></div>
       {
         club?.notes && (
@@ -216,11 +233,28 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
                   })
                 : "";
 
+              const hasSeasonHub = seasonHubSeasons.has(season);
+
+              const seasonHubHref =
+                season && hasSeasonHub
+                  ? `/clubs/${encodeURIComponent(leagueKey)}/${encodeURIComponent(season)}/`
+                  : "";
+
               return (
                 <tr class={href ? "clickableRow" : ""} data-href={href}>
                   <td class="seasonCell">{season}</td>
 
-                  {hasLeagueRank && <td>{meta?.rank_ja || "—"}</td>}
+                  {hasLeagueRank && (
+                    <td>
+                      {meta?.rank_ja && seasonHubHref ? (
+                        <a class="rankLink" href={seasonHubHref}>
+                          {meta.rank_ja}
+                        </a>
+                      ) : (
+                        meta?.rank_ja || "—"
+                      )}
+                    </td>
+                  )}
 
                   {hasCoach && (
                     <td>
@@ -465,11 +499,34 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
       .clickableRow:hover td {
         background: rgba(0, 0, 0, 0.025);
       }
+
+      .infoLink {
+        color: var(--theme-color);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: 800;
+      }
+
+      .rankLink {
+        color: var(--theme-color);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+        font-weight: 800;
+      }
+
+      .infoLink:hover,
+      .rankLink:hover {
+        opacity: 0.82;
+      }
     </style>
 
     <script>
       document.querySelectorAll(".clickableRow").forEach((row) => {
-        row.addEventListener("click", () => {
+        row.addEventListener("click", (e) => {
+          const target = e.target;
+
+          if (target instanceof Element && target.closest("a")) return;
+
           const href = row.getAttribute("data-href");
           if (href) window.location.href = href;
         });
