@@ -17,6 +17,7 @@ export type CtSeasonMetaRow = {
   uefa_cup: string;
   uefa_cup_rank: string;
   note: string;
+  update_date: string;
 };
 
 // ct_season_meta.csv を読み込む（クラブ“あゆみ”の子ページ/メタ表示で共通利用）
@@ -40,6 +41,7 @@ export function loadCtSeasonMeta(): CtSeasonMetaRow[] {
     uefa_cup: String(r.uefa_cup ?? "").trim(),
     uefa_cup_rank: String(r.uefa_cup_rank ?? "").trim(),
     note: String(r.note ?? "").trim(),
+    update_date: String(r.update_date ?? "").trim(),
   }));
 }
 

@@ -113,8 +113,19 @@ const hasUefa = metaRows.some(
 );
 const hasNote = metaRows.some((r) => String(r.note ?? "").trim());
 
-const latestUpdate = squads
+const squadLatestUpdate = squads
   .map((r) => toYMD(String(r.snapshot_date ?? "")))
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+const metaLatestUpdate = metaRows
+  .map((r) => toYMD(String(r.update_date ?? "")))
+  .filter(Boolean)
+  .sort()
+  .at(-1);
+
+const latestUpdate = [squadLatestUpdate, metaLatestUpdate]
   .filter(Boolean)
   .sort()
   .at(-1);
@@ -142,6 +153,30 @@ const splitLines = (v: string) =>
     .split(/[、,/／⇐]+/)
     .map((x) => x.trim())
     .filter(Boolean);
+
+const getUefaClass = (v: string) => {
+  const text = String(v ?? "").trim();
+
+  if (
+    text.startsWith("ECL") ||
+    text.startsWith("UEFAインタートト")
+  ) {
+    return "uefa-ecl";
+  }
+
+  if (
+    text.startsWith("EL") ||
+    text.startsWith("UEFAカップ")
+  ) {
+    return "uefa-el";
+  }
+
+  if (text.startsWith("CL")) {
+    return "uefa-cl";
+  }
+
+  return "";
+};
 
 const title = `${clubName}｜クラブポータルページ`;
 const description = `${clubName}のシーズン別成績と掲載スカッドをまとめたクラブ別ポータルページです。`;
@@ -196,7 +231,7 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
     <h2 class="sec">シーズン別データ</h2>
 
     <p class="tableHint">
-      横にスクロールして、各シーズンの成績・監督・メンバー一覧を確認できます。
+      横にスクロールして、歴代シーズンの成績・監督・メンバー一覧を確認できます。
     </p>
 
     <div class="tableWrap">
@@ -274,7 +309,15 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
                     </td>
                   )}
 
-                  {hasUefa && <td>{uefa || "—"}</td>}
+                  {hasUefa && (
+                    <td>
+                      {uefa ? (
+                        <span class={getUefaClass(uefa)}>{uefa}</span>
+                      ) : (
+                        "—"
+                      )}
+                    </td>
+                  )}
 
                   {hasNote && <td>{meta?.note || "—"}</td>}
 
@@ -517,6 +560,21 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
       .infoLink:hover,
       .rankLink:hover {
         opacity: 0.82;
+      }
+
+      .uefa-cl {
+        color: #1e3a8a;
+        font-weight: 700;
+      }
+
+      .uefa-el {
+        color: #ea580c;
+        font-weight: 700;
+      }
+
+      .uefa-ecl {
+        color: #15803d;
+        font-weight: 700;
       }
     </style>
 

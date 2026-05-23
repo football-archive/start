@@ -5,9 +5,9 @@ nt,,1,🌍各国代表,/nt,true,10
 wc-japan,wc2026,2,🔴日本代表,/wc/2026/team/日本,true,15
 wc,nt,2,🏆FIFAワールドカップ,/wc/2026/,true,20
 wc2026,wc,3,🔥2026 北中米,/wc/2026/,true,21
-wc2026-teams,wc2026,4,出場国一覧,/wc/2026#teams,true,22
-wc2026-schedule,wc2026,4,スケジュール・結果,/wc/2026#schedule,true,23
-wc2026-groups,wc2026,4,グループ勝敗表,/wc/2026#groups,true,24
+wc2026-teams,wc2026,4,→ 出場国一覧,/wc/2026#teams,true,22
+wc2026-schedule,wc2026,4,→ スケジュール・結果,/wc/2026#schedule,true,23
+wc2026-groups,wc2026,4,→ グループ勝敗表,/wc/2026#groups,true,24
 wc2022,wc,3,→ 2022 カタール,/wc/2022/,true,30
 wc2018,wc,3,→ 2018 ロシア,/wc/2018/,true,40
 wc2014,wc,3,→ 2014 ブラジル,/wc/2014/,true,50
@@ -16,18 +16,24 @@ wc2006,wc,3,→ 2006 ドイツ,/wc/2006/,true,70
 wc2002,wc,3,→ 2002 日韓,/wc/2002/,true,80
 nt-archive,nt,2,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true,90
 nt-teams,nt,2,代表国一覧,/nt/,false,95
-clubs,,1,👕欧州主要リーグ・クラブ,/clubs/,true,100
-club-leagues,clubs,2,リーグ一覧,/clubs/,true,110
-club-premier,club-leagues,3,→ プレミアリーグ,/clubs/premier-league/,true,111
-club-laliga,club-leagues,3,→ ラ・リーガ,/clubs/laliga/,true,112
-club-seriea,club-leagues,3,→ セリエA,/clubs/serie-a/,true,113
-club-bundesliga,club-leagues,3,→ ブンデス,/clubs/bundesliga/,true,114
-club-ligue1,club-leagues,3,→ リーグ・アン,/clubs/ligue-1/,true,115
-club-eredivisie,club-leagues,3,→ エールディヴィジ,/clubs/eredivisie/,true,116
-club-primeira-liga,club-leagues,3,→ プリメイラ,/clubs/primeira-liga/,true,117
-club-scottish-premiership,club-leagues,3,→ スコティッシュ,/clubs/scottish-premiership/,true,118
-club-history,clubs,2,📓歴代強豪クラブ アーカイブ,/clubs/history/,true,120
-transfers,clubs,2,🔁移籍情報,/transfers/,true,130
-ucl,,1,👑CL,/ucl/,true,200
-ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,210
+clubs,,1,👕欧州主要リーグ・クラブ,/clubs/,true,200
+club-leagues,clubs,2,リーグ一覧,/clubs/,true,201
+club-premier,club-leagues,3,▼ プレミアリーグ,/clubs/premier-league/,true,210
+club-premier-arsenal,club-leagues-club,4,→ アーセナル,/clubs/premier-league/club/arsenal/,true,211
+club-premier-manC,club-leagues-club,4,→ マンチェスターC,/clubs/premier-league/club/manchester-city/,true,212
+club-premier-manU,club-leagues-club,4,→ マンチェスターU,/clubs/premier-league/club/manchester-united/,true,213
+club-premier-liverpool,club-leagues-club,4,→ リヴァプール,/clubs/premier-league/club/liverpool/,true,214
+club-premier-chelsea,club-leagues-club,4,→ チェルシー,/clubs/premier-league/club/chelsea/,true,215
+club-premier-tottenham,club-leagues-club,4,→ トッテナム,/clubs/premier-league/club/tottenham-hotspur/,true,216
+club-laliga,club-leagues,3,→ ラ・リーガ,/clubs/laliga/,true,220
+club-seriea,club-leagues,3,→ セリエA,/clubs/serie-a/,true,230
+club-bundesliga,club-leagues,3,→ ブンデス,/clubs/bundesliga/,true,240
+club-ligue1,club-leagues,3,→ リーグ・アン,/clubs/ligue-1/,true,250
+club-eredivisie,club-leagues,3,→ エールディヴィジ,/clubs/eredivisie/,true,260
+club-primeira-liga,club-leagues,3,→ プリメイラ,/clubs/primeira-liga/,true,270
+club-scottish-premiership,club-leagues,3,→ スコティッシュ,/clubs/scottish-premiership/,true,280
+club-history,clubs,2,📓歴代強豪クラブ アーカイブ,/clubs/history/,true,290
+transfers,clubs,2,🔁移籍情報,/transfers/,true,295
+ucl,,1,👑CL,/ucl/,true,300
+ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,310
 about,,1,サイト情報,/about/,true,900
