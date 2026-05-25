@@ -200,7 +200,7 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
     <p class="lead">
       {
         clubName
-      }のシーズン別成績と掲載スカッドをまとめたクラブ別ポータルページです。
+      }のシーズン別の国内リーグ戦、国内・欧州カップ戦成績に加え、歴代監督や掲載スカッドをまとめたクラブ別ポータルページです。
     </p>
 
     <p class="page-update">
@@ -240,9 +240,9 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
           <tr>
             <th>シーズン</th>
             {hasLeagueRank && <th>国内リーグ</th>}
-            {hasCoach && <th>監督</th>}
+            {hasCoach && <th>歴代監督</th>}
             {hasCup && <th>国内カップ</th>}
-            {hasUefa && <th>UEFA大会</th>}
+            {hasUefa && <th>欧州カップ戦</th>}
             {hasNote && <th>メモ</th>}
             <th>メンバー</th>
           </tr>
