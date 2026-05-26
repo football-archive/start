@@ -29,7 +29,7 @@ const title = "UEFA Champions League｜シーズン一覧";
   <div class="pill-block">
     <div class="pill-label">👉 最新シーズンを見る</div>
     <div class="pills">
-      <a class="pill is-active" href={`/ucl/${encodeURIComponent(latest)}`}>
+      <a class="pill is-active" href={`/ucl/${encodeURIComponent(latest)}/`}>
         <span class="dot" aria-hidden="true"></span>最新：{latest}
       </a>
     </div>
@@ -41,7 +41,7 @@ const title = "UEFA Champions League｜シーズン一覧";
       {
         seasons.map((s) => (
           <li>
-            <a href={`/ucl/${encodeURIComponent(s)}`}>UEFA CL {s}（順位表）</a>
+            <a href={`/ucl/${encodeURIComponent(s)}/`}>UEFA CL {s}（順位表）</a>
           </li>
         ))
       }

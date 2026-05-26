@@ -400,7 +400,7 @@ const heading = leagueName;
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "クラブ一覧", href: "/clubs" },
+    { label: "クラブ一覧", href: "/clubs/" },
     { label: leagueName },
   ]}
   heading=""
@@ -418,7 +418,7 @@ const heading = leagueName;
     <div class="pill-label">👉 リーグを切り替える</div>
 
     <div class="pills league-pills">
-      <a class="pill is-active" href={`/clubs/${leagueKey}`}>
+      <a class="pill is-active" href={`/clubs/${leagueKey}/`}>
         <span class="dot"></span>{leagueName}
       </a>
 
@@ -431,7 +431,7 @@ const heading = leagueName;
         ))
       }
 
-      <a class="pill" href="/clubs">
+      <a class="pill" href="/clubs/">
         <span class="dot"></span>クラブ一覧へ
       </a>
     </div>
@@ -446,7 +446,7 @@ const heading = leagueName;
           <div class="league-start-links">
             <a
               class="league-start-link"
-              href={`/clubs/${leagueKey}/${latestStandingSeason}`}
+              href={`/clubs/${leagueKey}/${latestStandingSeason}/`}
             >
               {latestStandingSeason} 順位表を見る
             </a>
@@ -474,7 +474,7 @@ const heading = leagueName;
           seasons.map((season) => (
             <a
               class={`season-pill ${season === latestSeason ? "is-active" : ""}`}
-              href={`/clubs/${leagueKey}/${season}`}
+              href={`/clubs/${leagueKey}/${season}/`}
             >
               {season}
             </a>

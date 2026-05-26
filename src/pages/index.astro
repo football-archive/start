@@ -12,6 +12,9 @@ import {
   tournamentTopUrl,
   DEFAULTS,
   competitionSeasonUrl,
+  competitionClubsUrl,
+  teamsListUrl,
+  teamUrl,
 } from "../lib/urls";
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../lib/ucl";
 import { loadTransfers } from "../lib/transfers";
@@ -41,7 +44,7 @@ const ymdToJa = (ymd: any) => (ymd ? String(ymd).replaceAll("-", "/") : "—");
 // --------------------
 // 更新情報
 // --------------------
-const updates = loadUpdates(27);
+const updates = loadUpdates(28);
 
 const groupedUpdates = Object.entries(
   updates.reduce((acc: Record<string, any[]>, u: any) => {
@@ -61,7 +64,11 @@ const callupsWc = callupsAll.filter(
   (r: any) => r.competition === "WC" && String(r.edition) === wcYear,
 );
 
-const japanHref = `/wc/${wcYear}/team/日本`;
+const japanHref = teamUrl({
+  tournament: "wc",
+  year: wcYear,
+  country: "日本",
+});
 const japanNames = new Set(["日本", "日本代表", "Japan"]);
 const callupsJapan = callupsWc.filter((r: any) =>
   japanNames.has(String(r.country ?? "").trim()),
@@ -265,7 +272,7 @@ const leagueShortcutsVisible = leagueShortcuts.filter(
   (x) => publicLeagueKeys.has(x.league) && leaguesInData.has(x.league),
 );
 
-const leagueHref = (leagueKey: string) => `/clubs/${leagueKey}`;
+const leagueHref = (leagueKey: string) => `/clubs/${leagueKey}/`;
 
 // --------------------
 // UCL
@@ -1325,31 +1332,33 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             <div class="card-sep" aria-hidden="true"></div>
 
             <div class="portal-links">
-              <a href="/wc/2026" class="portal-btn portal-main"
+              <a href={wcTopHref} class="portal-btn portal-main"
                 >出場国・代表メンバー一覧</a
               >
-              <a href="/wc/2026/#schedule" class="portal-btn portal-main"
+              <a href={`${wcTopHref}#schedule`} class="portal-btn portal-main"
                 >試合日程・結果</a
               >
 
               <div class="portal-sub-grid">
-                <a href="/wc/2026/#groups" class="portal-btn portal-sub"
+                <a href={`${wcTopHref}#groups`} class="portal-btn portal-sub"
                   >グループリーグ勝敗表</a
                 >
-                <a href="/wc/2026/#rankings" class="portal-btn portal-sub"
+                <a href={`${wcTopHref}#rankings`} class="portal-btn portal-sub"
                   >得点・アシストランキング</a
                 >
-                <a href="/wc/2026/#awards" class="portal-btn portal-sub">表彰</a
+                <a href={`${wcTopHref}#awards`} class="portal-btn portal-sub"
+                  >表彰</a
                 >
               </div>
             </div>
 
             <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
-            <!-- ✅ 追加：代表ポータル導線（チーム軸の入口） -->
             <div class="nt-portal-row">
+              <!--
               <a class="nt-portal-btn" href="/nt">
                 強豪国・日本代表・各国あゆみを見る
               </a>
+              -->
             </div>
 
             <!-- ✅ 追加：過去大会ミニ導線 -->
@@ -1376,9 +1385,10 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               </div>
             </div>
 
-            <a class="legend-btn" href="/nt/wc/legends">
+            <a class="legend-btn" href="/nt/wc/legends/">
               強豪国代表　W杯のあゆみ（歴代代表メンバー）
             </a>
+
           </div>
 
           <!-- row1 col2: CLUB main -->
@@ -1408,7 +1418,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             <div class="card-shortcuts">
               <div class="shortcut-head">
                 <p class="quick-title">⚡ショートカット：主要リーグから探す</p>
-                <a class="see-now" href="/clubs">クラブ一覧へ →</a>
+                <a class="see-now" href={clubsListUrl()}>クラブ一覧へ →</a>
               </div>
 
               <div class="pills">
@@ -1426,7 +1436,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                 }
                 <a
                   class="pill"
-                  href="/clubs"
+                  href={clubsListUrl()}
                   aria-label="全リーグのクラブ一覧へ"
                 >
                   <span class="dot" aria-hidden="true"></span>
@@ -1440,7 +1450,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                   {
                     leagueShortcutsVisible.map((x) => (
                       <a
-                        href={`/clubs/${x.league}/${DEFAULTS.currentClubSeason}`}
+                        href={`/clubs/${x.league}/${DEFAULTS.currentClubSeason}/`}
                         class="season-link"
                       >
                         {x.label}
@@ -1449,9 +1459,11 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                   }
                 </div>
               </div>
-              <a class="legend-btn" href="/clubs/history">
+
+              <a class="legend-btn" href="/clubs/history/">
                 欧州強豪クラブのあゆみ（歴代メンバー）
               </a>
+
             </div>
           </div>
 
@@ -1465,7 +1477,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             </h3>
 
             <div class="jp-sub">
-              <a href="/wc/2026/team/日本">日本代表メンバー一覧</a><br />
+              <a href="/wc/2026/team/日本/">日本代表メンバー一覧</a><br />
               更新：<span class="date-red">{japanUpdatedAt}</span>
             </div>
 
@@ -1475,14 +1487,22 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               <div class="jp-opponents-row">
                 <span class="jp-opponents-label">3月：</span>
                 <a
-                  href="/wc/2026/team/スコットランド"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "スコットランド",
+                  })}
                   title="スコットランド代表メンバー一覧"
                 >
                   スコットランド
                 </a>
                 <span class="sep">｜</span>
                 <a
-                  href="/wc/2026/team/イングランド"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "イングランド",
+                  })}
                   title="イングランド代表メンバー一覧"
                 >
                   イングランド
@@ -1490,7 +1510,11 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                 <span class="sep">｜</span>
                 <span class="jp-opponents-label">5月：</span>
                 <a
-                  href="/wc/2026/team/アイスランド"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "アイスランド",
+                  })}
                   title="アイスランド代表メンバー一覧"
                 >
                   アイスランド
@@ -1500,29 +1524,41 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               <div class="jp-opponents-row">
                 <span class="jp-opponents-label">W杯GL：</span>
                 <a
-                  href="/wc/2026/team/オランダ"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "オランダ",
+                  })}
                   title="オランダ代表メンバー一覧"
                 >
                   オランダ
                 </a>
                 <span class="sep">｜</span>
                 <a
-                  href="/wc/2026/team/チュニジア"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "チュニジア",
+                  })}
                   title="チュニジア代表メンバー一覧"
                 >
                   チュニジア
                 </a>
                 <span class="sep">｜</span>
                 <a
-                  href="/wc/2026#teams"
-                  class="muted"
-                  title="W杯2026 出場国一覧へ"
+                  href={teamUrl({
+                    tournament: "wc",
+                    year: "2026",
+                    country: "スウェーデン",
+                  })}
+                  title="スウェーデン"
                 >
-                  欧州PO
+                  スウェーデン
                 </a>
               </div>
 
               <div class="jp-opponents-row small">
+                <!--
                 <a
                   href="/wc/2026/team/ポーランド"
                   title="ポーランド代表メンバー一覧"
@@ -1550,12 +1586,13 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
                 >
                   アルバニア
                 </a>
+                -->
               </div>
             </div>
 
             <!-- ★追加：歴代WC導線 -->
             <div class="jp-history">
-              <a class="legend-btn" href="/nt/japan/wc"
+              <a class="legend-btn" href="/nt/japan/wc/"
                 >日本代表　W杯のあゆみ（歴代代表メンバー）</a
               >
             </div>
@@ -1594,7 +1631,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
           <!-- row3 col2: Transfers -->
           <div class="subcard transfer-box theme-club grid-club-sub2">
             <h3 class="subcard-title">
-              <a href="/transfers">
+              <a href="/transfers/">
                 <span class="card-ico ico-transfer" aria-hidden="true">🔁</span>
                 2025-26冬 主な移籍一覧
               </a>
@@ -1613,7 +1650,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
         <div
           style="margin-top:28px; text-align:center; font-size:13px; color:#666;"
         >
-          <a href="/about"
+          <a href="/about/"
             >World Football Archive について（このサイトの概要）</a
           >
         </div>

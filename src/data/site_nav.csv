@@ -1,13 +1,13 @@
 id,parent_id,level,label,href,visible,sort_order
 top,,1,トップページ,/,true,01
 update,,2,🆕 更新情報,/,true,02
-nt,,1,🌍各国代表,/nt,true,10
-wc-japan,wc2026,2,🔴日本代表,/wc/2026/team/日本,true,15
+nt,,1,🌍各国代表,/nt/,true,10
+wc-japan,wc2026,2,🔴日本代表,/wc/2026/team/日本/,true,15
 wc,nt,2,🏆FIFAワールドカップ,/wc/2026/,true,20
 wc2026,wc,3,🔥2026 北中米,/wc/2026/,true,21
-wc2026-teams,wc2026,4,→ 出場国一覧,/wc/2026#teams,true,22
-wc2026-schedule,wc2026,4,→ スケジュール・結果,/wc/2026#schedule,true,23
-wc2026-groups,wc2026,4,→ グループ勝敗表,/wc/2026#groups,true,24
+wc2026-teams,wc2026,4,→ 出場国一覧,/wc/2026/#teams,true,22
+wc2026-schedule,wc2026,4,→ スケジュール・結果,/wc/2026/#schedule,true,23
+wc2026-groups,wc2026,4,→ グループ勝敗表,/wc/2026/#groups,true,24
 wc2022,wc,3,→ 2022 カタール,/wc/2022/,true,30
 wc2018,wc,3,→ 2018 ロシア,/wc/2018/,true,40
 wc2014,wc,3,→ 2014 ブラジル,/wc/2014/,true,50

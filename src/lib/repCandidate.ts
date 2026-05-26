@@ -99,7 +99,7 @@ export function buildRepLabelFromCallups(
       return [
         {
           label: `${opts.competition}${opts.edition}`, // "WC2026"
-          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}`,
+          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}/`,
         },
       ];
     }
@@ -108,7 +108,7 @@ export function buildRepLabelFromCallups(
       return [
         {
           label: `${opts.competition}${opts.edition} PO`, // "WC2026 PO"
-          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}`,
+          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}/`,
         },
       ];
     }
@@ -117,7 +117,7 @@ export function buildRepLabelFromCallups(
       return [
         {
           label: `${opts.competition}${opts.edition} 敗退`, // "WC2026 敗退"
-          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}`,
+          href: `/wc/${opts.edition}/team/${encodeURIComponent(country)}/`,
         },
       ];
     }
@@ -196,7 +196,7 @@ export function buildRepHistoryLinksFromCallups(
       const { country } = m.get(ed)!;
       return {
         label: `${comp}${toShort(ed)}`, // "WC22"
-        href: `/wc/${ed}/team/${encodeURIComponent(country)}`,
+        href: `/wc/${ed}/team/${encodeURIComponent(country)}/`,
       };
     });
   };

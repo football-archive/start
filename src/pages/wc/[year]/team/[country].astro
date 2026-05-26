@@ -211,7 +211,7 @@ const tournamentLabel = String(metaRow?.host_ja ?? "").trim()
   ? `${String(metaRow?.host_ja ?? "").trim()}${String(year)}`
   : "";
 
-const tournamentHref = `/wc/${year}`;
+const tournamentHref = `/wc/${year}/`;
 const tournamentText = `W杯${year}`;
 
 const heroMetaLine = (() => {
@@ -250,7 +250,7 @@ const previousHasCallups =
 
 const previousTournamentHref =
   previousEdition && previousHasCallups
-    ? `/wc/${encodeURIComponent(previousEdition)}/team/${encodeURIComponent(countryName)}`
+    ? `/wc/${encodeURIComponent(previousEdition)}/team/${encodeURIComponent(countryName)}/`
     : "";
 
 // 更新日（その国×その年 の callups の最新スナップショット）
@@ -354,7 +354,7 @@ const isUndecidedPlayoffLabel = (s: string) => {
 };
 
 const makeTeamHref = (name: string) =>
-  `/wc/${encodeURIComponent(String(year))}/team/${encodeURIComponent(name)}`;
+  `/wc/${encodeURIComponent(String(year))}/team/${encodeURIComponent(name)}/`;
 
 // groups.csv から同グループ国を作る
 const groupRows = group
@@ -482,7 +482,13 @@ const statusSuffix = (() => {
 
 const rows = rowsAll.sort(sortForRoster);
 
-const highlightTokens = ["2026.03", "2026.05", "最終メンバー", "追加招集", "初招集"];
+const highlightTokens = [
+  "2026.03",
+  "2026.05",
+  "最終メンバー",
+  "追加招集",
+  "初招集",
+];
 
 const rowHighlightClass = (r: any) => {
   const noteText = String(
@@ -707,12 +713,12 @@ const columns = buildNtColumns({
     const editions = editionsByPlayer.get(k) ?? [];
     return editions.map((ed) => ({
       label: ed,
-      href: `/wc/${encodeURIComponent(ed)}/team/${encodeURIComponent(countryName)}`,
+      href: `/wc/${encodeURIComponent(ed)}/team/${encodeURIComponent(countryName)}/`,
     }));
   },
 });
 
-const topHref = `/wc/${year}`;
+const topHref = `/wc/${year}/`;
 
 // <title> 用
 const pageLabel = `${countryName}代表${statusSuffix ? ` ${statusSuffix}` : ""}`;
@@ -988,7 +994,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
             {group && (
               <a
                 class="pill"
-                href={`/wc/${year}?group=${encodeURIComponent(group)}#teams`}
+                href={`/wc/${year}/?group=${encodeURIComponent(group)}#teams`}
               >
                 🔠 グループ {group}
               </a>
@@ -1016,7 +1022,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
             {allGroupLetters.map((g) => (
               <a
                 class={`pill nt-related-pill ${String(g) === String(group) ? "is-active" : ""}`}
-                href={`/wc/${year}?group=${encodeURIComponent(g)}#teams`}
+                href={`/wc/${year}/?group=${encodeURIComponent(g)}#teams`}
               >
                 {g}
               </a>
@@ -1035,7 +1041,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
             {yearsForCountry.map((y) => (
               <a
                 class={`pill ${String(y) === String(year) ? "is-active" : ""}`}
-                href={`/wc/${y}/team/${encodeURIComponent(countryName)}`}
+                href={`/wc/${y}/team/${encodeURIComponent(countryName)}/`}
               >
                 <span class="dot" aria-hidden="true" />
                 {y}
@@ -1056,7 +1062,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
             {continent && (
               <a
                 class="pill"
-                href={`/wc/${year}?continent=${encodeURIComponent(continent)}#teams`}
+                href={`/wc/${year}/?continent=${encodeURIComponent(continent)}#teams`}
               >
                 🌍 {continent}
               </a>

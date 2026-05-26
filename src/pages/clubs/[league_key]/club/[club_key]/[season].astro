@@ -598,7 +598,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "クラブ", href: "/clubs" },
+    { label: "クラブ", href: "/clubs/" },
     { label: leagueLabel, href: leagueTopPath },
     { label: clubLabel, href: clubTopPath },
     { label: season },
@@ -990,7 +990,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
               : "指定されたクラブのデータがありません。"}
         </p>
         <div class="empty-actions">
-          <a class="btn" href="/clubs">
+          <a class="btn" href="/clubs/">
             クラブ一覧へ戻る
           </a>
         </div>

@@ -71,7 +71,7 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
   bodyClass="page-club"
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "クラブ", href: "/clubs" },
+    { label: "クラブ", href: "/clubs/" },
     { label: "クラブのあゆみ" },
   ]}
 >
@@ -93,7 +93,7 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
           const titles = toNum(c.league_titles_all_time);
           const note = (c.notes ?? "").trim();
           return (
-            <a class="card" href={`/clubs/history/${c.club_key}`}>
+            <a class="card" href={`/clubs/history/${c.club_key}/`}>
               <div class="top">
                 <div class="name">{c.club_name_ja}</div>
                 <div class="badges">
@@ -121,7 +121,7 @@ const tier2 = items.filter((r) => toTier(r.display_tier) === 2);
           const titles = toNum(c.league_titles_all_time);
           const note = (c.notes ?? "").trim();
           return (
-            <a class="card" href={`/clubs/history/${c.club_key}`}>
+            <a class="card" href={`/clubs/history/${c.club_key}/`}>
               <div class="top">
                 <div class="name">{c.club_name_ja}</div>
                 <div class="badges">

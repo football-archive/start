@@ -39,7 +39,7 @@ const seasons = getUclSeasons()
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "UEFACL", href: "/ucl" },
+    { label: "UEFACL", href: "/ucl/" },
     { label: season },
   ]}
   heading=""
@@ -62,7 +62,7 @@ const seasons = getUclSeasons()
         seasons.map((s) => (
           <a
             class={`pill ${s === season ? "is-active" : ""}`}
-            href={`/ucl/${encodeURIComponent(s)}`}
+            href={`/ucl/${encodeURIComponent(s)}/`}
           >
             <span class="dot" aria-hidden="true" />
             {s}
@@ -70,7 +70,7 @@ const seasons = getUclSeasons()
         ))
       }
 
-      <a class="pill" href="/ucl">
+      <a class="pill" href="/ucl/">
         <span class="dot" aria-hidden="true"></span>シーズン一覧
       </a>
     </div>

@@ -211,7 +211,7 @@ const latestNtLegendsUpdate = (() => {
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
-    { label: "代表", href: "/#jp" },
+    { label: "代表", href: "/nt/" },
     { label: "強豪国のW杯あゆみ" },
   ]}
   heading={heading}
@@ -253,7 +253,7 @@ const latestNtLegendsUpdate = (() => {
             <a
               class="rank-row"
               role="row"
-              href={`/nt/${encodeURIComponent(it.slug)}/wc`}
+              href={`/nt/${encodeURIComponent(it.slug)}/wc/`}
             >
               <div class="c-rank" role="cell">
                 {idx + 1}
@@ -283,7 +283,7 @@ const latestNtLegendsUpdate = (() => {
         <h2 class="sec-title">歴史的強豪国（{tier1.length}）</h2>
         <section class="grid" aria-label="歴史的強豪国 一覧">
           {tier1.map((it) => (
-            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc`}>
+            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc/`}>
               <div class="top">
                 <div class="name">{it.label}代表</div>
                 <div class="badges">
@@ -313,7 +313,7 @@ const latestNtLegendsUpdate = (() => {
         <h2 class="sec-title">強豪に迫る実力国（{tier2.length}）</h2>
         <section class="grid" aria-label="強豪に迫る実力国 一覧">
           {tier2.map((it) => (
-            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc`}>
+            <a class="card" href={`/nt/${encodeURIComponent(it.slug)}/wc/`}>
               <div class="top">
                 <div class="name">{it.label}代表</div>
                 <div class="badges">
