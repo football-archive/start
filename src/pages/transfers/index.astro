@@ -4,22 +4,56 @@ import { loadTransfers } from "../../lib/transfers";
 
 const all = loadTransfers();
 
-const seasons = Array.from(
-  new Set(all.map((x) => String(x.season || "").trim()).filter(Boolean)),
-).sort((a, b) => b.localeCompare(a));
+type TransferPeriod = {
+  season: string;
+  window: string;
+  href: string;
+  label: string;
+  count: number;
+};
 
-const windows = Array.from(
-  new Set(all.map((x) => String(x.window || "").trim()).filter(Boolean)),
-);
+const windowRank = (window: string) => {
+  const w = String(window ?? "").trim().toLowerCase();
+  if (w === "winter") return 2;
+  if (w === "summer") return 1;
+  return 0;
+};
 
-const latestSeason = seasons[0] ?? "2025-26";
+const windowLabel = (window: string) => {
+  const w = String(window ?? "").trim().toLowerCase();
+  if (w === "winter") return "冬";
+  if (w === "summer") return "夏";
+  return w || "不明";
+};
 
-const latestWindow = windows.includes("winter")
-  ? "winter"
-  : (windows[0] ?? "winter");
+const periodMap = new Map<string, TransferPeriod>();
 
-const latestHref =
-  `/transfers/${latestSeason}/${latestWindow}/`;
+for (const row of all) {
+  const season = String(row.season ?? "").trim();
+  const window = String(row.window ?? "").trim().toLowerCase();
+  if (!season || !window) continue;
+
+  const key = `${season}__${window}`;
+
+  if (!periodMap.has(key)) {
+    periodMap.set(key, {
+      season,
+      window,
+      href: `/transfers/${season}/${window}/`,
+      label: `${season} ${windowLabel(window)}`,
+      count: 0,
+    });
+  }
+
+  periodMap.get(key)!.count += 1;
+}
+
+const periods = Array.from(periodMap.values()).sort((a, b) => {
+  if (a.season !== b.season) return b.season.localeCompare(a.season);
+  return windowRank(b.window) - windowRank(a.window);
+});
+
+const latest = periods[0] ?? null;
 ---
 
 <BaseLayout
@@ -31,17 +65,37 @@ const latestHref =
     { label: "移籍" },
   ]}
 >
+  <h1>海外サッカー移籍情報</h1>
 
-<h1>海外サッカー移籍情報</h1>
+  <p>
+    海外サッカーの主要移籍情報を、シーズン・移籍市場ごとに整理しています。
+  </p>
 
-<p>
-  最新の移籍一覧はこちら。
-</p>
+  {
+    latest ? (
+      <p>
+        <a href={latest.href}>
+          最新：{latest.label} 移籍一覧へ
+        </a>
+      </p>
+    ) : (
+      <p>移籍情報は準備中です。</p>
+    )
+  }
 
-<p>
-  <a href={latestHref}>
-    {latestSeason} {latestWindow === "winter" ? "冬" : "夏"} 移籍一覧へ
-  </a>
-</p>
-
+  {
+    periods.length > 0 && (
+      <>
+        <h2>掲載シーズン</h2>
+        <ul>
+          {periods.map((p) => (
+            <li>
+              <a href={p.href}>{p.label}</a>
+              <span>（{p.count}件）</span>
+            </li>
+          ))}
+        </ul>
+      </>
+    )
+  }
 </BaseLayout>
