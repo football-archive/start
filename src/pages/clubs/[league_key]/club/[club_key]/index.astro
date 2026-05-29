@@ -157,17 +157,11 @@ const splitLines = (v: string) =>
 const getUefaClass = (v: string) => {
   const text = String(v ?? "").trim();
 
-  if (
-    text.startsWith("ECL") ||
-    text.startsWith("UEFAインタートト")
-  ) {
+  if (text.startsWith("ECL") || text.startsWith("UEFAインタートト")) {
     return "uefa-ecl";
   }
 
-  if (
-    text.startsWith("EL") ||
-    text.startsWith("UEFAカップ")
-  ) {
+  if (text.startsWith("EL") || text.startsWith("UEFAカップ")) {
     return "uefa-el";
   }
 
@@ -178,8 +172,8 @@ const getUefaClass = (v: string) => {
   return "";
 };
 
-const title = `${clubName}｜クラブポータルページ`;
-const description = `${clubName}のシーズン別成績と掲載スカッドをまとめたクラブ別ポータルページです。`;
+const title = `${clubName} 歴代メンバー・シーズン別成績｜監督・順位・欧州成績｜海外サッカーDB`;
+const description = `${clubName}の歴代メンバー、シーズン別のリーグ順位、監督、国内カップ・欧州カップ成績を一覧で確認できるクラブ別データベースページです。`;
 ---
 
 <BaseLayout
@@ -195,12 +189,12 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
   ]}
 >
   <main style="padding:16px">
-    <h1>{clubName}｜クラブポータルページ</h1>
+    <h1>{clubName} 歴代メンバー・シーズン別成績｜監督・順位・欧州成績</h1>
 
     <p class="lead">
       {
         clubName
-      }のシーズン別の国内リーグ戦、国内・欧州カップ戦成績に加え、歴代監督や掲載スカッドをまとめたクラブ別ポータルページです。
+      }の歴代メンバー、シーズン別のリーグ順位、監督、国内カップ・欧州カップ成績をまとめたクラブ別データベースです。掲載シーズンごとのスカッド一覧にも移動できます。
     </p>
 
     <p class="page-update">
@@ -228,7 +222,7 @@ const description = `${clubName}のシーズン別成績と掲載スカッドを
       }
     </section>
 
-    <h2 class="sec">シーズン別データ</h2>
+    <h2 class="sec">{clubName}のシーズン別成績・歴代監督・歴代メンバー</h2>
 
     <p class="tableHint">
       横にスクロールして、歴代シーズンの成績・監督・メンバー一覧を確認できます。

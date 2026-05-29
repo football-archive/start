@@ -138,8 +138,28 @@ const clubText = (r, which) =>
   which === "from"
     ? r.from_club_display_ja || "—"
     : r.to_club_display_ja || "—";
-const clubHref = (r, which) =>
-  which === "from" ? r.from_club_href || "" : r.to_club_href || "";
+
+const hasClubSeasonPage = (href: string) => {
+  if (!href) return false;
+
+  // 現状投入済 season を定義
+  const availableSeasons = new Set([
+    "2025-26",
+    // 必要に応じて追加
+  ]);
+
+  return availableSeasons.has(season);
+};
+
+
+const clubHref = (r, which) => {
+  const href =
+    which === "from"
+      ? r.from_club_href || ""
+      : r.to_club_href || "";
+
+  return hasClubSeasonPage(href) ? href : "";
+};
 
 // 表示用日付（ISOがあればそれ、なければ raw）
 const dateText = (r) => {

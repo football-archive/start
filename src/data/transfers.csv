@@ -1,8 +1,9 @@
 ﻿season,window,date,player_name,from_club_key,to_club_key,move_type,note,importance
-2026-27,summer,2026/5/27,山本理仁,シントトロイデン,SCフライブルク,transfer,,A
-2026-27,summer,2026/5/27,ソリー・マーチ,ブライトン,未定,transfer,退団,B
-2026-27,summer,2026/5/23,長田澪,ブレーメン,SCフライブルク,transfer,,B
-2026-27,summer,2026/5/23,ダヴィド・アラバ,レアル・マドリード,未定,transfer,退団,B
+2026-27,summer,2026/5/28,カスパー・シュマイケル,celtic,-,retired,,B
+2026-27,summer,2026/5/27,山本理仁,シントトロイデン,freiburg,transfer,,B
+2026-27,summer,2026/5/27,ソリー・マーチ,brighton,未定,released,退団,B
+2026-27,summer,2026/5/23,長田澪,werder-bremen,freiburg,transfer,,B
+2026-27,summer,2026/5/23,ダヴィド・アラバ,real-madrid,未定,released,退団,B
 2025-26,winter,2026/1/20,塩貝健人,nec,wolfsburg,transfer,,A
 2025-26,winter,2026/2/2,ブライアン・グルダ,brighton,rb-leipzig,loan,,B
 2025-26,winter,2026/1/28,ラヒーム・スターリング,chelsea,,released,退団,B
