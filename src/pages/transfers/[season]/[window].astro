@@ -124,7 +124,7 @@ const moveLabel = (t) => {
   if (s === "loan") return "レンタル";
   if (s === "free") return "フリー";
   if (s === "retired") return "引退";
-  if (s === "release") return "契約解除";
+  if (s === "release") return "退団";
   if (s === "return_loan") return "復帰";
   return s || "—";
 };
@@ -390,9 +390,9 @@ const dateText = (r) => {
             <tr>
               <th class="mono">移籍日</th>
               <th>選手</th>
+              <th>種別</th>
               <th>from</th>
               <th>to</th>
-              <th>種別</th>
               <th>備考</th>
             </tr>
           </thead>
@@ -401,6 +401,8 @@ const dateText = (r) => {
               <tr>
                 <td class="mono">{dateText(r)}</td>
                 <td>{r.player_name}</td>
+
+                <td class="type">{moveLabel(r.move_type)}</td>
 
                 <td>
                   {clubHref(r, "from") ? (
@@ -422,7 +424,6 @@ const dateText = (r) => {
                   )}
                 </td>
 
-                <td class="type">{moveLabel(r.move_type)}</td>
                 <td class="note">{r.note}</td>
               </tr>
             ))}
