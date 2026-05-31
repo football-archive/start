@@ -4,6 +4,15 @@ import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../../lib/ucl";
 import { loadClubMaster } from "../../lib/clubMaster";
 import { clubUrl } from "../../lib/urls";
 
+import {
+  loadCompetitionSchedule,
+  filterMatches,
+  mdNum,
+} from "../../lib/competitionSchedule";
+import { getCompetitionSummary } from "../../lib/competitionSummary";
+import { getCompetitionPlayerStats } from "../../lib/competitionPlayerStats";
+import MatchScheduleTable from "../../components/MatchScheduleTable.astro";
+
 // ✅ 静的生成
 export function getStaticPaths() {
   const seasons = getUclSeasons().map((s) => String(s).trim());
@@ -13,8 +22,54 @@ export function getStaticPaths() {
 const season = String(Astro.params.season ?? "").trim();
 
 const rows = loadUclLeaguePhaseBySeason(season);
+
 const clubMaster = loadClubMaster();
 const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
+
+const summary = getCompetitionSummary("UCL", season);
+
+const allMatches = loadCompetitionSchedule();
+const knockoutMatches = filterMatches(allMatches, "UCL", season).sort(
+  (a: any, b: any) => mdNum(a.md) - mdNum(b.md),
+);
+
+const goalRank = getCompetitionPlayerStats("UCL", season, "goals");
+const assistRank = getCompetitionPlayerStats("UCL", season, "assists");
+const topScorer = goalRank[0] ?? null;
+const topAssist = assistRank[0] ?? null;
+
+const leagueNames = Array.from(
+  new Set(
+    rows
+      .map((r: any) => {
+        const c = clubMap.get(String(r.club_key));
+        return String(c?.league_display_ja || c?.league_key || "").trim();
+      })
+      .filter(Boolean),
+  ),
+).sort();
+
+const clubHrefByKey = (clubKey: string) => {
+  const c: any = clubMap.get(String(clubKey));
+  if (!c) return "";
+  return clubUrl({
+    leagueKey: String(c.league_key),
+    clubKey,
+    season: season as any,
+  });
+};
+
+const clubDisplay = (clubKey: string, fallback = "") => {
+  const c: any = clubMap.get(String(clubKey));
+  return (
+    c?.club_display_ja ||
+    c?.name_ja ||
+    c?.club_name_en ||
+    fallback ||
+    clubKey ||
+    "—"
+  );
+};
 
 const fmt = (v: any) => ((v ?? v === 0) ? String(v) : "—");
 
@@ -22,13 +77,30 @@ const updated = rows[0]?.updated_at
   ? String(rows[0].updated_at).replaceAll("-", "/")
   : "—";
 
-const title = `UEFA CL（UEFAチャンピオンズリーグ） ${season}｜リーグフェーズ最終順位表`;
+const title = `UEFAチャンピオンズリーグ ${season}｜出場クラブ・順位表・日程結果・得点ランキング｜海外サッカーDB`;
 
 // under-title に “シーズンピル” を出す
 const seasons = getUclSeasons()
   .map((s) => String(s).trim())
   .sort()
   .reverse();
+
+const statusKey = (qualified: string) => {
+  const q = String(qualified ?? "")
+    .trim()
+    .toUpperCase();
+  if (q === "KP") return "kp";
+  if (q === "PO") return "po";
+  if (q.includes("敗退")) return "out";
+  return "other";
+};
+
+const statusLabel = (key: string) => {
+  if (key === "kp") return "KP";
+  if (key === "po") return "PO";
+  if (key === "out") return "敗退";
+  return "その他";
+};
 ---
 
 <BaseLayout
@@ -45,13 +117,13 @@ const seasons = getUclSeasons()
   heading=""
 >
   <h1 class="page-title">
-    UEFAチャンピオンズリーグ {season} 順位表・リーグフェーズ
+    UEFAチャンピオンズリーグ {season} 大会ポータル
   </h1>
 
   <p class="lead">
     UEFAチャンピオンズリーグ（CL）{
       season
-    }シーズンのリーグフェーズ順位表です。各クラブの勝点・得失点差・順位に加え、決勝トーナメント進出ラインも確認できます。
+    }シーズンの出場クラブ、リーグフェーズ順位表、決勝トーナメント日程・結果、得点・アシストランキングをまとめた大会ポータルページです。
   </p>
 
   <div class="pill-block">
@@ -76,64 +148,329 @@ const seasons = getUclSeasons()
     </div>
   </div>
 
-  <div class="ucl-meta">
-    <span>クラブ数：{rows.length}</span>
-    <span>更新：{updated}</span>
-  </div>
+  <section id="summary" class="summaryBox">
+    <h2>🏆 大会サマリー</h2>
 
-  <div class="table-wrap">
-    <table>
-      <thead>
-        <tr>
-          <th>#</th>
-          <th style="text-align:center;">クラブ</th>
-          <th>試</th><th>勝</th><th>分</th><th>敗</th>
-          <th>得</th><th>失</th><th>差</th><th>点</th>
-          <th>枠</th>
-        </tr>
-      </thead>
-      <tbody>
+    <div class="summaryGrid">
+      <div>
+        <span>形式</span>
+        <b
+          >{
+            summary?.format_type === "league_phase"
+              ? "リーグフェーズ(LP) ⇒ ノックアウトフェーズ(KP)"
+              : summary?.format_type || "—"
+          }</b
+        >
+      </div>
+
+      <div>
+        <span>優勝</span>
+        <b>
+          {
+            summary?.champion_club_key ? (
+              <a href={clubHrefByKey(summary.champion_club_key)}>
+                {clubDisplay(summary.champion_club_key)}
+              </a>
+            ) : (
+              "未定"
+            )
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>準優勝</span>
+        <b>
+          {
+            summary?.runner_up_club_key ? (
+              <a href={clubHrefByKey(summary.runner_up_club_key)}>
+                {clubDisplay(summary.runner_up_club_key)}
+              </a>
+            ) : (
+              "未定"
+            )
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>得点王</span>
+        <b>
+          {
+            topScorer
+              ? `${topScorer.player_name} (${topScorer.team_name_ja})`
+              : "—"
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>アシスト王</span>
+        <b>
+          {
+            topAssist
+              ? `${topAssist.player_name} (${topAssist.team_name_ja})`
+              : "—"
+          }
+        </b>
+      </div>
+    </div>
+  </section>
+
+  <section id="clubs">
+    <h2>⚽ リーグフェーズ(LP) 出場クラブ一覧</h2>
+
+    <div class="filter-line">
+      <div class="filter-label">👉 所属リーグで絞り込み</div>
+      <div class="pills" id="ucl-league-pills">
+        <button class="pill clear is-active" type="button" data-league="">
+          <span class="dot"></span>全て
+        </button>
         {
-          rows.map((r: any) => {
-            const href =
-              r.club_key && clubMap.get(String(r.club_key))
-                ? clubUrl({
-                    leagueKey: String(
-                      clubMap.get(String(r.club_key)).league_key,
-                    ),
-                    clubKey: String(r.club_key),
-                    season: season as any,
-                  })
-                : "";
-            return (
-              <tr>
-                <td>{fmt(r.rank)}</td>
-                <td class="left">
-                  {href ? (
-                    <a href={href}>{r.club_name_raw ?? r.club_key}</a>
-                  ) : (
-                    (r.club_name_raw ?? "—")
-                  )}
-                </td>
-                <td>{fmt(r.played)}</td>
-                <td>{fmt(r.won)}</td>
-                <td>{fmt(r.draw)}</td>
-                <td>{fmt(r.lost)}</td>
-                <td>{fmt(r.gf)}</td>
-                <td>{fmt(r.ga)}</td>
-                <td>{fmt(r.gd)}</td>
-                <td>{fmt(r.pts)}</td>
-                <td>
-                  <span class="pill small">{fmt(r.qualified)}</span>
-                </td>
-              </tr>
-            );
-          })
+          leagueNames.map((name) => (
+            <button class="pill" type="button" data-league={name}>
+              <span class="dot" />
+              {name}
+            </button>
+          ))
         }
-      </tbody>
-    </table>
-  </div>
-  <p class="note">※ 上位クラブはラウンド16（R16）へ進出</p>
+      </div>
+    </div>
+    <div class="filter-line">
+      <div class="filter-label">👉 状態</div>
+      <div class="pills" id="ucl-status-pills">
+        <button class="pill clear is-active" type="button" data-status="">
+          <span class="dot"></span>全て
+        </button>
+        <button class="pill" type="button" data-status="kp">
+          <span class="dot"></span>KP
+        </button>
+        <button class="pill" type="button" data-status="po">
+          <span class="dot"></span>PO
+        </button>
+        <button class="pill" type="button" data-status="out">
+          <span class="dot"></span>敗退
+        </button>
+      </div>
+    </div>
+
+    <div class="team-grid" id="ucl-club-grid">
+      {
+        rows.map((r: any) => {
+          const clubKey = String(r.club_key ?? "").trim();
+          const c: any = clubMap.get(clubKey);
+          const league = String(
+            c?.league_display_ja || c?.league_key || "",
+          ).trim();
+          const href = clubKey ? clubHrefByKey(clubKey) : "";
+          const name = r.club_name_raw || clubDisplay(clubKey);
+          const status = statusKey(String(r.qualified ?? ""));
+          const inner = (
+            <>
+              <div class="row1">
+                <div class="name">{name}</div>
+              </div>
+              <div class="meta">
+                <span class="badge">{league || "—"}</span>
+                <span class="badge">LP {r.rank}位</span>
+                <span class={`badge status-${status}`}>
+                  {r.qualified || "—"}
+                </span>
+              </div>
+            </>
+          );
+
+          return href ? (
+            <a
+              class="team-card"
+              data-ucl-club-card
+              data-league={league}
+              data-status={status}
+              href={href}
+            >
+              {inner}
+            </a>
+          ) : (
+            <div
+              class="team-card is-disabled"
+              data-ucl-club-card
+              data-league={league}
+              data-status={status}
+            >
+              {inner}
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section id="league-phase">
+    <h2>📊 リーグフェーズ(LP)順位表</h2>
+    <div class="ucl-meta">
+      <span>クラブ数：{rows.length}</span>
+      <span>更新：{updated}</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th style="text-align:center;">クラブ</th>
+            <th>試</th><th>勝</th><th>分</th><th>敗</th>
+            <th>得</th><th>失</th><th>差</th><th>点</th>
+            <th>枠</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((r: any) => {
+              const href =
+                r.club_key && clubMap.get(String(r.club_key))
+                  ? clubUrl({
+                      leagueKey: String(
+                        clubMap.get(String(r.club_key)).league_key,
+                      ),
+                      clubKey: String(r.club_key),
+                      season: season as any,
+                    })
+                  : "";
+              return (
+                <tr>
+                  <td>{fmt(r.rank)}</td>
+                  <td class="left">
+                    {href ? (
+                      <a href={href}>{r.club_name_raw ?? r.club_key}</a>
+                    ) : (
+                      (r.club_name_raw ?? "—")
+                    )}
+                  </td>
+                  <td>{fmt(r.played)}</td>
+                  <td>{fmt(r.won)}</td>
+                  <td>{fmt(r.draw)}</td>
+                  <td>{fmt(r.lost)}</td>
+                  <td>{fmt(r.gf)}</td>
+                  <td>{fmt(r.ga)}</td>
+                  <td>{fmt(r.gd)}</td>
+                  <td>{fmt(r.pts)}</td>
+                  <td>
+                    <span class="pill small">{fmt(r.qualified)}</span>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      ※ 上位8クラブはラウンド16へ。9～24位の16クラブはKOフェーズ進出をかけてPO
+    </p>
+  </section>
+
+  <section id="schedule">
+    <h2>🏟 ノックアウトフェーズ(KP) 日程・結果</h2>
+    <MatchScheduleTable
+      matches={knockoutMatches}
+      heading={`UCL ${season} 決勝トーナメント`}
+    />
+  </section>
+
+  <section id="rankings">
+    <h2>🥇 得点・アシストランキング</h2>
+
+    <div class="rank-grid">
+      <div class="rank-card">
+        <h3>得点ランキング</h3>
+        {
+          goalRank.length === 0 ? (
+            <p class="note">データ準備中です。</p>
+          ) : (
+            <table class="rank">
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>選手</th>
+                  <th>クラブ</th>
+                  <th class="num">得点</th>
+                </tr>
+              </thead>
+              <tbody>
+                {goalRank.map((r: any) => (
+                  <tr>
+                    <td>{r.rank}</td>
+                    <td>{r.player_name}</td>
+                    <td>
+                      {(() => {
+                        const teamKey = String(r.team_key ?? "").trim();
+                        const href = teamKey ? clubHrefByKey(teamKey) : "";
+                        const label = r.team_name_ja || clubDisplay(teamKey);
+
+                        return href ? (
+                          <a href={href}>{label}</a>
+                        ) : (
+                          <span>{label}</span>
+                        );
+                      })()}
+                    </td>
+                    <td class="num">
+                      <b>{r.goals || "—"}</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+      </div>
+
+      <div class="rank-card">
+        <h3>アシストランキング</h3>
+        {
+          assistRank.length === 0 ? (
+            <p class="note">データ準備中です。</p>
+          ) : (
+            <table class="rank">
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>選手</th>
+                  <th>クラブ</th>
+                  <th class="num">アシスト</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assistRank.map((r: any) => (
+                  <tr>
+                    <td>{r.rank}</td>
+                    <td>{r.player_name}</td>
+                    <td>
+                      {(() => {
+                        const teamKey = String(r.team_key ?? "").trim();
+                        const href = teamKey ? clubHrefByKey(teamKey) : "";
+                        const label = r.team_name_ja || clubDisplay(teamKey);
+
+                        return href ? (
+                          <a href={href}>{label}</a>
+                        ) : (
+                          <span>{label}</span>
+                        );
+                      })()}
+                    </td>
+                    <td class="num">
+                      <b>{r.assists || "—"}</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
   <style is:global>
     /* ===== UCL theme（ニュートラル寄り） ===== */
     .page-ucl .ucl-top {
@@ -310,5 +647,182 @@ const seasons = getUclSeasons()
       font-size: 12.5px;
       color: #666;
     }
+
+    .page-ucl .summaryBox {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid
+        color-mix(in srgb, var(--color-ucl, #0f3b82) 45%, #dbeafe);
+      border-left: 6px solid var(--color-ucl, #0f3b82);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--color-ucl, #0f3b82) 7%, white);
+    }
+
+    .page-ucl .summaryGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .page-ucl .summaryGrid div {
+      padding: 10px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+    }
+
+    .page-ucl .summaryGrid span {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .page-ucl .summaryGrid b {
+      font-size: 14px;
+    }
+
+    .page-ucl .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .page-ucl .team-card {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+      text-decoration: none;
+    }
+
+    .page-ucl .team-card:hover {
+      background: #eef6fd;
+    }
+
+    .page-ucl .team-card.is-disabled {
+      opacity: 0.75;
+    }
+
+    .page-ucl .team-card .name {
+      font-weight: 800;
+    }
+
+    .page-ucl .team-card .meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .page-ucl .badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #e6e6e6;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    .page-ucl .rank-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .page-ucl .rank-card {
+      padding: 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ucl table.rank {
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-ucl table.rank th,
+    .page-ucl table.rank td {
+      border-top: 1px solid #e6e6e6;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .page-ucl table.rank .num {
+      text-align: right;
+    }
+
+    .page-ucl .badge.status-kp {
+      background: #dcfce7;
+      border-color: #bbf7d0;
+      color: #166534;
+      font-weight: 700;
+    }
+
+    .page-ucl .badge.status-po {
+      background: #fef3c7;
+      border-color: #fde68a;
+      color: #92400e;
+      font-weight: 700;
+    }
+
+    .page-ucl .badge.status-out {
+      background: #fee2e2;
+      border-color: #fecaca;
+      color: #991b1b;
+      font-weight: 700;
+    }
   </style>
+
+  <script is:inline>
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const leaguePills = $$("#ucl-league-pills [data-league]");
+      const statusPills = $$("#ucl-status-pills [data-status]");
+      const cards = $$("[data-ucl-club-card]");
+
+      let currentLeague = "";
+      let currentStatus = "";
+
+      function applyFilter() {
+        cards.forEach((card) => {
+          const league = card.getAttribute("data-league") || "";
+          const status = card.getAttribute("data-status") || "";
+
+          const okLeague = !currentLeague || league === currentLeague;
+          const okStatus = !currentStatus || status === currentStatus;
+
+          card.style.display = okLeague && okStatus ? "" : "none";
+        });
+      }
+
+      leaguePills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          currentLeague = pill.getAttribute("data-league") || "";
+          leaguePills.forEach((p) =>
+            p.classList.toggle("is-active", p === pill),
+          );
+          applyFilter();
+        });
+      });
+
+      statusPills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          currentStatus = pill.getAttribute("data-status") || "";
+          statusPills.forEach((p) =>
+            p.classList.toggle("is-active", p === pill),
+          );
+          applyFilter();
+        });
+      });
+    });
+  </script>
 </BaseLayout>
