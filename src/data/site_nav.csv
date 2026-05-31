@@ -18,7 +18,7 @@ nt-archive,nt,2,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true,90
 nt-teams,nt,2,代表国一覧,/nt/,false,95
 transfers,clubs,2,🔁移籍情報,/transfers/,true,201
 clubs,,1,👕欧州主要リーグ・クラブ,/clubs/,true,200
-club-leagues,clubs,2,▼リーグ一覧,/clubs/,true,202
+club-leagues,clubs,2,▼リーグ一覧,/clubs/,true,203
 club-premier,club-leagues,3,▼プレミアリーグ,/clubs/premier-league/,true,210
 club-premier-arsenal,club-leagues-club,4,→ アーセナル,/clubs/premier-league/club/arsenal/,true,211
 club-premier-manC,club-leagues-club,4,→ マンチェスターC,/clubs/premier-league/club/manchester-city/,true,212
@@ -42,6 +42,7 @@ club-eredivisie,club-leagues,3,▼エールディヴィジ,/clubs/eredivisie/,tr
 club-primeira-liga,club-leagues,3,▼プリメイラ,/clubs/primeira-liga/,true,270
 club-scottish-premiership,club-leagues,3,▼スコティッシュ,/clubs/scottish-premiership/,true,280
 club-history,clubs,2,📓歴代強豪クラブ アーカイブ,/clubs/history/,true,290
-ucl,,1,👑CL,/ucl/,true,300
-ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,310
+ucl,,1,👑UEFAチャンピオンズリーグ,/ucl/,true,190
+ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,191
+ucl-seasons-latest,ucl-seasons,3,2025-26,/ucl/2025-26/,true,191
 about,,1,サイト情報,/about/,true,900

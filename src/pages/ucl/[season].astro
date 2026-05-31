@@ -341,7 +341,9 @@ const statusLabel = (key: string) => {
                   <td>{fmt(r.rank)}</td>
                   <td class="left">
                     {href ? (
-                      <a href={href}>{r.club_name_raw ?? r.club_key}</a>
+                      <a class="club-link" href={href}>
+                        {r.club_name_raw ?? r.club_key}
+                      </a>
                     ) : (
                       (r.club_name_raw ?? "—")
                     )}
@@ -408,7 +410,9 @@ const statusLabel = (key: string) => {
                         const label = r.team_name_ja || clubDisplay(teamKey);
 
                         return href ? (
-                          <a href={href}>{label}</a>
+                          <a class="club-link" href={href}>
+                            {label}
+                          </a>
                         ) : (
                           <span>{label}</span>
                         );
@@ -452,7 +456,9 @@ const statusLabel = (key: string) => {
                         const label = r.team_name_ja || clubDisplay(teamKey);
 
                         return href ? (
-                          <a href={href}>{label}</a>
+                          <a class="club-link" href={href}>
+                            {label}
+                          </a>
                         ) : (
                           <span>{label}</span>
                         );
@@ -778,6 +784,20 @@ const statusLabel = (key: string) => {
       border-color: #fecaca;
       color: #991b1b;
       font-weight: 700;
+    }
+
+    .page-ucl .summaryGrid a {
+      color: #2f855a;
+      font-weight: 700;
+    }
+
+    .page-ucl .summaryGrid a:hover {
+      color: #2f855a;
+    }
+
+    .page-ucl .club-link {
+      color: #2f855a;
+      font-weight: 600;
     }
   </style>
 
