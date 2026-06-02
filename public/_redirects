@@ -1,5 +1,11 @@
+/clubs/:league/club/:club?season=2025-26
+/clubs/:league/club/:club/?season=2025-26
+/clubs/:league/club/:club/ season=:season window=:window  /clubs/:league/club/:club/:season/?window=:window  301!
+/clubs/:league/club/:club season=:season window=:window  /clubs/:league/club/:club/:season/?window=:window  301!
 /clubs/:league/club/:club/ season=:season  /clubs/:league/club/:club/:season/  301!
 /clubs/:league/club/:club season=:season  /clubs/:league/club/:club/:season/  301!
+/wc/:year/team/:team  /wc/:year/team/:team/  301!
+/wc/:year  /wc/:year/  301!
 
 https://world-football-archive.netlify.app/*  https://worldfootballarchive.com/:splat  301!
 /sitemap.xml  /sitemap-index.xml  301!

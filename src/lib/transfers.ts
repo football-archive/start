@@ -29,7 +29,8 @@ export type TransferEvent = {
   date_iso: string;
 
   /** 表示名（正規化済み：trim・NBSP除去・連続空白圧縮） */
-  player_name: string;
+  kind: "player" | "coach" | string;
+  name: string;
 
   /** キー優先。club_masterに無ければその文字列を表示に使う想定 */
   from_club_key: string;
@@ -223,7 +224,8 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
     const date_raw = normalizeText(r.date ?? "");
     const date_iso = normalizeDateToISO(date_raw);
 
-    const player_name = normalizeText(r.player_name ?? "");
+    const kind = normalizeText(r.kind ?? "");
+    const name = normalizeText(r.name ?? "");
     const from_club_key = normalizeText(r.from_club_key ?? "");
     const to_club_key = normalizeText(r.to_club_key ?? "");
 
@@ -236,7 +238,7 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
     if (windowFilter && window.toLowerCase() !== windowFilter) continue;
 
     // 最低限：名前が無い行は落とす（事故防止）
-    if (!player_name) continue;
+    if (!kind || !name) continue;
 
     const fromRes = resolveClubDisplay(from_club_key, clubIndex, season);
     const toRes = resolveClubDisplay(to_club_key, clubIndex, season);
@@ -248,7 +250,8 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
       date_raw,
       date_iso,
 
-      player_name,
+      kind,
+      name,
       from_club_key,
       to_club_key,
 
@@ -287,7 +290,7 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
     const db = b.date_iso || "0000-00-00";
     if (da !== db) return db.localeCompare(da);
 
-    return a.player_name.localeCompare(b.player_name, "en");
+    return a.name.localeCompare(b.name, "en");
   });
 }
 

@@ -104,6 +104,8 @@ const pageTitle = `海外サッカー移籍情報 ${season} ${windowLabel(window
 
 // 絞り込み
 const rows = loadTransfers({ season, window });
+const playerRows = rows.filter((r) => r.kind === "player");
+const coachRows = rows.filter((r) => r.kind === "coach");
 
 // 更新日（表示用）
 const maxIso = (list) => {
@@ -126,6 +128,9 @@ const moveLabel = (t) => {
   if (s === "retired") return "引退";
   if (s === "release") return "退団";
   if (s === "return_loan") return "復帰";
+  if (s === "coach_in") return "就任";
+  if (s === "coach_out") return "退任";
+  if (s === "coach_change") return "監督交代";
   return s || "—";
 };
 
@@ -151,12 +156,8 @@ const hasClubSeasonPage = (href: string) => {
   return availableSeasons.has(season);
 };
 
-
 const clubHref = (r, which) => {
-  const href =
-    which === "from"
-      ? r.from_club_href || ""
-      : r.to_club_href || "";
+  const href = which === "from" ? r.from_club_href || "" : r.to_club_href || "";
 
   return hasClubSeasonPage(href) ? href : "";
 };
@@ -171,8 +172,9 @@ const dateText = (r) => {
 ---
 
 <BaseLayout
-  title={`海外サッカー移籍情報 ${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window} 移籍一覧｜海外サッカーDB`}
-  description={`${season}シーズン${window === "winter" ? "冬" : window === "summer" ? "夏" : window}の海外サッカー主要移籍一覧です。移籍日、選手名、移籍元クラブ、移籍先クラブ、移籍種別を確認できます。`}
+  title={`海外サッカー移籍情報 ${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window} 移籍一覧｜主要リーグ移籍・監督交代まとめ`}
+  description={`${season}シーズン${window === "winter" ? "冬" : window === "summer" ? "夏" : window}の移籍・監督交代情報を一覧で掲載しています。
+主要リーグの移籍市場で発表された選手加入・退団、監督就任・退任を日付順に整理しており、各クラブページから最新スカッドや過去シーズン情報も確認できます。`}
   bodyClass="page-club page-transfer"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
@@ -190,14 +192,17 @@ const dateText = (r) => {
   <p class="transfer-lead">
     {season}シーズン{
       windowLabel(window)
-    }の海外サッカー移籍一覧です。主要な移籍・注目移籍を厳選し、各選手の移籍日、移籍元クラブ、移籍先クラブ、移籍・レンタルなどの種別を一覧で確認できます。
+    }の移籍・監督交代情報を一覧で掲載しています。</br>
+主要リーグの移籍市場で発表された選手加入・退団、監督就任・退任を日付順に整理しており、各クラブページから最新スカッドや過去シーズン情報も確認できます。
   </p>
 
   <div class="toprow">
     <div class="meta">
       更新：<span class="date-red">{updatedJa}</span>
       <span class="sep">/</span>
-      件数：{rows.length}
+      選手移籍：{playerRows.length}件
+      <span class="sep">/</span>
+      監督交代：{coachRows.length}件
     </div>
   </div>
 
@@ -367,6 +372,11 @@ const dateText = (r) => {
       background: #f3f4f6;
       color: #777;
     }
+
+    .page-transfer .section-title {
+      margin: 22px 0 10px;
+      font-size: 20px;
+    }
   </style>
 
   {
@@ -397,11 +407,65 @@ const dateText = (r) => {
             </tr>
           </thead>
           <tbody>
-            {rows.map((r) => (
+            {playerRows.map((r) => (
               <tr>
                 <td class="mono">{dateText(r)}</td>
-                <td>{r.player_name}</td>
+                <td>{r.name}</td>
 
+                <td class="type">{moveLabel(r.move_type)}</td>
+
+                <td>
+                  {clubHref(r, "from") ? (
+                    <a class="link" href={clubHref(r, "from")}>
+                      {clubText(r, "from")}
+                    </a>
+                  ) : (
+                    clubText(r, "from")
+                  )}
+                </td>
+
+                <td>
+                  {clubHref(r, "to") ? (
+                    <a class="link" href={clubHref(r, "to")}>
+                      {clubText(r, "to")}
+                    </a>
+                  ) : (
+                    clubText(r, "to") || "—"
+                  )}
+                </td>
+
+                <td class="note">{r.note}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    )
+  }
+
+  <h2 class="section-title">監督交代一覧</h2>
+
+  {
+    coachRows.length === 0 ? (
+      <p class="empty">監督交代データはありません。</p>
+    ) : (
+      <div class="table-wrap roster-block">
+        <table>
+          <thead>
+            <tr>
+              <th class="mono">日付</th>
+              <th>監督</th>
+              <th>種別</th>
+              <th>from</th>
+              <th>to</th>
+              <th>備考</th>
+            </tr>
+          </thead>
+          <tbody>
+            {coachRows.map((r) => (
+              <tr>
+                <td class="mono">{dateText(r)}</td>
+                <td>{r.name}</td>
                 <td class="type">{moveLabel(r.move_type)}</td>
 
                 <td>
