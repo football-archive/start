@@ -1,17 +1,89 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import SiteHeader from "../components/SiteHeader.astro";
 ---
 
-<BaseLayout title="お問い合わせ">
-  <h1>お問い合わせ</h1>
+<BaseLayout
+  title="お問い合わせ｜World Football Archive"
+  description="World Football Archiveへのお問い合わせはこちらからお願いいたします。"
+>
+  <SiteHeader
+    crumbs={[
+      { label: "トップ", href: "/" },
+      { label: "お問い合わせ", href: "/contact" },
+    ]}
+  />
 
-  <p>ご質問・ご要望などは以下のフォームよりご連絡ください。</p>
+  <main class="contact">
+    <h1>⚽ お問い合わせ ⚽</h1>
 
-  <iframe
-    src="https://docs.google.com/forms/d/e/1FAIpQLScAD57stIR3KLqf4gIDVzz15dTurqwyR7XmjhFjwlPsewvSHQ/viewform?embedded=true"
-    width="100%"
-    height="900"
-    frameborder="0"
-  >
-  </iframe>
+    <p class="lead">World Football Archiveへのお問い合わせ窓口です。</p>
+
+    <p>
+      World Football Archiveに関するご質問、ご要望、
+      掲載内容の修正依頼などがございましたら、以下のフォームよりご連絡ください。
+    </p>
+
+    <p>
+      内容を確認のうえ、必要に応じて対応させていただきます。
+    </p>
+
+    <div class="form-wrap">
+      <iframe
+        src="https://docs.google.com/forms/d/e/1FAIpQLScAD57stIR3KLqf4gIDVzz15dTurqwyR7XmjhFjwlPsewvSHQ/viewform?embedded=true"
+        width="100%"
+        height="900"
+        frameborder="0"
+      >
+      </iframe>
+    </div>
+  </main>
+
+  <style>
+    .contact {
+      max-width: 860px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+      line-height: 1.85;
+    }
+
+    .contact h1 {
+      font-size: 28px;
+      margin: 10px 0 14px;
+      letter-spacing: 0.2px;
+    }
+
+    .contact p {
+      margin: 10px 0;
+      font-size: 15px;
+    }
+
+    .contact .lead {
+      color: #666;
+      font-size: 16px;
+    }
+
+    .form-wrap {
+      margin-top: 18px;
+      border: 1px solid #e5e5e5;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #fff;
+    }
+
+    .form-wrap iframe {
+      display: block;
+      border: 0;
+    }
+
+    @media (max-width: 600px) {
+      .contact {
+        padding: 14px 12px 48px;
+      }
+
+      .contact h1 {
+        font-size: 24px;
+      }
+    }
+  </style>
 </BaseLayout>

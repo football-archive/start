@@ -3,19 +3,24 @@
 2026-27,summer,coach,2026/5/30,アルネ・スロット,liverpool,未定,coach_out,,B
 2026-27,summer,coach,2026/6/1,セバスチャン・ポコニョーリ,monaco,未定,coach_out,,B
 2026-27,summer,coach,2026/5/22,ジョゼップ・グアルディオラ,manchester-city,未定,coach_out,,B
-2026-27,summer,coach,2026/5/17,シャビ・アロンソ,monaco,chelsea,coach_in,,B
+2026-27,summer,coach,2026/5/17,シャビ・アロンソ,-,chelsea,coach_in,2026.01マドリー解任,B
+2026-27,summer,player,2026/6/3,デンゼル・ダンフリース,inter,real-madrid,transfer,※正式発表待ち,B
+2026-27,summer,player,2026/6/3,ドゥシャン・ヴラホヴィッチ,juventus,未定,release,,B
+2026-27,summer,player,2026/6/3,エデルソン,atalanta,manchester-united,transfer,,B
+2026-27,summer,player,2026/6/3,ラスムス・ホイルンド,manchester-united,napoli,transfer,完全移籍 ⇐ レンタル,B
 2026-27,summer,player,2026/6/1,ジェームズ・ミルナー,brighton,-,retired,,B
-2026-27,summer,player,2026/6/1,イブラヒマ・コナテ,liverpool,未定,free,,B
+2026-27,summer,player,2026/6/1,イブラヒマ・コナテ,liverpool,未定,free,※ペレス再任ならマドリー加入,B
 2026-27,summer,player,2026/5/30,キーラン・トリッピアー,newcastle-united,wolves,free,,B
 2026-27,summer,player,2026/5/30,マルコス・セネシ,bournemouth,tottenham-hotspur,free,,B
 2026-27,summer,player,2026/5/30,ニコラス・オタメンディ,porto,リーベルプレート,transfer,,B
 2026-27,summer,player,2026/5/30,アダム・ウェブスター,brighton,未定,release,,B
-2026-27,summer,player,2026/5/29,アンソニー・ゴードン,newcastle-united,barcelona,transfer,移籍金：8000万€超,B
+2026-27,summer,player,2026/5/29,アンソニー・ゴードン,newcastle-united,barcelona,transfer,※移籍金：8000万€超,B
 2026-27,summer,player,2026/5/28,カスパー・シュマイケル,celtic,-,retired,,B
 2026-27,summer,player,2026/5/27,山本理仁,シントトロイデン,freiburg,transfer,,B
 2026-27,summer,player,2026/5/27,ソリー・マーチ,brighton,未定,release,,B
 2026-27,summer,player,2026/5/23,長田澪,werder-bremen,freiburg,transfer,,B
 2026-27,summer,player,2026/5/23,ダヴィド・アラバ,real-madrid,未定,release,,B
+2026-27,summer,player,2026/5/17,アントワーヌ・グリーズマン,atletico-madrid,オークランド・シティ,transfer,,B
 2025-26,winter,player,2026/1/20,塩貝健人,nec,wolfsburg,transfer,,A
 2025-26,winter,player,2026/2/2,ブライアン・グルダ,brighton,rb-leipzig,loan,,B
 2025-26,winter,player,2026/1/28,ラヒーム・スターリング,chelsea,,release,,B
