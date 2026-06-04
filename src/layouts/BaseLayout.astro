@@ -14,6 +14,8 @@ type Props = {
   crumbs?: Crumb[];
   heading?: string;
   showTitleBarPageTitle?: boolean;
+
+  robots?: string; // ←追加
 };
 
 const {
@@ -25,6 +27,8 @@ const {
   crumbs = [],
   heading,
   showTitleBarPageTitle = true,
+
+  robots = "index,follow", // ←追加
 } = Astro.props as Props;
 
 const hasUnderTitle = Astro.slots.has("under-title");
@@ -425,7 +429,7 @@ const isProd = import.meta.env.PROD;
 
     {/* ✅ 基本メタ */}
     <meta name="description" content={metaDescription} />
-    <meta name="robots" content="index,follow" />
+    <meta name="robots" content={robots} />
     <meta name="referrer" content="strict-origin-when-cross-origin" />
 
     {/* ✅ Search Console */}

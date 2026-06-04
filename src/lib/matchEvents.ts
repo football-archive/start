@@ -20,6 +20,39 @@ export type MatchEvent = {
 export type GoalRankRow = { player: string; team: string; goals: number };
 export type AssistRankRow = { player: string; team: string; assists: number };
 
+export function getMatchGoalEvents(
+  competition: string,
+  edition: string,
+  matchId: string,
+): MatchEvent[] {
+  return loadMatchEvents()
+    .filter((e) => {
+      if (norm(e.competition) !== competition) return false;
+      if (norm(e.edition) !== edition) return false;
+      if (norm(e.match_id) !== matchId) return false;
+      if (isShootout(e)) return false;
+      if (!isMatchDetailScoringEvent(e)) return false;
+      return true;
+    })
+    .sort((a, b) => {
+      const ma = Number(a.minute ?? 0);
+      const mb = Number(b.minute ?? 0);
+      if (ma !== mb) return ma - mb;
+
+      const ea = Number(a.event_id ?? 0);
+      const eb = Number(b.event_id ?? 0);
+      return ea - eb;
+    });
+}
+
+export function hasMatchGoalEvents(
+  competition: string,
+  edition: string,
+  matchId: string,
+): boolean {
+  return getMatchGoalEvents(competition, edition, matchId).length > 0;
+}
+
 const norm = (v: unknown) => String(v ?? "").trim();
 const upper = (v: unknown) => norm(v).toUpperCase();
 
@@ -33,6 +66,11 @@ function isShootout(e: MatchEvent) {
 function isGoalEvent(e: MatchEvent) {
   const t = upper(e.event_type);
   return t === "GOAL" || t === "PK";
+}
+
+function isMatchDetailScoringEvent(e: MatchEvent) {
+  const t = upper(e.event_type);
+  return t === "GOAL" || t === "PK" || t === "OWN_GOAL";
 }
 
 export function loadMatchEvents(): MatchEvent[] {

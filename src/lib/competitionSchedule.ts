@@ -4,6 +4,7 @@ import { parseCsv } from "./csvSimple";
 
 export type MatchRow = {
   matchId: string;
+  slug: string;
   competition: string;
   edition: string;
   md: string;
@@ -12,12 +13,16 @@ export type MatchRow = {
   sec: string;
   datetimeLocal: string;
   home: string;
+  homeKey: string;
   away: string;
+  awayKey: string;
   stadium: string;
   homeScore: string; // 空あり
   awayScore: string; // 空あり
   homeScorePk: string; // 空あり
   awayScorePk: string; // 空あり
+  mom: string;
+  momTeam: string;
   note: string; // 空あり
   updatedAt: string; // "2026/2/11" など
 };
@@ -29,6 +34,7 @@ export function loadCompetitionSchedule(): MatchRow[] {
 
   return rows.map((r) => ({
     matchId: norm(r["match-id"]),
+    slug: norm(r["slug"]),
     competition: norm(r["competition"]),
     edition: norm(r["edition"]),
     md: norm(r["md"]),
@@ -37,12 +43,16 @@ export function loadCompetitionSchedule(): MatchRow[] {
     sec: norm(r["sec"]),
     datetimeLocal: norm(r["datetime-local"]),
     home: norm(r["home"]),
+    homeKey: norm(r["home_key"]),
     away: norm(r["away"]),
+    awayKey: norm(r["away_key"]),
     stadium: norm(r["stadium"]),
     homeScore: norm(r["home_score"]),
     awayScore: norm(r["away_score"]),
     homeScorePk: norm(r["home_score_pk"]),
     awayScorePk: norm(r["away_score_pk"]),
+    mom: norm(r["mom"]),
+    momTeam: norm(r["mom_team"]),
     note: norm(r["note"]),
     updatedAt: norm(r["updated_at"]),
   }));

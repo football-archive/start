@@ -1,0 +1,406 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import {
+  loadCompetitionSchedule,
+  filterMatches,
+  formatScore,
+} from "../../../../lib/competitionSchedule";
+import { getMatchGoalEvents } from "../../../../lib/matchEvents";
+import { tournamentTopUrl } from "../../../../lib/urls";
+
+export async function getStaticPaths() {
+  const all = loadCompetitionSchedule();
+
+  return all
+    .filter((m) => m.competition === "WC")
+    .filter((m) => String((m as any).slug ?? "").trim())
+    .map((m) => ({
+      params: {
+        year: String(m.edition),
+        slug: String((m as any).slug),
+      },
+    }));
+}
+
+const year = String(Astro.params.year ?? "").trim();
+const slug = String(Astro.params.slug ?? "").trim();
+
+const matches = filterMatches(loadCompetitionSchedule(), "WC", year);
+const match = matches.find(
+  (m) => String((m as any).slug ?? "").trim() === slug,
+);
+
+if (!match) {
+  return Astro.redirect(`/wc/${year}/`);
+}
+
+const events = getMatchGoalEvents("WC", year, match.matchId);
+
+const wcTitle = `FIFAワールドカップ${year}`;
+const score = formatScore(match);
+const pageTitle = `${match.home} vs ${match.away}｜${wcTitle} 試合詳細`;
+const pageDesc = `${wcTitle} ${match.home} vs ${match.away} の試合結果・得点者・アシストを掲載しています。`;
+
+const topHref = tournamentTopUrl({ tournament: "wc", year });
+
+const homeEvents = events.filter((e) => e.team === match.home);
+const awayEvents = events.filter((e) => e.team === match.away);
+
+const eventTime = (e: any) => {
+  const minute = String(e.minute ?? "").trim();
+  return minute ? `${minute}'` : "";
+};
+
+const eventLabel = (e: any) => {
+  const note = String(e.note ?? "").trim();
+  const type = String(e.event_type ?? "").trim();
+
+  if (note) return note;
+  if (type === "PK") return "PK";
+  if (type === "OWN_GOAL") return "OG";
+  return "";
+};
+
+const isScorelessDraw =
+  match.homeScore === "0" &&
+  match.awayScore === "0";
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDesc}
+  bodyClass="page-wc"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  robots="noindex,follow"
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: wcTitle, href: topHref },
+    { label: "試合詳細" },
+  ]}
+  heading={pageTitle}
+>
+  <main class="match-detail">
+    <p class="back-link">
+      <a href={`${topHref}#schedule`}>← {wcTitle} 日程・結果に戻る</a>
+    </p>
+
+    <section class="score-card">
+      <p class="meta">
+        {match.stage}
+        {match.group ? `｜Group ${match.group}` : ""}
+        {match.datetimeLocal ? `｜${match.datetimeLocal}` : ""}
+      </p>
+
+      <div class="score-main">
+        <div class="team home">{match.home}</div>
+        <div class="score">
+          {match.homeScore}-{match.awayScore}
+
+          {
+            match.homeScorePk || match.awayScorePk ? (
+              <div class="pk-score">
+                (PK {match.homeScorePk}-{match.awayScorePk})
+              </div>
+            ) : null
+          }
+        </div>
+        <div class="team away">{match.away}</div>
+      </div>
+
+      <p class="venue">
+        {match.stadium ? `会場：${match.stadium}` : ""}
+      </p>
+    </section>
+
+    {
+      match.mom && (
+        <section class="extra-section">
+          <h2>試合メモ</h2>
+
+          <div class="extra-card">
+            <div class="extra-label">🏅 MOM</div>
+            <div class="extra-main">
+              <strong>{match.mom}</strong>
+              {match.momTeam ? (
+                <span>
+                  （
+                  {match.momTeam === match.homeKey
+                    ? match.home
+                    : match.momTeam === match.awayKey
+                      ? match.away
+                      : match.momTeam}
+                  ）
+                </span>
+              ) : null}
+            </div>
+          </div>
+        </section>
+      )
+    }
+
+    <section class="goals-section">
+      <h2>得点者</h2>
+
+      {
+        events.length === 0 ? (
+          isScorelessDraw ? (
+            <div class="goal-grid">
+              <div class="goal-side">
+                <h3>{match.home}</h3>
+                <p class="muted">得点なし</p>
+              </div>
+
+              <div class="goal-side">
+                <h3>{match.away}</h3>
+                <p class="muted">得点なし</p>
+              </div>
+            </div>
+          ) : (
+            <p class="muted">得点データは準備中です。</p>
+          )
+        ) : (
+          <div class="goal-grid">
+            <div class="goal-side">
+              <h3>{match.home}</h3>
+              {homeEvents.length === 0 ? (
+                <p class="muted">得点なし</p>
+              ) : (
+                <ul class="goal-list">
+                  {homeEvents.map((e) => (
+                    <li>
+                      <span class="minute">{eventTime(e)}</span>
+                      <span class="ball">⚽</span>
+                      <span class="player">{e.player}</span>
+                      {eventLabel(e) ? (
+                        <span class="note">（{eventLabel(e)}）</span>
+                      ) : null}
+                      <div class="assist">
+                        🎯 アシスト：{e.assist ? e.assist : "—"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            <div class="goal-side">
+              <h3>{match.away}</h3>
+              {awayEvents.length === 0 ? (
+                <p class="muted">得点なし</p>
+              ) : (
+                <ul class="goal-list">
+                  {awayEvents.map((e) => (
+                    <li>
+                      <span class="minute">{eventTime(e)}</span>
+                      <span class="ball">⚽</span>
+                      <span class="player">{e.player}</span>
+                      {eventLabel(e) ? (
+                        <span class="note">（{eventLabel(e)}）</span>
+                      ) : null}
+                      <div class="assist">
+                        🎯 アシスト：{e.assist ? e.assist : "—"}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )
+      }
+    </section>
+  </main>
+
+  <style>
+    .match-detail {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 18px 14px 60px;
+      line-height: 1.75;
+    }
+
+    .back-link {
+      margin: 0 0 14px;
+      font-size: 14px;
+    }
+
+    .back-link a {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 700;
+    }
+
+    .score-card {
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 16px;
+      background: #fff;
+      padding: 18px 16px;
+      margin-bottom: 22px;
+    }
+
+    .score-card .meta,
+    .score-card .venue {
+      margin: 0;
+      color: var(--muted, #666);
+      font-size: 13px;
+      text-align: center;
+    }
+
+    .extra-section {
+      margin: 18px 0 22px;
+    }
+
+    .extra-section h2 {
+      color: var(--theme-color);
+      margin: 0 0 10px;
+    }
+
+    .extra-card {
+      border: 1px solid #d6a400;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #fffdf0, #fff7cc);
+      padding: 14px 16px;
+    }
+
+    .extra-label {
+      color: var(--muted, #666);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .extra-main {
+      font-size: 16px;
+    }
+
+    .score-main {
+      display: grid;
+      grid-template-columns: 1fr 110px 1fr;
+      align-items: center;
+      gap: 12px;
+      margin: 14px 0;
+    }
+
+    .score-main .team {
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .score-main .home {
+      text-align: right;
+    }
+
+    .score-main .away {
+      text-align: left;
+    }
+
+    .score-main .score {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--theme-color);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .pk-score {
+      font-size: 0.8em;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .goals-section h2 {
+      color: var(--theme-color);
+      margin: 24px 0 12px;
+    }
+
+    .goal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .goal-side {
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+      padding: 14px;
+    }
+
+    .goal-side h3 {
+      margin: 0 0 10px;
+      color: var(--theme-color);
+      font-size: 17px;
+    }
+
+    .goal-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .goal-list li {
+      padding: 10px 0;
+      border-top: 1px solid var(--border, #e6e6e6);
+    }
+
+    .goal-list li:first-child {
+      border-top: none;
+    }
+
+    .minute {
+      display: inline-block;
+      min-width: 42px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .ball {
+      margin-right: 4px;
+    }
+
+    .player {
+      font-weight: 800;
+    }
+
+    .note {
+      color: var(--muted, #666);
+      font-size: 13px;
+    }
+
+    .assist {
+      margin-top: 4px;
+      padding-left: 46px;
+      color: var(--muted, #666);
+      font-size: 13px;
+    }
+
+    .muted {
+      color: var(--muted, #666);
+      font-size: 14px;
+      margin: 8px 0;
+    }
+
+    @media (max-width: 700px) {
+      .score-main {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .score-main .home,
+      .score-main .away,
+      .score-main .score {
+        text-align: center;
+      }
+
+      .score-main .team {
+        font-size: 20px;
+      }
+
+      .goal-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</BaseLayout>

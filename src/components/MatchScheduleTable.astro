@@ -96,7 +96,22 @@ for (const m of matches) {
                 </td>
 
                 <td class="col-score">
-                  <b>{formatScore(m)}</b>
+                  {(() => {
+                    const score = formatScore(m);
+                    const slug = String((m as any).slug ?? "").trim();
+
+                    if (!slug || !isPlayed(m)) {
+                      return <b>{score}</b>;
+                    }
+
+                    const href = `/wc/${(m as any).edition}/matches/${slug}/`;
+
+                    return (
+                      <a class="match-link" href={href}>
+                        <b>{score}</b>
+                      </a>
+                    );
+                  })()}
                 </td>
 
                 <td class="col-st">{(m as any).stadium || "—"}</td>
@@ -173,6 +188,15 @@ for (const m of matches) {
   }
   .match-schedule .col-st {
     width: 240px;
+  }
+
+  .match-link {
+    color: var(--theme-color);
+    font-weight: 700;
+  }
+
+  .match-link:hover {
+    text-decoration: underline;
   }
 
   /* 対戦セル */
