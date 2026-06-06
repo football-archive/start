@@ -45,4 +45,5 @@ club-history,clubs,2,📓歴代強豪クラブ アーカイブ,/clubs/history/,t
 ucl,,1,👑UEFAチャンピオンズリーグ,/ucl/,true,190
 ucl-seasons,ucl,2,シーズン一覧,/ucl/,true,191
 ucl-seasons-latest,ucl-seasons,3,2025-26,/ucl/2025-26/,true,191
+ucl-seasons-past,ucl-seasons,3,2024-25,/ucl/2024-25/,true,192
 about,,1,サイト情報,/about/,true,900

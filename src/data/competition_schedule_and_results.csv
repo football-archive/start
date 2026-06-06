@@ -531,6 +531,50 @@ UCL-2025-26-R8-008,,UCL,2025-26,MD708,Quarter-Final,,準々決勝 2nd leg,2026-0
 UCL-2025-26-SF001,,UCL,2025-26,MD801,Semi-Final,,準決勝 1st leg,2026-04-29,パリSG,paris-saint-germain,バイエルン,bayern-munich,,5,4,,,,,,2026/05/31
 UCL-2025-26-SF002,,UCL,2025-26,MD802,Semi-Final,,準決勝 1st leg,2026-04-30,アトレティコ,atletico-madrid,アーセナル,arsenal,,1,1,,,,,,2026/05/31
 UCL-2025-26-SF003,,UCL,2025-26,MD803,Semi-Final,,準決勝 2nd leg,2026-05-06,アーセナル,arsenal,アトレティコ,atletico-madrid,,1,0,,,,,,2026/05/31
-UCL-2025-26-SF004,,UCL,2025-26,MD804,Semi-Final,,準決勝 2nd leg,2026-05-07,バイエルン,bayern-munich,パリSG,paris-saint-germain,,1,1,,,,,,2026/05/31
+UCL-2025-26-SF004,,UCL,2025-26,MD804,Semi-Final,,準決勝 2nd leg,2026-05-07,バイエルン,arsenal,パリSG,paris-saint-germain,,1,1,,,,,,2026/05/31
 UCL-2025-26-F001,,UCL,2025-26,MD900,Final,,決勝,2026-05-31,パリSG,paris-saint-germain,アーセナル,arsenal,プシュカーシュ・アレーナ,1,1,4,3,,,決勝,2026/05/31
-,,,,,,,,,,,,,,,,,,,,,
+UCL-2024-25-PO-001,,UCL,2024-25,MD501,KPプレーオフ,,KP-PO 1st leg,2025/2/12,ブレスト,brest,パリSG,paris-saint-germain,,0,3,,,,,,2025/05/31
+UCL-2024-25-PO-002,,UCL,2024-25,MD502,KPプレーオフ,,KP-PO 1st leg,2025/2/12,スポルティングCP,sporting,ドルトムント,borussia-dortmund,,0,3,,,,,,2025/05/31
+UCL-2024-25-PO-003,,UCL,2024-25,MD503,KPプレーオフ,,KP-PO 1st leg,2025/2/12,ユヴェントス,juventus,PSV,psv,,2,1,,,,,,2025/05/31
+UCL-2024-25-PO-004,,UCL,2024-25,MD504,KPプレーオフ,,KP-PO 1st leg,2025/2/12,マンC,manchester-city,Rマドリード,real-madrid,,2,3,,,,,,2025/05/31
+UCL-2024-25-PO-005,,UCL,2024-25,MD505,KPプレーオフ,,KP-PO 1st leg,2025/2/13,クラブ・ブルッヘ,club-brugge,アタランタ,atalanta,,2,1,,,,,,2025/05/31
+UCL-2024-25-PO-006,,UCL,2024-25,MD506,KPプレーオフ,,KP-PO 1st leg,2025/2/13,セルティック,celtic,バイエルン,bayern-munich,,1,2,,,,,,2025/05/31
+UCL-2024-25-PO-007,,UCL,2024-25,MD507,KPプレーオフ,,KP-PO 1st leg,2025/2/13,モナコ,monaco,ベンフィカ,benfica,,0,1,,,,,,2025/05/31
+UCL-2024-25-PO-008,,UCL,2024-25,MD508,KPプレーオフ,,KP-PO 1st leg,2025/2/13,フェイエノールト,feyenoord,ミラン,milan,,1,0,,,,,,2025/05/31
+UCL-2024-25-PO-009,,UCL,2024-25,MD509,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,ミラン,milan,フェイエノールト,feyenoord,,1,1,,,,,,2025/05/31
+UCL-2024-25-PO-010,,UCL,2024-25,MD510,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,ベンフィカ,benfica,モナコ,monaco,,3,3,,,,,,2025/05/31
+UCL-2024-25-PO-011,,UCL,2024-25,MD511,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,アタランタ,atalanta,クラブ・ブルッヘ,club-brugge,,1,3,,,,,,2025/05/31
+UCL-2024-25-PO-012,,UCL,2024-25,MD512,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,バイエルン,bayern-munich,セルティック,celtic,,1,1,,,,,,2025/05/31
+UCL-2024-25-PO-013,,UCL,2024-25,MD513,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,ドルトムント,borussia-dortmund,スポルティングCP,sporting,,0,0,,,,,,2025/05/31
+UCL-2024-25-PO-014,,UCL,2024-25,MD514,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,Rマドリード,real-madrid,マンC,manchester-city,,3,1,,,,,,2025/05/31
+UCL-2024-25-PO-015,,UCL,2024-25,MD515,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,パリSG,paris-saint-germain,ブレスト,brest,,7,0,,,,,,2025/05/31
+UCL-2024-25-PO-016,,UCL,2024-25,MD516,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,PSV,psv,ユヴェントス,juventus,,3,1,,,,,,2025/05/31
+UCL-2024-25-R16-001,,UCL,2024-25,MD601,Round 16,,Round16 1st leg,2025/3/5,クラブ・ブルッヘ,club-brugge,アストン・ビラ,aston-villa,,1,3,,,,,,2025/05/31
+UCL-2024-25-R16-002,,UCL,2024-25,MD602,Round 16,,Round16 1st leg,2025/3/5,Rマドリード,real-madrid,アトレティコ,atletico-madrid,,2,1,,,,,,2025/05/31
+UCL-2024-25-R16-003,,UCL,2024-25,MD603,Round 16,,Round16 1st leg,2025/3/5,PSV,psv,アーセナル,arsenal,,1,7,,,,,,2025/05/31
+UCL-2024-25-R16-004,,UCL,2024-25,MD604,Round 16,,Round16 1st leg,2025/3/5,ドルトムント,borussia-dortmund,リール,lille,,1,1,,,,,,2025/05/31
+UCL-2024-25-R16-005,,UCL,2024-25,MD605,Round 16,,Round16 1st leg,2025/3/6,フェイエノールト,feyenoord,インテル,inter,,0,2,,,,,,2025/05/31
+UCL-2024-25-R16-006,,UCL,2024-25,MD606,Round 16,,Round16 1st leg,2025/3/6,バイエルン,bayern-munich,レバークーゼン,bayer-leverkusen,,3,0,,,,,,2025/05/31
+UCL-2024-25-R16-007,,UCL,2024-25,MD607,Round 16,,Round16 1st leg,2025/3/6,ベンフィカ,benfica,バルセロナ,barcelona,,0,1,,,,,,2025/05/31
+UCL-2024-25-R16-008,,UCL,2024-25,MD608,Round 16,,Round16 1st leg,2025/3/6,パリSG,paris-saint-germain,リヴァプール,liverpool,,0,1,,,,,,2025/05/31
+UCL-2024-25-R16-009,,UCL,2024-25,MD609,Round 16,,Round16 2nd leg,2025/3/12,バルセロナ,barcelona,ベンフィカ,benfica,,3,1,,,,,,2025/05/31
+UCL-2024-25-R16-010,,UCL,2024-25,MD610,Round 16,,Round16 2nd leg,2025/3/12,インテル,inter,フェイエノールト,feyenoord,,2,1,,,,,,2025/05/31
+UCL-2024-25-R16-011,,UCL,2024-25,MD611,Round 16,,Round16 2nd leg,2025/3/12,リヴァプール,liverpool,パリSG,paris-saint-germain,,0,1,,,,,,2025/05/31
+UCL-2024-25-R16-012,,UCL,2024-25,MD612,Round 16,,Round16 2nd leg,2025/3/12,レバークーゼン,bayer-leverkusen,バイエルン,bayern-munich,,0,2,,,,,,2025/05/31
+UCL-2024-25-R16-013,,UCL,2024-25,MD613,Round 16,,Round16 2nd leg,2025/3/13,リール,lille,ドルトムント,borussia-dortmund,,1,2,,,,,,2025/05/31
+UCL-2024-25-R16-014,,UCL,2024-25,MD614,Round 16,,Round16 2nd leg,2025/3/13,アストン・ビラ,aston-villa,クラブ・ブルッヘ,club-brugge,,3,0,,,,,,2025/05/31
+UCL-2024-25-R16-015,,UCL,2024-25,MD615,Round 16,,Round16 2nd leg,2025/3/13,アーセナル,arsenal,PSV,psv,,2,2,,,,,,2025/05/31
+UCL-2024-25-R16-016,,UCL,2024-25,MD616,Round 16,,Round16 2nd leg,2025/3/13,アトレティコ,atletico-madrid,Rマドリード,real-madrid,,1,0,2,4,,,,2025/05/31
+UCL-2024-25-R8-001,,UCL,2024-25,MD701,Quarter-Final,,準々決勝 1st leg,2025/4/9,バイエルン,bayern-munich,インテル,inter,,1,2,,,,,,2025/05/31
+UCL-2024-25-R8-002,,UCL,2024-25,MD702,Quarter-Final,,準々決勝 1st leg,2025/4/9,アーセナル,arsenal,Rマドリード,real-madrid,,3,0,,,,,,2025/05/31
+UCL-2024-25-R8-003,,UCL,2024-25,MD703,Quarter-Final,,準々決勝 1st leg,2025/4/10,バルセロナ,barcelona,ドルトムント,borussia-dortmund,,4,0,,,,,,2025/05/31
+UCL-2024-25-R8-004,,UCL,2024-25,MD704,Quarter-Final,,準々決勝 1st leg,2025/4/10,パリSG,paris-saint-germain,アストン・ビラ,aston-villa,,3,1,,,,,,2025/05/31
+UCL-2024-25-R8-005,,UCL,2024-25,MD705,Quarter-Final,,準々決勝 2nd leg,2025/4/16,アストン・ビラ,aston-villa,パリSG,paris-saint-germain,,3,2,,,,,,2025/05/31
+UCL-2024-25-R8-006,,UCL,2024-25,MD706,Quarter-Final,,準々決勝 2nd leg,2025/4/16,ドルトムント,borussia-dortmund,バルセロナ,barcelona,,3,1,,,,,,2025/05/31
+UCL-2024-25-R8-007,,UCL,2024-25,MD707,Quarter-Final,,準々決勝 2nd leg,2025/4/17,Rマドリード,real-madrid,アーセナル,arsenal,,1,2,,,,,,2025/05/31
+UCL-2024-25-R8-008,,UCL,2024-25,MD708,Quarter-Final,,準々決勝 2nd leg,2025/4/17,インテル,inter,バイエルン,bayern-munich,,2,2,,,,,,2025/05/31
+UCL-2024-25-SF001,,UCL,2024-25,MD801,Semi-Final,,準決勝 1st leg,2025/4/30,アーセナル,arsenal,パリSG,paris-saint-germain,,0,1,,,,,,2025/05/31
+UCL-2024-25-SF002,,UCL,2024-25,MD802,Semi-Final,,準決勝 1st leg,2025/5/1,バルセロナ,barcelona,インテル,inter,,3,3,,,,,,2025/05/31
+UCL-2024-25-SF003,,UCL,2024-25,MD803,Semi-Final,,準決勝 2nd leg,2025/5/7,インテル,inter,バルセロナ,barcelona,,4,3,,,,,,2025/05/31
+UCL-2024-25-SF004,,UCL,2024-25,MD804,Semi-Final,,準決勝 2nd leg,2025/5/8,パリSG,paris-saint-germain,アーセナル,arsenal,,2,1,,,,,,2025/05/31
+UCL-2024-25-F001,,UCL,2024-25,MD900,Final,,決勝,2025/6/1,パリSG,paris-saint-germain,インテル,inter,アリアンツ アレーナ,5,0,,,,,,2025/05/31
