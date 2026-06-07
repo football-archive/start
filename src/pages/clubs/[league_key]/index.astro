@@ -378,7 +378,7 @@ const leaguePills = [...publicLeagueKeys]
   .map((lk) => ({
     league_key: lk,
     label: String(leagueByKey.get(lk)?.league_display_ja ?? lk),
-    href: `/clubs/${lk}`,
+    href: `/clubs/${lk}/`,
   }));
 
 const leagueName =

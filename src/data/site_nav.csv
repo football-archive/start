@@ -28,7 +28,7 @@ club-premier-chelsea,club-leagues-club,4,→ チェルシー,/clubs/premier-leag
 club-premier-tottenham,club-leagues-club,4,→ トッテナム,/clubs/premier-league/club/tottenham-hotspur/,true,216
 club-laliga,club-leagues,3,▼ラ・リーガ,/clubs/laliga/,true,220
 club-laliga-real-madrid,club-leagues-club,4,→ レアル・マドリード,/clubs/laliga/club/real-madrid/,true,221
-club-laliga-barcelona,club-leagues-club,4,→ バルセロナ,/clubs/laliga/club/barcelona,true,222
+club-laliga-barcelona,club-leagues-club,4,→ バルセロナ,/clubs/laliga/club/barcelona/,true,222
 club-laliga-atletico,club-leagues-club,4,→ アトレティコ,/clubs/laliga/club/atletico-madrid/,true,223
 club-seriea,club-leagues,3,▼セリエA,/clubs/serie-a/,true,230
 club-seriea-milan,club-leagues-club,4,→ ACミラン,/clubs/serie-a/club/milan/,true,231
