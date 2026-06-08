@@ -1,9 +1,12 @@
 ﻿season,window,kind,date,name,from_club_key,to_club_key,move_type,note,importance
+2026-27,summer,coach,2026/6/8,ロビン・ファン・ペルシ,feyenoord,未定,coach_out,解任,A
 2026-27,summer,coach,2026/6/5,アンドニ・イラオラ,bournemouth,liverpool,coach_in,,A
 2026-27,summer,coach,2026/5/30,アルネ・スロット,liverpool,未定,coach_out,,B
 2026-27,summer,coach,2026/6/1,セバスチャン・ポコニョーリ,monaco,未定,coach_out,,B
 2026-27,summer,coach,2026/5/22,ジョゼップ・グアルディオラ,manchester-city,未定,coach_out,,B
 2026-27,summer,coach,2026/5/17,シャビ・アロンソ,-,chelsea,coach_in,2026.01マドリー解任,B
+2026-27,summer,player,2026/6/8,ディヴォック・オリギ,-,-,retired,2025.12ミラン契約解除,B
+2026-27,summer,player,2026/6/8,田中聡,フォルトゥナ・デュッセルドルフ,schalke,transfer,正式発表待ち,A
 2026-27,summer,player,2026/6/6,アンドリュー・ロバートソン,liverpool,tottenham-hotspur,free,,B
 2026-27,summer,player,2026/6/3,デンゼル・ダンフリース,inter,real-madrid,transfer,※正式発表待ち / 約2000万ユーロ（約37億円）,B
 2026-27,summer,player,2026/6/3,ドゥシャン・ヴラホヴィッチ,juventus,未定,release,,B
