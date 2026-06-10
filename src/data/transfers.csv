@@ -1,13 +1,17 @@
 ﻿season,window,kind,date,name,from_club_key,to_club_key,move_type,note,importance
+2026-27,summer,coach,2026/6/10,ジョゼ・モウリーニョ,benfica,real-madrid,coach_in,正式発表待ち,A
+2026-27,summer,coach,2026/6/9,ラファエレ・パッラディーノ,atalanta,未定,coach_out,,A
 2026-27,summer,coach,2026/6/9,ピエール・サージュ,rc-lens,crystal-palace,coach_in,基本合意,A
-2026-27,summer,coach,2026/6/2,オリバー・グラスナー,crystal-palace,未定,coach_out,,A
+2026-27,summer,coach,2026/6/10,オリバー・グラスナー,crystal-palace,milan,coach_in,6/10合意報道,A
 2026-27,summer,coach,2026/6/8,ロビン・ファン・ペルシ,feyenoord,未定,coach_out,解任,A
 2026-27,summer,coach,2026/6/5,アンドニ・イラオラ,bournemouth,liverpool,coach_in,,A
 2026-27,summer,coach,2026/5/30,アルネ・スロット,liverpool,未定,coach_out,,B
 2026-27,summer,coach,2026/6/1,セバスチャン・ポコニョーリ,monaco,未定,coach_out,,B
 2026-27,summer,coach,2026/5/22,ジョゼップ・グアルディオラ,manchester-city,未定,coach_out,,B
 2026-27,summer,coach,2026/5/17,シャビ・アロンソ,-,chelsea,coach_in,2026.01マドリー解任,B
-2026-27,summer,player,2026/6/9,ラウル・ヒメネス,fulham,未定,release,,A
+2026-27,summer,player,2026/6/10,ジェイドン・サンチョ,manchester-united,未定,release,,A
+2026-27,summer,player,2026/6/10,カゼミーロ,manchester-united,未定,release,,A
+2026-27,summer,player,2026/6/10,ラウル・ヒメネス,fulham,wolves,free,,A
 2026-27,summer,player,2026/6/8,ディヴォック・オリギ,-,-,retired,2025.12ミラン契約解除,A
 2026-27,summer,player,2026/6/8,田中聡,フォルトゥナ・デュッセルドルフ,schalke,transfer,正式発表待ち,A
 2026-27,summer,player,2026/6/6,アンドリュー・ロバートソン,liverpool,tottenham-hotspur,free,,B
@@ -16,7 +20,7 @@
 2026-27,summer,player,2026/6/5,エデルソン,atalanta,manchester-united,transfer,4500万€,B
 2026-27,summer,player,2026/6/3,ラスムス・ホイルンド,manchester-united,napoli,transfer,完全移籍 ⇐ レンタル,B
 2026-27,summer,player,2026/6/1,ジェームズ・ミルナー,brighton,-,retired,,B
-2026-27,summer,player,2026/6/1,イブラヒマ・コナテ,liverpool,未定,free,※ペレス再任でマドリー加入成立,B
+2026-27,summer,player,2026/6/1,イブラヒマ・コナテ,liverpool,未定,free,※ペレス再任→マドリー加入成立,B
 2026-27,summer,player,2026/6/9,キーラン・トリッピアー,newcastle-united,wolves,free,,A
 2026-27,summer,player,2026/5/30,マルコス・セネシ,bournemouth,tottenham-hotspur,free,,B
 2026-27,summer,player,2026/5/30,ニコラス・オタメンディ,porto,リーベルプレート,transfer,,B
