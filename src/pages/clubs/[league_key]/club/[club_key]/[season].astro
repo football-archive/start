@@ -2053,5 +2053,20 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         text-overflow: ellipsis;
       }
     }
+
+        .page-club .note-cell {
+      display: inline-block;
+      max-width: 110px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 640px) {
+      .page-club .note-cell {
+        max-width: 160px;
+      }
+    }
   </style>
 </BaseLayout>

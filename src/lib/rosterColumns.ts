@@ -429,7 +429,7 @@ export const buildClubColumns = ({
       render: (r) => {
         const v = String(r.notes ?? "").trim();
         if (!v) return "";
-        return `<span class="note-red">${esc(v)}</span>`;
+        return `<span class="note-cell"><span class="note-red">${esc(v)}</span></span>`;
       },
     },
 
@@ -654,7 +654,7 @@ export const buildNtColumns = ({
       render: (r) => {
         const v = String(r.notes ?? "").trim();
         if (!v) return "";
-        return `<span class="note-red">${esc(v)}</span>`;
+        return `<span class="note-cell"><span class="note-red">${esc(v)}</span></span>`;
       },
     },
 

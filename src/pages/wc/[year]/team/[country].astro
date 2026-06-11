@@ -2194,6 +2194,22 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
     }
 
+    /* ===== WC代表ページ：備考列の折り返し ===== */
+    .page-wc .note-cell {
+      display: inline-block;
+      max-width: 110px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    @media (max-width: 640px) {
+      .page-wc .note-cell {
+        max-width: 160px;
+      }
+    }
+
     .nt-roster-jump {
       margin: 10px 0 14px;
       font-size: 14px;
