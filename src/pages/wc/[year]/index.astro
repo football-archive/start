@@ -41,8 +41,17 @@ export async function getStaticPaths() {
 
 const year = String(Astro.params.year ?? "").trim();
 
-const teamCount = getEventTeamCount("WC", String(year));
-const showGARank = teamCount >= 20;
+/* ===== 現在大会判定 ===== */
+const ACTIVE_WC_YEAR = "2026";
+const isCurrentEdition = year === ACTIVE_WC_YEAR;
+
+/* ===== ランキング表示判定 ===== */
+const teamCount = getEventTeamCount("WC", year);
+
+const showGARank =
+  isCurrentEdition
+    ? teamCount >= 1
+    : teamCount >= 20;
 
 const goalRank = showGARank
   ? addRank(getGoalRanking("WC", String(year)), "goals")
@@ -180,8 +189,7 @@ const finalizedCountryMeta = Array.from(finalizedCountrySet)
 const finalizedCountries = finalizedCountryMeta.map((x) => x.country);
 
 const totalCountries = allCountries.length;
-const currentWcYear = "2026";
-const isCurrentEdition = String(year) === currentWcYear;
+
 
 const getFinalDate = (country: string) =>
   finalizedCountryMeta.find((x) => x.country === country)?.finalDate ?? "";
@@ -795,7 +803,7 @@ const pageDesc = isCurrentEdition
     }
 
     .group-standings {
-      min-width: 520px; /* これが重要：列が潰れない最低幅 */
+      min-width: 0; /* これが重要：列が潰れない最低幅 */
       border-collapse: collapse;
     }
 
@@ -969,6 +977,55 @@ const pageDesc = isCurrentEdition
         color-mix(in srgb, var(--theme-color) 35%, #999),
         transparent
       );
+    }
+
+    /* GL勝敗表：数字列を圧縮して「勝点」まで表示 */
+    .page-wc .mini-standings {
+      table-layout: fixed;
+      width: 100%;
+      font-size: 11px;
+    }
+
+    .page-wc .mini-standings th,
+    .page-wc .mini-standings td {
+      padding: 5px 2px;
+    }
+
+    .page-wc .mini-standings th:first-child,
+    .page-wc .mini-standings td:first-child {
+      width: 72px;
+      max-width: 72px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-wc .mini-standings th:not(:first-child),
+    .page-wc .mini-standings td:not(:first-child) {
+      width: 18px;
+      min-width: 18px;
+      max-width: 18px;
+      text-align: center;
+    }
+
+    /* GL勝敗表：国名を短くして、入りきらない場合は ... */
+    .page-wc .mini-standings th:first-child,
+    .page-wc .mini-standings td:first-child {
+      width: 48px;
+      max-width: 48px;
+      min-width: 48px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* aタグ/span側にも省略を効かせる */
+    .page-wc .mini-standings td:first-child a,
+    .page-wc .mini-standings td:first-child span {
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
   </style>
 
@@ -1397,11 +1454,7 @@ const pageDesc = isCurrentEdition
                     {it.is_placeholder ? (
                       <span class="placeholder">{it.name}</span>
                     ) : hasTeamPage(it.name) ? (
-                      <a
-                        href={teamHref(it.name)}
-                      >
-                        {it.name}
-                      </a>
+                      <a href={teamHref(it.name)}>{it.name}</a>
                     ) : (
                       <span>{it.name}</span>
                     )}
@@ -1449,7 +1502,9 @@ const pageDesc = isCurrentEdition
                                   String(r.country_name_ja ?? "").trim(),
                                 ) ? (
                                 <a
-                                  href={teamHref(String(r.country_name_ja ?? "").trim())}
+                                  href={teamHref(
+                                    String(r.country_name_ja ?? "").trim(),
+                                  )}
                                 >
                                   {r.country_name_ja}
                                 </a>
@@ -1522,11 +1577,7 @@ const pageDesc = isCurrentEdition
                         <td>{r.player}</td>
                         <td>
                           {hasTeamPage(r.team) ? (
-                            <a
-                              href={teamHref(r.team)}
-                            >
-                              {r.team}
-                            </a>
+                            <a href={teamHref(r.team)}>{r.team}</a>
                           ) : (
                             <span>{r.team}</span>
                           )}
@@ -1564,11 +1615,7 @@ const pageDesc = isCurrentEdition
                         <td>{r.player}</td>
                         <td>
                           {hasTeamPage(r.team) ? (
-                            <a
-                              href={teamHref(r.team)}
-                            >
-                              {r.team}
-                            </a>
+                            <a href={teamHref(r.team)}>{r.team}</a>
                           ) : (
                             <span>{r.team}</span>
                           )}
