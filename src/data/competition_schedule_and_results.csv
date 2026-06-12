@@ -1,6 +1,6 @@
 ﻿match-id,slug,competition,edition,md,stage,group,sec,datetime-local,home,home_key,away,away_key,stadium,home_score,away_score,home_score_pk,away_score_pk,mom,mom_team,note,updated_at
 WC-2026-MD001,mexico-vs-south-africa,WC,2026,MD001,Group-Phase,A,第１節,6/12(金)04:00,メキシコ,mexico,南アフリカ,south-africa,エスタディオ・アステカ・メキシコシティー,2,0,,,フリアン・キニョネス,メキシコ,,2026/6/12
-WC-2026-MD002,south-korea-vs-czechia,WC,2026,MD002,Group-Phase,A,第１節,6/12(金)11:00,韓国,south-korea,チェコ,czechia,エスタディオ・グアダラハラ,,,,,,,,2026/2/11
+WC-2026-MD002,south-korea-vs-czechia,WC,2026,MD002,Group-Phase,A,第１節,6/12(金)11:00,韓国,south-korea,チェコ,czechia,エスタディオ・グアダラハラ,2,1,,,黄仁範（ファン・インボム）,韓国,,2026/2/11
 WC-2026-MD003,canada-vs-bosnia-and-herzegovina,WC,2026,MD003,Group-Phase,B,第１節,6/13(土)04:00,カナダ,canada,ボスニア・ヘルツェゴビナ,bosnia-and-herzegovina,トロントスタジアム,,,,,,,,2026/2/11
 WC-2026-MD004,usa-vs-paraguay,WC,2026,MD004,Group-Phase,D,第１節,6/13(土)10:00,アメリカ,usa,パラグアイ,paraguay,ロサンゼルススタジアム,,,,,,,,2026/2/11
 WC-2026-MD005,qatar-vs-switzerland,WC,2026,MD005,Group-Phase,B,第１節,6/14(日)04:00,カタール,qatar,スイス,switzerland,サンフランシスコベイエリアスタジアム,,,,,,,,2026/2/11
