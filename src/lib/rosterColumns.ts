@@ -672,7 +672,10 @@ export const buildNtColumns = ({
       align: "center",
       html: true,
       show: showStats,
-      render: (r) => statNumberHtml(r.goals),
+      render: (r) =>
+        Number(r.goals ?? 0) > 0
+          ? `<span title="ゴール">⚽ </span>${statNumberHtml(r.goals)}`
+          : statNumberHtml(r.goals),
     },
     {
       key: "a",
@@ -680,7 +683,10 @@ export const buildNtColumns = ({
       align: "center",
       html: true,
       show: showStats,
-      render: (r) => statNumberHtml(r.assists),
+      render: (r) =>
+        Number(r.assists ?? 0) > 0
+          ? `<span title="アシスト">🎯 </span>${statNumberHtml(r.assists)}`
+          : statNumberHtml(r.assists),
     },
   ];
 };

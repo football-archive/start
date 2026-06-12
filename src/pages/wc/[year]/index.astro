@@ -48,10 +48,7 @@ const isCurrentEdition = year === ACTIVE_WC_YEAR;
 /* ===== ランキング表示判定 ===== */
 const teamCount = getEventTeamCount("WC", year);
 
-const showGARank =
-  isCurrentEdition
-    ? teamCount >= 1
-    : teamCount >= 20;
+const showGARank = isCurrentEdition ? teamCount >= 1 : teamCount >= 20;
 
 const goalRank = showGARank
   ? addRank(getGoalRanking("WC", String(year)), "goals")
@@ -189,7 +186,6 @@ const finalizedCountryMeta = Array.from(finalizedCountrySet)
 const finalizedCountries = finalizedCountryMeta.map((x) => x.country);
 
 const totalCountries = allCountries.length;
-
 
 const getFinalDate = (country: string) =>
   finalizedCountryMeta.find((x) => x.country === country)?.finalDate ?? "";
@@ -753,6 +749,34 @@ const pageDesc = isCurrentEdition
       padding: 8px 8px;
       text-align: left;
       white-space: nowrap;
+    }
+
+    /* モバイル：GAランキングの選手名・国名を省略表示 */
+    @media (max-width: 560px) {
+      .page-wc table.rank th:nth-child(2),
+      .page-wc table.rank td:nth-child(2) {
+        max-width: 8.5em;
+      }
+
+      .page-wc table.rank td:nth-child(2) {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .page-wc table.rank th:nth-child(3),
+      .page-wc table.rank td:nth-child(3) {
+        width: 6em;
+        max-width: 6em;
+      }
+
+      .page-wc table.rank td:nth-child(3) a,
+      .page-wc table.rank td:nth-child(3) span {
+        display: block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
     }
     .page-wc table.rank thead th {
       color: var(--theme-link);
