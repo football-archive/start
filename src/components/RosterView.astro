@@ -341,4 +341,18 @@ const thClass = (c: any) =>
     overflow-wrap: anywhere;
     word-break: break-word;
   }
+
+  @media (min-width: 769px) {
+  .roster-table th:nth-child(10),
+  .roster-table td:nth-child(10) {
+    width: 108px;
+    min-width: 108px;
+  }
+
+  :global(.roster-table .note-cell) {
+    max-width: 108px;
+    word-break: keep-all;
+    overflow-wrap: normal;
+  }
+}
 </style>

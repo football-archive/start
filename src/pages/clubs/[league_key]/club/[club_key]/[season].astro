@@ -218,7 +218,9 @@ const buildClubStatsLine = (
 // --------------------
 // roster：keyで抽出（window/snapshot/season を扱う）
 // --------------------
-const allRows = loadClubSquads().filter(
+const allClubSquadRows = loadClubSquads();
+
+const allRows = allClubSquadRows.filter(
   (r) => r.league_key === league_key && r.club_key === club_key,
 );
 
@@ -401,6 +403,14 @@ const getStandingSourceSeason = (seasonStr: string) => {
   return "";
 };
 
+const hasClubSeason = (targetClubKey: string, seasonStr: string) =>
+  allClubSquadRows.some(
+    (r) =>
+      r.league_key === league_key &&
+      r.club_key === targetClubKey &&
+      String(r.season ?? "").trim() === String(seasonStr ?? "").trim(),
+  );
+
 const getRecommendedLeagueClubs = (seasonStr: string) => {
   const sourceSeason = getStandingSourceSeason(seasonStr);
 
@@ -418,6 +428,7 @@ const getRecommendedLeagueClubs = (seasonStr: string) => {
 
   const items = rows
     .filter((r) => r.club_key !== club_key)
+    .filter((r) => hasClubSeason(r.club_key, seasonStr))
     .map((r) => {
       const m = clubMaster.find((c) => c.club_key === r.club_key);
 
@@ -2054,7 +2065,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       }
     }
 
-        .page-club .note-cell {
+    .page-club .note-cell {
       display: inline-block;
       max-width: 110px;
       white-space: normal;

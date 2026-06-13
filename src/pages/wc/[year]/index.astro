@@ -229,7 +229,6 @@ const eliminatedCountries = sortCountriesForCards(
 
 const featuredCountryCandidates = [
   "日本",
-  "アイスランド",
   "オランダ",
   "チュニジア",
   "スウェーデン",
@@ -1070,7 +1069,10 @@ const pageDesc = isCurrentEdition
       ) : null
     }
   </p>
+
+
   {
+    /* WC2030でまた復活させる
     isCurrentEdition && finalizedCountries.length > 0 && (
       <p class="final-summary">
         🔥 最終メンバー発表済：
@@ -1086,6 +1088,7 @@ const pageDesc = isCurrentEdition
         })}
       </p>
     )
+    */
   }
 
   <div class="toc-box" style="margin: 10px 0 16px;">
@@ -1159,7 +1162,7 @@ const pageDesc = isCurrentEdition
   <div class="nt-divider" aria-hidden="true"></div>
 
   {
-    /* =========================
+     /*=========================
       (1) 出場国カード：検索/ピル絞り込み（軽量バッジ版）
      ========================= */
   }
