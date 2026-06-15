@@ -660,7 +660,7 @@ export const buildNtColumns = ({
 
     {
       key: "apps",
-      header: "👕 出場",
+      header: "出場",
       align: "center",
       html: true,
       show: showStats,
@@ -668,7 +668,7 @@ export const buildNtColumns = ({
     },
     {
       key: "g",
-      header: "⚽ G",
+      header: "⚽G",
       align: "center",
       html: true,
       show: showStats,
@@ -679,7 +679,7 @@ export const buildNtColumns = ({
     },
     {
       key: "a",
-      header: "🎯 A",
+      header: "🎯A",
       align: "center",
       html: true,
       show: showStats,

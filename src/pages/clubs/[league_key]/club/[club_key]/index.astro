@@ -254,13 +254,16 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                 meta?.uefa_cup_rank ?? "",
               );
 
-              const href = season
-                ? clubUrl({
-                    leagueKey,
-                    clubKey,
-                    season: season as any,
-                  })
-                : "";
+              const hasSquad = squadSeasons.includes(season);
+
+              const href =
+                season && hasSquad
+                  ? clubUrl({
+                      leagueKey,
+                      clubKey,
+                      season: season as any,
+                    })
+                  : "";
 
               const hasSeasonHub = seasonHubSeasons.has(season);
 

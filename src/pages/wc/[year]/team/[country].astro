@@ -2197,7 +2197,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     /* ===== WC代表ページ：備考列の折り返し ===== */
     .page-wc .note-cell {
       display: inline-block;
-      max-width: 110px;
+      max-width: 90px;
       white-space: normal;
       overflow-wrap: anywhere;
       word-break: break-word;
@@ -2220,6 +2220,24 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       color: var(--theme-color);
       text-decoration: underline;
       text-underline-offset: 3px;
+    }
+
+    @media (min-width: 769px) {
+      /* W杯招集歴：メッシのような長い履歴だけ折り返す */
+      .roster-table th:nth-child(6),
+      .roster-table td:nth-child(6) {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+
+      .roster-table td:nth-child(6) a {
+        display: inline-block;
+        margin: 0 2px;
+        white-space: nowrap;
+      }
     }
   </style>
 </BaseLayout>
