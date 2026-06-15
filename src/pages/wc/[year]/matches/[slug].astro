@@ -7,7 +7,7 @@ import {
 } from "../../../../lib/competitionSchedule";
 import { getMatchGoalEvents } from "../../../../lib/matchEvents";
 import { tournamentTopUrl } from "../../../../lib/urls";
-import { countrySlug } from "../../../../lib/callups";
+import { countrySlug, hasCallupTeamPage } from "../../../../lib/callups";
 
 export async function getStaticPaths() {
   const all = loadCompetitionSchedule();
@@ -43,8 +43,25 @@ const pageTitle = `${match.home} vs ${match.away}｜${wcTitle} 試合詳細`;
 const pageDesc = `${wcTitle} ${match.home} vs ${match.away} の試合結果・得点者・アシストを掲載しています。`;
 
 const topHref = tournamentTopUrl({ tournament: "wc", year });
-const homeTeamHref = `${topHref}team/${countrySlug(match.home)}/`;
-const awayTeamHref = `${topHref}team/${countrySlug(match.away)}/`;
+const homeHasTeamPage = hasCallupTeamPage({
+  competition: "WC",
+  edition: year,
+  country: match.home,
+});
+
+const awayHasTeamPage = hasCallupTeamPage({
+  competition: "WC",
+  edition: year,
+  country: match.away,
+});
+
+const homeTeamHref = homeHasTeamPage
+  ? `${topHref}team/${countrySlug(match.home)}/`
+  : "";
+
+const awayTeamHref = awayHasTeamPage
+  ? `${topHref}team/${countrySlug(match.away)}/`
+  : "";
 
 const homeEvents = events.filter((e) => e.team === match.home);
 const awayEvents = events.filter((e) => e.team === match.away);
@@ -113,10 +130,19 @@ const isScorelessDraw = match.homeScore === "0" && match.awayScore === "0";
         {match.stadium ? `会場：${match.stadium}` : ""}
       </p>
 
-      <div class="team-links">
-        <a href={homeTeamHref}>👉 {match.home}代表メンバーを見る</a>
-        <a href={awayTeamHref}>👉 {match.away}代表メンバーを見る</a>
-      </div>
+      {
+        (homeTeamHref || awayTeamHref) && (
+          <div class="team-links">
+            {homeTeamHref && (
+              <a href={homeTeamHref}>👉 {match.home}代表メンバーを見る</a>
+            )}
+
+            {awayTeamHref && (
+              <a href={awayTeamHref}>👉 {match.away}代表メンバーを見る</a>
+            )}
+          </div>
+        )
+      }
     </section>
 
     {

@@ -660,7 +660,7 @@ export const buildNtColumns = ({
 
     {
       key: "apps",
-      header: "出場",
+      header: "👕 出場",
       align: "center",
       html: true,
       show: showStats,

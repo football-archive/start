@@ -131,6 +131,25 @@ export function countryFromSlug(slug: string): string {
   return decodeURIComponent(slug);
 }
 
+export function hasCallupTeamPage(params: {
+  competition: string;
+  edition: string | number;
+  country: string;
+}): boolean {
+  const competition = String(params.competition ?? "").trim();
+  const edition = String(params.edition ?? "").trim();
+  const country = String(params.country ?? "").trim();
+
+  if (!competition || !edition || !country) return false;
+
+  return loadCallups().some(
+    (r) =>
+      String(r.competition ?? "").trim() === competition &&
+      String(r.edition ?? "").trim() === edition &&
+      String(r.country ?? "").trim() === country,
+  );
+}
+
 // 表示用の並び順：GK→DF→MF→FW→その他、背番号（番号あり→昇順→番号なし）→名前
 export function sortForRoster(a: CallupRow, b: CallupRow): number {
   const posOrder: Record<string, number> = { GK: 0, DF: 1, MF: 2, FW: 3 };
