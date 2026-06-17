@@ -1,11 +1,11 @@
 ﻿season,window,date,kind,name,from_club_key,move_type,to_club_key,importance,note
-2026-27,summer,2026/6/15,coach,ルーベン・アモリム,,coach_in,milan,A,2026.1 マンU解任
+2026-27,summer,2026/6/16,coach,ルーベン・アモリム,,coach_in,milan,A,2026.1 マンU解任
 2026-27,summer,2026/6/15,coach,ジョヴァンニ・ファン・ブロンクホルスト,liverpool,coach_in,feyenoord,A,アシスタントコーチ退任
 2026-27,summer,2026/6/15,coach,マウリツィオ・サッリ,lazio,coach_in,atalanta,A,※正式発表待ち
 2026-27,summer,2026/6/12,coach,ジョゼ・モウリーニョ,benfica,coach_in,real-madrid,A,
 2026-27,summer,2026/6/9,coach,アルバロ・アルベロア,real-madrid,coach_out,未定,A,
 2026-27,summer,2026/6/9,coach,ラファエレ・パッラディーノ,atalanta,coach_out,未定,A,
-2026-27,summer,2026/6/9,coach,ピエール・サージュ,rc-lens,coach_in,crystal-palace,A,基本合意
+2026-27,summer,2026/6/15,coach,ピエール・サージュ,rc-lens,coach_in,crystal-palace,A,
 2026-27,summer,2026/6/10,coach,オリバー・グラスナー,crystal-palace,coach_in,milan,A,6/10合意報道 ⇒ 辞退
 2026-27,summer,2026/6/8,coach,ロビン・ファン・ペルシ,feyenoord,coach_out,未定,A,解任
 2026-27,summer,2026/6/5,coach,アンドニ・イラオラ,bournemouth,coach_in,liverpool,A,
@@ -16,7 +16,8 @@
 2026-27,summer,2026/6/15,player,イスマエル・サイバリ,psv,transfer,bayern-munich,A,合意報道 / 5500万€
 2026-27,summer,2026/6/15,player,ジェレミー・ボガ,nice,transfer,juventus,A,完全移籍 ⇐ レンタル
 2026-27,summer,2026/6/15,player,マルク・ククレジャ,chelsea,transfer,real-madrid,A,合意報道 / 5200万€
-2026-27,summer,2026/6/12,player,ベルナルド・シウバ,manchester-city,free,real-madrid,A,契約満了 | 合意報道
+2026-27,summer,2026/6/17,player,ヤン・ポール・ファン・ヘッケ,brighton,transfer,tottenham-hotspur,A,合意報道 / 5200万￡
+2026-27,summer,2026/6/17,player,ベルナルド・シウバ,manchester-city,free,real-madrid,A,
 2026-27,summer,2026/6/11,player,後藤啓介,シントトロイデン,transfer,freiburg,A,
 2026-27,summer,2026/6/11,player,田中聡,フォルトゥナ・デュッセルドルフ,transfer,schalke,A,
 2026-27,summer,2026/6/11,player,マルコス・セネシ,bournemouth,free,tottenham-hotspur,A,
