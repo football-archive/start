@@ -1,5 +1,5 @@
 ﻿match-id,slug,competition,edition,md,stage,group,sec,datetime-local,home,home_key,away,away_key,stadium,home_score,away_score,home_score_pk,away_score_pk,mom,mom_team,note,updated_at
-WC-2026-MD001,mexico-vs-south-africa,WC,2026,MD001,Group-Phase,A,第１節,6/12(金)04:00,メキシコ,mexico,南アフリカ,south-africa,エスタディオ・アステカ・メキシコシティー,2,0,,,フリアン・キニョネス,メキシコ,,2026/6/12
+WC-2026-MD001,mexico-vs-south-africa,WC,2026,MD001,Group-Phase,A,第１節,6/12(金)04:00,メキシコ,mexico,南アフリカ共和国,south-africa,エスタディオ・アステカ・メキシコシティー,2,0,,,フリアン・キニョネス,メキシコ,,2026/6/12
 WC-2026-MD002,south-korea-vs-czechia,WC,2026,MD002,Group-Phase,A,第１節,6/12(金)11:00,韓国,south-korea,チェコ,czechia,エスタディオ・グアダラハラ,2,1,,,黄仁範（ファン・インボム）,韓国,,2026/6/12
 WC-2026-MD003,canada-vs-bosnia-and-herzegovina,WC,2026,MD003,Group-Phase,B,第１節,6/13(土)04:00,カナダ,canada,ボスニア・ヘルツェゴビナ,bosnia-and-herzegovina,トロントスタジアム,1,1,,,イスマエル・コネ,カナダ,,2026/6/13
 WC-2026-MD004,usa-vs-paraguay,WC,2026,MD004,Group-Phase,D,第１節,6/13(土)10:00,アメリカ,usa,パラグアイ,paraguay,ロサンゼルススタジアム,4,1,,,フォラリン・バログン,アメリカ,,2026/6/13
@@ -25,8 +25,8 @@ WC-2026-MD023,ghana-vs-panama,WC,2026,MD023,Group-Phase,L,第１節,6/18(木)08:
 WC-2026-MD024,uzbekistan-vs-colombia,WC,2026,MD024,Group-Phase,K,第１節,6/18(木)11:00,ウズベキスタン,uzbekistan,コロンビア,colombia,エスタディオ・アステカ・メキシコシティー,1,3,,,ルイス・ディアス,コロンビア,,2026/6/18
 WC-2026-MD025,czechia-vs-south-africa,WC,2026,MD025,Group-Phase,A,第２節,6/19(金)01:00,チェコ,czechia,南アフリカ共和国,south-africa,アトランタスタジアム,1,1,,,クレイチー,チェコ,,2026/6/19
 WC-2026-MD026,switzerland-vs-bosnia-and-herzegovina,WC,2026,MD026,Group-Phase,B,第２節,6/19(金)04:00,スイス,switzerland,ボスニア・ヘルツェゴビナ,bosnia-and-herzegovina,ロサンゼルススタジアム,4,1,,,ヨハン・マンザンビ,スイス,,2026/6/19
-WC-2026-MD027,canada-vs-qatar,WC,2026,MD027,Group-Phase,B,第２節,6/19(金)07:00,カナダ,canada,カタール,qatar,BCプレイスバンクーバー,,,,,,,,2026/2/11
-WC-2026-MD028,mexico-vs-south-korea,WC,2026,MD028,Group-Phase,A,第２節,6/19(金)10:00,メキシコ,mexico,韓国,south-korea,エスタディオ・グアダラハラ,,,,,,,,2026/2/11
+WC-2026-MD027,canada-vs-qatar,WC,2026,MD027,Group-Phase,B,第２節,6/19(金)07:00,カナダ,canada,カタール,qatar,BCプレイスバンクーバー,6,0,,,ジョナサン・デイヴィッド,カナダ,,2026/6/19
+WC-2026-MD028,mexico-vs-south-korea,WC,2026,MD028,Group-Phase,A,第２節,6/19(金)10:00,メキシコ,mexico,韓国,south-korea,エスタディオ・グアダラハラ,1,0,,,ルイス・ロモ,メキシコ,,2026/6/19
 WC-2026-MD029,usa-vs-australia,WC,2026,MD029,Group-Phase,D,第２節,6/20(土)04:00,アメリカ,usa,オーストラリア,australia,シアトルスタジアム,,,,,,,,2026/2/11
 WC-2026-MD030,scotland-vs-morocco,WC,2026,MD030,Group-Phase,C,第２節,6/20(土)07:00,スコットランド,scotland,モロッコ,morocco,ボストンスタジアム,,,,,,,,2026/2/11
 WC-2026-MD031,brazil-vs-haiti,WC,2026,MD031,Group-Phase,C,第２節,6/20(土)10:00,ブラジル,brazil,ハイチ,haiti,フィラデルフィアスタジアム,,,,,,,,2026/2/11
@@ -52,7 +52,7 @@ WC-2026-MD050,bosnia-and-herzegovina-vs-qatar,WC,2026,MD050,Group-Phase,B,第３
 WC-2026-MD051,scotland-vs-brazil,WC,2026,MD051,Group-Phase,C,第３節,6/25(木)07:00,スコットランド,scotland,ブラジル,brazil,マイアミスタジアム,,,,,,,,2026/2/11
 WC-2026-MD052,morocco-vs-haiti,WC,2026,MD052,Group-Phase,C,第３節,6/25(木)07:00,モロッコ,morocco,ハイチ,haiti,アトランタスタジアム,,,,,,,,2026/2/11
 WC-2026-MD053,czechia-vs-mexico,WC,2026,MD053,Group-Phase,A,第３節,6/25(木)10:00,チェコ,czechia,メキシコ,mexico,エスタディオ・アステカ・メキシコシティー,,,,,,,,2026/2/11
-WC-2026-MD054,south-africa-vs-south-korea,WC,2026,MD054,Group-Phase,A,第３節,6/25(木)10:00,南アフリカ,south-africa,韓国,south-korea,エスタディオ・モンテレイ,,,,,,,,2026/2/11
+WC-2026-MD054,south-africa-vs-south-korea,WC,2026,MD054,Group-Phase,A,第３節,6/25(木)10:00,南アフリカ共和国,south-africa,韓国,south-korea,エスタディオ・モンテレイ,,,,,,,,2026/2/11
 WC-2026-MD055,curacao-vs-cote-divoire,WC,2026,MD055,Group-Phase,E,第３節,6/26(金)05:00,キュラソー,curacao,コートジボワール,cote-divoire,フィラデルフィアスタジアム,,,,,,,,2026/2/11
 WC-2026-MD056,ecuador-vs-germany,WC,2026,MD056,Group-Phase,E,第３節,6/26(金)05:00,エクアドル,ecuador,ドイツ,germany,ニューヨーク/ニュージャージースタジアム,,,,,,,,2026/2/11
 WC-2026-MD057,japan-vs-sweden,WC,2026,MD057,Group-Phase,F,第３節,6/26(金)08:00,日本,japan,スウェーデン,sweden,ダラススタジアム,,,,,,,,2026/2/11
