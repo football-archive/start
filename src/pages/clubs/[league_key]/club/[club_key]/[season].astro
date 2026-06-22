@@ -367,6 +367,13 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
   };
 });
 
+const statNum = (v: any) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const hasGoalStats = (rows: any[]) => rows.some((r) => statNum(r.goals) > 0);
+
 // 全体としてロスターがあるか
 const hasRoster = seasonPacks.some((p) => p.hasSummer || p.hasWinter);
 
@@ -562,7 +569,7 @@ for (const p of seasonPacks) {
       repLabel,
       repLinks,
       repHistoryLinks,
-      showStats: false,
+      showStats: p.hasWinter && hasGoalStats(p.rosterWinter),
     }),
   };
 }
@@ -2077,6 +2084,35 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     @media (max-width: 640px) {
       .page-club .note-cell {
         max-width: 160px;
+      }
+    }
+
+    .stat-sub {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    .mob-stat-line {
+      display: none;
+    }
+
+    @media (max-width: 640px) {
+      .mob-stat-line {
+        display: block;
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 1.35;
+        font-weight: 700;
+        color: var(--meta-color, #2f4f46);
+      }
+
+      .page-club th:nth-child(11),
+      .page-club td:nth-child(11),
+      .page-club th:nth-child(12),
+      .page-club td:nth-child(12),
+      .page-club th:nth-child(13),
+      .page-club td:nth-child(13) {
+        display: none;
       }
     }
   </style>

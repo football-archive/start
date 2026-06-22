@@ -29,8 +29,8 @@ export type ClubRow = {
   source?: string;
   notes?: string;
 
-  // 将来stats
   apps?: string;
+  starts?: string;
   goals?: string;
   assists?: string;
 };
@@ -267,6 +267,7 @@ const clubNameMobileHtml = ({
   repLabel,
   repLinks,
   repHistoryLinks,
+  showStats = false,
 }: {
   row: ClubRow;
   repLabel: (row: { name_en?: string; birth_date?: string }) => string;
@@ -278,6 +279,7 @@ const clubNameMobileHtml = ({
     name_en?: string;
     birth_date?: string;
   }) => { label: string; href: string }[];
+  showStats?: boolean;
 }) => {
   const ja = String(row.name_ja ?? "").trim();
   const en = String(row.name_en ?? "").trim();
@@ -330,6 +332,8 @@ const clubNameMobileHtml = ({
     natShort ? `国籍：${natShort}` : "",
   ]);
 
+  const statsLine = showStats ? mobileStatsLineHtml(row) : "";
+
   const note = String(row.notes ?? "").trim();
   const noteLine = mobileNoteLineHtml(note);
 
@@ -338,6 +342,7 @@ const clubNameMobileHtml = ({
   ${line2}
   ${line3}
   ${line4}
+  ${statsLine}
   ${noteLine}
 </div>`;
 };
@@ -373,6 +378,7 @@ export const buildClubColumns = ({
           repLabel,
           repLinks,
           repHistoryLinks,
+          showStats,
         }),
     },
 
@@ -436,21 +442,22 @@ export const buildClubColumns = ({
     // ---- Stats（後付け）----
     {
       key: "apps",
-      header: "Apps",
+      header: "出場",
       align: "center",
+      html: true,
       show: showStats,
-      render: (r) => toInt(r.apps),
+      render: (r) => appsStartsHtml(r.apps, r.starts),
     },
     {
       key: "g",
-      header: "G",
+      header: "⚽G",
       align: "center",
       show: showStats,
       render: (r) => toInt(r.goals),
     },
     {
       key: "a",
-      header: "A",
+      header: "🎯A",
       align: "center",
       show: showStats,
       render: (r) => toInt(r.assists),

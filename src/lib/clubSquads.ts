@@ -33,6 +33,11 @@ export type ClubSquadRow = {
 
   source: string;
   notes: string;
+
+  apps?: string;
+  starts?: string;
+  goals?: string;
+  assists?: string;
 };
 
 function parseCSVLine(line: string): string[] {
@@ -146,6 +151,11 @@ export function loadClubSquads(): ClubSquadRow[] {
 
       source: r.source ?? "",
       notes: r.notes ?? "",
+
+      apps: r.apps ?? "",
+      starts: r.starts ?? "",
+      goals: r.goals ?? "",
+      assists: r.assists ?? "",
     });
   }
 
