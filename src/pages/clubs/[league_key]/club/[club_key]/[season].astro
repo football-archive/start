@@ -2115,5 +2115,57 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         display: none;
       }
     }
+
+    .rep2 {
+      max-width: 92px;
+      margin: 0 auto;
+    }
+
+    .rep2-links {
+      max-width: 110px;
+      margin: 0 auto;
+      line-height: 1.25;
+      white-space: normal;
+      overflow-wrap: normal;
+      word-break: normal;
+    }
+
+    .rep2-sep {
+      display: inline;
+      margin: 0 2px;
+    }
+
+    @media (min-width: 641px) {
+      .page-club th:nth-child(6),
+      .page-club td:nth-child(6) {
+        min-width: 110px;
+        width: 110px;
+      }
+
+      .page-club .rep2 {
+        min-width: 100px;
+        max-width: 110px;
+        margin: 0 auto;
+      }
+
+      .page-club .rep2-links {
+        white-space: normal !important;
+        overflow-wrap: normal;
+        word-break: normal;
+      }
+    }
+
+    @media (min-width: 769px) {
+      .page-club .roster-table th:nth-child(10),
+      .page-club .roster-table td:nth-child(10) {
+        width: 90px !important;
+        min-width: 90px !important;
+        max-width: 90px !important;
+      }
+
+      .page-club .roster-table .note-cell {
+        max-width: 86px !important;
+      }
+    }
   </style>
 </BaseLayout>

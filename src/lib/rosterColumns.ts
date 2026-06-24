@@ -135,7 +135,11 @@ const rep2Html = (
   const linkHtml = allLinks
     .map((x, i) => {
       const cls = i === 0 ? "rep2-ed rep2-ed--latest" : "rep2-ed";
+
+      const br = i === 3 ? "<br>" : "";
+
       return (
+        br +
         `${i > 0 ? `<span class="rep2-sep">/</span>` : ""}` +
         `<a class="${cls}" href="${esc(x.href)}">${esc(x.label)}</a>`
       );
