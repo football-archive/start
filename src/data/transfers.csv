@@ -1,4 +1,5 @@
 ﻿season,window,date,kind,name,from_club_key,move_type,to_club_key,importance,note
+2026-27,summer,2026/7/1,coach,ヴィトール・ペレイラ,nottingham-forest,coach_out,未定,A,
 2026-27,summer,2026/6/22,coach,エンツォ・マレスカ,,coach_in,manchester-city,A,2026.1 チェルシー退任
 2026-27,summer,2026/6/16,coach,ルーベン・アモリム,,coach_in,milan,A,2026.1 マンU解任
 2026-27,summer,2026/6/15,coach,ジョヴァンニ・ファン・ブロンクホルスト,liverpool,coach_in,feyenoord,A,アシスタントコーチ退任
@@ -14,6 +15,9 @@
 2026-27,summer,2026/6/1,coach,セバスチャン・ポコニョーリ,monaco,coach_out,未定,A,
 2026-27,summer,2026/5/22,coach,ジョゼップ・グアルディオラ,manchester-city,coach_out,未定,A,
 2026-27,summer,2026/5/17,coach,シャビ・アロンソ,-,coach_in,chelsea,A,2026.01マドリー解任
+2026-27,summer,2026/7/2,player,サンドロ・トナーリ,newcastle-united,transfer,tottenham-hotspur,A,合意報道 | 1億ポンド（約214億円）
+2026-27,summer,2026/7/2,player,ルカ・ヴシュコヴィッチ,tottenham-hotspur,transfer,brighton,A,⇦ハンブルガーSVレンタル | 4600万ポンド（約99億3000万）
+2026-27,summer,2026/7/1,player,ジェレミー・ジャケ,rennes,transfer,liverpool,A,6000万ユーロ
 2026-27,summer,2026/7/1,player,マテウス・フェルナンデス,west-ham-united,transfer,tottenham-hotspur,A,合意報道 | 8500万ポンド
 2026-27,summer,2026/7/1,player,ステファン・デ・フライ,inter,free,パナシナイコス,A,
 2026-27,summer,2026/7/1,player,アンス・ファティ,barcelona,transfer,monaco,A,買取OP
@@ -22,7 +26,7 @@
 2026-27,summer,2026/6/28,player,浅野拓磨,mallorca,transfer,サンフレッチェ広島,A,
 2026-27,summer,2026/6/27,player,ダニ・セバージョス,real-madrid,release,未定,A,
 2026-27,summer,2026/6/27,player,カイオ・エンヒキ,monaco,transfer,ajax,A,合意報道 | 1000万€
-2026-27,summer,2026/7/1,player,ゴンサロ・ラモス,paris-saint-germain,transfer,milan,A,7400万ユーロ
+2026-27,summer,2026/7/1,player,ゴンサロ・ラモス,paris-saint-germain,transfer,milan,A,7000万ユーロ
 2026-27,summer,2026/6/27,player,関根大輝,stade-reims,transfer,holstein-kiel,A,レンタル
 2026-27,summer,2026/6/27,player,ボウト・ベグホルスト,ajax,free,twente,A,
 2026-27,summer,2026/6/26,player,ニコ・パス,real-madrid,transfer,como,A,レンタル ⇒ 完全移籍 | 6000万€
@@ -30,14 +34,14 @@
 2026-27,summer,2026/6/26,player,ナサニエル・ブラウン,eintracht-frankfurt,transfer,bayern-munich,A,合意報道 | 5500万€
 2026-27,summer,2026/6/25,player,ピエロ・ヒンカピエ,bayer-leverkusen,transfer,arsenal,A,レンタル ⇒ 完全移籍 | 4000万€
 2026-27,summer,2026/7/1,player,アレハンドロ・グリマルド,bayer-leverkusen,transfer,atletico-madrid,A,2000万€
-2026-27,summer,2026/6/24,player,マルコ・パレストラ,atalanta,transfer,chelsea,A,5500万€
+2026-27,summer,2026/7/2,player,マルコ・パレストラ,atalanta,transfer,chelsea,A,4700万ポンド（約100億8000万円）
 2026-27,summer,2026/6/23,player,チアゴ・シウバ,porto,free,フルミネンセ,A,復帰
 2026-27,summer,2026/6/23,player,ハムザ・アブドゥルカリーム,バルセロナ U19,transfer,barcelona,A,移籍・昇格
 2026-27,summer,2026/6/19,player,ヤン・ポール・ファン・ヘッケ,brighton,transfer,tottenham-hotspur,A,5200万ポンド（約111億）
 2026-27,summer,2026/6/19,player,ビクトル・ムニョス,osasuna,transfer,liverpool,A,4000万€（約74億）
 2026-27,summer,2026/6/19,player,アフォンソ・モレイラ,lyon,transfer,bayer-leverkusen,A,3000万€
 2026-27,summer,2026/6/18,player,宇野禅斗,清水エスパルス,transfer,borussia-monchengladbach,A,
-2026-27,summer,2026/6/15,player,イスマエル・サイバリ,psv,transfer,bayern-munich,A,合意報道 / 5500万€
+2026-27,summer,2026/7/2,player,イスマエル・サイバリ,psv,transfer,bayern-munich,A,4500万ポンド（約96億円）
 2026-27,summer,2026/6/15,player,ジェレミー・ボガ,nice,transfer,juventus,A,完全移籍 ⇐ レンタル
 2026-27,summer,2026/6/15,player,マルク・ククレジャ,chelsea,transfer,real-madrid,A,6000万€（約111億）
 2026-27,summer,2026/6/17,player,ベルナルド・シウバ,manchester-city,free,real-madrid,A,
