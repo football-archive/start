@@ -1,116 +1,119 @@
-﻿season,window,date,kind,name,from_club_key,move_type,to_club_key,importance,note
-2026-27,summer,2026/7/1,coach,ヴィトール・ペレイラ,nottingham-forest,coach_out,未定,A,
-2026-27,summer,2026/6/22,coach,エンツォ・マレスカ,,coach_in,manchester-city,A,2026.1 チェルシー退任
-2026-27,summer,2026/6/16,coach,ルーベン・アモリム,,coach_in,milan,A,2026.1 マンU解任
-2026-27,summer,2026/6/15,coach,ジョヴァンニ・ファン・ブロンクホルスト,liverpool,coach_in,feyenoord,A,アシスタントコーチ退任
-2026-27,summer,2026/6/15,coach,マウリツィオ・サッリ,lazio,coach_in,atalanta,A,※正式発表待ち
-2026-27,summer,2026/6/12,coach,ジョゼ・モウリーニョ,benfica,coach_in,real-madrid,A,
-2026-27,summer,2026/6/9,coach,アルバロ・アルベロア,real-madrid,coach_out,未定,A,
-2026-27,summer,2026/6/9,coach,ラファエレ・パッラディーノ,atalanta,coach_out,未定,A,
-2026-27,summer,2026/6/15,coach,ピエール・サージュ,rc-lens,coach_in,crystal-palace,A,
-2026-27,summer,2026/6/10,coach,オリバー・グラスナー,crystal-palace,coach_in,milan,A,6/10合意報道 ⇒ 辞退
-2026-27,summer,2026/6/8,coach,ロビン・ファン・ペルシ,feyenoord,coach_out,未定,A,解任
-2026-27,summer,2026/6/5,coach,アンドニ・イラオラ,bournemouth,coach_in,liverpool,A,
-2026-27,summer,2026/5/30,coach,アルネ・スロット,liverpool,coach_out,未定,A,
-2026-27,summer,2026/6/1,coach,セバスチャン・ポコニョーリ,monaco,coach_out,未定,A,
-2026-27,summer,2026/5/22,coach,ジョゼップ・グアルディオラ,manchester-city,coach_out,未定,A,
-2026-27,summer,2026/5/17,coach,シャビ・アロンソ,-,coach_in,chelsea,A,2026.01マドリー解任
-2026-27,summer,2026/7/2,player,モルテン・ヒュルマンド,sporting,transfer,atletico-madrid,A,"合意報道 | 約4,000万ユーロ"
-2026-27,summer,2026/7/2,player,マイケル・スヴォボダ,venezia,transfer,brighton,A,
-2026-27,summer,2026/7/2,player,サンドロ・トナーリ,newcastle-united,transfer,tottenham-hotspur,A,合意報道 | 1億ポンド（約214億円）
-2026-27,summer,2026/7/2,player,ルカ・ヴシュコヴィッチ,tottenham-hotspur,transfer,brighton,A,⇦ハンブルガーSVレンタル | 4600万ポンド（約99億3000万）
-2026-27,summer,2026/7/1,player,ジェレミー・ジャケ,rennes,transfer,liverpool,A,6000万ユーロ
-2026-27,summer,2026/7/1,player,マテウス・フェルナンデス,west-ham-united,transfer,tottenham-hotspur,A,合意報道 | 8500万ポンド
-2026-27,summer,2026/7/1,player,ステファン・デ・フライ,inter,free,パナシナイコス,A,
-2026-27,summer,2026/7/1,player,アンス・ファティ,barcelona,transfer,monaco,A,買取OP
-2026-27,summer,2026/6/30,player,ロベルト・レヴァンドフスキ,barcelona,transfer,シカゴ・ファイヤー,A,
-2026-27,summer,2026/7/1,player,パスカル・ストライク,leeds-united,transfer,brighton,A,合意報道 | 2000万ポンド（約43億円）
-2026-27,summer,2026/6/28,player,浅野拓磨,mallorca,transfer,サンフレッチェ広島,A,
-2026-27,summer,2026/6/27,player,ダニ・セバージョス,real-madrid,release,未定,A,
-2026-27,summer,2026/6/27,player,カイオ・エンヒキ,monaco,transfer,ajax,A,合意報道 | 1000万€
-2026-27,summer,2026/7/1,player,ゴンサロ・ラモス,paris-saint-germain,transfer,milan,A,7000万ユーロ
-2026-27,summer,2026/6/27,player,関根大輝,stade-reims,transfer,holstein-kiel,A,レンタル
-2026-27,summer,2026/6/27,player,ボウト・ベグホルスト,ajax,free,twente,A,
-2026-27,summer,2026/6/26,player,ニコ・パス,real-madrid,transfer,como,A,レンタル ⇒ 完全移籍 | 6000万€
-2026-27,summer,2026/7/2,player,エリオット・アンダーソン,nottingham-forest,transfer,manchester-city,A,1億3500万€
-2026-27,summer,2026/6/26,player,ナサニエル・ブラウン,eintracht-frankfurt,transfer,bayern-munich,A,合意報道 | 5500万€
-2026-27,summer,2026/6/25,player,ピエロ・ヒンカピエ,bayer-leverkusen,transfer,arsenal,A,レンタル ⇒ 完全移籍 | 4000万€
-2026-27,summer,2026/7/1,player,アレハンドロ・グリマルド,bayer-leverkusen,transfer,atletico-madrid,A,2000万€
-2026-27,summer,2026/7/2,player,マルコ・パレストラ,atalanta,transfer,chelsea,A,4700万ポンド（約100億8000万円）
-2026-27,summer,2026/6/23,player,チアゴ・シウバ,porto,free,フルミネンセ,A,復帰
-2026-27,summer,2026/6/23,player,ハムザ・アブドゥルカリーム,バルセロナ U19,transfer,barcelona,A,移籍・昇格
-2026-27,summer,2026/6/19,player,ヤン・ポール・ファン・ヘッケ,brighton,transfer,tottenham-hotspur,A,5200万ポンド（約111億）
-2026-27,summer,2026/6/19,player,ビクトル・ムニョス,osasuna,transfer,liverpool,A,4000万€（約74億）
-2026-27,summer,2026/6/19,player,アフォンソ・モレイラ,lyon,transfer,bayer-leverkusen,A,3000万€
-2026-27,summer,2026/6/18,player,宇野禅斗,清水エスパルス,transfer,borussia-monchengladbach,A,
-2026-27,summer,2026/7/2,player,イスマエル・サイバリ,psv,transfer,bayern-munich,A,4500万ポンド（約96億円）
-2026-27,summer,2026/6/15,player,ジェレミー・ボガ,nice,transfer,juventus,A,完全移籍 ⇐ レンタル
-2026-27,summer,2026/6/15,player,マルク・ククレジャ,chelsea,transfer,real-madrid,A,6000万€（約111億）
-2026-27,summer,2026/6/17,player,ベルナルド・シウバ,manchester-city,free,real-madrid,A,
-2026-27,summer,2026/6/11,player,後藤啓介,シントトロイデン,transfer,freiburg,A,
-2026-27,summer,2026/6/11,player,田中聡,フォルトゥナ・デュッセルドルフ,transfer,schalke,A,
-2026-27,summer,2026/6/11,player,マルコス・セネシ,bournemouth,free,tottenham-hotspur,A,
-2026-27,summer,2026/6/10,player,ジェイドン・サンチョ,manchester-united,release,未定,A,
-2026-27,summer,2026/6/20,player,カゼミーロ,manchester-united,free,インテル・マイアミ,A,
-2026-27,summer,2026/6/10,player,ラウル・ヒメネス,fulham,free,wolves,A,
-2026-27,summer,2026/6/8,player,ディヴォック・オリギ,-,retired,-,A,2025.12ミラン契約解除
-2026-27,summer,2026/6/6,player,アンドリュー・ロバートソン,liverpool,free,tottenham-hotspur,A,
-2026-27,summer,2026/6/3,player,デンゼル・ダンフリース,inter,transfer,real-madrid,A,※正式発表待ち / 約2000万€（約37億円）
-2026-27,summer,2026/6/3,player,ドゥシャン・ヴラホヴィッチ,juventus,release,未定,A,
-2026-27,summer,2026/6/5,player,エデルソン,atalanta,transfer,manchester-united,A,4500万€
-2026-27,summer,2026/6/3,player,ラスムス・ホイルンド,manchester-united,transfer,napoli,A,完全移籍 ⇐ レンタル
-2026-27,summer,2026/6/1,player,ジェームズ・ミルナー,brighton,retired,-,A,
-2026-27,summer,2026/6/9,player,キーラン・トリッピアー,newcastle-united,free,wolves,A,
-2026-27,summer,2026/5/30,player,ニコラス・オタメンディ,porto,transfer,リーベルプレート,A,
-2026-27,summer,2026/5/30,player,アダム・ウェブスター,brighton,release,未定,A,
-2026-27,summer,2026/5/29,player,アンソニー・ゴードン,newcastle-united,transfer,barcelona,A,※移籍金：8000万€超
-2026-27,summer,2026/5/28,player,カスパー・シュマイケル,celtic,retired,-,A,
-2026-27,summer,2026/5/27,player,山本理仁,シントトロイデン,transfer,freiburg,A,
-2026-27,summer,2026/5/27,player,ソリー・マーチ,brighton,release,未定,A,
-2026-27,summer,2026/5/23,player,長田澪,werder-bremen,transfer,freiburg,A,
-2026-27,summer,2026/5/23,player,ダヴィド・アラバ,real-madrid,release,未定,A,
-2026-27,summer,2026/5/17,player,アントワーヌ・グリーズマン,atletico-madrid,transfer,オークランド・シティ,A,
-2026-27,summer,2026/3/30,player,モハメド・サラー,liverpool,release,未定,A,
-2025-26,winter,2026/1/20,player,塩貝健人,nec,transfer,wolfsburg,A,
-2025-26,winter,2026/2/2,player,ブライアン・グルダ,brighton,loan,rb-leipzig,B,
-2025-26,winter,2026/1/28,player,ラヒーム・スターリング,chelsea,release,,B,
-2025-26,winter,2026/1/31,player,市原吏音,RB大宮アルディージャ,transfer,az,A,
-2025-26,winter,2026/1/23,player,イーサン・ヌワネリ,arsenal,loan,marseille,B,
-2025-26,winter,2026/1/26,player,イフェアニ・エンドゥクウェ,アウストリア・ウィーン,transfer,liverpool,C,
-2025-26,winter,2026/2/1,player,アデモラ・ルックマン,atalanta,transfer,atletico-madrid,A,
-2025-26,winter,2026/1/27,player,ダニエル・マルディーニ,atalanta,loan,lazio,C,
-2025-26,winter,2026/1/15,player,ジャコモ・ラスパドーリ,atletico-madrid,transfer,atalanta,B,
-2025-26,winter,2026/1/14,player,コナー・ギャラガー,atletico-madrid,transfer,tottenham-hotspur,B,
-2025-26,winter,2026/1/1,player,安藤智哉,アビスパ福岡,transfer,st-pauli,A,
-2025-26,winter,2026/1/10,player,ケネス・テイラー,ajax,transfer,lazio,C,
-2025-26,winter,2026/1/28,player,ジェームズ・ウォード＝プラウズ,west-ham-united,loan,burnley,B,
-2025-26,winter,2026/1/2,player,ニクラス・フュルクルク,west-ham-united,transfer,milan,A,
-2025-26,winter,2026/1/25,player,ジオヴァーニ,hellas-verona,transfer,napoli,C,
-2025-26,winter,2026/1/20,player,マーク・グエーイ,crystal-palace,transfer,manchester-city,A,
-2025-26,winter,2026/1/2,player,ブレナン・ジョンソン,tottenham-hotspur,transfer,crystal-palace,A,
-2025-26,winter,2026/1/2,player,高井幸大,tottenham-hotspur,loan,borussia-monchengladbach,A,
-2025-26,winter,2026/1/2,player,パスカル・グロス,borussia-dortmund,transfer,brighton,A,
-2025-26,winter,2026/1/23,player,ロレンツォ・ルッカ,napoli,loan,nottingham-forest,C,
-2025-26,winter,2026/2/2,player,ジェレミー・ボガ,nice,transfer,juventus,B,
-2025-26,winter,2026/1/8,player,アルノー・カリムエンド,nottingham-forest,loan,eintracht-frankfurt,C,
-2025-26,winter,2026/1/20,player,マルク・アンドレ・テア・シュテーゲン,barcelona,loan,girona,B,
-2025-26,winter,2026/1/22,player,エディン・ジェコ,fiorentina,transfer,シャルケ,B,
-2025-26,winter,2026/1/16,player,ファクンド・ブオナノッテ,brighton,loan,leeds-united,C,
-2025-26,winter,2026/1/28,player,アダマ・トラオレ,fulham,transfer,west-ham-united,B,
-2025-26,winter,2026/1/27,player,タミー・エイブラハム,ベシクタシュ,transfer,aston-villa,B,
-2025-26,winter,2026/1/9,player,アントワーヌ・セメンヨ,bournemouth,transfer,manchester-city,A,
-2025-26,winter,2026/2/1,player,シュテファン・オルテガ,manchester-city,transfer,nottingham-forest,B,
-2025-26,winter,2026/1/30,player,オスカー・ボブ,manchester-city,transfer,fulham,B,
-2025-26,winter,2026/1/14,player,マクシミリアン・イブラヒモヴィッチ,milan,loan,ajax,C,
-2025-26,winter,2026/1/31,player,原大智,京都サンガF.C.,transfer,st-pauli,B,
-2025-26,winter,2025/12/16,player,冨安健洋,,transfer,ajax,A,復活
-2025-26,winter,2026/1/28,player,ルーカス・パケタ,west-ham-united,transfer,フラメンゴ,A,
-2025-26,winter,2026/1/14,player,ジョアン・カンセロ,アル・ヒラル,loan,barcelona,A,
-2025-26,winter,2025/7/26,player,ロドリゴ・デ・パウル,atletico-madrid,transfer,インテル・マイアミ,B,
-2025-26,winter,2025/12/25,player,ハビ・ガラン,atletico-madrid,transfer,osasuna,C,
-2025-26,winter,2025/12/23,player,エンドリッキ,real-madrid,loan,lyon,B,
-2025-26,winter,2025/12/18,player,ダニ・ロドリゲス,mallorca,free,レガネス,C,
-2025-26,winter,2026/1/8,player,ウマル・サディク,real-sociedad,transfer,valencia,B,
-2025-26,winter,2025/12/18,player,小杉啓太,ユールゴーデン,transfer,eintracht-frankfurt,A,
-2025-26,winter,2026/1/29,player,ティモ・ヴェルナー,rb-leipzig,free,サンノゼ・アースクエイクス,B,
-2025-26,winter,2026/1/31,player,ウェズレイ,アル・ナスル,loan,real-sociedad,B,
+﻿season,date,importance,kind,move_type,from_club_key,window,name,to_club_key,note
+2026-27,2026/6/4,A,coach,coach_in,,summer,マッシミリアーノ・アッレグリ,napoli,※2026.5ミラン解任
+2026-27,2026/7/1,A,coach,coach_out,nottingham-forest,summer,ヴィトール・ペレイラ,未定,
+2026-27,2026/6/22,A,coach,coach_in,,summer,エンツォ・マレスカ,manchester-city,2026.1 チェルシー退任
+2026-27,2026/6/16,A,coach,coach_in,,summer,ルーベン・アモリム,milan,2026.1 マンU解任
+2026-27,2026/6/15,A,coach,coach_in,liverpool,summer,ジョヴァンニ・ファン・ブロンクホルスト,feyenoord,アシスタントコーチ退任
+2026-27,2026/6/15,A,coach,coach_in,lazio,summer,マウリツィオ・サッリ,atalanta,※正式発表待ち
+2026-27,2026/6/12,A,coach,coach_in,benfica,summer,ジョゼ・モウリーニョ,real-madrid,
+2026-27,2026/6/9,A,coach,coach_out,real-madrid,summer,アルバロ・アルベロア,未定,
+2026-27,2026/6/9,A,coach,coach_out,atalanta,summer,ラファエレ・パッラディーノ,未定,
+2026-27,2026/6/15,A,coach,coach_in,rc-lens,summer,ピエール・サージュ,crystal-palace,
+2026-27,2026/6/10,A,coach,coach_in,crystal-palace,summer,オリバー・グラスナー,milan,6/10合意報道 ⇒ 辞退
+2026-27,2026/6/8,A,coach,coach_out,feyenoord,summer,ロビン・ファン・ペルシ,未定,解任
+2026-27,2026/6/5,A,coach,coach_in,bournemouth,summer,アンドニ・イラオラ,liverpool,
+2026-27,2026/6/4,A,coach,coach_out,napoli,summer,アントニオ・コンテ,未定,契約解除
+2026-27,2026/5/30,A,coach,coach_out,liverpool,summer,アルネ・スロット,未定,
+2026-27,2026/6/1,A,coach,coach_out,monaco,summer,セバスチャン・ポコニョーリ,未定,
+2026-27,2026/5/22,A,coach,coach_out,manchester-city,summer,ジョゼップ・グアルディオラ,未定,
+2026-27,2026/5/17,A,coach,coach_in,-,summer,シャビ・アロンソ,chelsea,2026.01マドリー解任
+2026-27,2026/7/3,A,player,loan,girona,summer,マルク・アンドレ・テア・シュテーゲン,ajax,レンタル先移籍（保有バルセロナ）
+2026-27,2026/7/2,A,player,transfer,sporting,summer,モルテン・ヒュルマンド,atletico-madrid,"合意報道 | 約4,000万ユーロ"
+2026-27,2026/7/2,A,player,transfer,venezia,summer,マイケル・スヴォボダ,brighton,
+2026-27,2026/7/2,A,player,transfer,newcastle-united,summer,サンドロ・トナーリ,tottenham-hotspur,合意報道 | 1億ポンド（約214億円）
+2026-27,2026/7/2,A,player,transfer,tottenham-hotspur,summer,ルカ・ヴシュコヴィッチ,brighton,⇦ハンブルガーSVレンタル | 4600万ポンド（約99億3000万）
+2026-27,2026/7/1,A,player,transfer,rennes,summer,ジェレミー・ジャケ,liverpool,6000万ユーロ
+2026-27,2026/7/1,A,player,transfer,west-ham-united,summer,マテウス・フェルナンデス,tottenham-hotspur,合意報道 | 8500万ポンド
+2026-27,2026/7/1,A,player,free,inter,summer,ステファン・デ・フライ,パナシナイコス,
+2026-27,2026/7/1,A,player,transfer,barcelona,summer,アンス・ファティ,monaco,買取OP
+2026-27,2026/6/30,A,player,transfer,barcelona,summer,ロベルト・レヴァンドフスキ,シカゴ・ファイヤー,
+2026-27,2026/7/1,A,player,transfer,leeds-united,summer,パスカル・ストライク,brighton,合意報道 | 2000万ポンド（約43億円）
+2026-27,2026/6/28,A,player,transfer,mallorca,summer,浅野拓磨,サンフレッチェ広島,
+2026-27,2026/6/27,A,player,release,real-madrid,summer,ダニ・セバージョス,未定,
+2026-27,2026/6/27,A,player,transfer,monaco,summer,カイオ・エンヒキ,ajax,合意報道 | 1000万€
+2026-27,2026/7/1,A,player,transfer,paris-saint-germain,summer,ゴンサロ・ラモス,milan,7000万ユーロ
+2026-27,2026/6/27,A,player,transfer,stade-reims,summer,関根大輝,holstein-kiel,レンタル
+2026-27,2026/6/27,A,player,free,ajax,summer,ボウト・ベグホルスト,twente,
+2026-27,2026/6/26,A,player,transfer,real-madrid,summer,ニコ・パス,como,レンタル ⇒ 完全移籍 | 6000万€
+2026-27,2026/7/2,A,player,transfer,nottingham-forest,summer,エリオット・アンダーソン,manchester-city,1億3500万€
+2026-27,2026/6/26,A,player,transfer,eintracht-frankfurt,summer,ナサニエル・ブラウン,bayern-munich,合意報道 | 5500万€
+2026-27,2026/6/25,A,player,transfer,bayer-leverkusen,summer,ピエロ・ヒンカピエ,arsenal,レンタル ⇒ 完全移籍 | 4000万€
+2026-27,2026/7/1,A,player,transfer,bayer-leverkusen,summer,アレハンドロ・グリマルド,atletico-madrid,2000万€
+2026-27,2026/7/2,A,player,transfer,atalanta,summer,マルコ・パレストラ,chelsea,4700万ポンド（約100億8000万円）
+2026-27,2026/6/23,A,player,free,porto,summer,チアゴ・シウバ,フルミネンセ,復帰
+2026-27,2026/6/23,A,player,transfer,バルセロナ U19,summer,ハムザ・アブドゥルカリーム,barcelona,移籍・昇格
+2026-27,2026/6/19,A,player,transfer,brighton,summer,ヤン・ポール・ファン・ヘッケ,tottenham-hotspur,5200万ポンド（約111億）
+2026-27,2026/6/19,A,player,transfer,osasuna,summer,ビクトル・ムニョス,liverpool,4000万€（約74億）
+2026-27,2026/6/19,A,player,transfer,lyon,summer,アフォンソ・モレイラ,bayer-leverkusen,3000万€
+2026-27,2026/6/18,A,player,transfer,清水エスパルス,summer,宇野禅斗,borussia-monchengladbach,
+2026-27,2026/7/2,A,player,transfer,psv,summer,イスマエル・サイバリ,bayern-munich,4500万ポンド（約96億円）
+2026-27,2026/6/15,A,player,transfer,nice,summer,ジェレミー・ボガ,juventus,完全移籍 ⇐ レンタル
+2026-27,2026/6/15,A,player,transfer,chelsea,summer,マルク・ククレジャ,real-madrid,6000万€（約111億）
+2026-27,2026/6/17,A,player,free,manchester-city,summer,ベルナルド・シウバ,real-madrid,
+2026-27,2026/6/11,A,player,transfer,シントトロイデン,summer,後藤啓介,freiburg,
+2026-27,2026/6/11,A,player,transfer,フォルトゥナ・デュッセルドルフ,summer,田中聡,schalke,
+2026-27,2026/6/11,A,player,free,bournemouth,summer,マルコス・セネシ,tottenham-hotspur,
+2026-27,2026/6/10,A,player,release,manchester-united,summer,ジェイドン・サンチョ,未定,
+2026-27,2026/6/20,A,player,free,manchester-united,summer,カゼミーロ,インテル・マイアミ,
+2026-27,2026/6/10,A,player,free,fulham,summer,ラウル・ヒメネス,wolves,
+2026-27,2026/6/8,A,player,retired,-,summer,ディヴォック・オリギ,-,2025.12ミラン契約解除
+2026-27,2026/6/6,A,player,free,liverpool,summer,アンドリュー・ロバートソン,tottenham-hotspur,
+2026-27,2026/6/3,A,player,transfer,inter,summer,デンゼル・ダンフリース,real-madrid,※正式発表待ち / 約2000万€（約37億円）
+2026-27,2026/6/3,A,player,release,juventus,summer,ドゥシャン・ヴラホヴィッチ,未定,
+2026-27,2026/6/5,A,player,transfer,atalanta,summer,エデルソン,manchester-united,4500万€
+2026-27,2026/6/3,A,player,transfer,manchester-united,summer,ラスムス・ホイルンド,napoli,完全移籍 ⇐ レンタル
+2026-27,2026/6/1,A,player,retired,brighton,summer,ジェームズ・ミルナー,-,
+2026-27,2026/6/9,A,player,free,newcastle-united,summer,キーラン・トリッピアー,wolves,
+2026-27,2026/5/30,A,player,transfer,porto,summer,ニコラス・オタメンディ,リーベルプレート,
+2026-27,2026/5/30,A,player,release,brighton,summer,アダム・ウェブスター,未定,
+2026-27,2026/5/29,A,player,transfer,newcastle-united,summer,アンソニー・ゴードン,barcelona,※移籍金：8000万€超
+2026-27,2026/5/28,A,player,retired,celtic,summer,カスパー・シュマイケル,-,
+2026-27,2026/5/27,A,player,transfer,シントトロイデン,summer,山本理仁,freiburg,
+2026-27,2026/5/27,A,player,release,brighton,summer,ソリー・マーチ,未定,
+2026-27,2026/5/23,A,player,transfer,werder-bremen,summer,長田澪,freiburg,
+2026-27,2026/5/23,A,player,release,real-madrid,summer,ダヴィド・アラバ,未定,
+2026-27,2026/5/17,A,player,transfer,atletico-madrid,summer,アントワーヌ・グリーズマン,オークランド・シティ,
+2026-27,2026/3/30,A,player,release,liverpool,summer,モハメド・サラー,未定,
+2025-26,2026/1/20,A,player,transfer,nec,winter,塩貝健人,wolfsburg,
+2025-26,2026/2/2,B,player,loan,brighton,winter,ブライアン・グルダ,rb-leipzig,
+2025-26,2026/1/28,B,player,release,chelsea,winter,ラヒーム・スターリング,,
+2025-26,2026/1/31,A,player,transfer,RB大宮アルディージャ,winter,市原吏音,az,
+2025-26,2026/1/23,B,player,loan,arsenal,winter,イーサン・ヌワネリ,marseille,
+2025-26,2026/1/26,C,player,transfer,アウストリア・ウィーン,winter,イフェアニ・エンドゥクウェ,liverpool,
+2025-26,2026/2/1,A,player,transfer,atalanta,winter,アデモラ・ルックマン,atletico-madrid,
+2025-26,2026/1/27,C,player,loan,atalanta,winter,ダニエル・マルディーニ,lazio,
+2025-26,2026/1/15,B,player,transfer,atletico-madrid,winter,ジャコモ・ラスパドーリ,atalanta,
+2025-26,2026/1/14,B,player,transfer,atletico-madrid,winter,コナー・ギャラガー,tottenham-hotspur,
+2025-26,2026/1/1,A,player,transfer,アビスパ福岡,winter,安藤智哉,st-pauli,
+2025-26,2026/1/10,C,player,transfer,ajax,winter,ケネス・テイラー,lazio,
+2025-26,2026/1/28,B,player,loan,west-ham-united,winter,ジェームズ・ウォード＝プラウズ,burnley,
+2025-26,2026/1/2,A,player,transfer,west-ham-united,winter,ニクラス・フュルクルク,milan,
+2025-26,2026/1/25,C,player,transfer,hellas-verona,winter,ジオヴァーニ,napoli,
+2025-26,2026/1/20,A,player,transfer,crystal-palace,winter,マーク・グエーイ,manchester-city,
+2025-26,2026/1/2,A,player,transfer,tottenham-hotspur,winter,ブレナン・ジョンソン,crystal-palace,
+2025-26,2026/1/2,A,player,loan,tottenham-hotspur,winter,高井幸大,borussia-monchengladbach,
+2025-26,2026/1/2,A,player,transfer,borussia-dortmund,winter,パスカル・グロス,brighton,
+2025-26,2026/1/23,C,player,loan,napoli,winter,ロレンツォ・ルッカ,nottingham-forest,
+2025-26,2026/2/2,B,player,transfer,nice,winter,ジェレミー・ボガ,juventus,
+2025-26,2026/1/8,C,player,loan,nottingham-forest,winter,アルノー・カリムエンド,eintracht-frankfurt,
+2025-26,2026/1/20,B,player,loan,barcelona,winter,マルク・アンドレ・テア・シュテーゲン,girona,
+2025-26,2026/1/22,B,player,transfer,fiorentina,winter,エディン・ジェコ,シャルケ,
+2025-26,2026/1/16,C,player,loan,brighton,winter,ファクンド・ブオナノッテ,leeds-united,
+2025-26,2026/1/28,B,player,transfer,fulham,winter,アダマ・トラオレ,west-ham-united,
+2025-26,2026/1/27,B,player,transfer,ベシクタシュ,winter,タミー・エイブラハム,aston-villa,
+2025-26,2026/1/9,A,player,transfer,bournemouth,winter,アントワーヌ・セメンヨ,manchester-city,
+2025-26,2026/2/1,B,player,transfer,manchester-city,winter,シュテファン・オルテガ,nottingham-forest,
+2025-26,2026/1/30,B,player,transfer,manchester-city,winter,オスカー・ボブ,fulham,
+2025-26,2026/1/14,C,player,loan,milan,winter,マクシミリアン・イブラヒモヴィッチ,ajax,
+2025-26,2026/1/31,B,player,transfer,京都サンガF.C.,winter,原大智,st-pauli,
+2025-26,2025/12/16,A,player,transfer,,winter,冨安健洋,ajax,復活
+2025-26,2026/1/28,A,player,transfer,west-ham-united,winter,ルーカス・パケタ,フラメンゴ,
+2025-26,2026/1/14,A,player,loan,アル・ヒラル,winter,ジョアン・カンセロ,barcelona,
+2025-26,2025/7/26,B,player,transfer,atletico-madrid,winter,ロドリゴ・デ・パウル,インテル・マイアミ,
+2025-26,2025/12/25,C,player,transfer,atletico-madrid,winter,ハビ・ガラン,osasuna,
+2025-26,2025/12/23,B,player,loan,real-madrid,winter,エンドリッキ,lyon,
+2025-26,2025/12/18,C,player,free,mallorca,winter,ダニ・ロドリゲス,レガネス,
+2025-26,2026/1/8,B,player,transfer,real-sociedad,winter,ウマル・サディク,valencia,
+2025-26,2025/12/18,A,player,transfer,ユールゴーデン,winter,小杉啓太,eintracht-frankfurt,
+2025-26,2026/1/29,B,player,free,rb-leipzig,winter,ティモ・ヴェルナー,サンノゼ・アースクエイクス,
+2025-26,2026/1/31,B,player,loan,アル・ナスル,winter,ウェズレイ,real-sociedad,
