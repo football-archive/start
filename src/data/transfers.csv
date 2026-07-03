@@ -1,5 +1,6 @@
 ﻿season,date,importance,kind,move_type,from_club_key,window,name,to_club_key,note
-2026-27,2026/6/4,A,coach,coach_in,,summer,マッシミリアーノ・アッレグリ,napoli,※2026.5ミラン解任
+2026-27,2026/7/4,A,coach,coach_in,,summer,アンジェ・ポステコグルー,アル・ナスル,※2025.10ノッティンガム解任
+2026-27,2026/7/3,A,coach,coach_in,,summer,マッシミリアーノ・アッレグリ,napoli,※2026.5ミラン解任
 2026-27,2026/7/1,A,coach,coach_out,nottingham-forest,summer,ヴィトール・ペレイラ,未定,
 2026-27,2026/6/22,A,coach,coach_in,,summer,エンツォ・マレスカ,manchester-city,2026.1 チェルシー退任
 2026-27,2026/6/16,A,coach,coach_in,,summer,ルーベン・アモリム,milan,2026.1 マンU解任
@@ -17,6 +18,7 @@
 2026-27,2026/6/1,A,coach,coach_out,monaco,summer,セバスチャン・ポコニョーリ,未定,
 2026-27,2026/5/22,A,coach,coach_out,manchester-city,summer,ジョゼップ・グアルディオラ,未定,
 2026-27,2026/5/17,A,coach,coach_in,-,summer,シャビ・アロンソ,chelsea,2026.01マドリー解任
+2026-27,2026/7/3,A,player,free,manchester-city,summer,ナタン・アケ,フェネルバフチェ,
 2026-27,2026/7/3,A,player,loan,girona,summer,マルク・アンドレ・テア・シュテーゲン,ajax,レンタル先移籍（保有バルセロナ）
 2026-27,2026/7/2,A,player,transfer,sporting,summer,モルテン・ヒュルマンド,atletico-madrid,"合意報道 | 約4,000万ユーロ"
 2026-27,2026/7/2,A,player,transfer,venezia,summer,マイケル・スヴォボダ,brighton,
@@ -32,11 +34,11 @@
 2026-27,2026/6/27,A,player,release,real-madrid,summer,ダニ・セバージョス,未定,
 2026-27,2026/6/27,A,player,transfer,monaco,summer,カイオ・エンヒキ,ajax,合意報道 | 1000万€
 2026-27,2026/7/1,A,player,transfer,paris-saint-germain,summer,ゴンサロ・ラモス,milan,7000万ユーロ
-2026-27,2026/6/27,A,player,transfer,stade-reims,summer,関根大輝,holstein-kiel,レンタル
+2026-27,2026/6/27,A,player,loan,stade-reims,summer,関根大輝,holstein-kiel,レンタル
 2026-27,2026/6/27,A,player,free,ajax,summer,ボウト・ベグホルスト,twente,
 2026-27,2026/6/26,A,player,transfer,real-madrid,summer,ニコ・パス,como,レンタル ⇒ 完全移籍 | 6000万€
 2026-27,2026/7/2,A,player,transfer,nottingham-forest,summer,エリオット・アンダーソン,manchester-city,1億3500万€
-2026-27,2026/6/26,A,player,transfer,eintracht-frankfurt,summer,ナサニエル・ブラウン,bayern-munich,合意報道 | 5500万€
+2026-27,2026/7/3,A,player,transfer,eintracht-frankfurt,summer,ナサニエル・ブラウン,bayern-munich,5500万€
 2026-27,2026/6/25,A,player,transfer,bayer-leverkusen,summer,ピエロ・ヒンカピエ,arsenal,レンタル ⇒ 完全移籍 | 4000万€
 2026-27,2026/7/1,A,player,transfer,bayer-leverkusen,summer,アレハンドロ・グリマルド,atletico-madrid,2000万€
 2026-27,2026/7/2,A,player,transfer,atalanta,summer,マルコ・パレストラ,chelsea,4700万ポンド（約100億8000万円）
