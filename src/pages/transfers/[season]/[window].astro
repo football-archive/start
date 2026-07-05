@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { loadTransfers } from "../../../lib/transfers";
+import fs from "node:fs";
+import path from "node:path";
 
 export function getStaticPaths() {
   const all = loadTransfers();
@@ -144,22 +146,55 @@ const clubText = (r, which) =>
     ? r.from_club_display_ja || "—"
     : r.to_club_display_ja || "—";
 
-const hasClubSeasonPage = (href: string) => {
-  if (!href) return false;
+const normalize = (v) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
 
-  // 現状投入済 season を定義
-  const availableSeasons = new Set([
-    "2025-26",
-    // 必要に応じて追加
-  ]);
+const squadPath = path.join(
+  process.cwd(),
+  "src",
+  "data",
+  "club_squads_site.csv",
+);
 
-  return availableSeasons.has(season);
+const availableClubSquads = new Set<string>();
+
+if (fs.existsSync(squadPath)) {
+  const raw = fs.readFileSync(squadPath, "utf-8").replace(/^\uFEFF/, "");
+  const lines = raw.split(/\r?\n/).filter((l) => l.trim());
+
+  const headers = lines[0]?.split(",").map((h) => h.trim()) ?? [];
+
+  for (const line of lines.slice(1)) {
+    const cols = line.split(",");
+    const row = Object.fromEntries(
+      headers.map((h, i) => [h, cols[i]?.trim() ?? ""]),
+    );
+
+    const s = normalize(row.season);
+    const w = normalize(row.window);
+    const leagueKey = normalize(row.league_key);
+    const clubKey = normalize(row.club_key);
+
+    if (s && w && leagueKey && clubKey) {
+      availableClubSquads.add(`${s}|||${w}|||${leagueKey}|||${clubKey}`);
+    }
+  }
+}
+
+const hasClubSeasonPage = (r, which) => {
+  const leagueKey = which === "from" ? r.from_league_key : r.to_league_key;
+  const clubKey = which === "from" ? r.from_club_key : r.to_club_key;
+
+  return availableClubSquads.has(
+    `${normalize(r.season)}|||${normalize(r.window)}|||${normalize(leagueKey)}|||${normalize(clubKey)}`,
+  );
 };
 
 const clubHref = (r, which) => {
   const href = which === "from" ? r.from_club_href || "" : r.to_club_href || "";
-
-  return hasClubSeasonPage(href) ? href : "";
+  return href && hasClubSeasonPage(r, which) ? href : "";
 };
 
 // 表示用日付（ISOがあればそれ、なければ raw）
@@ -194,306 +229,336 @@ const dateText = (r) => {
       windowLabel(window)
     }の移籍・監督交代情報を一覧で掲載しています。</br>
 主要リーグの移籍市場で発表された選手加入・退団、監督就任・退任を日付順に整理しており、各クラブページから最新スカッドや過去シーズン情報も確認できます。
-  </p>
+</p>
 
-  <div class="toprow">
-    <div class="meta">
-      更新：<span class="date-red">{updatedJa}</span>
-      <span class="sep">/</span>
-      選手移籍：{playerRows.length}件
-      <span class="sep">/</span>
-      監督交代：{coachRows.length}件
-    </div>
+
+
+<div class="toprow">
+  <div class="meta">
+    更新：<span class="date-red">{updatedJa}</span>
+    <span class="sep">/</span>
+    選手移籍：{playerRows.length}件
+    <span class="sep">/</span>
+    監督交代：{coachRows.length}件
   </div>
+</div>
 
-  <div class="pill-block">
-    <div class="pill-label">👉 シーズンを切り替える</div>
-    <div class="pills">
-      {
-        seasons.map((s) => (
+<div class="pill-block">
+  <div class="pill-label">👉 シーズンを切り替える</div>
+  <div class="pills">
+    {
+      seasons.map((s) => (
+        <a
+          class={`pill ${s === season ? "is-active" : ""}`}
+          href={pageHref(s, bestWindowForSeason(s, window))}
+          aria-label={`${s} の移籍一覧へ`}
+        >
+          <span class="dot" aria-hidden="true" />
+          {s}
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<div class="pill-block">
+  <div class="pill-label">👉 期間を切り替える</div>
+  <div class="pills">
+    {
+      ["winter", "summer"].map((w) => {
+        const exists = hasPeriod(season, w);
+
+        return exists ? (
           <a
-            class={`pill ${s === season ? "is-active" : ""}`}
-            href={pageHref(s, bestWindowForSeason(s, window))}
-            aria-label={`${s} の移籍一覧へ`}
+            class={`pill ${w === window ? "is-active" : ""}`}
+            href={pageHref(season, w)}
+            aria-label={`${windowLabel(w)} の移籍一覧へ`}
           >
             <span class="dot" aria-hidden="true" />
-            {s}
+            {windowLabel(w)}
           </a>
-        ))
-      }
-    </div>
+        ) : (
+          <span
+            class="pill is-disabled"
+            aria-disabled="true"
+            title={`${season} ${windowLabel(w)}の移籍データは未掲載です`}
+          >
+            <span class="dot" aria-hidden="true" />
+            {windowLabel(w)}
+          </span>
+        );
+      })
+    }
   </div>
+</div>
 
-  <div class="pill-block">
-    <div class="pill-label">👉 期間を切り替える</div>
-    <div class="pills">
-      {
-        ["winter", "summer"].map((w) => {
-          const exists = hasPeriod(season, w);
-
-          return exists ? (
-            <a
-              class={`pill ${w === window ? "is-active" : ""}`}
-              href={pageHref(season, w)}
-              aria-label={`${windowLabel(w)} の移籍一覧へ`}
-            >
-              <span class="dot" aria-hidden="true" />
-              {windowLabel(w)}
-            </a>
-          ) : (
-            <span
-              class="pill is-disabled"
-              aria-disabled="true"
-              title={`${season} ${windowLabel(w)}の移籍データは未掲載です`}
-            >
-              <span class="dot" aria-hidden="true" />
-              {windowLabel(w)}
-            </span>
-          );
-        })
-      }
-    </div>
-  </div>
-
-  <style is:global>
-    .meta {
-      font-size: 13px;
-      color: #666;
-    }
-    .date-red {
-      color: #e11d48;
-      font-weight: 700;
-    }
-    .sep {
-      margin: 0 6px;
-      opacity: 0.6;
-    }
-
-    .table-wrap {
-      border: 1px solid var(--border, #e6e6e6);
-      border-radius: 14px;
-      background: #fff;
-
-      /* 追加ここから */
-      max-height: 70vh; /* 画面内でスクロールさせる */
-      overflow: auto; /* 横＋縦スクロール両対応 */
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0;
-      font-size: 13px;
-      min-width: 880px;
-    }
-
-    thead th {
-      position: sticky;
-      top: 0;
-      z-index: 5; /* 1→5くらいに上げる */
-      background: var(--roster-head-bg, #fff7cc);
-      border-bottom: 1px solid var(--roster-head-border, #f1c40f);
-      padding: 10px 10px;
-      text-align: left;
-      white-space: nowrap;
-    }
-    thead th:first-child {
-      border-top-left-radius: 14px;
-    }
-    thead th:last-child {
-      border-top-right-radius: 14px;
-    }
-
-    tbody td {
-      padding: 10px 10px;
-      border-bottom: 1px solid #f0f0f0;
-      vertical-align: top;
-      white-space: nowrap;
-    }
-
-    tbody tr:hover td {
-      background: #fffdf3;
-    }
-
-    .mono {
-      font-variant-numeric: tabular-nums;
-    }
-
-    .note {
-      color: #e11d48;
-      font-weight: 700;
-      white-space: normal;
-      min-width: 220px;
-    }
-
-    a.link {
-      color: inherit;
-      text-decoration: underline;
-      text-underline-offset: 2px;
-    }
-
-    .type {
-      font-weight: 700;
-    }
-
-    .empty {
-      margin-top: 16px;
-    }
-
-    .page-transfer .page-title {
-      margin: 6px 0 10px;
-      font-size: 28px;
-      line-height: 1.35;
-      color: #111;
-    }
-
-    .page-transfer .transfer-lead {
-      margin: 4px 0 14px;
-      font-size: 13px;
-      color: var(--muted, #666);
-      line-height: 1.6;
-    }
-
-    .page-transfer .pill-block {
-      margin: 10px 0 14px;
-    }
-
-    .page-transfer .pill-label {
-      font-size: 13px;
-      color: var(--muted, #666);
-      margin-bottom: 6px;
-      font-weight: 600;
-    }
-
-    .page-transfer .pill.is-disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      pointer-events: none;
-      background: #f3f4f6;
-      color: #777;
-    }
-
-    .page-transfer .section-title {
-      margin: 22px 0 10px;
-      font-size: 20px;
-    }
-  </style>
-
-  {
-    rows.length === 0 ? (
-      <div class="empty">
-        <h2>データがありません</h2>
-        <p>
-          transfers.csv の <code>season</code> と <code>window</code>{" "}
-          を確認してください。
-        </p>
-        <div class="empty-actions">
-          <a class="btn" href="/transfers/">
-            /transfers を開く
-          </a>
-        </div>
-      </div>
-    ) : (
-      <div class="table-wrap roster-block">
-        <table>
-          <thead>
-            <tr>
-              <th class="mono">移籍日</th>
-              <th>選手</th>
-              <th>種別</th>
-              <th>from</th>
-              <th>to</th>
-              <th>備考</th>
-            </tr>
-          </thead>
-          <tbody>
-            {playerRows.map((r) => (
-              <tr>
-                <td class="mono">{dateText(r)}</td>
-                <td>{r.name}</td>
-
-                <td class="type">{moveLabel(r.move_type)}</td>
-
-                <td>
-                  {clubHref(r, "from") ? (
-                    <a class="link" href={clubHref(r, "from")}>
-                      {clubText(r, "from")}
-                    </a>
-                  ) : (
-                    clubText(r, "from")
-                  )}
-                </td>
-
-                <td>
-                  {clubHref(r, "to") ? (
-                    <a class="link" href={clubHref(r, "to")}>
-                      {clubText(r, "to")}
-                    </a>
-                  ) : (
-                    clubText(r, "to") || "—"
-                  )}
-                </td>
-
-                <td class="note">{r.note}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
+<style is:global>
+  .meta {
+    font-size: 13px;
+    color: #666;
+  }
+  .date-red {
+    color: #e11d48;
+    font-weight: 700;
+  }
+  .sep {
+    margin: 0 6px;
+    opacity: 0.6;
   }
 
-  <h2 class="section-title">監督交代一覧</h2>
+  .table-wrap {
+    border: 1px solid var(--border, #e6e6e6);
+    border-radius: 14px;
+    background: #fff;
 
-  {
-    coachRows.length === 0 ? (
-      <p class="empty">監督交代データは準備中です。</p>
-    ) : (
-      <div class="table-wrap roster-block">
-        <table>
-          <thead>
-            <tr>
-              <th class="mono">日付</th>
-              <th>監督</th>
-              <th>種別</th>
-              <th>from</th>
-              <th>to</th>
-              <th>備考</th>
-            </tr>
-          </thead>
-          <tbody>
-            {coachRows.map((r) => (
-              <tr>
-                <td class="mono">{dateText(r)}</td>
-                <td>{r.name}</td>
-                <td class="type">{moveLabel(r.move_type)}</td>
-
-                <td>
-                  {clubHref(r, "from") ? (
-                    <a class="link" href={clubHref(r, "from")}>
-                      {clubText(r, "from")}
-                    </a>
-                  ) : (
-                    clubText(r, "from")
-                  )}
-                </td>
-
-                <td>
-                  {clubHref(r, "to") ? (
-                    <a class="link" href={clubHref(r, "to")}>
-                      {clubText(r, "to")}
-                    </a>
-                  ) : (
-                    clubText(r, "to") || "—"
-                  )}
-                </td>
-
-                <td class="note">{r.note}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    )
+    /* 追加ここから */
+    max-height: 70vh; /* 画面内でスクロールさせる */
+    overflow: auto; /* 横＋縦スクロール両対応 */
   }
+
+  table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    min-width: 880px;
+  }
+
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 5; /* 1→5くらいに上げる */
+    background: var(--roster-head-bg, #fff7cc);
+    border-bottom: 1px solid var(--roster-head-border, #f1c40f);
+    padding: 10px 10px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  thead th:first-child {
+    border-top-left-radius: 14px;
+  }
+  thead th:last-child {
+    border-top-right-radius: 14px;
+  }
+
+  tbody td {
+    padding: 10px 10px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  tbody tr:hover td {
+    background: #fffdf3;
+  }
+
+  .mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .note {
+    color: #e11d48;
+    font-weight: 700;
+    white-space: normal;
+    min-width: 220px;
+  }
+
+  a.link {
+    color: inherit;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
+  .type {
+    font-weight: 700;
+  }
+
+  .empty {
+    margin-top: 16px;
+  }
+
+  .page-transfer .page-title {
+    margin: 6px 0 10px;
+    font-size: 28px;
+    line-height: 1.35;
+    color: #111;
+  }
+
+  .page-transfer .transfer-lead {
+    margin: 4px 0 14px;
+    font-size: 13px;
+    color: var(--muted, #666);
+    line-height: 1.6;
+  }
+
+  .page-transfer .pill-block {
+    margin: 10px 0 14px;
+  }
+
+  .page-transfer .pill-label {
+    font-size: 13px;
+    color: var(--muted, #666);
+    margin-bottom: 6px;
+    font-weight: 600;
+  }
+
+  .page-transfer .pill.is-disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+    pointer-events: none;
+    background: #f3f4f6;
+    color: #777;
+  }
+
+  .page-transfer .section-title {
+    margin: 22px 0 10px;
+    font-size: 20px;
+  }
+
+  .club-link {
+    color: var(--theme-color);
+    text-decoration: none;
+    font-weight: 800;
+  }
+
+  .club-link:hover {
+    text-decoration: underline;
+  }
+
+  .page-transfer td .club-link {
+    color: var(--theme-color);
+    text-decoration: none;
+    font-weight: 700;
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .page-transfer td .club-link:hover {
+    text-decoration: underline;
+  }
+
+  .page-transfer .club-cell {
+    white-space: normal;
+    min-width: 140px;
+    max-width: 220px;
+  }
+</style>
+
+{
+  rows.length === 0 ? (
+    <div class="empty">
+      <h2>データがありません</h2>
+      <p>
+        transfers.csv の <code>season</code> と <code>window</code>{" "}
+        を確認してください。
+      </p>
+      <div class="empty-actions">
+        <a class="btn" href="/transfers/">
+          /transfers を開く
+        </a>
+      </div>
+    </div>
+  ) : (
+    <div class="table-wrap roster-block">
+      <table>
+        <thead>
+          <tr>
+            <th class="mono">移籍日</th>
+            <th>選手</th>
+            <th>種別</th>
+            <th>from</th>
+            <th>to</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          {playerRows.map((r) => (
+            <tr>
+              <td class="mono">{dateText(r)}</td>
+              <td>{r.name}</td>
+
+              <td class="type">{moveLabel(r.move_type)}</td>
+
+              <td class="club-cell">
+                {clubHref(r, "from") ? (
+                  <a class="club-link" href={clubHref(r, "from")}>
+                    {clubText(r, "from")}
+                  </a>
+                ) : (
+                  clubText(r, "from")
+                )}
+              </td>
+
+              <td class="club-cell">
+                {clubHref(r, "to") ? (
+                  <a class="club-link" href={clubHref(r, "to")}>
+                    {clubText(r, "to")}
+                  </a>
+                ) : (
+                  clubText(r, "to")
+                )}
+              </td>
+
+              <td class="note">{r.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+<h2 class="section-title">監督交代一覧</h2>
+
+{
+  coachRows.length === 0 ? (
+    <p class="empty">監督交代データは準備中です。</p>
+  ) : (
+    <div class="table-wrap roster-block">
+      <table>
+        <thead>
+          <tr>
+            <th class="mono">日付</th>
+            <th>監督</th>
+            <th>種別</th>
+            <th>from</th>
+            <th>to</th>
+            <th>備考</th>
+          </tr>
+        </thead>
+        <tbody>
+          {coachRows.map((r) => (
+            <tr>
+              <td class="mono">{dateText(r)}</td>
+              <td>{r.name}</td>
+              <td class="type">{moveLabel(r.move_type)}</td>
+
+              <td>
+                {clubHref(r, "from") ? (
+                  <a class="club-link" href={clubHref(r, "from")}>
+                    {clubText(r, "from")}
+                  </a>
+                ) : (
+                  clubText(r, "from")
+                )}
+              </td>
+
+              <td>
+                {clubHref(r, "to") ? (
+                  <a class="club-link" href={clubHref(r, "to")}>
+                    {clubText(r, "to")}
+                  </a>
+                ) : (
+                  clubText(r, "to") || "—"
+                )}
+              </td>
+
+              <td class="note">{r.note}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
 </BaseLayout>

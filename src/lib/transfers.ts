@@ -53,6 +53,9 @@ export type TransferEvent = {
   /** club_masterに存在する場合のみリンクを作る（存在しなければ空） */
   from_club_href: string;
   to_club_href: string;
+
+  from_league_key: string;
+  to_league_key: string;
 };
 
 type LoadTransfersArgs = {
@@ -175,14 +178,20 @@ function resolveClubDisplay(
   clubKeyOrRaw: string,
   byKey: Map<string, any>,
   season?: string,
-): { ja: string; en: string; href: string } {
+): {
+  ja: string;
+  en: string;
+  href: string;
+  leagueKey: string;
+  clubKey: string;
+} {
   const raw = normalizeText(clubKeyOrRaw);
-  if (!raw) return { ja: "", en: "", href: "" };
+  if (!raw) return { ja: "", en: "", href: "", leagueKey: "", clubKey: "" };
 
   const hit = byKey.get(raw);
   if (!hit) {
     // masterに無い → 値そのまま表示、リンクなし
-    return { ja: raw, en: raw, href: "" };
+    return { ja: raw, en: raw, href: "", leagueKey: "", clubKey: "" };
   }
 
   const ja = normalizeText(hit.club_display_ja) || raw;
@@ -197,7 +206,7 @@ function resolveClubDisplay(
         ? clubUrl({ leagueKey, clubKey })
         : "";
 
-  return { ja, en, href };
+  return { ja, en, href, leagueKey, clubKey };
 }
 
 /**
@@ -266,6 +275,9 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
 
       from_club_href: fromRes.href,
       to_club_href: toRes.href,
+
+      from_league_key: fromRes.leagueKey,
+      to_league_key: toRes.leagueKey,
     });
   }
 
