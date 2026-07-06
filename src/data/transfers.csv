@@ -1,4 +1,5 @@
 ﻿season,date,importance,kind,move_type,from_club_key,window,name,to_club_key,note
+2026-27,2026/7/7,A,coach,coach_in,,summer,フェリペ・ルイス,monaco,※2026.03フラメンゴ解任
 2026-27,2026/7/6,A,coach,coach_in,crystal-palace,summer,オリバー・グラスナー,nottingham-forest,
 2026-27,2026/7/4,A,coach,coach_in,,summer,アンジェ・ポステコグルー,アル・ナスル,※2025.10ノッティンガム解任
 2026-27,2026/7/3,A,coach,coach_in,,summer,マッシミリアーノ・アッレグリ,napoli,※2026.5ミラン解任
@@ -18,6 +19,8 @@
 2026-27,2026/6/1,A,coach,coach_out,monaco,summer,セバスチャン・ポコニョーリ,未定,
 2026-27,2026/5/22,A,coach,coach_out,manchester-city,summer,ジョゼップ・グアルディオラ,未定,
 2026-27,2026/5/17,A,coach,coach_in,-,summer,シャビ・アロンソ,chelsea,2026.01マドリー解任
+2026-27,2026/7/7,A,player,transfer,paris-saint-germain,summer,李康仁（イ・ガンイン）,atletico-madrid,"合意報道 | 約4,000万ユーロ"
+2026-27,2026/7/6,A,player,transfer,FC東京,summer,佐藤龍之介,valencia,正式発表待ち
 2026-27,2026/7/6,A,player,transfer,FCユトレヒト,summer,セバスティアン・アレー,サンフレッチェ広島,
 2026-27,2026/7/6,A,player,transfer,hoffenheim,summer,バズマナ・トゥーレ,newcastle-united,
 2026-27,2026/7/6,A,player,loan,tottenham-hotspur,summer,ラドゥ・ドラグシン,fiorentina,
@@ -25,7 +28,7 @@
 2026-27,2026/7/3,A,player,loan,girona,summer,マルク・アンドレ・テア・シュテーゲン,ajax,レンタル先移籍（保有バルセロナ）
 2026-27,2026/7/2,A,player,transfer,sporting,summer,モルテン・ヒュルマンド,atletico-madrid,"合意報道 | 約4,000万ユーロ"
 2026-27,2026/7/2,A,player,transfer,venezia,summer,マイケル・スヴォボダ,brighton,
-2026-27,2026/7/2,A,player,transfer,newcastle-united,summer,サンドロ・トナーリ,tottenham-hotspur,合意報道 | 1億ポンド（約214億円）
+2026-27,2026/7/6,A,player,transfer,newcastle-united,summer,サンドロ・トナーリ,tottenham-hotspur,約1億1500万ユーロ
 2026-27,2026/7/2,A,player,transfer,tottenham-hotspur,summer,ルカ・ヴシュコヴィッチ,brighton,⇦ハンブルガーSVレンタル | 4600万ポンド（約99億3000万）
 2026-27,2026/7/1,A,player,transfer,rennes,summer,ジェレミー・ジャケ,liverpool,6000万ユーロ
 2026-27,2026/7/1,A,player,transfer,west-ham-united,summer,マテウス・フェルナンデス,tottenham-hotspur,合意報道 | 8500万ポンド
