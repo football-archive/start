@@ -1,4 +1,5 @@
 ﻿season,date,importance,kind,move_type,from_club_key,window,name,to_club_key,note
+2026-27,2026/7/6,A,coach,coach_in,crystal-palace,summer,オリバー・グラスナー,nottingham-forest,
 2026-27,2026/7/4,A,coach,coach_in,,summer,アンジェ・ポステコグルー,アル・ナスル,※2025.10ノッティンガム解任
 2026-27,2026/7/3,A,coach,coach_in,,summer,マッシミリアーノ・アッレグリ,napoli,※2026.5ミラン解任
 2026-27,2026/7/1,A,coach,coach_out,nottingham-forest,summer,ヴィトール・ペレイラ,未定,
@@ -10,7 +11,6 @@
 2026-27,2026/6/9,A,coach,coach_out,real-madrid,summer,アルバロ・アルベロア,未定,
 2026-27,2026/6/9,A,coach,coach_out,atalanta,summer,ラファエレ・パッラディーノ,未定,
 2026-27,2026/6/15,A,coach,coach_in,rc-lens,summer,ピエール・サージュ,crystal-palace,
-2026-27,2026/6/10,A,coach,coach_in,crystal-palace,summer,オリバー・グラスナー,milan,6/10合意報道 ⇒ 辞退
 2026-27,2026/6/8,A,coach,coach_out,feyenoord,summer,ロビン・ファン・ペルシ,未定,解任
 2026-27,2026/6/5,A,coach,coach_in,bournemouth,summer,アンドニ・イラオラ,liverpool,
 2026-27,2026/6/4,A,coach,coach_out,napoli,summer,アントニオ・コンテ,未定,契約解除
@@ -18,6 +18,8 @@
 2026-27,2026/6/1,A,coach,coach_out,monaco,summer,セバスチャン・ポコニョーリ,未定,
 2026-27,2026/5/22,A,coach,coach_out,manchester-city,summer,ジョゼップ・グアルディオラ,未定,
 2026-27,2026/5/17,A,coach,coach_in,-,summer,シャビ・アロンソ,chelsea,2026.01マドリー解任
+2026-27,2026/7/6,A,player,transfer,FCユトレヒト,summer,セバスティアン・アレー,サンフレッチェ広島,
+2026-27,2026/7/6,A,player,transfer,hoffenheim,summer,バズマナ・トゥーレ,newcastle-united,
 2026-27,2026/7/6,A,player,loan,tottenham-hotspur,summer,ラドゥ・ドラグシン,fiorentina,
 2026-27,2026/7/3,A,player,free,manchester-city,summer,ナタン・アケ,フェネルバフチェ,
 2026-27,2026/7/3,A,player,loan,girona,summer,マルク・アンドレ・テア・シュテーゲン,ajax,レンタル先移籍（保有バルセロナ）
