@@ -718,6 +718,177 @@ const columns = buildNtColumns({
   },
 });
 
+// ====================
+// 試合結果一覧（代表ページ用）
+// 参照：src/data/competition_schedule_and_results.csv
+// ====================
+type MatchResultRow = {
+  match_id: string;
+  slug: string;
+  competition: string;
+  edition: string;
+  md: string;
+  stage: string;
+  group: string;
+  datetime_local: string;
+  home: string;
+  away: string;
+  home_score: string;
+  away_score: string;
+  home_score_pk: string;
+  away_score_pk: string;
+  mom: string;
+  mom_team: string;
+  note: string;
+};
+
+const stageLabel = (stage: string, group = "") => {
+  const st = String(stage ?? "").trim();
+  const g = String(group ?? "").trim();
+
+  switch (st) {
+    case "Group":
+    case "Group-Phase":
+      return g ? `GL ${g}` : "GL";
+    case "Round32":
+    case "Round-of-32":
+      return "R32";
+    case "Round16":
+    case "Round-of-16":
+      return "R16";
+    case "Quarter-Finals":
+      return "QF";
+    case "Semi-Finals":
+      return "SF";
+    case "Third-Place":
+      return "3位決定戦";
+    case "Final":
+      return "決勝";
+    default:
+      return st;
+  }
+};
+
+const isScoreValue = (v: any) => {
+  const s = String(v ?? "").trim();
+  return s !== "" && s.toLowerCase() !== "nan" && Number.isFinite(Number(s));
+};
+
+const scoreText = (m: MatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "試合前";
+  }
+
+  const hs = String(Number(m.home_score));
+  const as = String(Number(m.away_score));
+
+  if (isScoreValue(m.home_score_pk) && isScoreValue(m.away_score_pk)) {
+    return `${hs}-${as}（PK ${Number(m.home_score_pk)}-${Number(
+      m.away_score_pk,
+    )}）`;
+  }
+
+  return `${hs}-${as}`;
+};
+
+const matchResultClass = (m: MatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "is-upcoming";
+  }
+
+  const isHome = normKey(m.home) === normKey(countryName);
+  const gf = isHome ? Number(m.home_score) : Number(m.away_score);
+  const ga = isHome ? Number(m.away_score) : Number(m.home_score);
+
+  // PKがある場合はPKで勝敗判定
+  if (isScoreValue(m.home_score_pk) && isScoreValue(m.away_score_pk)) {
+    const pkFor = isHome ? Number(m.home_score_pk) : Number(m.away_score_pk);
+    const pkAgainst = isHome
+      ? Number(m.away_score_pk)
+      : Number(m.home_score_pk);
+    if (pkFor > pkAgainst) return "is-win";
+    if (pkFor < pkAgainst) return "is-loss";
+    return "is-draw";
+  }
+
+  if (gf > ga) return "is-win";
+  if (gf < ga) return "is-loss";
+  return "is-draw";
+};
+
+const matchResultLabel = (m: MatchResultRow) => {
+  const cls = matchResultClass(m);
+  if (cls === "is-win") return "○";
+  if (cls === "is-loss") return "●";
+  if (cls === "is-draw") return "△";
+  return "—";
+};
+
+const opponentName = (m: MatchResultRow) =>
+  normKey(m.home) === normKey(countryName) ? m.away : m.home;
+
+const shortTeamName = (name: string) => String(name ?? "").trim();
+
+const matchTeamHref = (name: string) => {
+  const label = String(name ?? "").trim();
+  if (!label) return "";
+  if (normKey(label) === normKey(countryName)) return "";
+  if (!callupCountrySetForYear.has(normKey(label))) return "";
+  return makeTeamHref(label);
+};
+
+const matchScoreCore = (m: MatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "試合前";
+  }
+
+  return `${Number(m.home_score)}-${Number(m.away_score)}`;
+};
+
+const matchPkText = (m: MatchResultRow) => {
+  if (isScoreValue(m.home_score_pk) && isScoreValue(m.away_score_pk)) {
+    return `PK ${Number(m.home_score_pk)}-${Number(m.away_score_pk)}`;
+  }
+  return "";
+};
+
+const matchTitleText = (m: MatchResultRow) =>
+  `${shortTeamName(m.home)} ${matchScoreCore(m)} ${shortTeamName(m.away)}`;
+
+const matchResultsAll: MatchResultRow[] = readCsv(
+  "competition_schedule_and_results.csv",
+).map((r: any) => ({
+  match_id: String(r["match-id"] ?? "").trim(),
+  slug: String(r.slug ?? "").trim(),
+  competition: String(r.competition ?? "").trim(),
+  edition: String(r.edition ?? "").trim(),
+  md: String(r.md ?? "").trim(),
+  stage: String(r.stage ?? "").trim(),
+  group: String(r.group ?? "").trim(),
+  datetime_local: String(r["datetime-local"] ?? "").trim(),
+  home: String(r.home ?? "").trim(),
+  away: String(r.away ?? "").trim(),
+  home_score: String(r.home_score ?? "").trim(),
+  away_score: String(r.away_score ?? "").trim(),
+  home_score_pk: String(r.home_score_pk ?? "").trim(),
+  away_score_pk: String(r.away_score_pk ?? "").trim(),
+  mom: String(r.mom ?? "").trim(),
+  mom_team: String(r.mom_team ?? "").trim(),
+  note: String(r.note ?? "").trim(),
+}));
+
+const teamMatchResults = matchResultsAll
+  .filter((m) => String(m.competition ?? "").toUpperCase() === "WC")
+  .filter((m) => String(m.edition ?? "").trim() === String(year))
+  .filter(
+    (m) =>
+      normKey(m.home ?? "") === normKey(countryName) ||
+      normKey(m.away ?? "") === normKey(countryName),
+  )
+  .sort((a, b) => String(a.match_id).localeCompare(String(b.match_id)));
+
+const hasTeamMatchResults = teamMatchResults.length > 0;
+
 const topHref = `/wc/${year}/`;
 
 // <title> 用
@@ -858,6 +1029,9 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         </div>
       </div>
 
+      <p class="nt-roster-jump">
+        <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
+      </p>
       {
         hasNtLineupImage && (
           <section class="nt-lineup-section" aria-label="想定スタメン">
@@ -975,10 +1149,89 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           )
         }
       </section>
+
+      {
+        hasTeamMatchResults && (
+          <section class="match-results-block" aria-label="試合結果一覧">
+            <h2 class="match-results-title">📅 今大会の試合結果</h2>
+
+            <div class="match-results-table-wrap">
+              <table class="match-results-table">
+                <thead>
+                  <tr>
+                    <th>日時</th>
+                    <th>Stage</th>
+                    <th>試合</th>
+                    <th>スコア</th>
+                    <th>結果</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {teamMatchResults.map((m) => {
+                    const resultClass = matchResultClass(m);
+                    const href = m.slug ? `/wc/${year}/matches/${m.slug}/` : "";
+                    const venueLabel = stageLabel(m.stage, m.group);
+                    const pk = matchPkText(m);
+                    const homeHref = matchTeamHref(m.home);
+                    const awayHref = matchTeamHref(m.away);
+
+                    return (
+                      <tr class={`match-result-row ${resultClass}`}>
+                        <td class="match-result-date">{m.datetime_local}</td>
+                        <td class="match-result-stage">{venueLabel}</td>
+                        <td class="match-result-game">
+                          <div class="match-result-game-line">
+                            <span class="match-team match-team-home">
+                              {homeHref ? (
+                                <a href={homeHref}>{shortTeamName(m.home)}</a>
+                              ) : (
+                                <span>{shortTeamName(m.home)}</span>
+                              )}
+                            </span>
+
+                            <span class="match-vs" aria-hidden="true">
+                              vs
+                            </span>
+
+                            <span class="match-team match-team-away">
+                              {awayHref ? (
+                                <a href={awayHref}>{shortTeamName(m.away)}</a>
+                              ) : (
+                                <span>{shortTeamName(m.away)}</span>
+                              )}
+                            </span>
+                          </div>
+                        </td>
+
+                        <td class="match-result-score">
+                          {href ? (
+                            <a href={href}>{matchScoreCore(m)}</a>
+                          ) : (
+                            <span>{matchScoreCore(m)}</span>
+                          )}
+
+                          {pk && <div class="match-result-pk">{pk}</div>}
+                        </td>
+
+                        <td class="match-result-status">
+                          <span class={`match-result-badge ${resultClass}`}>
+                            {matchResultLabel(m)}
+                          </span>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="match-results-note">
+              ※ 対戦国の選手一覧ページ / 試合詳細ページへリンクできます。
+            </div>
+          </section>
+        )
+      }
     </div>
-    <p class="nt-roster-jump">
-      <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
-    </p>
   </section>
 
   <div class="nt-guide-divider" aria-hidden="true"></div>
@@ -1205,6 +1458,308 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
   {/* JSで文言差し替えもあるので global 推奨 */}
   <style is:global>
+    .match-results-block {
+      margin: 12px 0 16px;
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid
+        color-mix(in srgb, var(--theme-color) 22%, var(--border, #e5e7eb));
+    }
+
+    .match-results-title {
+      margin: 0 0 8px;
+      font-size: 13px;
+      font-weight: 750;
+      color: var(--theme-color);
+    }
+
+    .match-results-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .match-results-table {
+      display: table;
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      table-layout: fixed;
+      font-size: 12px;
+      line-height: 1.35;
+    }
+
+    .match-results-table thead {
+      display: table-header-group;
+    }
+
+    .match-results-table tbody {
+      display: table-row-group;
+    }
+
+    .match-results-table tr {
+      display: table-row;
+    }
+
+    .match-results-table th,
+    .match-results-table td {
+      display: table-cell;
+      padding: 7px 8px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      vertical-align: middle;
+      white-space: nowrap;
+      text-align: center;
+    }
+
+    .match-results-table th {
+      font-size: 11px;
+      color: #666;
+      font-weight: 800;
+      background: #f9fafb;
+    }
+
+    .match-results-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .match-results-table th:nth-child(1),
+    .match-results-table td:nth-child(1) {
+      width: 118px;
+    }
+
+    .match-results-table th:nth-child(2),
+    .match-results-table td:nth-child(2) {
+      width: 58px;
+    }
+
+    .match-results-table th:nth-child(4),
+    .match-results-table td:nth-child(4) {
+      width: 74px;
+    }
+
+    .match-results-table th:nth-child(5),
+    .match-results-table td:nth-child(5) {
+      width: 46px;
+    }
+
+    .match-result-date {
+      color: #555;
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .match-result-stage {
+      color: #666;
+      font-weight: 800;
+    }
+
+    .match-result-game {
+      min-width: 0;
+      overflow: visible;
+      text-overflow: clip;
+      font-weight: 750;
+      color: #111;
+      text-align: center;
+    }
+
+    .match-result-game-line {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-width: 0;
+    }
+
+    .match-team {
+      display: inline-block;
+      min-width: 0;
+      max-width: 170px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 800;
+    }
+
+    .match-team-home {
+      text-align: right;
+    }
+
+    .match-team-away {
+      text-align: left;
+    }
+
+    .match-team a {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .match-vs {
+      flex: 0 0 auto;
+      font-size: 11px;
+      color: #666;
+      font-weight: 800;
+    }
+
+    .match-result-score {
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color: #111;
+    }
+
+    .match-result-score a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .match-result-pk {
+      display: block;
+      margin: 1px 0 0;
+      font-size: 10px;
+      line-height: 1.1;
+      color: #666;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .match-result-status {
+      text-align: center;
+    }
+
+    .match-result-badge {
+      width: 22px;
+      height: 22px;
+      display: inline-grid;
+      place-items: center;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      background: #e5e7eb;
+      color: #374151;
+    }
+
+    .match-result-badge.is-win {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .match-result-badge.is-loss {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .match-result-badge.is-draw {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .match-result-badge.is-upcoming {
+      background: #e0f2fe;
+      color: #075985;
+    }
+
+    .match-results-note {
+      margin-top: 6px;
+      font-size: 11px;
+      line-height: 1.4;
+      color: #666;
+    }
+
+    @media (max-width: 640px) {
+      .match-results-block {
+        padding: 9px 10px;
+      }
+
+      .match-results-table {
+        display: block;
+        width: 100%;
+        font-size: 11px;
+      }
+
+      .match-results-table thead {
+        display: none;
+      }
+
+      .match-results-table tbody {
+        display: grid;
+        gap: 0;
+      }
+
+      .match-results-table tr {
+        display: grid;
+        grid-template-columns: 62px 32px minmax(0, 1fr) 40px 24px;
+        align-items: center;
+        gap: 4px;
+        padding: 7px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+      }
+
+      .match-results-table tr:last-child {
+        border-bottom: 0;
+      }
+
+      .match-results-table th,
+      .match-results-table td {
+        display: block;
+        width: auto !important;
+        padding: 0;
+        border-bottom: 0;
+        white-space: nowrap;
+        text-align: center;
+      }
+
+      .match-result-date {
+        font-size: 10px;
+        text-align: left;
+      }
+
+      .match-result-stage {
+        font-size: 10px;
+      }
+
+      .match-result-game {
+        min-width: 0;
+        overflow: hidden;
+      }
+
+      .match-result-game-line {
+        justify-content: flex-start;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .match-team {
+        max-width: 56px;
+        font-size: 11px;
+      }
+
+      .match-vs {
+        font-size: 10px;
+      }
+
+      .match-result-score {
+        font-size: 11px;
+        line-height: 1.15;
+      }
+
+      .match-result-pk {
+        font-size: 9px;
+      }
+
+      .match-result-badge {
+        width: 20px;
+        height: 20px;
+        font-size: 11px;
+      }
+
+      .match-results-note {
+        font-size: 10px;
+      }
+    }
+
     .page-wc .back-link {
       margin: 0 0 10px;
       font-size: 13px;
@@ -2238,6 +2793,309 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         margin: 0 2px;
         white-space: nowrap;
       }
+    }
+
+    .match-results-table th,
+    .match-results-table td {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .match-result-date {
+      width: 120px;
+      text-align: center;
+    }
+
+    .match-result-stage {
+      width: 58px;
+      text-align: center;
+    }
+
+    .match-team-home {
+      width: 34%;
+      text-align: right;
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    .match-result-score {
+      width: 72px;
+      text-align: center;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .match-team-away {
+      width: 34%;
+      text-align: left;
+      padding-left: 10px;
+      white-space: nowrap;
+    }
+
+    .match-result-status {
+      width: 42px;
+      text-align: center;
+    }
+
+    .match-result-date {
+      width: 120px;
+      text-align: center;
+    }
+
+    .match-result-stage {
+      width: 58px;
+      text-align: center;
+    }
+
+    .match-team-home {
+      width: 34%;
+      text-align: right;
+      padding-right: 10px;
+      white-space: nowrap;
+    }
+
+    .match-result-score {
+      width: 72px;
+      text-align: center;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .match-team-away {
+      width: 34%;
+      text-align: left;
+      padding-left: 10px;
+      white-space: nowrap;
+    }
+
+    .match-result-status {
+      width: 42px;
+      text-align: center;
+    }
+
+    .match-result-score a {
+      font-weight: 800;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ===== WC代表ページ：試合結果（ポータル風レイアウト最終調整） ===== */
+    .page-wc .match-results-table {
+      table-layout: fixed;
+    }
+
+    .page-wc .match-results-table th,
+    .page-wc .match-results-table td {
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .page-wc .match-results-table th:nth-child(1),
+    .page-wc .match-results-table td:nth-child(1) {
+      width: 118px;
+    }
+
+    .page-wc .match-results-table th:nth-child(2),
+    .page-wc .match-results-table td:nth-child(2) {
+      width: 58px;
+    }
+
+    .page-wc .match-results-table th:nth-child(3),
+    .page-wc .match-results-table td:nth-child(3) {
+      width: auto;
+    }
+
+    .page-wc .match-results-table th:nth-child(4),
+    .page-wc .match-results-table td:nth-child(4) {
+      width: 44px;
+    }
+
+    .page-wc .match-result-game {
+      min-width: 0;
+      overflow: visible;
+      text-overflow: unset;
+      color: #111;
+      font-weight: 750;
+    }
+
+    .page-wc .match-result-game-line {
+      display: grid;
+      grid-template-columns: minmax(72px, 1fr) auto minmax(72px, 1fr) 58px;
+      align-items: center;
+      column-gap: 7px;
+      width: min(100%, 430px);
+      margin: 0 auto;
+    }
+
+    .page-wc .match-team {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-wc .match-team a {
+      color: var(--theme-color);
+      font-weight: 850;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-wc .match-team a:hover {
+      opacity: 0.82;
+    }
+
+    .page-wc .match-team-home {
+      width: auto;
+      padding-right: 0;
+      text-align: right;
+    }
+
+    .page-wc .match-vs {
+      color: #777;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .page-wc .match-team-away {
+      width: auto;
+      padding-left: 0;
+      text-align: left;
+    }
+
+    .page-wc .match-result-score {
+      display: inline-block;
+      width: auto;
+      margin: 0;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color: #111;
+    }
+
+    .page-wc .match-result-score a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-wc .match-result-pk {
+      margin: 2px 0 0;
+      font-size: 10px;
+      color: #666;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .page-wc .match-result-status {
+      width: auto;
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .match-results-table thead {
+        display: none;
+      }
+
+      .match-results-table,
+      .match-results-table tbody,
+      .match-results-table tr,
+      .match-results-table td {
+        display: block;
+      }
+
+      .match-results-table tr {
+        display: grid;
+        grid-template-columns: 70px 1fr 44px 26px;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 0;
+      }
+
+      .match-result-meta {
+        font-size: 10px;
+        line-height: 1.2;
+        color: #555;
+      }
+
+      .match-result-meta .match-result-date,
+      .match-result-meta .match-result-stage {
+        display: block;
+        text-align: left;
+      }
+
+      .match-result-game {
+        min-width: 0;
+      }
+
+      .match-result-game-line {
+        justify-content: flex-start;
+        gap: 4px;
+      }
+
+      .match-team {
+        max-width: 88px;
+        font-size: 11px;
+      }
+
+      .match-result-score {
+        width: 44px;
+        font-size: 11px;
+        text-align: center;
+      }
+
+      .match-result-status {
+        text-align: center;
+      }
+    }
+
+    .match-result-score {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      margin: 0 10px;
+      min-width: 52px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+      font-weight: 900;
+      color: #111;
+    }
+
+    .match-result-pk {
+      margin: 0;
+      font-size: 10px;
+      line-height: 1.1;
+      color: #666;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .match-result-game {
+      text-align: center;
+    }
+
+    .match-result-score {
+      width: 72px;
+      text-align: center;
+    }
+
+    .match-result-status {
+      width: 48px;
+      text-align: center;
+    }
+
+    .match-results-table th {
+      text-align: center;
+    }
+
+    .match-result-game-line {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
     }
   </style>
 </BaseLayout>
