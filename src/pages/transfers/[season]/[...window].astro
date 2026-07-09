@@ -7,28 +7,48 @@ import path from "node:path";
 export function getStaticPaths() {
   const all = loadTransfers();
 
-  const keys = new Set(
-    all
-      .map((x) => {
-        const season = String(x.season ?? "").trim();
-        const window = String(x.window ?? "").trim();
-        if (!season || !window) return "";
-        return `${season}|||${window}`;
-      })
-      .filter(Boolean),
-  );
+  const periodKeys = new Set<string>();
+  const leagueKeys = new Set<string>();
 
-  return [...keys].map((k) => {
-    const [season, window] = k.split("|||");
-    return {
-      params: { season, window },
-    };
-  });
+  const addLeague = (x, season: string, window: string, leagueKey: string) => {
+    const l = String(leagueKey ?? "").trim().toLowerCase();
+    if (!season || !window || !l) return;
+    leagueKeys.add(`${season}|||${window}|||${l}`);
+  };
+
+  for (const x of all) {
+    const season = String(x.season ?? "").trim();
+    const window = String(x.window ?? "").trim().toLowerCase();
+    if (!season || !window) continue;
+
+    periodKeys.add(`${season}|||${window}`);
+    addLeague(x, season, window, x.from_league_key);
+    addLeague(x, season, window, x.to_league_key);
+  }
+
+  return [
+    ...Array.from(periodKeys).map((k) => {
+      const [season, window] = k.split("|||");
+      return { params: { season, window } };
+    }),
+    ...Array.from(leagueKeys).map((k) => {
+      const [season, window, league] = k.split("|||");
+      return { params: { season, window: `${window}/${league}` } };
+    }),
+  ];
 }
 
 // URL params
+// このファイルは src/pages/transfers/[season]/[...window].astro として配置する想定。
+// /transfers/2026-27/summer/ と /transfers/2026-27/summer/premier-league/ の両方を受ける。
 const seasonParam = String(Astro.params.season ?? "").trim();
-const windowParam = String(Astro.params.window ?? "").trim();
+const windowAndLeagueParam = String(Astro.params.window ?? "").trim();
+const [windowParamRaw = "", leagueParamRaw = ""] = windowAndLeagueParam
+  .split("/")
+  .map((x) => String(x ?? "").trim())
+  .filter(Boolean);
+const windowParam = windowParamRaw;
+const leagueParam = leagueParamRaw.toLowerCase();
 
 // 全件ロード（※正規化は loadTransfers 側で実施）
 const all = loadTransfers();
@@ -102,12 +122,51 @@ const window = hasPeriod(season, windowParam)
   ? windowParam.toLowerCase()
   : bestWindowForSeason(season, defaultWindow);
 
-const pageTitle = `海外サッカー移籍情報 ${season} ${windowLabel(window)}｜移籍一覧`;
+const normalize = (v) =>
+  String(v ?? "")
+    .trim()
+    .toLowerCase();
+
+const periodRows = loadTransfers({ season, window });
+
+const transferLeagueKey = (r, which) =>
+  normalize(which === "from" ? r.from_league_key : r.to_league_key);
+
+const hasLeague = (r, leagueKey: string) => {
+  const key = normalize(leagueKey);
+  if (!key) return true;
+  return transferLeagueKey(r, "from") === key || transferLeagueKey(r, "to") === key;
+};
+
+const leagueLabelMap: Record<string, string> = {
+  "premier-league": "Premier League",
+  laliga: "LaLiga",
+  "serie-a": "Serie A",
+  bundesliga: "Bundesliga",
+  "ligue-1": "Ligue 1",
+  eredivisie: "Eredivisie",
+};
+
+const leagueLabel = (key: string) => leagueLabelMap[normalize(key)] || key;
+
+const leagueOptions = Array.from(
+  new Set(
+    periodRows
+      .flatMap((r) => [transferLeagueKey(r, "from"), transferLeagueKey(r, "to")])
+      .filter(Boolean),
+  ),
+).sort((a, b) => leagueLabel(a).localeCompare(leagueLabel(b), "en"));
+
+const activeLeague = leagueOptions.includes(leagueParam) ? leagueParam : "";
 
 // 絞り込み
-const rows = loadTransfers({ season, window });
+const rows = activeLeague ? periodRows.filter((r) => hasLeague(r, activeLeague)) : periodRows;
 const playerRows = rows.filter((r) => r.kind === "player");
 const coachRows = rows.filter((r) => r.kind === "coach");
+
+const pageTitle = activeLeague
+  ? `海外サッカー移籍情報 ${season} ${windowLabel(window)}｜${leagueLabel(activeLeague)} 移籍一覧`
+  : `海外サッカー移籍情報 ${season} ${windowLabel(window)}｜移籍一覧`;
 
 // 更新日（表示用）
 const maxIso = (list) => {
@@ -137,19 +196,17 @@ const moveLabel = (t) => {
 };
 
 // ピルURL生成
-const pageHref = (nextSeason, nextWindow) =>
-  `/transfers/${encodeURIComponent(nextSeason)}/${encodeURIComponent(nextWindow)}/`;
+const pageHref = (nextSeason, nextWindow, nextLeague = "") => {
+  const base = `/transfers/${encodeURIComponent(nextSeason)}/${encodeURIComponent(nextWindow)}/`;
+  const league = normalize(nextLeague);
+  return league ? `${base}${encodeURIComponent(league)}/` : base;
+};
 
 // クラブ表示（masterにあれば ja/en が入ってる。無ければ値そのまま）
 const clubText = (r, which) =>
   which === "from"
     ? r.from_club_display_ja || "—"
     : r.to_club_display_ja || "—";
-
-const normalize = (v) =>
-  String(v ?? "")
-    .trim()
-    .toLowerCase();
 
 const squadPath = path.join(
   process.cwd(),
@@ -217,7 +274,9 @@ const dateText = (r) => {
     { label: "トップ", href: "/" },
     { label: "移籍", href: "/transfers/" },
     {
-      label: `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}`,
+      label: activeLeague
+        ? `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window} ${leagueLabel(activeLeague)}`
+        : `${season} ${window === "winter" ? "冬" : window === "summer" ? "夏" : window}`,
     },
   ]}
   heading=""
@@ -250,7 +309,7 @@ const dateText = (r) => {
       seasons.map((s) => (
         <a
           class={`pill ${s === season ? "is-active" : ""}`}
-          href={pageHref(s, bestWindowForSeason(s, window))}
+          href={pageHref(s, bestWindowForSeason(s, window), activeLeague)}
           aria-label={`${s} の移籍一覧へ`}
         >
           <span class="dot" aria-hidden="true" />
@@ -271,7 +330,7 @@ const dateText = (r) => {
         return exists ? (
           <a
             class={`pill ${w === window ? "is-active" : ""}`}
-            href={pageHref(season, w)}
+            href={pageHref(season, w, activeLeague)}
             aria-label={`${windowLabel(w)} の移籍一覧へ`}
           >
             <span class="dot" aria-hidden="true" />
@@ -290,6 +349,41 @@ const dateText = (r) => {
       })
     }
   </div>
+</div>
+
+<div class="pill-block">
+  <div class="pill-label">👉 リーグで絞り込む</br>※移籍元または移籍先のいずれかが一致したら表示します。</div>
+  <div class="pills">
+    <a
+      class={`pill ${!activeLeague ? "is-active" : ""}`}
+      href={pageHref(season, window)}
+      aria-label="全リーグの移籍一覧へ"
+    >
+      <span class="dot" aria-hidden="true" />
+      すべて
+    </a>
+    {
+      leagueOptions.map((l) => (
+        <a
+          class={`pill ${l === activeLeague ? "is-active" : ""}`}
+          href={pageHref(season, window, l)}
+          aria-label={`${leagueLabel(l)} の移籍一覧へ`}
+        >
+          <span class="dot" aria-hidden="true" />
+          {leagueLabel(l)}
+        </a>
+      ))
+    }
+  </div>
+</div>
+
+<div class="transfer-tabs" aria-label="表示切替">
+  <button type="button" class="transfer-tab is-active" data-transfer-tab="players">
+    選手 <span>{playerRows.length}</span>
+  </button>
+  <button type="button" class="transfer-tab" data-transfer-tab="coaches">
+    監督 <span>{coachRows.length}</span>
+  </button>
 </div>
 
 <style is:global>
@@ -442,6 +536,46 @@ const dateText = (r) => {
     min-width: 140px;
     max-width: 220px;
   }
+
+  .transfer-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 12px 0 10px;
+    border-bottom: 1px solid var(--border, #e6e6e6);
+  }
+
+  .transfer-tab {
+    appearance: none;
+    border: 1px solid var(--border, #e6e6e6);
+    border-bottom: 0;
+    border-radius: 10px 10px 0 0;
+    background: #f9fafb;
+    color: #555;
+    padding: 8px 14px;
+    font-weight: 800;
+    cursor: pointer;
+  }
+
+  .transfer-tab span {
+    margin-left: 4px;
+    font-size: 12px;
+    opacity: 0.72;
+  }
+
+  .transfer-tab.is-active {
+    background: var(--roster-head-bg, #fff7cc);
+    color: #111;
+    border-color: var(--roster-head-border, #f1c40f);
+  }
+
+  .transfer-panel[hidden] {
+    display: none !important;
+  }
+
+  .transfer-panel-title {
+    margin: 12px 0 10px;
+    font-size: 18px;
+  }
 </style>
 
 {
@@ -449,8 +583,8 @@ const dateText = (r) => {
     <div class="empty">
       <h2>データがありません</h2>
       <p>
-        transfers.csv の <code>season</code> と <code>window</code>{" "}
-        を確認してください。
+        transfers.csv の <code>season</code> / <code>window</code>
+        {activeLeague ? <> / <code>league_key</code></> : null} を確認してください。
       </p>
       <div class="empty-actions">
         <a class="btn" href="/transfers/">
@@ -459,106 +593,127 @@ const dateText = (r) => {
       </div>
     </div>
   ) : (
-    <div class="table-wrap roster-block">
-      <table>
-        <thead>
-          <tr>
-            <th class="mono">移籍日</th>
-            <th>選手</th>
-            <th>種別</th>
-            <th>from</th>
-            <th>to</th>
-            <th>備考</th>
-          </tr>
-        </thead>
-        <tbody>
-          {playerRows.map((r) => (
-            <tr>
-              <td class="mono">{dateText(r)}</td>
-              <td>{r.name}</td>
+    <>
+      <section class="transfer-panel" data-transfer-panel="players">
+        <h2 class="transfer-panel-title">選手移籍一覧</h2>
+        {playerRows.length === 0 ? (
+          <p class="empty">選手移籍データは準備中です。</p>
+        ) : (
+          <div class="table-wrap roster-block">
+            <table>
+              <thead>
+                <tr>
+                  <th class="mono">移籍日</th>
+                  <th>選手</th>
+                  <th>種別</th>
+                  <th>from</th>
+                  <th>to</th>
+                  <th>備考</th>
+                </tr>
+              </thead>
+              <tbody>
+                {playerRows.map((r) => (
+                  <tr>
+                    <td class="mono">{dateText(r)}</td>
+                    <td>{r.name}</td>
+                    <td class="type">{moveLabel(r.move_type)}</td>
+                    <td class="club-cell">
+                      {clubHref(r, "from") ? (
+                        <a class="club-link" href={clubHref(r, "from")}>
+                          {clubText(r, "from")}
+                        </a>
+                      ) : (
+                        clubText(r, "from")
+                      )}
+                    </td>
+                    <td class="club-cell">
+                      {clubHref(r, "to") ? (
+                        <a class="club-link" href={clubHref(r, "to")}>
+                          {clubText(r, "to")}
+                        </a>
+                      ) : (
+                        clubText(r, "to")
+                      )}
+                    </td>
+                    <td class="note">{r.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
-              <td class="type">{moveLabel(r.move_type)}</td>
-
-              <td class="club-cell">
-                {clubHref(r, "from") ? (
-                  <a class="club-link" href={clubHref(r, "from")}>
-                    {clubText(r, "from")}
-                  </a>
-                ) : (
-                  clubText(r, "from")
-                )}
-              </td>
-
-              <td class="club-cell">
-                {clubHref(r, "to") ? (
-                  <a class="club-link" href={clubHref(r, "to")}>
-                    {clubText(r, "to")}
-                  </a>
-                ) : (
-                  clubText(r, "to")
-                )}
-              </td>
-
-              <td class="note">{r.note}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+      <section class="transfer-panel" data-transfer-panel="coaches" hidden>
+        <h2 class="transfer-panel-title">監督交代一覧</h2>
+        {coachRows.length === 0 ? (
+          <p class="empty">監督交代データは準備中です。</p>
+        ) : (
+          <div class="table-wrap roster-block">
+            <table>
+              <thead>
+                <tr>
+                  <th class="mono">日付</th>
+                  <th>監督</th>
+                  <th>種別</th>
+                  <th>from</th>
+                  <th>to</th>
+                  <th>備考</th>
+                </tr>
+              </thead>
+              <tbody>
+                {coachRows.map((r) => (
+                  <tr>
+                    <td class="mono">{dateText(r)}</td>
+                    <td>{r.name}</td>
+                    <td class="type">{moveLabel(r.move_type)}</td>
+                    <td class="club-cell">
+                      {clubHref(r, "from") ? (
+                        <a class="club-link" href={clubHref(r, "from")}>
+                          {clubText(r, "from")}
+                        </a>
+                      ) : (
+                        clubText(r, "from")
+                      )}
+                    </td>
+                    <td class="club-cell">
+                      {clubHref(r, "to") ? (
+                        <a class="club-link" href={clubHref(r, "to")}>
+                          {clubText(r, "to")}
+                        </a>
+                      ) : (
+                        clubText(r, "to") || "—"
+                      )}
+                    </td>
+                    <td class="note">{r.note}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+    </>
   )
 }
 
-<h2 class="section-title">監督交代一覧</h2>
+<script is:inline>
+  (() => {
+    const tabs = Array.from(document.querySelectorAll("[data-transfer-tab]"));
+    const panels = Array.from(document.querySelectorAll("[data-transfer-panel]"));
 
-{
-  coachRows.length === 0 ? (
-    <p class="empty">監督交代データは準備中です。</p>
-  ) : (
-    <div class="table-wrap roster-block">
-      <table>
-        <thead>
-          <tr>
-            <th class="mono">日付</th>
-            <th>監督</th>
-            <th>種別</th>
-            <th>from</th>
-            <th>to</th>
-            <th>備考</th>
-          </tr>
-        </thead>
-        <tbody>
-          {coachRows.map((r) => (
-            <tr>
-              <td class="mono">{dateText(r)}</td>
-              <td>{r.name}</td>
-              <td class="type">{moveLabel(r.move_type)}</td>
+    const activate = (key) => {
+      tabs.forEach((tab) => {
+        tab.classList.toggle("is-active", tab.dataset.transferTab === key);
+      });
+      panels.forEach((panel) => {
+        panel.hidden = panel.dataset.transferPanel !== key;
+      });
+    };
 
-              <td>
-                {clubHref(r, "from") ? (
-                  <a class="club-link" href={clubHref(r, "from")}>
-                    {clubText(r, "from")}
-                  </a>
-                ) : (
-                  clubText(r, "from")
-                )}
-              </td>
-
-              <td>
-                {clubHref(r, "to") ? (
-                  <a class="club-link" href={clubHref(r, "to")}>
-                    {clubText(r, "to")}
-                  </a>
-                ) : (
-                  clubText(r, "to") || "—"
-                )}
-              </td>
-
-              <td class="note">{r.note}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  )
-}
+    tabs.forEach((tab) => {
+      tab.addEventListener("click", () => activate(tab.dataset.transferTab));
+    });
+  })();
+</script>
 </BaseLayout>
