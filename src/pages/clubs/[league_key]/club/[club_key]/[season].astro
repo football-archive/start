@@ -78,6 +78,10 @@ const clubLabel = clubInfo?.club_display_ja ?? club_key;
 const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
 const leagueTopPath = `/clubs/${encodeURIComponent(league_key)}/`;
 const clubTopPath = `/clubs/${encodeURIComponent(league_key)}/club/${encodeURIComponent(club_key)}/`;
+const leagueSeasonPath = (seasonStr: string) =>
+  `/clubs/${encodeURIComponent(league_key)}/${encodeURIComponent(
+    String(seasonStr ?? "").trim(),
+  )}/`;
 
 // --------------------
 // country master
@@ -105,6 +109,28 @@ const countryMaster: CountryMasterRow[] = readCsv("country_master.csv").map(
     confederation: String(r.confederation ?? "").trim(),
   }),
 );
+
+type ClubLineupImageRow = {
+  season: string;
+  league_key: string;
+  club_key: string;
+  formation: string;
+  image: string;
+};
+
+const clubLineupImages: ClubLineupImageRow[] = readCsv(
+  "club_lineup_images.csv",
+).map((r: any) => ({
+  season: String(r.season ?? "").trim(),
+  league_key: String(r.league_key ?? "")
+    .trim()
+    .toLowerCase(),
+  club_key: String(r.club_key ?? "")
+    .trim()
+    .toLowerCase(),
+  formation: String(r.formation ?? "").trim(),
+  image: String(r.image ?? "").trim(),
+}));
 
 const normCountry = (s: any) =>
   String(s ?? "")
@@ -378,6 +404,12 @@ const hasGoalStats = (rows: any[]) => rows.some((r) => statNum(r.goals) > 0);
 const hasRoster = seasonPacks.some((p) => p.hasSummer || p.hasWinter);
 
 const leagueStandings = loadLeagueStandings();
+const hasLeagueStandingSeason = (seasonStr: string) =>
+  leagueStandings.some(
+    (r) =>
+      r.league_key === league_key &&
+      String(r.season ?? "").trim() === String(seasonStr ?? "").trim(),
+  );
 
 const prevSeasonOf = (seasonStr: string) => {
   const s = String(seasonStr ?? "").trim();
@@ -523,21 +555,47 @@ const initialNextSeason =
 // ✅ SEO：title / description / heading（型を統一）
 // --------------------
 const season = initialSeason;
+const clubLineupRow = clubLineupImages.find(
+  (r) =>
+    r.season === String(initialSeason ?? "").trim() &&
+    r.league_key ===
+      String(league_key ?? "")
+        .trim()
+        .toLowerCase() &&
+    r.club_key ===
+      String(club_key ?? "")
+        .trim()
+        .toLowerCase(),
+);
+
+const clubLineupImageSrc = clubLineupRow?.image
+  ? `/images/lineups/${clubLineupRow.image}`
+  : "";
+
+const clubLineupFormation = String(clubLineupRow?.formation ?? "").trim();
+
+const clubLineupAlt = clubLineupFormation
+  ? `${clubLabel} ${seasonShort(initialSeason)} 想定スタメン ${clubLineupFormation}`
+  : `${clubLabel} ${seasonShort(initialSeason)} 想定スタメン`;
+
+const hasClubLineupImage = !!clubLineupImageSrc;
+
 const seasonLongLabel = season ? seasonLong(season) : "";
+const seasonShortLabel = season ? seasonShort(season) : "";
 
-// title：初期表示シーズンを素直に出す
+// SEOタイトル
 const title = season
-  ? `${clubLabel} ${seasonLongLabel}メンバー一覧｜${leagueLabel}`
-  : `${clubLabel} メンバー一覧｜${leagueLabel}`;
+  ? `${clubLabel} ${seasonShortLabel}メンバー一覧｜背番号・ゴール・アシスト・代表歴｜${leagueLabel}`
+  : `${clubLabel} メンバー一覧｜背番号・ゴール・アシスト・代表歴｜${leagueLabel}`;
 
-// description：検索語を明確に（seasonは補助）
+// meta description
 const description = season
-  ? `${clubLabel}の${seasonLongLabel}メンバー一覧。背番号・ポジション・国籍・加入日などを掲載。過去のシーズンも当時の代表招集や年齢付きでメンバー構成を確認できるのが特徴です。`
-  : `${clubLabel}のメンバー一覧。背番号・ポジション・国籍・加入日などを掲載。過去のシーズンも当時の代表招集や年齢付きでメンバー構成を確認できるのが特徴です。`;
+  ? `${clubLabel}の${seasonLongLabel}所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・出場数・ゴール・アシスト・年齢・身長を掲載。想定スタメンや注目選手、過去シーズンのメンバー構成も確認できます。`
+  : `${clubLabel}の所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・出場数・ゴール・アシスト・年齢・身長を掲載。想定スタメンや注目選手、過去シーズンのメンバー構成も確認できます。`;
 
-// heading：UIの見出し（TitleBar用）
+// BaseLayout側の見出し
 const heading = season
-  ? `${clubLabel} ${seasonLongLabel}メンバー一覧`
+  ? `${clubLabel} ${seasonShortLabel}メンバー一覧`
   : `${clubLabel} メンバー一覧`;
 
 // ===== 代表（候補）表示：WC2026の最新スナップショットだけを参照 =====
@@ -597,6 +655,18 @@ const leaguePills = leagueMaster
 const searchTextFn = (r: any) =>
   `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
 
+// 備考欄の new / out に応じて選手行を色分け
+const clubRosterRowClass = (r: any) => {
+  const note = String(r.notes ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (note.includes("new")) return "row-new";
+  if (note.includes("out")) return "row-out";
+
+  return "";
+};
+
 const initialRec = getRecommendedLeagueClubs(initialSeason);
 
 const topPastSeasons = seasonCandidates
@@ -643,14 +713,16 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         >
           <h2 class="club-hero-title">
             {clubLabel} {seasonLong(p.season)}{" "}
-            メンバー一覧｜背番号・ポジション・代表歴・年齢
+            メンバー一覧｜背番号・ゴール・アシスト・代表歴
           </h2>
 
           <p class="hero-desc">
             {clubLabel}の{seasonLong(p.season)}
-            所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・生年月日・身長などを掲載。
+             所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・出場数・ゴール・アシスト・年齢・身長を掲載。
             <br />
-            🔥過去のシーズンも当時の代表招集や年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
+            📢 背番号は発表され次第、更新します。（直近の情報を暫定で表示）
+            <br />
+            🔥 想定スタメンや注目選手、過去シーズン当時の代表招集歴も確認できます。
           </p>
         </div>
       );
@@ -667,12 +739,27 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           data-meta-season={p.season}
           style={`display:${p.season === initialSeason ? "" : "none"}`}
         >
-          {(meta.rank || meta.coach) && (
-            <div class="club-meta-row">
-              {meta.rank || "—"}
-              {meta.coach ? ` ｜ ${meta.coach}` : ""}
-            </div>
-          )}
+{(meta.rank || meta.coach) && (
+  <div class="club-meta-row">
+    {meta.rank ? (
+      hasLeagueStandingSeason(p.season) ? (
+        <a
+          class="club-rank-link"
+          href={leagueSeasonPath(p.season)}
+          title={`${leagueLabel}${seasonShort(p.season)}順位表を見る`}
+        >
+          {meta.rank}
+        </a>
+      ) : (
+        meta.rank
+      )
+    ) : (
+      "—"
+    )}
+
+    {meta.coach ? ` ｜ ${meta.coach}` : ""}
+  </div>
+)}
 
           {p.statsSummer.avgAgeText || p.statsSummer.continentText ? (
             <>
@@ -874,6 +961,99 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     </div>
   </div>
 
+    <p class="club-roster-jump">
+    <a
+      id="club-roster-jump-link"
+      href={`#club-roster-${initialSeason}-${initialWindow}-section`}
+    >
+      👉 {clubLabel}
+      {seasonShort(initialSeason)} メンバー一覧を見る
+    </a>
+  </p>
+  {
+    hasClubLineupImage && (
+      <section class="club-lineup-section" aria-label="想定スタメン">
+        <p class="club-lineup-lead">
+          👇 {clubLabel}
+          {seasonShort(initialSeason)}
+          想定スタメン
+          {clubLineupFormation ? `（${clubLineupFormation}）` : ""}
+        </p>
+
+        <p class="club-lineup-description">
+          現時点の所属選手・起用傾向をもとにしたフォーメーション例です。
+        </p>
+
+        <button
+          type="button"
+          class="club-lineup-card"
+          id="club-lineup-open"
+          aria-haspopup="dialog"
+          aria-controls="club-lineup-modal"
+        >
+          <div class="club-lineup-thumb">
+            <img
+              src={clubLineupImageSrc}
+              alt={clubLineupAlt}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <div class="club-lineup-copy">
+            <div class="club-lineup-title">
+              🔥 想定スタメンを見る
+              {clubLineupFormation ? `（${clubLineupFormation} システム）` : ""}
+            </div>
+
+            <div class="club-lineup-note">
+              <!-- 現時点の所属選手・起用傾向をもとにしたフォーメーション例です -->
+            </div>
+          </div>
+        </button>
+
+        <dialog
+          class="club-lineup-modal"
+          id="club-lineup-modal"
+          aria-label={clubLineupAlt}
+        >
+          <div class="club-lineup-modal-inner">
+            <button
+              type="button"
+              class="club-lineup-close"
+              id="club-lineup-close"
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+
+            <div class="club-lineup-modal-head">
+              <div class="club-lineup-modal-title">
+                {clubLabel}
+                {seasonShort(initialSeason)}
+                想定スタメン
+                {clubLineupFormation ? `（${clubLineupFormation}）` : ""}
+              </div>
+
+              <div class="club-lineup-modal-note">
+                ※ 移籍の状況などに応じて随時更新していきます
+              </div>
+            </div>
+
+            <div class="club-lineup-modal-image">
+              <img
+                src={clubLineupImageSrc}
+                alt={clubLineupAlt}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </dialog>
+      </section>
+    )
+  }
+
   {
     seasonPacks.map((p) => (
       <>
@@ -884,7 +1064,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           style={`display:${p.season === initialSeason && initialWindow === "summer" ? "" : "none"}`}
           aria-label={`注目選手（夏 ${p.season}）`}
         >
-          <h2 class="star-title">⭐ 注目選手</h2>
+          <h2 class="star-title">⭐ 注目選手（新加入など）</h2>
           {p.starRowsSummer.length > 0 ? (
             <div class="star-grid">
               {p.starRowsSummer.map((r) => (
@@ -932,20 +1112,23 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     ))
   }
 
-  <p class="club-roster-jump">
-    <a
-      id="club-roster-jump-link"
-      href={`#club-roster-${initialSeason}-${initialWindow}-section`}
-    >
-      👉 {clubLabel}
-      {seasonShort(initialSeason)} メンバー一覧を見る
-    </a>
-  </p>
+
   <p class="club-roster-jump">
     <a href={clubTopPath}>
       👉 {clubLabel} ポータルページを見る
     </a>
   </p>
+
+{
+  hasLeagueStandingSeason(initialSeason) && (
+    <p class="club-roster-jump">
+      <a href={leagueSeasonPath(initialSeason)}>
+        👉 {leagueLabel}
+        {seasonShort(initialSeason)}順位表へ
+      </a>
+    </p>
+  )
+}
 
   <p class="club-roster-jump">
     <a href={leagueTopPath}>
@@ -1031,6 +1214,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                 placeholder="検索：選手名 / 国名 / 国籍"
                 searchText={searchTextFn}
                 columns={columnsBySeason[p.season].summer}
+                rowClass={clubRosterRowClass}
               />
             </section>
 
@@ -1048,6 +1232,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                 placeholder="検索：選手名 / 国名 / 国籍"
                 searchText={searchTextFn}
                 columns={columnsBySeason[p.season].winter}
+                rowClass={clubRosterRowClass}
               />
             </section>
           </>
@@ -1211,6 +1396,56 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   <script is:inline>
     window.addEventListener("DOMContentLoaded", () => {
       try {
+        const lineupOpenBtn = document.getElementById("club-lineup-open");
+        const lineupCloseBtn = document.getElementById("club-lineup-close");
+        const lineupModal = document.getElementById("club-lineup-modal");
+
+        if (lineupOpenBtn && lineupCloseBtn && lineupModal) {
+          lineupOpenBtn.addEventListener("click", () => {
+            if (typeof gtag === "function") {
+              gtag("event", "lineup_click", {
+                event_category: "engagement",
+                event_label: document.title,
+                lineup_type: "club",
+              });
+            }
+
+            if (typeof lineupModal.showModal === "function") {
+              lineupModal.showModal();
+              document.body.classList.add("is-lineup-modal-open");
+            }
+          });
+
+          lineupCloseBtn.addEventListener("click", (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+
+            if (typeof lineupModal.close === "function") {
+              lineupModal.close();
+              document.body.classList.remove("is-lineup-modal-open");
+            }
+          });
+
+          lineupModal.addEventListener("click", (e) => {
+            const rect = lineupModal.getBoundingClientRect();
+
+            const isInDialog =
+              rect.top <= e.clientY &&
+              e.clientY <= rect.top + rect.height &&
+              rect.left <= e.clientX &&
+              e.clientX <= rect.left + rect.width;
+
+            if (!isInDialog && typeof lineupModal.close === "function") {
+              lineupModal.close();
+              document.body.classList.remove("is-lineup-modal-open");
+            }
+          });
+
+          lineupModal.addEventListener("close", () => {
+            document.body.classList.remove("is-lineup-modal-open");
+          });
+        }
+
         const windowRoot = document.querySelector(".window-toggle");
         if (!windowRoot) return;
 
@@ -2167,5 +2402,293 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         max-width: 86px !important;
       }
     }
+
+    /* =========================================================
+   選手の加入・退団状態
+========================================================= */
+
+    /* NEW：新加入 */
+    .page-club .roster-table tbody tr.row-new td {
+      background: #fff7cc !important;
+    }
+
+    /* sticky固定されている背番号・Pos列にも同じ色を適用 */
+    .page-club .roster-table tbody tr.row-new td:nth-child(1),
+    .page-club .roster-table tbody tr.row-new td:nth-child(2) {
+      background: #fff7cc !important;
+    }
+
+    /* NEW行の左端アクセント */
+    .page-club .roster-table tbody tr.row-new td:first-child {
+      box-shadow:
+        inset 4px 0 0 #e6b800,
+        inset -1px 0 0 var(--roster-border);
+    }
+
+    /* OUT：退団 */
+    .page-club .roster-table tbody tr.row-out td {
+      background: #eeeeee !important;
+      color: #707070;
+    }
+
+    /* sticky固定列にも同じ色を適用 */
+    .page-club .roster-table tbody tr.row-out td:nth-child(1),
+    .page-club .roster-table tbody tr.row-out td:nth-child(2) {
+      background: #eeeeee !important;
+    }
+
+    /* OUT行の左端アクセント */
+    .page-club .roster-table tbody tr.row-out td:first-child {
+      box-shadow:
+        inset 4px 0 0 #9a9a9a,
+        inset -1px 0 0 var(--roster-border);
+    }
+
+    /* ホバー時 */
+    .page-club .roster-table tbody tr.row-new:hover td {
+      background: #fff2aa !important;
+    }
+
+    .page-club .roster-table tbody tr.row-out:hover td {
+      background: #e3e3e3 !important;
+    }
+
+    /* NEWの備考文字は青 */
+    .page-club .roster-table tbody tr.row-new td:nth-child(10) .note-red {
+      color: #1565c0 !important;
+      font-weight: 700;
+    }
+
+    /* OUTの備考文字は赤 */
+    .page-club .roster-table tbody tr.row-out td:nth-child(10) .note-red {
+      color: #c62828 !important;
+      font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+      .page-club .roster-table tbody tr.row-new .mob-note-line {
+        color: #1565c0 !important;
+        font-weight: 700;
+      }
+
+      .page-club .roster-table tbody tr.row-out .mob-note-line {
+        color: #c62828 !important;
+        font-weight: 700;
+      }
+    }
+
+    /* =========================================================
+   クラブ想定スタメン
+========================================================= */
+
+    .page-club .club-lineup-section {
+      margin: 18px 0 22px;
+    }
+
+    .page-club .club-lineup-lead {
+      margin: 0 0 4px;
+      font-weight: 800;
+      line-height: 1.6;
+    }
+
+    .page-club .club-lineup-description {
+      margin: 0 0 10px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .page-club .club-lineup-card {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      width: 100%;
+      padding: 0;
+      overflow: hidden;
+      border: 1px solid var(--border, #e3e3e3);
+      border-radius: 12px;
+      background: #fff;
+      color: inherit;
+      text-align: left;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgb(0 0 0 / 7%);
+      transition:
+        transform 0.16s ease,
+        box-shadow 0.16s ease;
+    }
+
+    .page-club .club-lineup-card:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 5px 14px rgb(0 0 0 / 11%);
+    }
+
+    .page-club .club-lineup-thumb {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 118px;
+      padding: 8px;
+      background: #f5f7f6;
+    }
+
+    .page-club .club-lineup-thumb img {
+      display: block;
+      width: 100%;
+      max-height: 130px;
+      object-fit: contain;
+    }
+
+    .page-club .club-lineup-copy {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 0;
+      padding: 16px 18px;
+    }
+
+    .page-club .club-lineup-title {
+      color: var(--theme-color);
+      font-size: 16px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .page-club .club-lineup-note {
+      margin-top: 5px;
+      color: #666;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* モーダル */
+
+    .page-club .club-lineup-modal {
+      width: min(94vw, 820px);
+      max-width: 820px;
+      max-height: 94vh;
+      padding: 0;
+      overflow: visible;
+      border: 0;
+      border-radius: 14px;
+      background: transparent;
+    }
+
+    .page-club .club-lineup-modal::backdrop {
+      background: rgb(0 0 0 / 72%);
+    }
+
+    .page-club .club-lineup-modal-inner {
+      position: relative;
+      max-height: 94vh;
+      overflow: auto;
+      padding: 18px;
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: 0 12px 40px rgb(0 0 0 / 35%);
+    }
+
+    .page-club .club-lineup-close {
+      position: absolute;
+      top: 8px;
+      right: 10px;
+      z-index: 2;
+      width: 38px;
+      height: 38px;
+      padding: 0;
+      border: 0;
+      border-radius: 50%;
+      background: rgb(0 0 0 / 8%);
+      color: #333;
+      font-size: 28px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .page-club .club-lineup-modal-head {
+      padding: 2px 48px 12px 2px;
+    }
+
+    .page-club .club-lineup-modal-title {
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.5;
+    }
+
+    .page-club .club-lineup-modal-note {
+      margin-top: 3px;
+      color: #666;
+      font-size: 12px;
+    }
+
+    .page-club .club-lineup-modal-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    body.is-lineup-modal-open {
+      overflow: hidden;
+    }
+
+    @media (max-width: 768px) {
+      .page-club .club-lineup-section {
+        margin: 14px 0 18px;
+      }
+
+      .page-club .club-lineup-card {
+        grid-template-columns: 104px minmax(0, 1fr);
+      }
+
+      .page-club .club-lineup-thumb {
+        min-height: 92px;
+        padding: 6px;
+      }
+
+      .page-club .club-lineup-thumb img {
+        max-height: 96px;
+      }
+
+      .page-club .club-lineup-copy {
+        padding: 11px 12px;
+      }
+
+      .page-club .club-lineup-title {
+        font-size: 14px;
+      }
+
+      .page-club .club-lineup-note {
+        font-size: 11px;
+      }
+
+      .page-club .club-lineup-modal {
+        width: 96vw;
+        max-height: 96vh;
+      }
+
+      .page-club .club-lineup-modal-inner {
+        max-height: 96vh;
+        padding: 12px;
+      }
+
+      .page-club .club-lineup-modal-title {
+        font-size: 15px;
+      }
+    }
+
+    .page-club .club-rank-link {
+  color: inherit;
+  font-weight: 800;
+  text-decoration: underline;
+  text-decoration-color: color-mix(
+    in srgb,
+    var(--theme-color) 65%,
+    transparent
+  );
+  text-underline-offset: 3px;
+}
+
+.page-club .club-rank-link:hover {
+  color: var(--theme-color);
+}
   </style>
 </BaseLayout>
