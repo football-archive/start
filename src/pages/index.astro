@@ -75,11 +75,11 @@ const groupUpdatesByDate = (rows: any[]) =>
 // 全体21件ではなく、代表・クラブそれぞれの表示枠を確保する。
 const ntUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "nt")
-  .slice(0, 20);
+  .slice(0, 21);
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
-  .slice(0, 20);
+  .slice(0, 21);
 
 const groupedNtUpdates = groupUpdatesByDate(ntUpdates);
 const groupedClubUpdates = groupUpdatesByDate(clubUpdates);
