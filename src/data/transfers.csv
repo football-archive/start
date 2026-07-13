@@ -19,14 +19,16 @@
 2026-27,2026/6/1,A,coach,coach_out,monaco,summer,セバスチャン・ポコニョーリ,未定,
 2026-27,2026/5/22,A,coach,coach_out,manchester-city,summer,ジョゼップ・グアルディオラ,未定,
 2026-27,2026/5/17,A,coach,coach_in,-,summer,シャビ・アロンソ,chelsea,2026.01マドリー解任
+2026-27,2026/7/13,A,player,transfer,chelsea,summer,アンドレイ・サントス,manchester-united,4800万ポンド
+2026-27,2026/7/13,A,player,transfer,aston-villa,summer,ユーリ・ティーレマンス,manchester-united,契約解除金4100万ユーロ
+2026-27,2026/7/13,A,player,transfer,freiburg,summer,ヨハン・マンザンビ,aston-villa,急転⇐ニューカッスル合意報道
 2026-27,2026/7/12,A,player,transfer,lazio,summer,マリオ・ギラ,milan,"合意報道 | 3,000万ユーロ"
 2026-27,2026/7/11,A,player,transfer,leicester-city,summer,ジェレミー・モンガ,manchester-city,1000万ポンド（約21億円）
 2026-27,2026/7/11,A,player,transfer,real-madrid,summer,フラン・ガルシア,real-betis,
 2026-27,2026/7/11,A,player,transfer,sporting,summer,モルテン・ヒュルマンド,atletico-madrid,4000万ユーロ＋ボーナス500万ユーロ
 2026-27,2026/7/11,A,player,transfer,borussia-dortmund,summer,カリム・アデイェミ,barcelona,"合意報道 | 2,200万ユーロ"
 2026-27,2026/7/10,A,player,free,celta-vigo,summer,オスカル・ミンゲサ,crystal-palace,
-2026-27,2026/7/9,A,player,transfer,freiburg,summer,ヨハン・マンザンビ,newcastle-united,"合意報道 | 6,000万ユーロ"
-2026-27,2026/7/9,A,player,transfer,ユニオンSG,summer,アナン・カライリ,inter,2500万ユーロ＋ボーナス
+2026-27,2026/7/14,A,player,transfer,ユニオンSG,summer,アナン・カライリ,ユニオンSG,インテル移籍消滅
 2026-27,2026/7/9,A,player,transfer,lazio,summer,イヴァン・プロヴェデル,inter,300万ユーロ（約5億5000万円）
 2026-27,2026/7/9,A,player,transfer,sporting,summer,ジオヴァニー・クエンダ,chelsea,5000万ユーロ
 2026-27,2026/7/8,A,player,transfer,ロート・ヴァイス・エッセン,summer,水多海斗,le-havre,
@@ -43,6 +45,8 @@
 2026-27,2026/7/2,A,player,transfer,tottenham-hotspur,summer,ルカ・ヴシュコヴィッチ,brighton,⇦ハンブルガーSVレンタル | 4600万ポンド（約99億3000万）
 2026-27,2026/7/1,A,player,transfer,rennes,summer,ジェレミー・ジャケ,liverpool,6000万ユーロ
 2026-27,2026/7/1,A,player,transfer,west-ham-united,summer,マテウス・フェルナンデス,tottenham-hotspur,合意報道 | 8500万ポンド
+2026-27,2026/7/1,A,player,free,inter,summer,ヤン・ゾマー,未定,
+2026-27,2026/7/1,A,player,free,inter,summer,フランチェスコ・アチェルビ,未定,
 2026-27,2026/7/1,A,player,free,inter,summer,ステファン・デ・フライ,パナシナイコス,
 2026-27,2026/7/1,A,player,transfer,barcelona,summer,アンス・ファティ,monaco,買取OP
 2026-27,2026/6/30,A,player,transfer,barcelona,summer,ロベルト・レヴァンドフスキ,シカゴ・ファイヤー,
