@@ -1469,7 +1469,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .match-results-title {
       margin: 0 0 8px;
-      font-size: 13px;
+      font-size: 17px;
       font-weight: 750;
       color: var(--theme-color);
     }
@@ -1813,13 +1813,13 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .star-name {
       font-weight: 600;
-      font-size: 13px;
+      font-size: 17px;
       line-height: 1.35;
       word-break: keep-all;
     }
 
     .star-club {
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1.3;
     }
 
@@ -2005,8 +2005,8 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .hero-desc {
       margin: 4px 0 2px;
-      font-size: 13px;
-      line-height: 1.5;
+      font-size: 17px;
+      line-height: 1.6;
       color: #666;
       white-space: normal;
       overflow: visible;
@@ -2038,7 +2038,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .nt-tournament-link a {
       color: var(--theme-color);
-      text-decoration: none;
+      text-decoration: underline;
       font-size: 14px;
       line-height: 1.25;
       font-weight: 800;
@@ -2194,14 +2194,14 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-related-label {
-      font-size: 12px;
+      font-size: 17px;
       font-weight: 700;
       color: var(--theme-color);
       margin: 0 0 6px;
     }
 
     .nt-related-pill {
-      font-size: 12px;
+      font-size: 14px;
     }
 
     .nt-related-pill.is-muted {
@@ -2280,8 +2280,8 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .nt-meta-row {
       margin-top: 2px;
-      font-size: 14px;
-      line-height: 1.3;
+      font-size: 17px;
+      line-height: 1.5;
       font-weight: 700;
       color: var(--meta-color, #7a2e2e);
       display: flex;
@@ -2421,7 +2421,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     .nt-lineup-card {
       width: 100%;
       display: grid;
-      grid-template-columns: 96px 1fr;
+      grid-template-columns: 140px 1fr;
       gap: 12px;
       align-items: center;
       padding: 10px 12px;
@@ -2443,7 +2443,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-lineup-thumb {
-      width: 96px;
+      width: 140px;
       aspect-ratio: 5 / 7;
       border-radius: 10px;
       overflow: hidden;
@@ -2453,7 +2453,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-lineup-thumb img {
-      width: 100%;
+      width: 140px;
       height: 100%;
       object-fit: cover;
       display: block;
@@ -2464,7 +2464,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-lineup-title {
-      font-size: 15px;
+      font-size: 17px;
       font-weight: 800;
       line-height: 1.35;
       color: var(--theme-color);
@@ -2472,7 +2472,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .nt-lineup-note {
       margin-top: 4px;
-      font-size: 12px;
+      font-size: 16px;
       line-height: 1.4;
       color: #666;
     }
@@ -2570,7 +2570,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
     .nt-lineup-lead {
       margin: 6px 4px 8px;
-      font-size: 13px;
+      font-size: 17px;
       line-height: 1.6;
       color: #444;
       font-weight: 500;
@@ -2612,6 +2612,11 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       white-space: normal !important;
       overflow-wrap: anywhere;
       word-break: break-word;
+    }
+    /* 出場大会ピル */
+    .nt-year-pills .pill {
+      font-size: 14px;
+      padding: 6px 12px;
     }
 
     .page-wc .nt-meta-row {
@@ -3096,6 +3101,127 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       justify-content: center;
       align-items: center;
       gap: 6px;
+    }
+
+    /* ===== 代表ページ：メンバー一覧以外の文字サイズ拡大 ===== */
+
+    /* リード・メタ */
+    .page-wc .hero-desc,
+    .page-wc .nt-status-note,
+    .page-wc .nt-meta-row,
+    .page-wc .nt-updated,
+    .page-wc .nt-roster-jump,
+    .page-wc .nt-lineup-lead,
+    .page-wc .nt-lineup-title,
+    .page-wc .star-title,
+    .page-wc .star-name,
+    .page-wc .nt-related-label,
+    .page-wc .nt-tournament-link a {
+      font-size: 16px;
+    }
+
+    /* 少し補助的な文字 */
+    .page-wc .nt-lineup-note,
+    .page-wc .star-club,
+    .page-wc .star-pos,
+    .page-wc .match-results-note {
+      font-size: 15px;
+    }
+
+    /* 前回大会ピル */
+    .page-wc .nt-meta-pill {
+      font-size: 15px;
+    }
+
+    /* 試合結果ブロックのタイトル */
+    .page-wc .match-results-title {
+      font-size: 15px;
+    }
+
+    /* 試合結果テーブル本体 */
+    .page-wc .match-results-table {
+      font-size: 15px;
+      line-height: 1.45;
+    }
+
+    /* 試合結果テーブル見出し */
+    .page-wc .match-results-table th {
+      font-size: 15px;
+    }
+
+    /* 日時・Stage・国名・スコア */
+    .page-wc .match-result-date,
+    .page-wc .match-result-stage,
+    .page-wc .match-team,
+    .page-wc .match-result-score {
+      font-size: 14px;
+    }
+
+    /* vs */
+    .page-wc .match-vs {
+      font-size: 14px;
+    }
+
+    /* PK表示 */
+    .page-wc .match-result-pk {
+      font-size: 13px;
+    }
+
+    /* ○△● */
+    .page-wc .match-result-badge {
+      width: 28px;
+      height: 28px;
+      font-size: 14px;
+    }
+
+    /* 表の行も少し広げる */
+    .page-wc .match-results-table th,
+    .page-wc .match-results-table td {
+      padding-top: 10px;
+      padding-bottom: 10px;
+    }
+
+    @media (max-width: 640px) {
+      .page-wc .hero-desc,
+      .page-wc .nt-status-note,
+      .page-wc .nt-meta-row,
+      .page-wc .nt-roster-jump,
+      .page-wc .nt-lineup-lead,
+      .page-wc .nt-lineup-title,
+      .page-wc .star-title,
+      .page-wc .star-name,
+      .page-wc .nt-related-label,
+      .page-wc .nt-related-pill,
+      .page-wc .nt-tournament-link a {
+        font-size: 15px;
+      }
+
+      .page-wc .match-results-title {
+        font-size: 16px;
+      }
+
+      .page-wc .match-results-table,
+      .page-wc .match-result-date,
+      .page-wc .match-result-stage,
+      .page-wc .match-team,
+      .page-wc .match-result-score {
+        font-size: 13px;
+      }
+
+      .page-wc .match-vs {
+        font-size: 12px;
+      }
+
+      .page-wc .match-result-pk,
+      .page-wc .match-results-note {
+        font-size: 12px;
+      }
+
+      .page-wc .match-result-badge {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+      }
     }
   </style>
 </BaseLayout>

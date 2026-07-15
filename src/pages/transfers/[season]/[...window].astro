@@ -352,7 +352,7 @@ const dateText = (r) => {
 </div>
 
 <div class="pill-block">
-  <div class="pill-label">👉 リーグで絞り込む</br>※移籍元または移籍先のいずれかが一致したら表示します。</div>
+  <div class="pill-label">👉 リーグで絞り込む　※移籍元または移籍先のいずれかが一致したら表示します。</div>
   <div class="pills">
     <a
       class={`pill ${!activeLeague ? "is-active" : ""}`}
@@ -388,7 +388,8 @@ const dateText = (r) => {
 
 <style is:global>
   .meta {
-    font-size: 13px;
+    font-size: 16px;
+    line-height: 1.6;
     color: #666;
   }
   .date-red {
@@ -480,7 +481,7 @@ const dateText = (r) => {
 
   .page-transfer .transfer-lead {
     margin: 4px 0 14px;
-    font-size: 13px;
+    font-size: 16px;
     color: var(--muted, #666);
     line-height: 1.6;
   }
@@ -490,7 +491,8 @@ const dateText = (r) => {
   }
 
   .page-transfer .pill-label {
-    font-size: 13px;
+    font-size: 16px;
+    line-height: 1.6;
     color: var(--muted, #666);
     margin-bottom: 6px;
     font-weight: 600;
@@ -503,6 +505,11 @@ const dateText = (r) => {
     background: #f3f4f6;
     color: #777;
   }
+
+  .page-transfer .pills .pill {
+    font-size:14px;
+    padding:7px 13px;
+}
 
   .page-transfer .section-title {
     margin: 22px 0 10px;
@@ -542,6 +549,7 @@ const dateText = (r) => {
     gap: 8px;
     margin: 12px 0 10px;
     border-bottom: 1px solid var(--border, #e6e6e6);
+    font-size:16px;
   }
 
   .transfer-tab {
@@ -558,7 +566,7 @@ const dateText = (r) => {
 
   .transfer-tab span {
     margin-left: 4px;
-    font-size: 12px;
+    font-size: 14px;
     opacity: 0.72;
   }
 
@@ -574,7 +582,7 @@ const dateText = (r) => {
 
   .transfer-panel-title {
     margin: 12px 0 10px;
-    font-size: 18px;
+    font-size: 20px;
   }
 </style>
 

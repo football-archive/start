@@ -79,7 +79,7 @@ const ntUpdates = updatesAll
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
-  .slice(0, 13);
+  .slice(0, 16);
 
 const groupedNtUpdates = groupUpdatesByDate(ntUpdates);
 const groupedClubUpdates = groupUpdatesByDate(clubUpdates);
@@ -503,7 +503,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 .updates-group-date {
   margin-bottom: 4px;
   color: var(--date-red);
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   line-height: 1.4;
   font-variant-numeric: tabular-nums;
@@ -516,12 +516,12 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 
 .updates-group-list li {
   margin: 3px 0;
-  font-size: 13px;
+  font-size: 15px;
   line-height: 1.5;
 }
 
 .updates .title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 400;
 }
 
