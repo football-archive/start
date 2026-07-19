@@ -79,7 +79,7 @@ const ntUpdates = updatesAll
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
-  .slice(0, 16);
+  .slice(0, 17);
 
 const groupedNtUpdates = groupUpdatesByDate(ntUpdates);
 const groupedClubUpdates = groupUpdatesByDate(clubUpdates);
