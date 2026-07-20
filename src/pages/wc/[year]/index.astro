@@ -304,7 +304,35 @@ for (const [g, list] of standingsByGroup.entries()) {
   });
 }
 
-const awardGroups = getAwards("WC", String(year));
+const awardRowsRaw = getAwards("WC", String(year));
+const normalizeAwardMatchText = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+const makeAwardCallupKey = (player: unknown) => normalizeAwardMatchText(player);
+const callupByAwardKey = new Map<string, any>();
+
+for (const r of filtered as any[]) {
+  const playerName = r.name_ja; // 実際の選手名列を使用
+  const key = makeAwardCallupKey(playerName);
+
+  if (!key) continue;
+
+  callupByAwardKey.set(key, r);
+}
+const awardRows = awardRowsRaw.map((award) => {
+  const callup = callupByAwardKey.get(makeAwardCallupKey(award.player)) ?? null;
+
+  return {
+    ...award,
+    callup,
+  };
+});
+const hasAwardStats = filtered.some((r: any) => {
+  const appearances = String(r.apps ?? "").trim();
+  return appearances !== "";
+});
 
 const wcEditionCandidates = [
   "2026",
@@ -1050,6 +1078,93 @@ const pageDesc = isCurrentEdition
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
+    .page-wc .awards-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-wc .awards-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-wc .awards-table th,
+    .page-wc .awards-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border, #e6e6e6);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .page-wc .awards-table thead th {
+      background: #f8fafc;
+      color: var(--theme-color);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .page-wc .awards-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .page-wc .awards-table .num {
+      width: 42px;
+      min-width: 42px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-wc .award-note {
+      display: block;
+      margin-top: 2px;
+      color: var(--muted, #666);
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    @media (max-width: 560px) {
+      .page-wc .awards-table {
+        font-size: 12px;
+      }
+
+      .page-wc .awards-table th,
+      .page-wc .awards-table td {
+        padding: 8px 6px;
+      }
+
+      .page-wc .awards-table th:nth-child(2),
+      .page-wc .awards-table td:nth-child(2) {
+        max-width: 9em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .page-wc .awards-table th:nth-child(3),
+      .page-wc .awards-table td:nth-child(3) {
+        max-width: 6em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .page-wc .awards-table .num {
+        width: 30px;
+        min-width: 30px;
+      }
+
+      .page-wc .award-pos {
+        margin-left: 2px;
+        color: var(--muted, #666);
+        font-size: 12px;
+        font-weight: 400;
+        white-space: nowrap;
+      }
+    }
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
@@ -1069,7 +1184,6 @@ const pageDesc = isCurrentEdition
       ) : null
     }
   </p>
-
 
   {
     /* WC2030でまた復活させる
@@ -1162,7 +1276,7 @@ const pageDesc = isCurrentEdition
   <div class="nt-divider" aria-hidden="true"></div>
 
   {
-     /*=========================
+    /*=========================
       (1) 出場国カード：検索/ピル絞り込み（軽量バッジ版）
      ========================= */
   }
@@ -1668,50 +1782,89 @@ const pageDesc = isCurrentEdition
     }
     <section id="awards" style="margin: 18px 0;">
       <h2>⚽ {wcTitle} 表彰</h2>
+
       <p class="quick-title" style="margin: 6px 0 10px;">
-        {wcTitle} の個人賞・ベストイレブンを掲載しています。
+        {wcTitle} の個人賞・ベストイレブンなど各表彰を掲載しています。
       </p>
 
       {
-        awardGroups.length === 0 ? (
+        awardRows.length === 0 ? (
           <p class="rank-muted">発表され次第、更新します。</p>
         ) : (
-          <div class="rank-grid">
-            {awardGroups.map((g) => (
-              <div class="rank-card">
-                <h3>🏅 {g.name}</h3>
-                <ul style="margin:0; padding-left:18px; line-height:1.7;">
-                  {g.items.map((r) => {
-                    const rankLabel =
-                      g.key === "golden_ball"
-                        ? r.rank === "1"
-                          ? "ゴールデンボール"
-                          : r.rank === "2"
-                            ? "シルバーボール"
-                            : r.rank === "3"
-                              ? "ブロンズボール"
-                              : r.rank
-                        : r.rank;
+          <div class="awards-table-wrap">
+            <table class="awards-table" aria-label={`${wcTitle} 大会表彰`}>
+              <thead>
+                <tr>
+                  <th>賞</th>
+                  <th>選手</th>
+                  <th>国</th>
 
-                    return (
-                      <li>
-                        <span style="color:var(--muted,#666); margin-right:6px;">
-                          {rankLabel ? `${rankLabel}:` : ""}
-                        </span>
-                        <b>{r.player}</b>
-                        {r.team ? <span>（{r.team}）</span> : null}
+                  {hasAwardStats && (
+                    <>
+                      <th class="num">出場</th>
+                      <th class="num">G</th>
+                      <th class="num">A</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+
+              <tbody>
+                {awardRows.map((r) => {
+                  const callup = r.callup;
+
+                  return (
+                    <tr>
+                      <td>
+                        <b>{r.award_name}</b>
+
                         {r.note ? (
-                          <span style="color:var(--muted,#666);">
-                            {" "}
-                            - {r.note}
+                          <span class="award-note">{r.note}</span>
+                        ) : null}
+                      </td>
+
+                      <td>
+                        <b>{r.player}</b>
+
+                        {r.callup?.position_primary ? (
+                          <span class="award-pos">
+                            （{r.callup.position_primary}）
                           </span>
                         ) : null}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+                      </td>
+
+                      <td>
+                        {hasTeamPage(r.team) ? (
+                          <a href={teamHref(r.team)}>{r.team}</a>
+                        ) : (
+                          <span>{r.team}</span>
+                        )}
+                      </td>
+
+                      {hasAwardStats && (
+                        <>
+                          <td class="num">
+                            {callup
+                              ? `${callup.apps}${
+                                  String(callup.starts ?? "").trim()
+                                    ? `（先発${callup.starts}）`
+                                    : ""
+                                }`
+                              : "－"}
+                          </td>
+                          <td class="num">
+                            {String(callup?.goals ?? "").trim() || "－"}
+                          </td>
+                          <td class="num">
+                            {String(callup?.assists ?? "").trim() || "－"}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
         )
       }

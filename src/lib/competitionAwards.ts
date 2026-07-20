@@ -2,15 +2,15 @@
 import { readFileSync } from "node:fs";
 import { parseCsv } from "./csvSimple";
 
-export type AwardRow = {
+export type CompetitionAwardRow = {
   competition: string;
   edition: string;
   award_key: string;
   award_name: string;
-  rank: string;
+  sort: number;
   player: string;
-  team?: string;
-  note?: string;
+  team: string;
+  note: string;
 };
 
 const norm = (v: unknown) => String(v ?? "").trim();
@@ -30,51 +30,27 @@ export function loadCompetitionAwards(): AwardRow[] {
   }));
 }
 
-export function getAwards(competition: string, edition: string) {
-  const rows = loadCompetitionAwards().filter(
-    (r) => r.competition === competition && r.edition === edition,
-  );
-
-  // award_key ごとにまとめる
-  const map = new Map<
-    string,
-    { key: string; name: string; items: AwardRow[] }
-  >();
-
-  for (const r of rows) {
-    const k = r.award_key || "other";
-    if (!map.has(k)) map.set(k, { key: k, name: r.award_name || k, items: [] });
-    map.get(k)!.items.push(r);
-  }
-
-  // 並び順（好みで調整OK）
-  const order = [
-    "golden_ball",
-    "best_xi",
-    "golden_glove",
-    "best_young",
-    "golden_boot",
-  ];
-
-  const groups = [...map.values()].sort((a, b) => {
-    const ia = order.indexOf(a.key);
-    const ib = order.indexOf(b.key);
-    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
-  });
-
-  // 中の並び：rank（数値優先、文字は後ろ）
-  for (const g of groups) {
-    g.items.sort((a, b) => {
-      const na = Number(a.rank);
-      const nb = Number(b.rank);
-      const aNum = Number.isFinite(na) && a.rank !== "";
-      const bNum = Number.isFinite(nb) && b.rank !== "";
-      if (aNum && bNum) return na - nb;
-      if (aNum) return -1;
-      if (bNum) return 1;
-      return String(a.rank).localeCompare(String(b.rank));
-    });
-  }
-
-  return groups;
+export function getAwards(
+  competition: string,
+  edition: string,
+): CompetitionAwardRow[] {
+  return loadCompetitionAwards()
+    .filter(
+      (r) =>
+        String(r.competition ?? "").trim() === String(competition).trim() &&
+        String(r.edition ?? "").trim() === String(edition).trim(),
+    )
+    .map((r, sourceIndex) => ({
+      competition: String(r.competition ?? "").trim(),
+      edition: String(r.edition ?? "").trim(),
+      award_key: String(r.award_key ?? "").trim(),
+      award_name: String(r.award_name ?? "").trim(),
+      sort: Number(String(r.sort ?? "").trim()) || 9999,
+      player: String(r.player ?? "").trim(),
+      team: String(r.team ?? "").trim(),
+      note: String(r.note ?? "").trim(),
+      sourceIndex,
+    }))
+    .filter((r) => r.award_name && r.player)
+    .sort((a, b) => a.sort - b.sort || a.sourceIndex - b.sourceIndex);
 }
