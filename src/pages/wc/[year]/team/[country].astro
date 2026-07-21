@@ -218,9 +218,10 @@ const heroMetaLine = (() => {
   const result = String(metaRow?.result_ja ?? "").trim();
   const coach = String(metaRow?.coach_ja ?? "").trim();
 
-  const coachText = coach ? `🎬監督：${coach}` : "";
+  const resultText = result ? `🏆 ${result}` : "";
+  const coachText = coach ? `🎬 ${coach}` : "";
 
-  return [result, coachText].filter(Boolean).join(" ｜ ");
+  return [resultText, coachText].filter(Boolean).join(" ｜ ");
 })();
 
 const previousMetaRow = metaAll
@@ -952,14 +953,14 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
           {
             hasLineup && (
               <>
-                📢 背番号は発表され次第、更新します。（直近の情報を暫定で表示）
+                ・背番号は発表され次第、更新します。（直近の情報を暫定で表示）
                 <br />
-                ⚽ 直近の試合ベースの想定スタメン・フォーメーション例も掲載。
+                ・直近の試合ベースの想定スタメン・フォーメーション例も掲載。
                 <br />
               </>
             )
           }
-          🔥過去大会のメンバーも当時の所属クラブ・年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
+          過去大会のメンバーも当時の所属クラブ・年齢付きで、歴代のメンバー構成を確認できるのが特徴です。
         </span>
       </p>
 
@@ -979,7 +980,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         {
           (fifaRank || previousEdition || isFirstAppearance) && (
             <div class="nt-meta-row">
-              {fifaRank && <span>★ FIFAランク：{fifaRank}位</span>}
+              {fifaRank && <span>🌍 FIFAランク：{fifaRank}位</span>}
 
               {fifaRank && (previousEdition || isFirstAppearance) && (
                 <span class="nt-meta-sep">｜</span>
@@ -987,7 +988,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
               {previousEdition && (
                 <span>
-                  ★ 前回：{" "}
+                  ⏪ 前回：{" "}
                   {previousTournamentHref ? (
                     <a
                       class="pill nt-meta-pill nt-meta-pill-inline"
@@ -1011,13 +1012,13 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
         {
           showTeamStats && avgAge && (
-            <div class="nt-meta-row">★ 平均年齢：{avgAge}歳</div>
+            <div class="nt-meta-row">👥 平均年齢：{avgAge}歳</div>
           )
         }
 
         {
           showTeamStats && leagueText && (
-            <div class="nt-meta-row">★ 5大リーグ所属：{leagueText}</div>
+            <div class="nt-meta-row">⚽ 5大リーグ所属：{leagueText}</div>
           )
         }
 
@@ -2057,7 +2058,9 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-meta-block {
-      margin-top: 8px;
+      margin: 8px 0 10px;
+      display: grid;
+      gap: 3px;
     }
 
     .nt-hero-meta {
@@ -2279,13 +2282,14 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     .nt-meta-row {
-      margin-top: 2px;
-      font-size: 17px;
+      margin: 0;
+      font-size: 18px;
       line-height: 1.5;
-      font-weight: 700;
+      font-weight: 800;
       color: var(--meta-color, #7a2e2e);
       display: flex;
-      flex-wrap: wrap; /* ←これ重要 */
+      flex-wrap: wrap;
+      align-items: center;
       gap: 4px 8px;
     }
 
@@ -3220,6 +3224,17 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       .page-wc .match-result-badge {
         width: 24px;
         height: 24px;
+        font-size: 14px;
+      }
+    }
+
+    .page-wc .nt-meta-block .nt-meta-row {
+      font-size: 18px;
+      font-weight: 800;
+    }
+
+    @media (max-width: 640px) {
+      .page-wc .nt-meta-block .nt-meta-row {
         font-size: 14px;
       }
     }

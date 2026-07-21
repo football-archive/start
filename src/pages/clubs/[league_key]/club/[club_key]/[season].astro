@@ -720,9 +720,9 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
             {clubLabel}の{seasonLong(p.season)}
              所属選手一覧。背番号・ポジション・国籍・加入日・代表歴・出場数・ゴール・アシスト・年齢・身長を掲載。
             <br />
-            📢 背番号は発表され次第、更新します。（直近の情報を暫定で表示）
+            ・背番号は発表され次第、更新します。（直近の情報を暫定で表示）
             <br />
-            🔥 想定スタメンや注目選手、過去シーズン当時の代表招集歴も確認できます。
+            ・想定スタメン・注目選手・過去シーズン当時の代表招集歴も確認できます。
           </p>
         </div>
       );
@@ -741,23 +741,26 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
         >
 {(meta.rank || meta.coach) && (
   <div class="club-meta-row">
-    {meta.rank ? (
-      hasLeagueStandingSeason(p.season) ? (
-        <a
-          class="club-rank-link"
-          href={leagueSeasonPath(p.season)}
-          title={`${leagueLabel}${seasonShort(p.season)}順位表を見る`}
-        >
-          {meta.rank}
-        </a>
-      ) : (
-        meta.rank
-      )
-    ) : (
-      "—"
+    {meta.rank && (
+      <>
+        🏆{" "}
+        {hasLeagueStandingSeason(p.season) ? (
+          <a
+            class="club-rank-link"
+            href={leagueSeasonPath(p.season)}
+            title={`${leagueLabel}${seasonShort(p.season)}順位表を見る`}
+          >
+            {meta.rank}
+          </a>
+        ) : (
+          meta.rank
+        )}
+      </>
     )}
 
-    {meta.coach ? ` ｜ ${meta.coach}` : ""}
+    {meta.rank && meta.coach && " ｜ "}
+
+    {meta.coach && <>🎬 {meta.coach}</>}
   </div>
 )}
 
@@ -792,7 +795,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                   data-stats-window="winter"
                   style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
                 >
-                  ★ {p.statsWinter.avgAgeText}
+                  👥 {p.statsWinter.avgAgeText}
                 </div>
               )}
               {p.statsWinter.continentText && (
@@ -801,7 +804,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                   data-stats-window="winter"
                   style={`display:${p.season === initialSeason && initialWindow === "winter" ? "" : "none"}`}
                 >
-                  ★ {p.statsWinter.continentText}
+                  🌍 {p.statsWinter.continentText}
                 </div>
               )}
             </>
@@ -2181,9 +2184,9 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
     .club-meta-row {
       margin: 0;
-      font-size: 16px;
+      font-size: 18px;
       line-height: 1.6;
-      font-weight: 700;
+      font-weight: 800;
       color: #2f4f46;
     }
 

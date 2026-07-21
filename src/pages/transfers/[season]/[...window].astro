@@ -2,6 +2,10 @@
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { loadTransfers } from "../../../lib/transfers";
 import { loadLeagueMaster } from "../../../lib/leagueMaster";
+import {
+  findTransferWindow,
+  loadTransferWindows,
+} from "../../../lib/transferWindows";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -218,6 +222,12 @@ const leagueOptions = Array.from(
 
 const activeLeague = leagueOptions.includes(leagueParam) ? leagueParam : "";
 
+const transferWindows = loadTransferWindows();
+
+const activeTransferWindow = activeLeague
+  ? findTransferWindow(transferWindows, season, window, activeLeague)
+  : undefined;
+
 // 絞り込み
 const rows = activeLeague
   ? periodRows.filter((r) => hasLeague(r, activeLeague))
@@ -240,6 +250,12 @@ const maxIso = (list) => {
 };
 const updatedIso = maxIso(rows) || maxIso(all) || "";
 const updatedJa = updatedIso ? updatedIso.replaceAll("-", "/") : "—";
+
+const formatTransferWindowDate = (value: string) => {
+  const date = String(value ?? "").trim();
+
+  return date ? date.replaceAll("-", "/") : "";
+};
 
 // move_type 表示名（最小）
 const moveLabel = (t) => {
@@ -481,13 +497,33 @@ const dateText = (r) => {
     >
       選手 <span>{playerRows.length}</span>
     </button>
+
     <button type="button" class="transfer-tab" data-transfer-tab="coaches">
       監督 <span>{coachRows.length}</span>
     </button>
   </div>
 
+  {
+    activeTransferWindow && (
+      <div class="transfer-window-info">
+        <span class="transfer-window-label">
+          📅 {leagueLabel(activeLeague)}の移籍期間：
+        </span>
+
+        <span class="transfer-window-dates">
+          {formatTransferWindowDate(activeTransferWindow.start_date)}～
+          {formatTransferWindowDate(activeTransferWindow.end_date)}
+        </span>
+
+        {activeTransferWindow.note && (
+          <span class="transfer-window-note">※{activeTransferWindow.note}</span>
+        )}
+      </div>
+    )
+  }
+
   <style is:global>
-    .meta {
+    <style is:global > .meta {
       font-size: 16px;
       line-height: 1.6;
       color: #666;
@@ -683,6 +719,35 @@ const dateText = (r) => {
     .transfer-panel-title {
       margin: 12px 0 10px;
       font-size: 20px;
+    }
+
+    .page-transfer .transfer-window-info {
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 4px 8px;
+      margin: -2px 0 14px;
+      padding: 9px 12px;
+      border-left: 4px solid var(--theme-color, #2f855a);
+      background: #f7faf8;
+      color: #444;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .page-transfer .transfer-window-label {
+      font-weight: 700;
+    }
+
+    .page-transfer .transfer-window-dates {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+      color: #222;
+    }
+
+    .page-transfer .transfer-window-note {
+      color: var(--muted, #666);
+      font-size: 13px;
     }
   </style>
 
