@@ -271,8 +271,8 @@ const prevSeason =
 const nextSeason =
   currentSeasonIndex > 0 ? seasons[currentSeasonIndex - 1] : "";
 
-const prevSeasonHref = prevSeason ? `/clubs/${leagueKey}/${prevSeason}` : "";
-const nextSeasonHref = nextSeason ? `/clubs/${leagueKey}/${nextSeason}` : "";
+const prevSeasonHref = prevSeason ? `/clubs/${leagueKey}/${prevSeason}/` : "";
+const nextSeasonHref = nextSeason ? `/clubs/${leagueKey}/${nextSeason}/` : "";
 
 // --------------------
 // 表示補助
@@ -423,7 +423,7 @@ const heading = `${leagueName} ${seasonKey}`;
         seasons.map((s) => (
           <a
             class={`pill ${s === seasonKey ? "is-active" : ""}`}
-            href={`/clubs/${leagueKey}/${s}`}
+            href={`/clubs/${leagueKey}/${s}/`}
           >
             <span class="dot" aria-hidden="true" />
             {s}
