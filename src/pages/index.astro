@@ -79,7 +79,7 @@ const ntUpdates = updatesAll
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
-  .slice(0, 26);
+  .slice(0, 22);
 
 const groupedNtUpdates = groupUpdatesByDate(ntUpdates);
 const groupedClubUpdates = groupUpdatesByDate(clubUpdates);
@@ -338,7 +338,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 ---
 
 <BaseLayout
-  title="海外サッカーDB｜W杯2026出場国・代表メンバー一覧"
+  title="海外サッカーDB｜W杯2026出場国・代表メンバー一覧｜海外主要クラブメンバー一覧・移籍情報"
   bodyClass="page-home"
   description="FIFAワールドカップ2026の出場国・代表メンバー一覧を中心に、各国代表の背番号・所属クラブ・過去大会の情報をまとめた海外サッカーデータベースサイトです。海外クラブ登録メンバーやワールドカップ情報も一覧できます。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
