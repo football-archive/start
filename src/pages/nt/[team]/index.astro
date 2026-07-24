@@ -1,0 +1,624 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { parseCsv } from "../../../lib/csvSimple";
+
+import fs from "node:fs";
+import path from "node:path";
+
+type CsvRow = Record<string, string>;
+
+type CountryRow = {
+  country_key: string;
+  country_name_ja: string;
+  country_name_en: string;
+  continent: string;
+  confederation: string;
+};
+
+function readCsv(fileName: string): CsvRow[] {
+  const filePath = path.join(process.cwd(), "src", "data", fileName);
+  return parseCsv(fs.readFileSync(filePath, "utf-8")) as CsvRow[];
+}
+
+function clean(value: unknown): string {
+  return String(value ?? "").trim();
+}
+
+function normalizeCompetition(value: unknown): string {
+  return clean(value).toUpperCase();
+}
+
+function toDateKey(value: unknown): string {
+  const raw = clean(value);
+  if (!raw) return "";
+  const parts = raw.replace(/\./g, "/").replace(/-/g, "/").split("/");
+  if (parts.length < 2) return raw;
+  const [year, month = "1", day = "1"] = parts;
+  return `${year.padStart(4, "0")}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+}
+
+function formatYearMonth(value: unknown): string {
+  const key = toDateKey(value);
+  if (!key) return "";
+  const [year, month] = key.split("-");
+  return `${year}.${month}`;
+}
+
+const competitionMeta: Record<
+  string,
+  { short: string; name: string; segment: string; order: number }
+> = {
+  WC: { short: "WC", name: "FIFAワールドカップ", segment: "wc", order: 1 },
+  AFC: { short: "AFC", name: "AFCアジアカップ", segment: "afc", order: 2 },
+  EURO: { short: "EURO", name: "UEFA EURO", segment: "euro", order: 3 },
+  COPA: { short: "COPA", name: "コパ・アメリカ", segment: "copa", order: 4 },
+  GC: { short: "GC", name: "ゴールドカップ", segment: "gold-cup", order: 5 },
+  AFCON: {
+    short: "AFCON",
+    name: "アフリカ・ネーションズカップ",
+    segment: "afcon",
+    order: 6,
+  },
+  OFC: {
+    short: "OFC",
+    name: "OFCネーションズカップ",
+    segment: "ofc",
+    order: 7,
+  },
+  UNL: {
+    short: "UNL",
+    name: "UEFAネーションズリーグ",
+    segment: "unl",
+    order: 8,
+  },
+};
+
+function getCompetitionInfo(code: string) {
+  return (
+    competitionMeta[code] ?? {
+      short: code,
+      name: code,
+      segment: code.toLowerCase(),
+      order: 99,
+    }
+  );
+}
+
+function getRosterHref(
+  competition: string,
+  edition: string,
+  countryNameJa: string,
+) {
+  const code = normalizeCompetition(competition);
+  const teamPath = encodeURIComponent(countryNameJa);
+  if (code === "WC") return `/wc/${edition}/team/${teamPath}/`;
+  const info = getCompetitionInfo(code);
+  return `/continental/${info.segment}/${edition}/team/${teamPath}/`;
+}
+
+export async function getStaticPaths() {
+  const readCsvForPaths = (fileName: string): CsvRow[] => {
+    const filePath = path.join(process.cwd(), "src", "data", fileName);
+    return parseCsv(fs.readFileSync(filePath, "utf-8")) as CsvRow[];
+  };
+
+  const cleanForPaths = (value: unknown): string => String(value ?? "").trim();
+
+  const countries = readCsvForPaths("country_master.csv").map((row) => ({
+    country_key: cleanForPaths(row.country_key),
+    country_name_ja: cleanForPaths(row.country_name_ja),
+    country_name_en: cleanForPaths(row.country_name_en),
+    continent: cleanForPaths(row.continent),
+    confederation: cleanForPaths(row.confederation),
+  })) as CountryRow[];
+
+  const metaSlugs = new Set(
+    readCsvForPaths("nt_tournament_meta.csv")
+      .map((row) => cleanForPaths(row.team_slug))
+      .filter(Boolean),
+  );
+
+  const callupCountries = new Set(
+    readCsvForPaths("callups_site.csv")
+      .map((row) => cleanForPaths(row.country))
+      .filter(Boolean),
+  );
+
+  return countries
+    .filter(
+      (country) =>
+        metaSlugs.has(country.country_key) ||
+        callupCountries.has(country.country_name_ja),
+    )
+    .map((country) => ({
+      params: { team: country.country_key },
+      props: { country },
+    }));
+}
+
+const { country } = Astro.props as { country: CountryRow };
+const teamSlug = country.country_key;
+const countryJa = country.country_name_ja;
+
+const allCallups = readCsv("callups_site.csv").filter(
+  (row) => clean(row.country) === countryJa,
+);
+
+const tournamentMeta = readCsv("nt_tournament_meta.csv")
+  .filter((row) => clean(row.team_slug) === teamSlug)
+  .map((row) => ({
+    competition: normalizeCompetition(row.competition),
+    edition: clean(row.edition),
+    coach: clean(row.coach_ja),
+    result: clean(row.result_ja),
+  }));
+
+const callupGroups = new Map<string, CsvRow[]>();
+for (const row of allCallups) {
+  const competition = normalizeCompetition(row.competition);
+  const edition = clean(row.edition);
+  if (!competition || !edition) continue;
+  const key = `${competition}:${edition}`;
+  const bucket = callupGroups.get(key) ?? [];
+  bucket.push(row);
+  callupGroups.set(key, bucket);
+}
+
+const editionMap = new Map<
+  string,
+  {
+    competition: string;
+    edition: string;
+    coach: string;
+    result: string;
+    hasRoster: boolean;
+    rosterCount: number;
+  }
+>();
+
+for (const meta of tournamentMeta) {
+  const key = `${meta.competition}:${meta.edition}`;
+  editionMap.set(key, {
+    ...meta,
+    hasRoster: callupGroups.has(key),
+    rosterCount: callupGroups.get(key)?.length ?? 0,
+  });
+}
+
+for (const [key, rows] of callupGroups) {
+  if (editionMap.has(key)) continue;
+  const [competition, edition] = key.split(":");
+  editionMap.set(key, {
+    competition,
+    edition,
+    coach: "",
+    result: "",
+    hasRoster: true,
+    rosterCount: rows.length,
+  });
+}
+
+const editions = Array.from(editionMap.values()).sort((a, b) => {
+  const byEdition = Number(b.edition) - Number(a.edition);
+  if (byEdition !== 0) return byEdition;
+  return (
+    getCompetitionInfo(a.competition).order -
+    getCompetitionInfo(b.competition).order
+  );
+});
+
+const latestCallup = allCallups
+  .slice()
+  .sort((a, b) =>
+    toDateKey(b.snapshot_date).localeCompare(toDateKey(a.snapshot_date)),
+  )[0];
+
+const latestCompetition = latestCallup
+  ? normalizeCompetition(latestCallup.competition)
+  : "";
+const latestEdition = latestCallup ? clean(latestCallup.edition) : "";
+const latestSnapshot = latestCallup ? clean(latestCallup.snapshot_date) : "";
+const latestRosterHref = latestCallup
+  ? getRosterHref(latestCompetition, latestEdition, countryJa)
+  : "";
+
+const rankRows = readCsv("fifa_rank.csv")
+  .filter((row) => clean(row.country_name_ja) === countryJa)
+  .sort((a, b) => toDateKey(b.rank_date).localeCompare(toDateKey(a.rank_date)));
+const latestRank = rankRows[0];
+
+const lineupRows = readCsv("nt_lineup_images.csv")
+  .filter((row) => clean(row.team_slug) === teamSlug)
+  .map((row) => ({
+    competition: normalizeCompetition(row.competition),
+    edition: clean(row.year),
+    formation: clean(row.formation),
+    image: clean(row.image),
+  }))
+  .filter((row) => row.competition && row.edition && row.image)
+  .sort((a, b) => Number(b.edition) - Number(a.edition));
+
+const latestLineup = lineupRows.find((row) => {
+  const imagePath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "lineups",
+    row.image,
+  );
+  return fs.existsSync(imagePath);
+});
+
+const latestLineupHref = latestLineup
+  ? getRosterHref(latestLineup.competition, latestLineup.edition, countryJa)
+  : "";
+
+const latestPublishedDate =
+  formatYearMonth(latestSnapshot) || (latestLineup ? latestLineup.edition : "");
+
+const heading = `${countryJa}代表 ポータルページ | 歴代大会成績・監督・メンバー一覧`;
+const title = `${countryJa}代表 メンバー・フォーメーション・招集履歴`;
+const description = `${countryJa}代表の最新掲載メンバー、フォーメーション、ワールドカップなど国際大会の招集履歴をまとめています。`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-nt-country page-wc"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "各国代表一覧・国際大会ポータル", href: "/nt/" },
+    { label: countryJa },
+  ]}
+  heading={heading}
+>
+  <h1 class="country-page-title">{heading}</h1>
+
+  <div class="lead">
+    <p>
+      {
+        countryJa
+      }代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。</br>※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
+    </p>
+  </div>
+
+  <div class="updated-date">
+    {latestSnapshot && <>更新日：{latestSnapshot}</>}
+  </div>
+
+  <div class="current-summary" aria-label="掲載中の代表情報">
+    <span><strong>🌍 所属：</strong>{country.confederation || "—"}</span>
+    {
+      latestRank && (
+        <span>
+          <strong>🌍 FIFAランク：</strong>
+          {clean(latestRank.fifa_rank)}位 （
+          {formatYearMonth(latestRank.rank_date)}時点）
+        </span>
+      )
+    }
+  </div>
+
+  {
+    (latestCallup || latestLineup) && (
+      <section class="latest-section" aria-labelledby="latest-heading">
+        <h2 id="latest-heading">
+          ⚽ 最新の掲載状況
+          {latestPublishedDate && <span>（{latestPublishedDate}）</span>}
+        </h2>
+
+        <div class="latest-content">
+          {latestCallup && (
+            <a class="roster-link" href={latestRosterHref}>
+              👉 メンバー一覧（{formatYearMonth(latestSnapshot)}）
+            </a>
+          )}
+
+          {latestLineup && (
+            <a class="lineup-card" href={latestLineupHref}>
+              <img
+                src={`/images/lineups/${latestLineup.image}`}
+                alt={`${countryJa}代表 ${latestLineup.edition} ${latestLineup.formation} フォーメーション`}
+                loading="lazy"
+              />
+              <div class="lineup-copy">
+                <span>👉 フォーメーション例を見る</span>
+                {latestLineup.formation && (
+                  <small>システム：{latestLineup.formation}</small>
+                )}
+              </div>
+            </a>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="history" aria-labelledby="history-heading">
+    <h2 id="history-heading">⚽ 歴代大会成績・監督・メンバー一覧</h2>
+
+    {
+      editions.length > 0 ? (
+        <div class="history-list">
+          {editions.map((item) => {
+            const info = getCompetitionInfo(item.competition);
+            const href = getRosterHref(
+              item.competition,
+              item.edition,
+              countryJa,
+            );
+
+            return (
+              <div class="history-row">
+                <div class="history-tournament">
+                  <span class="history-year">{item.edition}</span>
+                  <span>{info.short}</span>
+                </div>
+
+                <div class="history-result">
+                  {item.result ? `成績：${item.result}` : ""}
+                </div>
+
+                <div class="history-coach">
+                  {item.coach ? `監督：${item.coach}` : ""}
+                </div>
+
+                <div class="history-link">
+                  {item.hasRoster && <a href={href}>👉 メンバー一覧へ</a>}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <p class="empty-message">招集履歴は順次追加予定です。</p>
+      )
+    }
+  </section>
+
+  <style is:global>
+    .page-nt-country .country-page-title {
+      display: block !important;
+      margin: 4px 0 10px;
+      color: #172033;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .page-nt-country .lead {
+      margin: 8px 0 14px;
+      color: #475569;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .page-nt-country .updated-date {
+      text-align: right;
+      font-size: 15px;
+      margin: 8px 0 14px;
+    }
+
+    .page-nt-country .current-summary strong {
+      font-weight: 700;
+    }
+
+    .page-nt-country .current-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin: 0 0 24px;
+      padding: 12px 16px;
+      border-left: 5px solid #8f1720;
+      background: #f7ecee;
+      color: #8f1720;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .page-nt-country section {
+      margin-top: 28px;
+    }
+
+    .page-nt-country h2 {
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #9ca3af;
+      color: #8f1720;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .page-nt-country h2 span {
+      font-weight: inherit;
+    }
+
+    .page-nt-country .latest-content {
+      display: grid;
+      gap: 12px;
+    }
+
+    .page-nt-country .roster-link {
+      display: block;
+      padding: 12px 15px;
+      border: 1px solid #c7ccd4;
+      border-radius: 8px;
+      color: var(--theme-link);
+      font-size: 17px;
+      font-weight: 500;
+      text-decoration: none;
+      background: #fff;
+    }
+
+    .page-nt-country .roster-link:hover {
+      border-color: #8f1720;
+      background: #fafafa;
+    }
+
+    .page-nt-country .roster-link span {
+      color: #64748b;
+      font-weight: inherit;
+    }
+
+    .page-nt-country .lineup-card {
+      display: grid;
+      grid-template-columns: 150px minmax(0, 1fr);
+      align-items: center;
+      gap: 16px;
+      padding: 10px;
+      border: 1px solid #d5d8de;
+      border-radius: 10px;
+      color: inherit;
+      text-decoration: none;
+      background: #fff;
+    }
+
+    .page-nt-country .lineup-card:hover {
+      border-color: #8f1720;
+    }
+
+    .page-nt-country .lineup-card img {
+      display: block;
+      width: 100%;
+      max-height: 190px;
+      object-fit: contain;
+      border-radius: 6px;
+      background: #eef2f7;
+    }
+
+    .page-nt-country .lineup-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-width: 0;
+      color: var(--theme-link);
+      font-size: 17px;
+    }
+
+    .page-nt-country .lineup-copy small {
+      color: #64748b;
+      font-size: 15px;
+    }
+
+    .page-nt-country .history-list {
+      border-top: 1px solid #c7ccd4;
+    }
+
+    .page-nt-country .history-row {
+      display: grid;
+      grid-template-columns: 120px minmax(120px, 1fr) minmax(170px, 1.4fr) 150px;
+      align-items: center;
+      gap: 12px;
+      min-height: 52px;
+      padding: 9px 10px;
+      border-bottom: 1px solid #d9dde3;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .page-nt-country .history-row:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .page-nt-country .history-tournament {
+      display: flex;
+      gap: 10px;
+      color: #172033;
+    }
+
+    .page-nt-country .history-year {
+      color: #8f1720;
+    }
+
+    .page-nt-country .history-result,
+    .page-nt-country .history-coach {
+      color: #334155;
+    }
+
+    .page-nt-country .history-link {
+      text-align: right;
+    }
+
+    .page-nt-country .history-link a {
+      color: var(--theme-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-nt-country .history-link span {
+      color: #64748b;
+    }
+
+    .page-nt-country .empty-message {
+      color: #64748b;
+      font-size: 16px;
+    }
+
+    @media (max-width: 760px) {
+      .page-nt-country .history-row {
+        grid-template-columns: 100px 1fr auto;
+      }
+
+      .page-nt-country .history-coach {
+        grid-column: 2 / 4;
+      }
+
+      .page-nt-country .history-link {
+        grid-column: 3;
+        grid-row: 1;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-country .country-page-title {
+        font-size: 24px;
+      }
+
+      .page-nt-country .lead {
+        font-size: 15px;
+      }
+
+      .page-nt-country .lineup-card {
+        grid-template-columns: 95px minmax(0, 1fr);
+        gap: 12px;
+      }
+
+      .page-nt-country .current-summary {
+        display: block;
+        font-size: 16px;
+      }
+
+      .page-nt-country .current-summary span {
+        display: block;
+      }
+
+      .page-nt-country h2 {
+        font-size: 20px;
+      }
+
+      .page-nt-country .history-row {
+        grid-template-columns: 1fr auto;
+        gap: 5px 12px;
+        padding: 11px 8px;
+        font-size: 15px;
+      }
+
+      .page-nt-country .history-tournament {
+        grid-column: 1;
+      }
+
+      .page-nt-country .history-result,
+      .page-nt-country .history-coach {
+        grid-column: 1 / 3;
+      }
+
+      .page-nt-country .history-link {
+        grid-column: 2;
+        grid-row: 1;
+      }
+    }
+  </style>
+</BaseLayout>

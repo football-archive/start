@@ -1,11 +1,200 @@
 ---
-// src/pages/nt/index.astro
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { loadCallups } from "../../lib/callups";
+import { parseCsv } from "../../lib/csvSimple";
+import fs from "node:fs";
+import path from "node:path";
 
-const heading = "代表";
-const title = `${heading} | World Football Archive`;
+const heading = "各国代表一覧";
+const title = `${heading}｜国際大会・最新メンバー | World Football Archive`;
 const description =
-  "各国代表の情報をまとめて閲覧。ワールドカップ、強豪国の歩み、日本代表など、代表コンテンツの入口ページ。";
+  "世界各国の代表チームと国際大会をまとめた代表ポータル。ワールドカップや各大陸選手権、各国代表の最新メンバー・歴代大会を閲覧できます。";
+
+const competitionCards = [
+  {
+    code: "WC",
+    name: "FIFAワールドカップ",
+    meta: "2026大会｜日程・結果・順位表・選手ランキング",
+    href: "/wc/2026/",
+    status: "公開中",
+  },
+  {
+    code: "AFC",
+    name: "AFCアジアカップ",
+    meta: "2027大会を追加予定",
+    href: "",
+    status: "準備中",
+  },
+  {
+    code: "EURO",
+    name: "UEFA EURO",
+    meta: "2028大会を追加予定",
+    href: "",
+    status: "準備中",
+  },
+  {
+    code: "COPA",
+    name: "コパ・アメリカ",
+    meta: "南米代表の大陸選手権",
+    href: "",
+    status: "準備中",
+  },
+  {
+    code: "GC",
+    name: "ゴールドカップ",
+    meta: "北中米・カリブ代表の大陸選手権",
+    href: "",
+    status: "準備中",
+  },
+  {
+    code: "AFCON",
+    name: "アフリカ・ネーションズカップ",
+    meta: "アフリカ代表の大陸選手権",
+    href: "",
+    status: "準備中",
+  },
+  {
+    code: "OFC",
+    name: "OFCネーションズカップ",
+    meta: "オセアニア代表の大陸選手権",
+    href: "",
+    status: "準備中",
+  },
+];
+
+const historyCards = [
+  {
+    name: "強豪国代表｜W杯のあゆみ",
+    meta: "優勝回数ランキングと各国のワールドカップ史",
+    href: "/nt/wc/legends/",
+  },
+  {
+    name: "日本代表｜W杯のあゆみ",
+    meta: "SAMURAI BLUE　進化の歴史",
+    href: "/nt/japan/wc/",
+  },
+];
+
+const confederationMeta: Record<string, { label: string; rank: number }> = {
+  AFC: { label: "AFC｜アジア", rank: 1 },
+  UEFA: { label: "UEFA｜ヨーロッパ", rank: 2 },
+  CONMEBOL: { label: "CONMEBOL｜南米", rank: 3 },
+  CONCACAF: { label: "CONCACAF｜北中米・カリブ", rank: 4 },
+  CAF: { label: "CAF｜アフリカ", rank: 5 },
+  OFC: { label: "OFC｜オセアニア", rank: 6 },
+};
+
+const dateKey = (value: unknown) => {
+  const s = String(value ?? "").trim();
+  const m = s.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+  if (!m) return "";
+  return `${m[1]}${String(Number(m[2])).padStart(2, "0")}${String(Number(m[3])).padStart(2, "0")}`;
+};
+
+const monthLabel = (value: unknown) => {
+  const s = String(value ?? "").trim();
+  const m = s.match(/^(\d{4})[\/-](\d{1,2})/);
+  if (!m) return s;
+  return `${m[1]}.${String(Number(m[2])).padStart(2, "0")}`;
+};
+
+const countryMasterPath = path.join(
+  process.cwd(),
+  "src",
+  "data",
+  "country_master.csv",
+);
+const countryMasterRows = parseCsv(fs.readFileSync(countryMasterPath, "utf-8"));
+const countryKeyByName = new Map(
+  countryMasterRows
+    .map(
+      (row: any) =>
+        [
+          String(row.country_name_ja ?? "").trim(),
+          String(row.country_key ?? "").trim(),
+        ] as const,
+    )
+    .filter(([name, key]) => name && key),
+);
+
+const rows = loadCallups();
+const latestMetaByCountry = new Map<string, any>();
+
+for (const row of rows as any[]) {
+  const country = String(row.country ?? "").trim();
+  if (!country) continue;
+
+  const current = latestMetaByCountry.get(country);
+  const nextKey = dateKey(row.snapshot_date);
+  const currentKey = dateKey(current?.snapshot_date);
+
+  if (
+    !current ||
+    nextKey > currentKey ||
+    (nextKey === currentKey &&
+      Number(row.edition || 0) > Number(current.edition || 0))
+  ) {
+    latestMetaByCountry.set(country, {
+      country,
+      confederation: String(row.confederation ?? "").trim(),
+      competition: String(row.competition ?? "").trim(),
+      edition: String(row.edition ?? "").trim(),
+      snapshot_date: String(row.snapshot_date ?? "").trim(),
+    });
+  }
+}
+
+const latestCountByCountry = new Map<string, number>();
+for (const row of rows as any[]) {
+  const country = String(row.country ?? "").trim();
+  const latest = latestMetaByCountry.get(country);
+  if (!latest) continue;
+
+  if (
+    String(row.competition ?? "").trim() !== latest.competition ||
+    String(row.edition ?? "").trim() !== latest.edition ||
+    String(row.snapshot_date ?? "").trim() !== latest.snapshot_date
+  ) {
+    continue;
+  }
+
+  latestCountByCountry.set(
+    country,
+    (latestCountByCountry.get(country) ?? 0) + 1,
+  );
+}
+
+const countriesByConfederation = new Map<string, any[]>();
+
+for (const meta of latestMetaByCountry.values()) {
+  const conf = meta.confederation || "OTHER";
+  if (!countriesByConfederation.has(conf))
+    countriesByConfederation.set(conf, []);
+
+  const snapshotHref =
+    meta.competition === "WC"
+      ? `/wc/${encodeURIComponent(meta.edition)}/team/${encodeURIComponent(meta.country)}/`
+      : "";
+
+  countriesByConfederation.get(conf)!.push({
+    ...meta,
+    count: latestCountByCountry.get(meta.country) ?? 0,
+    snapshotLabel: monthLabel(meta.snapshot_date),
+    snapshotHref,
+    portalHref: countryKeyByName.get(meta.country)
+      ? `/nt/${countryKeyByName.get(meta.country)}/`
+      : "",
+  });
+}
+
+const countrySections = [...countriesByConfederation.entries()]
+  .map(([confederation, items]) => ({
+    confederation,
+    label: confederationMeta[confederation]?.label ?? confederation,
+    rank: confederationMeta[confederation]?.rank ?? 99,
+    items: items.sort((a, b) => a.country.localeCompare(b.country, "ja")),
+  }))
+  .sort((a, b) => a.rank - b.rank);
 ---
 
 <BaseLayout
@@ -14,100 +203,417 @@ const description =
   bodyClass="page-nt-portal page-wc"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
-  crumbs={[
-    { label: "トップ", href: "/" },
-    { label: "代表" },
-  ]}
+  crumbs={[{ label: "トップ", href: "/" }, { label: "各国代表一覧・国際大会ポータル" }]}
   heading={heading}
 >
-  <div class="lead">
-    <p>
-      代表コンテンツの入口ページです。ワールドカップ2026、強豪国のW杯あゆみ、日本代表などへすぐ移動できます。
-    </p>
-  </div>
+  <h1>各国代表一覧・国際大会ポータルページ</h1>
+  <p class="nt-lead">
+    世界各国の代表チームと国際大会をまとめたポータルページです。大会から探すほか、大陸別の代表一覧から各国の最新メンバーや歴代大会へ移動できます。
+  </p>
 
-  <section class="grid" aria-label="代表メニュー">
-    <a class="card" href="/wc/2026/">
-      <div class="t">FIFAワールドカップ2026</div>
-      <div class="d">大会ポータル（試合日程・結果・表・ランキング）</div>
-      <div class="go">開く →</div>
-    </a>
+  <section class="portal-section" aria-labelledby="competition-heading">
+    <div class="section-heading-row">
+      <div>
+        <p class="section-kicker">COMPETITIONS</p>
+        <h2 id="competition-heading">⚽ 主要国際大会</h2>
+      </div>
+      <p class="section-note">大会から代表チームを探す</p>
+    </div>
 
-    <a class="card" href="/nt/wc/legends/">
-      <div class="t">強豪国代表　W杯のあゆみ</div>
-      <div class="d">優勝回数ランキング＋各国のW杯あゆみへ</div>
-      <div class="go">開く →</div>
-    </a>
-
-    <a class="card" href="/nt/japan/wc/">
-      <div class="t">日本代表　W杯のあゆみ</div>
-      <div class="d">歴代大会・メンバー一覧へ</div>
-      <div class="go">開く →</div>
-    </a>
-
-    <div class="card is-soon" aria-disabled="true">
-      <div class="t">代表一覧（準備中）</div>
-      <div class="d">全代表チームの一覧・検索（将来）</div>
-      <div class="go">準備中</div>
+    <div class="competition-grid">
+      {
+        competitionCards.map((item) =>
+          item.href ? (
+            <a class="competition-card" href={item.href}>
+              <span class="competition-code">{item.code}</span>
+              <span class="competition-copy">
+                <strong>{item.name}</strong>
+                <small>{item.meta}</small>
+              </span>
+              <span class="competition-status is-live">{item.status}</span>
+            </a>
+          ) : (
+            <div class="competition-card is-soon" aria-disabled="true">
+              <span class="competition-code">{item.code}</span>
+              <span class="competition-copy">
+                <strong>{item.name}</strong>
+                <small>{item.meta}</small>
+              </span>
+              <span class="competition-status">{item.status}</span>
+            </div>
+          ),
+        )
+      }
     </div>
   </section>
 
+  <section
+    class="portal-section history-section"
+    aria-labelledby="history-heading"
+  >
+    <div class="section-heading-row">
+      <div>
+        <p class="section-kicker">HISTORY</p>
+        <h2 id="history-heading">⚽ 代表のあゆみ</h2>
+      </div>
+      <p class="section-note">大会毎の歴史を振り返る</p>
+    </div>
+
+    <div class="history-grid">
+      {
+        historyCards.map((item) => (
+          <a class="history-card" href={item.href}>
+            <strong>{item.name}</strong>
+            <span>{item.meta}</span>
+            <small>見る →</small>
+          </a>
+        ))
+      }
+    </div>
+  </section>
+
+  <section
+    class="portal-section countries-section"
+    aria-labelledby="countries-heading"
+  >
+    <div class="section-heading-row countries-heading-row">
+      <div>
+        <p class="section-kicker">NATIONAL TEAMS</p>
+        <h2 id="countries-heading">⚽ 大陸別・各国代表一覧</h2>
+      </div>
+      <p class="section-note">上段：代表国ポータルへ／下段：最新掲載メンバー</p>
+    </div>
+
+    {
+      countrySections.map((section) => (
+        <section
+          class="confederation-section"
+          aria-labelledby={`conf-${section.confederation}`}
+        >
+          <h3 id={`conf-${section.confederation}`}>
+            🌍 {section.label} <span>({section.items.length})</span>
+          </h3>
+
+          <ul class="country-grid">
+            {section.items.map((item) => (
+              <li class="country-row">
+                <div class="country-link-wrap">
+                  {item.portalHref ? (
+                    <a class="country-portal-link" href={item.portalHref}>
+                      {item.country}代表
+                    </a>
+                  ) : (
+                    <span class="country-portal-link is-pending">
+                      {item.country}代表
+                    </span>
+                  )}
+                  {item.snapshotHref ? (
+                    <a class="country-snapshot-link" href={item.snapshotHref}>
+                      {item.snapshotLabel} 最新掲載メンバー
+                      <span class="count">({item.count})</span>
+                    </a>
+                  ) : (
+                    <span class="country-snapshot-link is-pending">
+                      {item.snapshotLabel} 最新掲載メンバー
+                      <span class="count">({item.count})</span>
+                    </span>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ))
+    }
+  </section>
+
   <style is:global>
-    .page-nt-portal .lead{
-      margin:6px 0 14px;
-      color:#374151;
-      font-size:14px;
-      line-height:1.7;
+    .page-nt-portal .page-title {
+      margin-bottom: 4px;
     }
 
-    .page-nt-portal .grid{
-      display:grid;
-      grid-template-columns:repeat(2,1fr);
-      gap:12px;
-      margin: 0 0 22px;
-    }
-    @media (max-width: 820px){
-      .page-nt-portal .grid{ grid-template-columns: 1fr; }
+    .page-nt-portal .nt-lead {
+      margin: 4px 0 24px;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.8;
     }
 
-    .page-nt-portal .card{
-      display:block;
-      border:1px solid rgba(0,0,0,0.08);
-      border-radius:14px;
-      background:#fff;
-      padding:12px 12px 10px;
-      box-shadow:0 6px 16px rgba(0,0,0,0.06);
-      text-decoration:none;
-      color:inherit;
-    }
-    .page-nt-portal .card:hover{
-      transform: translateY(-1px);
-      transition: 0.08s ease;
-      box-shadow:0 10px 22px rgba(0,0,0,0.08);
-      outline:1px solid color-mix(in srgb, var(--theme-color) 22%, transparent);
+    .page-nt-portal .portal-section {
+      margin: 0 0 30px;
     }
 
-    .page-nt-portal .t{
-      font-size:15px;
-      font-weight:900;
-      margin-bottom:6px;
+    .page-nt-portal .section-heading-row {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 11px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--theme-soft-border);
     }
-    .page-nt-portal .d{
-      font-size:13px;
-      opacity:0.82;
-      line-height:1.6;
-      margin-bottom:8px;
-    }
-    .page-nt-portal .go{
-      font-size:12.5px;
-      font-weight:900;
+
+    .page-nt-portal .section-kicker {
+      margin: 0 0 2px;
       color: var(--theme-link);
-      white-space:nowrap;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
     }
 
-    .page-nt-portal .is-soon{
-      opacity:0.6;
-      pointer-events:none;
+    .page-nt-portal h2,
+    .page-nt-portal h3 {
+      color: var(--theme-color);
+    }
+
+    .page-nt-portal .section-heading-row h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .page-nt-portal .section-note {
+      margin: 0 0 2px;
+      color: var(--muted);
+      font-size: 14px;
+      text-align: right;
+    }
+
+    .page-nt-portal .competition-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .page-nt-portal .competition-card {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr) auto;
+      align-items: center;
+      gap: 12px;
+      min-width: 0;
+      padding: 13px 14px;
+      border: 1px solid var(--theme-soft-border);
+      border-radius: 12px;
+      background: #fff;
+      color: inherit;
+      text-decoration: none;
+      box-shadow: 0 4px 13px rgba(0, 0, 0, 0.045);
+      transition: 0.1s ease;
+    }
+
+    .page-nt-portal a.competition-card:hover {
+      transform: translateY(-1px);
+      border-color: var(--theme-color);
+      background: var(--theme-soft-bg);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.075);
+    }
+
+    .page-nt-portal .competition-code {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      padding: 0 7px;
+      border-radius: 8px;
+      background: var(--theme-soft-bg);
+      color: var(--theme-color);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.03em;
+    }
+
+    .page-nt-portal .competition-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .page-nt-portal .competition-copy strong {
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .page-nt-portal .competition-copy small {
+      overflow: hidden;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .page-nt-portal .competition-status {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+
+    .page-nt-portal .competition-status.is-live {
+      color: var(--theme-link);
+    }
+
+    .page-nt-portal .competition-card.is-soon {
+      background: color-mix(in srgb, #fff 84%, var(--theme-soft-bg));
+      opacity: 0.64;
+    }
+
+    .page-nt-portal .history-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .page-nt-portal .history-card {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 13px 14px;
+      border: 1px solid var(--theme-soft-border);
+      border-radius: 11px;
+      background: var(--theme-soft-bg);
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page-nt-portal .history-card:hover {
+      border-color: var(--theme-color);
+      background: #fff;
+    }
+
+    .page-nt-portal .history-card strong {
+      color: var(--theme-color);
+      font-size: 15px;
+    }
+
+    .page-nt-portal .history-card span {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page-nt-portal .history-card small {
+      margin-top: 2px;
+      color: var(--theme-link);
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .page-nt-portal .confederation-section {
+      margin: 20px 0 0;
+    }
+
+    .page-nt-portal .confederation-section h3 {
+      margin: 0 0 9px;
+      font-size: 20px;
+    }
+
+    .page-nt-portal .confederation-section h3 span {
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .page-nt-portal .country-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px 34px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .page-nt-portal .country-row {
+      min-width: 0;
+    }
+
+    .page-nt-portal .country-link-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 0;
+    }
+
+    .page-nt-portal .country-portal-link {
+      overflow: hidden;
+      color: var(--theme-color);
+      font-size: 18px;
+      font-weight: 800;
+      line-height: 1.4;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      width: fit-content;
+      justify-self: start;
+    }
+
+    .page-nt-portal .country-snapshot-link {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.45;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      width: fit-content;
+      justify-self: start;
+    }
+
+    .page-nt-portal a.country-snapshot-link:hover {
+      color: var(--theme-link);
+    }
+
+    .page-nt-portal .country-portal-link.is-pending,
+    .page-nt-portal .country-snapshot-link.is-pending {
+      text-decoration: none;
+      cursor: default;
+    }
+
+    .page-nt-portal .country-portal-link.is-pending::after {
+      content: " 〔ハブ準備中〕";
+      color: var(--muted);
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    .page-nt-portal .count {
+      opacity: 0.58;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 820px) {
+      .page-nt-portal .competition-grid,
+      .page-nt-portal .history-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .page-nt-portal .country-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        column-gap: 20px;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-portal .section-heading-row {
+        align-items: start;
+        flex-direction: column;
+        gap: 4px;
+      }
+
+      .page-nt-portal .section-note {
+        text-align: left;
+      }
+
+      .page-nt-portal .competition-card {
+        grid-template-columns: 50px minmax(0, 1fr);
+      }
+
+      .page-nt-portal .competition-status {
+        display: none;
+      }
+
+      .page-nt-portal .country-grid {
+        grid-template-columns: 1fr;
+        gap: 9px;
+      }
     }
   </style>
 </BaseLayout>
