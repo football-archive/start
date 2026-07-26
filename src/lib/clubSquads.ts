@@ -8,11 +8,9 @@ export type ClubSquadRow = {
   season: string;
   window: ClubWindow;
 
-  // 表示名（既存互換）
   league: string;
   club: string;
 
-  // ✅ 固定キー（これが正）
   league_key: string;
   club_key: string;
 
@@ -74,6 +72,7 @@ function parseCSVLine(line: string): string[] {
 function readCSV(filePath: string): Record<string, string>[] {
   const raw = fs.readFileSync(filePath, "utf-8").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
+
   if (lines.length === 0) return [];
 
   const header = parseCSVLine(lines[0]).map((h) => h.trim());
@@ -82,50 +81,59 @@ function readCSV(filePath: string): Record<string, string>[] {
   for (const line of lines.slice(1)) {
     const cols = parseCSVLine(line);
     const row: Record<string, string> = {};
+
     for (let i = 0; i < header.length; i++) {
       row[header[i]] = (cols[i] ?? "").trim();
     }
+
     rows.push(row);
   }
+
   return rows;
 }
 
 function numOrNull(s: string): number | null {
   const t = String(s ?? "").trim();
   if (!t) return null;
+
   const n = Number(t);
   return Number.isFinite(n) ? n : null;
 }
 
-function normalizeWindow(v: any): ClubWindow {
+function normalizeWindow(v: unknown): ClubWindow {
   const s = String(v ?? "")
     .trim()
     .toLowerCase();
-  if (s === "winter") return "winter";
-  // それ以外（summer/空/ゴミ）は summer 扱いにして落とさない
-  return "summer";
+
+  return s === "winter" ? "winter" : "summer";
 }
 
+// ビルド中の読込結果を保持
+let clubSquadsCache: ClubSquadRow[] | null = null;
+
 export function loadClubSquads(): ClubSquadRow[] {
+  if (clubSquadsCache !== null) {
+    return clubSquadsCache;
+  }
+
   const csvPath = path.join(
     process.cwd(),
     "src",
     "data",
     "club_squads_site.csv",
   );
-  const rows = readCSV(csvPath);
 
+  const rows = readCSV(csvPath);
   const out: ClubSquadRow[] = [];
 
   for (const r of rows) {
-    const league_key = (r.league_key ?? "").trim();
-    const club_key = (r.club_key ?? "").trim();
+    const league_key = String(r.league_key ?? "").trim();
+    const club_key = String(r.club_key ?? "").trim();
 
-    // ✅ keyが無い行は落とす（データ正規化を強制）
     if (!league_key || !club_key) continue;
 
     out.push({
-      season: (r.season ?? "").trim(),
+      season: String(r.season ?? "").trim(),
       window: normalizeWindow(r.window),
 
       league: r.league ?? "",
@@ -159,28 +167,30 @@ export function loadClubSquads(): ClubSquadRow[] {
     });
   }
 
-  return out;
+  clubSquadsCache = out;
+  return clubSquadsCache;
 }
 
-// 追加：クラブ表示用の並び順
 export function sortClubRoster(rows?: ClubSquadRow[] | null): ClubSquadRow[] {
-  // ✅ 防御：undefined / null / 配列でない場合でも落とさない
   if (!Array.isArray(rows)) return [];
 
   const posRank = (p?: string): number => {
     const s = String(p ?? "")
       .trim()
       .toUpperCase();
+
     if (s === "GK") return 0;
     if (s === "DF") return 1;
     if (s === "MF") return 2;
     if (s === "FW") return 3;
-    return 9; // 不明/その他は最後
+
+    return 9;
   };
 
   const shirtNo = (v?: string): number => {
     const s = String(v ?? "").trim();
-    if (!s) return Number.POSITIVE_INFINITY; // 背番号なしは最後
+    if (!s) return Number.POSITIVE_INFINITY;
+
     const n = Number.parseInt(s, 10);
     return Number.isFinite(n) ? n : Number.POSITIVE_INFINITY;
   };
@@ -188,19 +198,17 @@ export function sortClubRoster(rows?: ClubSquadRow[] | null): ClubSquadRow[] {
   const nameKey = (r: ClubSquadRow): string => {
     const ja = String(r.name_ja ?? "").trim();
     const en = String(r.name_en ?? "").trim();
+
     return ja || en || "";
   };
 
   return [...rows].sort((a, b) => {
-    // 1) ポジション（GK→DF→MF→FW→その他）
     const pr = posRank(a.position_primary) - posRank(b.position_primary);
     if (pr !== 0) return pr;
 
-    // 2) 背番号（昇順、未取得は最後）
     const nr = shirtNo(a.club_shirt_no) - shirtNo(b.club_shirt_no);
     if (nr !== 0) return nr;
 
-    // 3) 同一条件の安定化（名前）
     return nameKey(a).localeCompare(nameKey(b), "ja");
   });
 }
