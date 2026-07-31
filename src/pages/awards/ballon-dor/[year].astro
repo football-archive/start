@@ -1,0 +1,230 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import {
+  buildBallonDorYearPage,
+  formatAwardPoints,
+  getBallonDorYears,
+} from "../../../lib/ballonDor";
+import { awardUrl, type Year } from "../../../lib/urls";
+
+export function getStaticPaths() {
+  return getBallonDorYears().map((year) => ({ params: { year } }));
+}
+
+const year = String(Astro.params.year ?? "").trim();
+const page = buildBallonDorYearPage(year);
+
+if (!page) {
+  return Astro.redirect("/awards/ballon-dor/");
+}
+
+const parentHref = "/awards/ballon-dor/";
+const title = `${year}年 バロンドール順位・候補者・得票数一覧`;
+const description = `${year}年バロンドールの順位、候補者、得票数、国籍、ポジション、所属クラブ、主要大会を一覧で掲載しています。`;
+
+const formatDate = (value: string) => {
+  const raw = String(value ?? "").trim();
+  if (!raw) return "";
+  const match = raw.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  return match ? `${match[1]}年${Number(match[2])}月${Number(match[3])}日` : raw;
+};
+
+const periodLabel = (() => {
+  const start = formatDate(page.edition?.period_start ?? "");
+  const end = formatDate(page.edition?.period_end ?? "");
+  if (start && end) return `${start}～${end}`;
+  return start || end;
+})();
+
+const prevHref = page.previousYear
+  ? awardUrl({ awardKey: "ballon-dor", year: page.previousYear as Year })
+  : "";
+const nextHref = page.nextYear
+  ? awardUrl({ awardKey: "ballon-dor", year: page.nextYear as Year })
+  : "";
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-awards page-ballon-dor-year"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "バロンドール", href: parentHref },
+    { label: `${year}年` },
+  ]}
+  heading={title}
+>
+  <h1>{year}年 バロンドール順位・候補者・得票数一覧</h1>
+
+  <p class="award-lead">
+    {year}年バロンドールの順位・候補者・得票数と、各選手の所属クラブ・主要大会を掲載しています。
+  </p>
+
+  <section class="edition-summary" aria-label={`${year}年大会情報`}>
+    <dl>
+      {page.statusLabel && (
+        <div>
+          <dt>ステータス</dt>
+          <dd>{page.statusLabel}</dd>
+        </div>
+      )}
+      {periodLabel && (
+        <div>
+          <dt>選考対象期間</dt>
+          <dd>{periodLabel}</dd>
+        </div>
+      )}
+      {page.edition?.ceremony_date && (
+        <div>
+          <dt>授賞式</dt>
+          <dd>{formatDate(page.edition.ceremony_date)}</dd>
+        </div>
+      )}
+      {page.edition?.update_date && (
+        <div>
+          <dt>更新日</dt>
+          <dd>{formatDate(page.edition.update_date)}</dd>
+        </div>
+      )}
+    </dl>
+    {page.edition?.notes && <p class="edition-note">{page.edition.notes}</p>}
+  </section>
+
+  {page.isCancelled ? (
+    <section class="cancelled-panel">
+      <h2>開催中止</h2>
+      <p>{page.edition?.notes || `${year}年のバロンドールは開催されませんでした。`}</p>
+    </section>
+  ) : page.candidates.length ? (
+    <section class="award-section" aria-labelledby="candidate-list-heading">
+      <div class="section-heading-row">
+        <div>
+          <p class="section-kicker">BALLON D'OR {year}</p>
+          <h2 id="candidate-list-heading">候補者一覧</h2>
+        </div>
+        <p class="section-note">CSV掲載順</p>
+      </div>
+
+      <div class="table-scroll">
+        <table class="award-table">
+          <thead>
+            <tr>
+              <th class="col-rank">順位</th>
+              <th class="col-player">選手</th>
+              <th class="col-nationality">国籍</th>
+              <th class="col-position">Pos</th>
+              <th class="col-club">所属クラブ</th>
+              <th class="col-competition">主要大会</th>
+              <th class="col-points">得票数</th>
+            </tr>
+          </thead>
+          <tbody>
+            {page.candidates.map((candidate) => (
+              <tr>
+                <td class="rank-cell">{candidate.rank || "－"}</td>
+                <td class="player-cell">
+                  <strong>{candidate.playerName}</strong>
+                  {candidate.notes && <small>{candidate.notes}</small>}
+                </td>
+                <td>{candidate.nationality || "－"}</td>
+                <td class="position-cell">{candidate.position || "－"}</td>
+                <td>
+                  {candidate.clubs.length ? (
+                    <span class="stacked-links">
+                      {candidate.clubs.map((club) =>
+                        club.href ? <a href={club.href}>{club.name}</a> : <span>{club.name}</span>,
+                      )}
+                    </span>
+                  ) : (
+                    "－"
+                  )}
+                </td>
+                <td>
+                  {candidate.competitions.length ? (
+                    <span class="stacked-links">
+                      {candidate.competitions.map((competition) =>
+                        competition.href ? (
+                          <a href={competition.href}>{competition.label}</a>
+                        ) : (
+                          <span>{competition.label}</span>
+                        ),
+                      )}
+                    </span>
+                  ) : (
+                    "－"
+                  )}
+                </td>
+                <td class="points-cell">{formatAwardPoints(candidate.points)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  ) : (
+    <section class="empty-panel">
+      <h2>{page.statusLabel || "候補者一覧"}</h2>
+      <p>候補者データはまだ掲載されていません。</p>
+    </section>
+  )}
+
+  <nav class="year-navigation" aria-label="バロンドール年度ナビゲーション">
+    <div class="nav-side nav-prev">
+      {prevHref ? <a href={prevHref}>← {page.previousYear}年へ</a> : <span />}
+    </div>
+    <a class="nav-index" href={parentHref}>歴代一覧へ</a>
+    <div class="nav-side nav-next">
+      {nextHref ? <a href={nextHref}>{page.nextYear}年へ →</a> : <span />}
+    </div>
+  </nav>
+
+  <style>
+    h1 { margin: 18px 0 10px; font-size: clamp(24px, 4vw, 34px); line-height: 1.3; }
+    .award-lead { max-width: 880px; margin: 0 0 20px; color: #444; line-height: 1.8; }
+    .edition-summary { margin: 0 0 20px; padding: 16px 18px; border: 1px solid #ddd; border-radius: 12px; background: #fafafa; }
+    .edition-summary dl { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 0; }
+    .edition-summary dl > div { display: flex; gap: 8px; }
+    .edition-summary dt { color: #666; font-size: 12px; font-weight: 700; }
+    .edition-summary dd { margin: 0; font-size: 13px; font-weight: 700; }
+    .edition-note { margin: 12px 0 0; padding-top: 12px; border-top: 1px solid #e3e3e3; line-height: 1.75; }
+    .award-section { padding: 18px; border: 1px solid color-mix(in srgb, var(--theme-color) 35%, #e6e6e6); border-radius: 14px; background: color-mix(in srgb, var(--theme-color) 5%, #fff); }
+    .section-heading-row { display: flex; align-items: end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+    .section-kicker { margin: 0 0 3px; color: color-mix(in srgb, var(--theme-color) 78%, #5b4300); font-size: 12px; font-weight: 900; letter-spacing: .14em; }
+    h2 { margin: 0; font-size: 22px; }
+    .section-note { margin: 0; color: #777; font-size: 12px; }
+    .table-scroll { overflow-x: auto; border: 1px solid #dedede; border-radius: 10px; background: #fff; }
+    .award-table { width: 100%; min-width: 800px; border-collapse: collapse; font-size: 14px; }
+    .award-table th, .award-table td { padding: 11px 10px; border-bottom: 1px solid #e8e8e8; vertical-align: top; text-align: left; }
+    .award-table th { background: var(--theme-table-head-bg); border-bottom-color: var(--theme-table-head-border); font-size: 12px; font-weight: 800; white-space: nowrap; }
+    .award-table tbody tr:last-child td { border-bottom: 0; }
+    .award-table tbody tr:hover { background: color-mix(in srgb, var(--theme-color) 5%, #fff); }
+    .award-table a { color: color-mix(in srgb, var(--theme-color) 72%, #5a4300); font-weight: 700; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+    .col-rank, .rank-cell { width: 58px; text-align: center !important; white-space: nowrap; font-weight: 800; }
+    .col-position, .position-cell { width: 50px; text-align: center !important; white-space: nowrap; }
+    .col-points, .points-cell { width: 76px; text-align: right !important; white-space: nowrap; font-variant-numeric: tabular-nums; font-weight: 800; }
+    .player-cell strong { display: block; }
+    .player-cell small { display: block; margin-top: 4px; color: #666; font-size: 11px; font-weight: 500; line-height: 1.5; }
+    .stacked-links { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+    .cancelled-panel, .empty-panel { padding: 22px; border: 1px solid #ddd; border-radius: 12px; background: #fafafa; }
+    .cancelled-panel p, .empty-panel p { margin-bottom: 0; line-height: 1.8; }
+    .year-navigation { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 14px; margin: 24px 0 4px; }
+    .year-navigation a { display: inline-block; padding: 9px 13px; border: 1px solid #d8d8d8; border-radius: 999px; background: #fff; color: #333; font-weight: 700; text-decoration: none; }
+    .year-navigation a:hover { border-color: var(--theme-color); }
+    .nav-next { text-align: right; }
+    .nav-index { text-align: center; }
+    @media (max-width: 700px) {
+      .edition-summary dl { display: grid; gap: 8px; }
+      .award-section { padding: 12px; }
+      .section-heading-row { align-items: flex-start; flex-direction: column; gap: 4px; }
+      .award-table { font-size: 13px; }
+      .award-table th, .award-table td { padding: 9px 8px; }
+      .year-navigation { grid-template-columns: 1fr 1fr; }
+      .nav-index { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+      .nav-prev { grid-column: 1; grid-row: 2; }
+      .nav-next { grid-column: 2; grid-row: 2; }
+    }
+  </style>
+</BaseLayout>
