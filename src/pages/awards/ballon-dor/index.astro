@@ -2,14 +2,38 @@
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import {
   buildBallonDorWinnerRows,
+  loadBallonDorEditions,
 } from "../../../lib/ballonDor";
 
 const heading = "バロンドール歴代受賞者一覧";
-const title = "バロンドール歴代受賞者一覧";
+
+const title =
+  "バロンドール歴代受賞者一覧｜歴代順位・候補者・得票数｜海外サッカーDB";
+
 const description =
-  "バロンドールの歴代受賞者を年度別に掲載。受賞者の国籍、ポジション、所属クラブ、主要大会から各年の順位・候補者・得票数一覧へ移動できます。";
+  "フランス・フットボールが主催するバロンドールの歴代受賞者を年度別に掲載。受賞者のポジション、国籍、所属クラブと、各年の順位・候補者・得票数を確認できます。";
 
 const rows = buildBallonDorWinnerRows();
+
+const editions = loadBallonDorEditions();
+
+const latestUpdateRaw = editions
+  .map((edition) => String(edition.update_date ?? "").trim())
+  .filter(Boolean)
+  .sort((a, b) => b.localeCompare(a))[0] ?? "";
+
+const formatDateJP = (value: string) => {
+  const match = value.match(/^(\d{4})[-/](\d{1,2})[-/](\d{1,2})$/);
+
+  if (!match) return value;
+
+  const [, year, month, day] = match;
+  return `${year}年${Number(month)}月${Number(day)}日`;
+};
+
+const latestUpdate = latestUpdateRaw
+  ? formatDateJP(latestUpdateRaw)
+  : "";
 ---
 
 <BaseLayout
@@ -21,11 +45,25 @@ const rows = buildBallonDorWinnerRows();
   crumbs={[{ label: "トップ", href: "/" }, { label: "バロンドール" }]}
   heading={heading}
 >
-  <h1>バロンドール歴代受賞者一覧</h1>
+  <h1>{heading}</h1>
 
-  <p class="award-lead">
-    世界年間最優秀選手に贈られるバロンドールの歴代受賞者一覧です。各年度を選択すると、その年の順位・候補者・所属クラブ・主要大会・得票数を確認できます。
-  </p>
+  <div class="award-lead">
+    <p>
+      フランスのサッカー専門誌「フランス・フットボール」が主催する世界最高峰の個人賞、「バロンドール」の歴代受賞者を年度別に掲載しています。
+    </p>
+
+    <p>
+      各年度を選択すると、その年の順位・候補者・当時の所属クラブ・得票数を確認できます。
+    </p>
+  </div>
+
+  {
+    latestUpdate && (
+      <p class="update-date">
+        最終更新：<time datetime={latestUpdateRaw}>{latestUpdate}</time>
+      </p>
+    )
+  }
 
   <section class="award-section" aria-labelledby="winner-list-heading">
     <div class="section-heading-row">
@@ -33,7 +71,8 @@ const rows = buildBallonDorWinnerRows();
         <p class="section-kicker">BALLON D'OR</p>
         <h2 id="winner-list-heading">歴代受賞者</h2>
       </div>
-      <p class="section-note">新しい年度から掲載</p>
+
+      <p class="section-note">※過去データは随時追加中です。</p>
     </div>
 
     {
@@ -44,49 +83,45 @@ const rows = buildBallonDorWinnerRows();
               <tr>
                 <th class="col-year">年</th>
                 <th class="col-player">受賞者</th>
-                <th class="col-nationality">国籍</th>
                 <th class="col-position">Pos</th>
-                <th class="col-club">所属クラブ</th>
-                <th class="col-competition">主要大会</th>
+                <th class="col-nationality">国籍</th>
+                <th class="col-club">所属クラブ（受賞時点）</th>
               </tr>
             </thead>
+
             <tbody>
               {rows.map((row) => (
                 <tr class:list={[row.isCancelled && "is-cancelled"]}>
                   <td class="year-cell">
                     <a href={row.href}>{row.year}</a>
                   </td>
+
                   <td class="player-cell">
-                    <a href={row.href}>{row.playerName || "－"}</a>
+                    <span class="player-name">{row.playerName || "－"}</span>
+
                     {row.statusLabel && row.status !== "completed" && (
                       <small class="status-label">{row.statusLabel}</small>
                     )}
                   </td>
-                  <td>{row.nationality || "－"}</td>
-                  <td class="position-cell">{row.position || "－"}</td>
-                  <td>
+
+                  <td class="position-cell">
+                    {row.position || "－"}
+                  </td>
+
+                  <td class="nationality-cell">
+                    {row.nationality || "－"}
+                  </td>
+
+                  <td class="club-cell">
                     {row.clubs.length ? (
                       <span class="stacked-links">
                         {row.clubs.map((club) =>
                           club.href ? (
-                            <a href={club.href}>{club.name}</a>
+                            <a class="club-link" href={club.href}>
+                              {club.name}
+                            </a>
                           ) : (
                             <span>{club.name}</span>
-                          ),
-                        )}
-                      </span>
-                    ) : (
-                      "－"
-                    )}
-                  </td>
-                  <td>
-                    {row.competitions.length ? (
-                      <span class="stacked-links">
-                        {row.competitions.map((competition) =>
-                          competition.href ? (
-                            <a href={competition.href}>{competition.label}</a>
-                          ) : (
-                            <span>{competition.label}</span>
                           ),
                         )}
                       </span>
@@ -100,62 +135,94 @@ const rows = buildBallonDorWinnerRows();
           </table>
         </div>
       ) : (
-        <p class="empty-message">公開中の年度データはありません。</p>
+        <p class="empty-message">
+          公開中の年度データはありません。
+        </p>
       )
     }
   </section>
 
-  <p class="award-note">
-    得票数の表記や選考対象期間は年度によって異なります。詳しくは各年のページをご確認ください。
+  <p class="award-footnote">
+    ※選考対象期間など、開催の概要は各年ページで詳細を確認できます。
   </p>
 
   <style>
     h1 {
-      margin: 18px 0 10px;
-      font-size: clamp(24px, 4vw, 34px);
+      margin: 20px 0 12px;
+      font-size: clamp(27px, 4vw, 37px);
       line-height: 1.3;
     }
 
     .award-lead {
-      max-width: 850px;
-      margin: 0 0 24px;
-      color: #444;
-      line-height: 1.8;
+      max-width: 920px;
+      margin: 0;
+      color: #3f3f3f;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .award-lead p {
+      margin: 0 0 4px;
+    }
+
+    .award-lead p:last-child {
+      margin-bottom: 0;
+    }
+
+    .update-date {
+      margin: 8px 2px 18px;
+      color: #555;
+      font-size: 14px;
+      font-weight: 700;
+      text-align: right;
+    }
+
+    .update-date time {
+      color: #c62828;
+      font-weight: 800;
     }
 
     .award-section {
       margin-top: 18px;
-      padding: 18px;
-      border: 1px solid color-mix(in srgb, var(--theme-color) 35%, #e6e6e6);
+      padding: 20px;
+      border: 1px solid
+        color-mix(in srgb, var(--theme-color) 35%, #e6e6e6);
       border-radius: 14px;
       background: color-mix(in srgb, var(--theme-color) 5%, #fff);
     }
 
     .section-heading-row {
       display: flex;
-      align-items: end;
+      align-items: flex-end;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 14px;
+      margin-bottom: 15px;
     }
 
     .section-kicker {
-      margin: 0 0 3px;
-      color: color-mix(in srgb, var(--theme-color) 78%, #5b4300);
-      font-size: 12px;
+      margin: 0 0 4px;
+      color: color-mix(
+        in srgb,
+        var(--theme-color) 78%,
+        #5b4300
+      );
+      font-size: 13px;
       font-weight: 900;
       letter-spacing: 0.14em;
     }
 
     h2 {
       margin: 0;
-      font-size: 22px;
+      font-size: 24px;
+      line-height: 1.3;
     }
 
     .section-note {
       margin: 0;
-      color: #777;
-      font-size: 12px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.5;
+      text-align: right;
     }
 
     .table-scroll {
@@ -163,18 +230,19 @@ const rows = buildBallonDorWinnerRows();
       border: 1px solid #dedede;
       border-radius: 10px;
       background: #fff;
+      -webkit-overflow-scrolling: touch;
     }
 
     .award-table {
       width: 100%;
-      min-width: 800px;
+      min-width: 760px;
       border-collapse: collapse;
-      font-size: 14px;
+      font-size: 15px;
     }
 
     .award-table th,
     .award-table td {
-      padding: 11px 10px;
+      padding: 12px 11px;
       border-bottom: 1px solid #e8e8e8;
       vertical-align: top;
       text-align: left;
@@ -183,7 +251,7 @@ const rows = buildBallonDorWinnerRows();
     .award-table th {
       background: var(--theme-table-head-bg);
       border-bottom-color: var(--theme-table-head-border);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 800;
       white-space: nowrap;
     }
@@ -193,40 +261,84 @@ const rows = buildBallonDorWinnerRows();
     }
 
     .award-table tbody tr:hover {
-      background: color-mix(in srgb, var(--theme-color) 5%, #fff);
+      background: color-mix(
+        in srgb,
+        var(--theme-color) 5%,
+        #fff
+      );
     }
 
-    .award-table a {
-      color: color-mix(in srgb, var(--theme-color) 72%, #5a4300);
+    /*
+     * 年リンクはバロンドールのテーマカラー。
+     * 受賞者名はリンクにしない。
+     */
+    .year-cell a {
+      color: color-mix(
+        in srgb,
+        var(--theme-color) 72%,
+        #5a4300
+      );
+      font-weight: 800;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+
+    /*
+     * クラブリンクはクラブページ共通の緑。
+     */
+    .club-link {
+      color: #2e7d32;
       font-weight: 700;
       text-decoration-thickness: 1px;
       text-underline-offset: 2px;
     }
 
+    .club-link:hover {
+      color: #1b5e20;
+      background: #edf7ee;
+    }
+
     .col-year,
     .year-cell {
-      width: 66px;
+      width: 70px;
       text-align: center !important;
       white-space: nowrap;
+    }
+
+    .col-player {
+      min-width: 180px;
     }
 
     .col-position,
     .position-cell {
-      width: 50px;
+      width: 56px;
       text-align: center !important;
       white-space: nowrap;
     }
 
-    .player-cell > a {
+    .col-nationality {
+      min-width: 150px;
+    }
+
+    .col-club {
+      min-width: 210px;
+    }
+
+    .player-name {
       display: inline-block;
+      color: #222;
       font-weight: 900;
+    }
+
+    .nationality-cell {
+      line-height: 1.55;
     }
 
     .status-label {
       display: block;
-      margin-top: 3px;
+      margin-top: 4px;
       color: #777;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 600;
     }
 
@@ -242,10 +354,14 @@ const rows = buildBallonDorWinnerRows();
       background: #fafafa;
     }
 
-    .award-note {
-      margin: 14px 2px 0;
+    .is-cancelled .player-name {
+      color: #777;
+    }
+
+    .award-footnote {
+      margin: 15px 2px 0;
       color: #666;
-      font-size: 12px;
+      font-size: 13px;
       line-height: 1.7;
     }
 
@@ -253,26 +369,51 @@ const rows = buildBallonDorWinnerRows();
       margin: 0;
       padding: 16px;
       color: #666;
+      font-size: 15px;
     }
 
     @media (max-width: 700px) {
+      h1 {
+        margin-top: 16px;
+        font-size: 27px;
+      }
+
+      .award-lead {
+        font-size: 15px;
+        line-height: 1.8;
+      }
+
+      .update-date {
+        margin-top: 9px;
+        font-size: 13px;
+      }
+
       .award-section {
-        padding: 12px;
+        padding: 13px;
       }
 
       .section-heading-row {
         align-items: flex-start;
         flex-direction: column;
-        gap: 4px;
+        gap: 5px;
+      }
+
+      .section-note {
+        text-align: left;
       }
 
       .award-table {
-        font-size: 13px;
+        min-width: 700px;
+        font-size: 14px;
       }
 
       .award-table th,
       .award-table td {
-        padding: 9px 8px;
+        padding: 10px 9px;
+      }
+
+      .award-table th {
+        font-size: 12px;
       }
     }
   </style>

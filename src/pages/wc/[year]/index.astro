@@ -41,6 +41,19 @@ export async function getStaticPaths() {
 
 const year = String(Astro.params.year ?? "").trim();
 
+/* ===== 決勝トーナメント表 ===== */
+const bracketYears = new Set([
+  "2026",
+  "2022",
+  "2018",
+  "2014",
+  "2010",
+  "2006",
+  "2002",
+]);
+const hasTournamentBracket = bracketYears.has(year);
+const tournamentBracketSrc = `/images/brackets/wc-${year}.svg`;
+
 /* ===== 現在大会判定 ===== */
 const ACTIVE_WC_YEAR = "2026";
 const isCurrentEdition = year === ACTIVE_WC_YEAR;
@@ -1165,6 +1178,37 @@ const pageDesc = isCurrentEdition
         white-space: nowrap;
       }
     }
+
+    /* ===== 決勝トーナメント表 ===== */
+    .page-wc .tournament-bracket-wrap {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-wc .tournament-bracket-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .page-wc .tournament-bracket-open {
+      margin: 8px 0 0;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      .page-wc .tournament-bracket-image {
+        width: 1100px;
+        max-width: none;
+      }
+    }
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
@@ -1211,11 +1255,22 @@ const pageDesc = isCurrentEdition
     </p>
     <div class="pills">
       <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
+
+      {
+        hasTournamentBracket && (
+          <a class="pill" href="#tournament-bracket">
+            <span class="dot" />
+            決勝トーナメント表
+          </a>
+        )
+      }
+
       <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
+
       <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
-      <a class="pill" href="#rankings"
-        ><span class="dot"></span>得点ランキング</a
-      >
+      <a class="pill" href="#rankings">
+        <span class="dot"></span>得点ランキング
+      </a>
       <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
     </div>
   </div>
@@ -1682,6 +1737,35 @@ const pageDesc = isCurrentEdition
       </div>
     </section>
 
+    {
+      hasTournamentBracket && (
+        <section id="tournament-bracket" style="margin: 18px 0;">
+          <h2>⚽ {wcTitle} 決勝トーナメント表</h2>
+
+          <p class="quick-title" style="margin: 6px 0 10px;">
+            {wcTitle}
+            の決勝トーナメントの組み合わせ、試合結果、各国の勝ち上がりを一覧で確認できます。
+          </p>
+
+          <div class="tournament-bracket-wrap">
+            <img
+              class="tournament-bracket-image"
+              src={tournamentBracketSrc}
+              alt={`${wcTitle} 決勝トーナメント表`}
+              loading="lazy"
+              width="2800"
+              height="1560"
+            />
+          </div>
+
+          <p class="tournament-bracket-open">
+            <a href={tournamentBracketSrc} target="_blank" rel="noopener">
+              トーナメント表を大きく表示する →
+            </a>
+          </p>
+        </section>
+      )
+    }
     {
       /* =========================
     (4) ランキング（得点 / アシスト）

@@ -47,6 +47,7 @@ export type AwardClub = {
 export type AwardCompetition = {
   label: string;
   href: string;
+  country: string;
 };
 
 export type BallonDorWinnerRow = {
@@ -138,9 +139,25 @@ function targetClubWindows(
   edition: BallonDorEdition | undefined,
   year: number,
 ) {
-  if (clean(edition?.period).toLowerCase() === "season") {
-    return [{ season: seasonForAward(year), window: "winter" }];
+  const period = clean(edition?.period).toLowerCase();
+
+  // シーズン単位
+  // 例：2025年バロンドール
+  // → 2024-25 summer
+  // → 2024-25 winter
+  if (period === "season") {
+    const season = seasonForAward(year);
+
+    return [
+      { season, window: "summer" },
+      { season, window: "winter" },
+    ];
   }
+
+  // 暦年単位
+  // 例：2008年バロンドール
+  // → 2007-08 winter
+  // → 2008-09 summer
   return [
     { season: seasonForCalendarFirstHalf(year), window: "winter" },
     { season: seasonForCalendarSecondHalf(year), window: "summer" },
@@ -157,18 +174,18 @@ function latestRowsByWindow(
   const picked: ClubSquadRow[] = [];
 
   for (const target of targets) {
-    const matches = all.filter(
-      (row) =>
-        clean(row.name_ja) === playerName &&
-        clean(row.season) === target.season &&
-        clean(row.window).toLowerCase() === target.window,
-    );
-    if (!matches.length) continue;
+    const matches = all
+      .filter(
+        (row) =>
+          clean(row.name_ja) === playerName &&
+          clean(row.season) === target.season &&
+          clean(row.window).toLowerCase() === target.window,
+      )
+      .sort((a, b) =>
+        clean(a.snapshot_date).localeCompare(clean(b.snapshot_date)),
+      );
 
-    matches.sort((a, b) =>
-      clean(b.snapshot_date).localeCompare(clean(a.snapshot_date)),
-    );
-    picked.push(matches[0]);
+    picked.push(...matches);
   }
 
   return picked;
@@ -251,24 +268,39 @@ function fallbackClubs(row: BallonDorRanking): AwardClub[] {
     });
 }
 
-function competitionHref(
+function competitionInfo(
   competition: string,
   edition: string,
   playerName: string,
-): string {
+): Pick<AwardCompetition, "href" | "country"> {
   const match = loadCallups().find(
     (row) =>
       clean(row.competition) === competition &&
       clean(row.edition) === edition &&
       clean(row.name_ja) === playerName,
   );
-  if (!match) return "";
+
+  if (!match) {
+    return {
+      href: "",
+      country: "",
+    };
+  }
 
   const country = clean(match.country);
-  if (!country) return "";
+
+  if (!country) {
+    return {
+      href: "",
+      country: "",
+    };
+  }
 
   if (competition === "WC") {
-    return `/wc/${encodeURIComponent(edition)}/team/${encodeURIComponent(country)}/`;
+    return {
+      href: `/wc/${encodeURIComponent(edition)}/team/${encodeURIComponent(country)}/`,
+      country,
+    };
   }
 
   const segmentByCompetition: Record<string, string> = {
@@ -280,10 +312,15 @@ function competitionHref(
     OFC: "ofc",
     UNL: "unl",
   };
+
   const segment = segmentByCompetition[competition];
-  return segment
-    ? `/continental/${segment}/${encodeURIComponent(edition)}/team/${encodeURIComponent(country)}/`
-    : "";
+
+  return {
+    href: segment
+      ? `/continental/${segment}/${encodeURIComponent(edition)}/team/${encodeURIComponent(country)}/`
+      : "",
+    country,
+  };
 }
 
 function competitionsFor(row: BallonDorRanking): AwardCompetition[] {
@@ -292,10 +329,15 @@ function competitionsFor(row: BallonDorRanking): AwardCompetition[] {
     [row.competition2, row.edition2],
   ]
     .filter(([competition, edition]) => competition && edition)
-    .map(([competition, edition]) => ({
-      label: `${competition}${edition}`,
-      href: competitionHref(competition, edition, row.player_name_ja),
-    }));
+    .map(([competition, edition]) => {
+      const info = competitionInfo(competition, edition, row.player_name_ja);
+
+      return {
+        label: `${competition}${edition}`,
+        href: info.href,
+        country: info.country,
+      };
+    });
 }
 
 export function buildBallonDorWinnerRows(): BallonDorWinnerRow[] {
@@ -330,7 +372,7 @@ export function buildBallonDorWinnerRows(): BallonDorWinnerRow[] {
           href: awardUrl({ awardKey: "ballon-dor", year: year as Year }),
           status,
           statusLabel: ballonDorStatusLabel(status),
-          playerName: isCancelled ? "開催中止" : ballonDorStatusLabel(status),
+          playerName: isCancelled ? "受賞者なし" : ballonDorStatusLabel(status),
           nationality: "",
           position: "",
           clubs: [],
@@ -420,7 +462,11 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
   const isCancelled = ["cancelled", "canceled"].includes(status.toLowerCase());
 
   const candidates = yearRankings.map((row) => {
-    const clubRows = latestRowsByWindow(row.player_name_ja, edition, Number(year));
+    const clubRows = latestRowsByWindow(
+      row.player_name_ja,
+      edition,
+      Number(year),
+    );
     const latestAttributeRow = [...clubRows].sort((a, b) =>
       clean(b.snapshot_date).localeCompare(clean(a.snapshot_date)),
     )[0];
