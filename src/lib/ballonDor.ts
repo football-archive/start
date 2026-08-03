@@ -233,39 +233,84 @@ function fallbackClubs(row: BallonDorRanking): AwardClub[] {
   ];
 
   const masters = loadClubMaster();
+  const squadRows = loadClubSquads();
 
   return items
     .filter((item) => item.name)
     .map((item) => {
       const master = masters.find((club) => {
-        if (item.leagueKey && clean(club.league_key) !== item.leagueKey) {
+        if (
+          item.leagueKey &&
+          clean(club.league_key) !== clean(item.leagueKey)
+        ) {
           return false;
         }
+
         const aliases = clean(club.aliases)
           .split(/[|｜]/)
           .map((value) => value.trim())
           .filter(Boolean);
+
         return [
           clean(club.club_key),
           clean(club.club_display_ja),
           clean(club.club_display_en),
           ...aliases,
-        ].includes(item.name);
+        ].includes(clean(item.name));
       });
+
+      /*
+       * クラブマスタに存在するだけではリンクを作らない。
+       * club_squads_site.csvに、そのクラブ・シーズンのデータが
+       * 実在する場合のみクラブ詳細URLを生成する。
+       */
+      const hasClubSeason =
+        Boolean(master) &&
+        Boolean(item.season) &&
+        squadRows.some(
+          (squad) =>
+            clean(squad.league_key) === clean(master?.league_key) &&
+            clean(squad.club_key) === clean(master?.club_key) &&
+            clean(squad.season) === clean(item.season),
+        );
 
       return {
         name: item.name,
         href:
-          master && item.season
+          master && hasClubSeason
             ? clubUrl({
                 leagueKey: clean(master.league_key),
                 clubKey: clean(master.club_key),
-                season: item.season as Season,
+                season: clean(item.season) as Season,
               })
             : "",
         snapshotDate: "",
       };
     });
+}
+
+function mergeAwardClubs(
+  autoClubs: AwardClub[],
+  overrideClubs: AwardClub[],
+): AwardClub[] {
+  const merged = new Map<string, AwardClub>();
+
+  for (const club of [...autoClubs, ...overrideClubs]) {
+    const key = clean(club.name).toLowerCase();
+    if (!key) continue;
+
+    const existing = merged.get(key);
+
+    /*
+     * 同じクラブが重複した場合は、
+     * リンクを持つ方を優先する。
+     */
+    if (!existing || (!existing.href && club.href)) {
+      merged.set(key, club);
+    }
+  }
+
+  return [...merged.values()];
 }
 
 function competitionInfo(
@@ -403,7 +448,7 @@ export function buildBallonDorWinnerRows(): BallonDorWinnerRow[] {
         position:
           clean(latestAttributeRow?.position_primary) ||
           winner.position_override,
-        clubs: autoClubs.length ? autoClubs : fallbackClubs(winner),
+        clubs: mergeAwardClubs(autoClubs, fallbackClubs(winner)),
         competitions: competitionsFor(winner),
         points: winner.points,
         isCancelled: false,
@@ -479,7 +524,7 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
         clean(latestAttributeRow?.nationality) || row.nationality_override,
       position:
         clean(latestAttributeRow?.position_primary) || row.position_override,
-      clubs: autoClubs.length ? autoClubs : fallbackClubs(row),
+      clubs: mergeAwardClubs(autoClubs, fallbackClubs(row)),
       competitions: competitionsFor(row),
       points: row.points,
       notes: row.notes,
