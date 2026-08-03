@@ -239,13 +239,16 @@ function renderBracket({ competition, edition, matches, groupRows }) {
   );
 
   const cardW = 280;
-  const cardH = 116;
+  const cardH = 128;
   const colGap = 55;
   const sideCols = activeOrder.length - 1;
   const marginX = 40;
   const headerY = 84;
+  const headerH = 54;
   const top = 170;
-  const rowGap = 34;
+
+  const rowGap = firstStage === "R32" ? 54 : firstStage === "R16" ? 82 : 60;
+
   const leafCount = Math.max(leftLeaves.length, rightLeaves.length);
   const baseHeight = Math.max(
     920,
@@ -312,26 +315,40 @@ function renderBracket({ competition, edition, matches, groupRows }) {
   );
   parts.push(`<rect width="100%" height="100%" fill="${COLORS.background}"/>`);
   parts.push(`<style>
-    .title{font:700 42px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
-    .round{font:700 27px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
-    .team{font:700 21px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
-    .rank{font:400 15px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
-    .score{font:700 23px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
-    .champ{font:700 31px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
-    .third-title{font:700 23px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: ${COLORS.theme};}
+.rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
+.score{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
   </style>`);
 
   const title = `${edition} FIFAワールドカップ　決勝トーナメント`;
   parts.push(
-    `<text class="title" x="${width / 2}" y="52" text-anchor="middle">${esc(title)}</text>`,
+    `<text class="title" x="${width / 2}" y="64" text-anchor="middle">${esc(title)}</text>`,
   );
 
   function roundHeader(x, label) {
     parts.push(
-      `<rect x="${x}" y="${headerY}" width="${cardW}" height="44" rx="4" fill="${COLORS.theme}"/>`,
+      `<rect
+      x="${x}"
+      y="${headerY}"
+      width="${cardW}"
+      height="${headerH}"
+      rx="4"
+      fill="${COLORS.theme}"
+    />`,
     );
+
     parts.push(
-      `<text class="round" x="${x + cardW / 2}" y="${headerY + 31}" text-anchor="middle">${esc(label)}</text>`,
+      `<text
+      class="round"
+      x="${x + cardW / 2}"
+      y="${headerY + headerH / 2}"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >${esc(label)}</text>`,
     );
   }
 
@@ -391,15 +408,15 @@ function renderBracket({ competition, edition, matches, groupRows }) {
     ];
     for (const row of rows) {
       parts.push(
-        `<text class="team" x="${x + 12}" y="${row.rowTop + 29}">${esc(row.team)}</text>`,
+        `<text class="team" x="${x + 12}" y="${row.rowTop + 32}">${esc(row.team)}</text>`,
       );
       if (showRank && groupRank.has(row.team)) {
         parts.push(
-          `<text class="rank" x="${x + 13}" y="${row.rowTop + 51}">${esc(groupRank.get(row.team))}</text>`,
+          `<text class="rank" x="${x + 13}" y="${row.rowTop + 61}">${esc(groupRank.get(row.team))}</text>`,
         );
       }
       parts.push(
-        `<text class="score" x="${x + cardW - 12}" y="${row.rowTop + 32}" text-anchor="end">${esc(row.score)}</text>`,
+        `<text class="score" x="${x + cardW - 12}" y="${row.rowTop + 35}" text-anchor="end">${esc(row.score)}</text>`,
       );
     }
   }
@@ -422,27 +439,29 @@ function renderBracket({ competition, edition, matches, groupRows }) {
   if (thirdPlaceMatch) {
     const thirdX = centerX;
     const thirdTop = thirdPlaceY - cardH / 2;
-    const thirdHeaderY = thirdTop - 48;
+    const thirdHeaderH = 54;
+    const thirdHeaderY = thirdTop - thirdHeaderH - 10;
 
     // 見出し
     parts.push(
       `<rect
-      x="${thirdX}"
-      y="${thirdHeaderY}"
-      width="${cardW}"
-      height="38"
-      rx="4"
-      fill="${COLORS.theme}"
-    />`,
+    x="${thirdX}"
+    y="${thirdHeaderY}"
+    width="${cardW}"
+    height="${thirdHeaderH}"
+    rx="4"
+    fill="${COLORS.theme}"
+  />`,
     );
 
     parts.push(
       `<text
-      class="third-title"
-      x="${thirdX + cardW / 2}"
-      y="${thirdHeaderY + 27}"
-      text-anchor="middle"
-    >3位決定戦</text>`,
+    class="third-title"
+    x="${thirdX + cardW / 2}"
+    y="${thirdHeaderY + thirdHeaderH / 2}"
+    text-anchor="middle"
+    dominant-baseline="middle"
+  >3位決定戦</text>`,
     );
 
     // 試合カード
@@ -475,7 +494,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       `<text
       class="team"
       x="${thirdX + 12}"
-      y="${thirdTop + 29}"
+      y="${thirdTop + 35}"
     >${esc(thirdPlaceMatch.home)}</text>`,
     );
 
@@ -483,7 +502,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       `<text
       class="score"
       x="${thirdX + cardW - 12}"
-      y="${thirdTop + 32}"
+      y="${thirdTop + 37}"
       text-anchor="end"
     >${esc(scoreFor(thirdPlaceMatch, "home"))}</text>`,
     );
@@ -493,7 +512,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       `<text
       class="team"
       x="${thirdX + 12}"
-      y="${thirdPlaceY + 29}"
+      y="${thirdPlaceY + 35}"
     >${esc(thirdPlaceMatch.away)}</text>`,
     );
 
@@ -501,7 +520,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       `<text
       class="score"
       x="${thirdX + cardW - 12}"
-      y="${thirdPlaceY + 32}"
+      y="${thirdPlaceY + 37}"
       text-anchor="end"
     >${esc(scoreFor(thirdPlaceMatch, "away"))}</text>`,
     );
