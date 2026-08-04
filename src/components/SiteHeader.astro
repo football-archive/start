@@ -271,6 +271,27 @@ const hasSlot = Astro.slots.has("default");
       height: 6px;
     }
   }
+
+  /* サイトマップボタンとパンくずの重なり防止 */
+  @media (max-width: 1700px) {
+    .header {
+      padding-right: 130px;
+    }
+
+    .crumbs--slim {
+      padding-right: 120px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .header {
+      padding-right: 100px;
+    }
+
+    .crumbs--slim {
+      padding-right: 90px;
+    }
+  }
 </style>
 
 {

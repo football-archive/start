@@ -264,7 +264,11 @@ for (const row of rows) {
       align-items: center;
       gap: 2px;
       top: 90px;
-      left: 16px;
+
+      /* 左配置をやめ、コンテンツ右端へ寄せる */
+      left: auto;
+      right: max(16px, calc((100vw - var(--container-max, 1100px)) / 2 + 16px));
+
       z-index: 1100;
       pointer-events: auto;
     }
@@ -284,7 +288,9 @@ for (const row of rows) {
   @media (max-width: 640px) {
     .side-nav-toggle {
       top: 186px;
-      left: 8px;
+      left: auto;
+      right: 8px;
+
       font-size: 10px;
       padding: 3px 8px;
       z-index: 45;
@@ -292,12 +298,10 @@ for (const row of rows) {
       border-radius: 999px;
       width: auto;
       min-width: 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       background: rgba(255, 247, 204, 0.88);
       border-color: #e0c15a;
       color: #111;
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-
       backdrop-filter: blur(2px);
     }
 

@@ -71,6 +71,7 @@ const nextHref = page.nextYear
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
+    { label: "表彰", href: "/awards/" },
     { label: "バロンドール", href: parentHref },
     { label: `${year}年` },
   ]}
@@ -81,7 +82,8 @@ const nextHref = page.nextYear
   <p class="award-lead">
     {
       year
-    }年バロンドールの順位・候補者・得票数と、各選手の所属クラブ・関連主要大会を掲載しています。
+    }年バロンドールの順位・候補者・得票数一覧。</br>
+ノミネートされた各選手の所属クラブ（当時）、国籍、ポジション、関連主要大会を掲載しています。
   </p>
 
   {
@@ -157,7 +159,7 @@ const nextHref = page.nextYear
           </div>
 
           <a class="nav-index" href={parentHref}>
-            歴代一覧へ
+            歴代受賞者一覧へ
           </a>
 
           <div class="nav-side nav-next">
@@ -278,7 +280,7 @@ const nextHref = page.nextYear
       {nextHref ? <a href={nextHref}>← {page.nextYear}年へ</a> : <span />}
     </div>
 
-    <a class="nav-index" href={parentHref}>歴代一覧へ</a>
+    <a class="nav-index" href={parentHref}>歴代受賞者一覧へ</a>
 
     <div class="nav-side nav-next">
       {prevHref ? <a href={prevHref}>{page.previousYear}年へ →</a> : <span />}

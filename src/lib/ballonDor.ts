@@ -219,6 +219,13 @@ function distinctLatestClubs(rows: ClubSquadRow[]): AwardClub[] {
 }
 
 function fallbackClubs(row: BallonDorRanking): AwardClub[] {
+  /*
+   * club1 → club2 の順番を、そのまま表示順として扱う。
+   *
+   * overrideで指定された各クラブについて、
+   * 指定シーズン内に同じ選手の行が複数ある場合は
+   * snapshot_dateが最も新しい行を採用する。
+   */
   const items = [
     {
       name: row.club1_override,
@@ -236,13 +243,14 @@ function fallbackClubs(row: BallonDorRanking): AwardClub[] {
   const squadRows = loadClubSquads();
 
   return items
-    .filter((item) => item.name)
+    .filter((item) => clean(item.name))
     .map((item) => {
+      const overrideName = clean(item.name);
+      const overrideLeagueKey = clean(item.leagueKey);
+      const overrideSeason = clean(item.season);
+
       const master = masters.find((club) => {
-        if (
-          item.leagueKey &&
-          clean(club.league_key) !== clean(item.leagueKey)
-        ) {
+        if (overrideLeagueKey && clean(club.league_key) !== overrideLeagueKey) {
           return false;
         }
 
@@ -256,37 +264,73 @@ function fallbackClubs(row: BallonDorRanking): AwardClub[] {
           clean(club.club_display_ja),
           clean(club.club_display_en),
           ...aliases,
-        ].includes(clean(item.name));
+        ].includes(overrideName);
       });
 
       /*
-       * クラブマスタに存在するだけではリンクを作らない。
-       * club_squads_site.csvに、そのクラブ・シーズンのデータが
-       * 実在する場合のみクラブ詳細URLを生成する。
+       * overrideで指定された選手・クラブ・シーズンから、
+       * snapshot_dateが最も新しい行を再取得する。
+       */
+      const latestPlayerRow = master
+        ? squadRows
+            .filter(
+              (squad) =>
+                clean(squad.name_ja) === clean(row.player_name_ja) &&
+                clean(squad.league_key) === clean(master.league_key) &&
+                clean(squad.club_key) === clean(master.club_key) &&
+                clean(squad.season) === overrideSeason,
+            )
+            .sort((a, b) =>
+              clean(b.snapshot_date).localeCompare(clean(a.snapshot_date)),
+            )[0]
+        : undefined;
+
+      /*
+       * 選手本人の行が見つからなくても、
+       * 対象クラブ・対象シーズンのデータが存在すれば
+       * クラブ詳細ページへのリンクは作る。
        */
       const hasClubSeason =
         Boolean(master) &&
-        Boolean(item.season) &&
+        Boolean(overrideSeason) &&
         squadRows.some(
           (squad) =>
             clean(squad.league_key) === clean(master?.league_key) &&
             clean(squad.club_key) === clean(master?.club_key) &&
-            clean(squad.season) === clean(item.season),
+            clean(squad.season) === overrideSeason,
         );
 
       return {
-        name: item.name,
+        name: clean(latestPlayerRow?.club) || overrideName,
         href:
           master && hasClubSeason
             ? clubUrl({
                 leagueKey: clean(master.league_key),
                 clubKey: clean(master.club_key),
-                season: clean(item.season) as Season,
+                season: overrideSeason as Season,
               })
             : "",
-        snapshotDate: "",
+        snapshotDate: clean(latestPlayerRow?.snapshot_date),
       };
     });
+}
+
+function shouldPrioritizeOverride(
+  edition: BallonDorEdition | undefined,
+  row: BallonDorRanking,
+): boolean {
+  /*
+   * 暦年制だけ、overrideが1件でもあれば自動抽出を使わず、
+   * club1 → club2 の指定順を正として表示する。
+   *
+   * シーズン制は従来どおり、自動抽出とoverrideをマージする。
+   */
+  const isCalendarPeriod = clean(edition?.period).toLowerCase() !== "season";
+
+  const hasOverride =
+    Boolean(clean(row.club1_override)) || Boolean(clean(row.club2_override));
+
+  return isCalendarPeriod && hasOverride;
 }
 
 function mergeAwardClubs(
@@ -448,7 +492,9 @@ export function buildBallonDorWinnerRows(): BallonDorWinnerRow[] {
         position:
           clean(latestAttributeRow?.position_primary) ||
           winner.position_override,
-        clubs: mergeAwardClubs(autoClubs, fallbackClubs(winner)),
+        clubs: shouldPrioritizeOverride(edition, winner)
+          ? fallbackClubs(winner)
+          : mergeAwardClubs(autoClubs, fallbackClubs(winner)),
         competitions: competitionsFor(winner),
         points: winner.points,
         isCancelled: false,
@@ -524,7 +570,9 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
         clean(latestAttributeRow?.nationality) || row.nationality_override,
       position:
         clean(latestAttributeRow?.position_primary) || row.position_override,
-      clubs: mergeAwardClubs(autoClubs, fallbackClubs(row)),
+      clubs: shouldPrioritizeOverride(edition, row)
+        ? fallbackClubs(row)
+        : mergeAwardClubs(autoClubs, fallbackClubs(row)),
       competitions: competitionsFor(row),
       points: row.points,
       notes: row.notes,

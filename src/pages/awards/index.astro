@@ -1,0 +1,334 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const title = "サッカー表彰・個人賞一覧";
+const description =
+  "バロンドールやFIFAワールドカップの各種表彰・個人賞を一覧で掲載しています。";
+
+const awardCategories = [
+  {
+    key: "ballon-dor",
+    icon: "🏆",
+    title: "バロンドール",
+    description:
+      "世界年間最優秀選手に贈られるバロンドールの歴代受賞者、順位、候補者、得票数を掲載しています。",
+    links: [
+      {
+        label: "バロンドール 歴代受賞者・年度一覧",
+        href: "/awards/ballon-dor/",
+        note: "1998年以降の各年ページを掲載",
+      },
+    ],
+  },
+  {
+    key: "world-cup",
+    icon: "🌍",
+    title: "FIFAワールドカップ表彰",
+    description:
+      "FIFAワールドカップの大会最優秀選手、得点王、最優秀GKなどの各種表彰を掲載しています。",
+    links: [
+      {
+        label: "2026 FIFAワールドカップ",
+        href: "/wc/2026/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2022 FIFAワールドカップ",
+        href: "/wc/2022/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2018 FIFAワールドカップ",
+        href: "/wc/2018/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2014 FIFAワールドカップ",
+        href: "/wc/2014/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2010 FIFAワールドカップ",
+        href: "/wc/2010/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2006 FIFAワールドカップ",
+        href: "/wc/2006/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+      {
+        label: "2002 FIFAワールドカップ",
+        href: "/wc/2002/#awards",
+        note: "大会MVP・得点王・各賞",
+      },
+    ],
+  },
+];
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-awards"
+  bodyStyle="margin:0; font-family:system-ui;"
+  showPageHeader={true}
+  crumbs={[{ label: "トップ", href: "/" }, { label: "表彰" }]}
+  heading={title}
+>
+  <h1>{title}</h1>
+
+  <p class="awards-lead">
+    サッカー界の主要な表彰・個人賞を大会、年度別に掲載しています。
+    各ページから受賞者の所属クラブ、代表、大会情報もあわせて確認できます。
+  </p>
+
+  <nav class="awards-index" aria-label="表彰カテゴリ目次">
+    <p class="index-title">目次</p>
+
+    <ul>
+      {
+        awardCategories.map((category) => (
+          <li>
+            <a href={`#${category.key}`}>
+              <span aria-hidden="true">{category.icon}</span>
+              {category.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="award-category-list">
+    {
+      awardCategories.map((category) => (
+        <section
+          id={category.key}
+          class="award-category"
+          aria-labelledby={`${category.key}-heading`}
+        >
+          <div class="category-heading">
+            <span class="category-icon" aria-hidden="true">
+              {category.icon}
+            </span>
+
+            <div>
+              <p class="category-kicker">AWARDS</p>
+              <h2 id={`${category.key}-heading`}>{category.title}</h2>
+            </div>
+          </div>
+
+          <p class="category-description">{category.description}</p>
+
+          <div class="award-link-list">
+            {category.links.map((link) => (
+              <a class="award-link-card" href={link.href}>
+                <span class="award-link-main">
+                  <strong>{link.label}</strong>
+                  {link.note && <small>{link.note}</small>}
+                </span>
+
+                <span class="award-link-arrow" aria-hidden="true">
+                  →
+                </span>
+              </a>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </div>
+
+  <p class="awards-note">掲載する表彰・大会は順次追加します。</p>
+
+  <style>
+    h1 {
+      margin: 18px 0 10px;
+      font-size: clamp(26px, 4vw, 36px);
+      line-height: 1.3;
+    }
+
+    .awards-lead {
+      max-width: 900px;
+      margin: 0 0 20px;
+      color: #444;
+      font-size: 16px;
+      line-height: 1.85;
+    }
+
+    .awards-index {
+      margin: 0 0 24px;
+      padding: 16px 18px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: #fafafa;
+    }
+
+    .index-title {
+      margin: 0 0 10px;
+      color: #555;
+      font-size: 14px;
+      font-weight: 900;
+    }
+
+    .awards-index ul {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .awards-index a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 13px;
+      border: 1px solid #d8d8d8;
+      border-radius: 999px;
+      background: #fff;
+      color: #333;
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: none;
+    }
+
+    .awards-index a:hover {
+      border-color: var(--theme-color);
+      color: color-mix(in srgb, var(--theme-color) 82%, #574000);
+    }
+
+    .award-category-list {
+      display: grid;
+      gap: 20px;
+    }
+
+    .award-category {
+      scroll-margin-top: 20px;
+      padding: 20px;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 32%, #e4e4e4);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--theme-color) 4%, #fff);
+    }
+
+    .category-heading {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .category-icon {
+      display: grid;
+      width: 44px;
+      height: 44px;
+      flex: 0 0 44px;
+      place-items: center;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 32%, #ddd);
+      border-radius: 50%;
+      background: #fff;
+      font-size: 22px;
+    }
+
+    .category-kicker {
+      margin: 0 0 2px;
+      color: color-mix(in srgb, var(--theme-color) 82%, #5d4500);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 23px;
+      line-height: 1.4;
+    }
+
+    .category-description {
+      margin: 14px 0;
+      color: #444;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .award-link-list {
+      display: grid;
+      gap: 9px;
+    }
+
+    .award-link-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 13px 15px;
+      border: 1px solid #dedede;
+      border-radius: 10px;
+      background: #fff;
+      color: #333;
+      text-decoration: none;
+      transition:
+        border-color 0.15s ease,
+        transform 0.15s ease;
+    }
+
+    .award-link-card:hover {
+      border-color: var(--theme-color);
+      transform: translateY(-1px);
+    }
+
+    .award-link-main {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .award-link-main strong {
+      color: color-mix(in srgb, var(--theme-color) 78%, #5a4300);
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .award-link-main small {
+      color: #666;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .award-link-arrow {
+      color: var(--theme-color);
+      font-size: 20px;
+      font-weight: 900;
+    }
+
+    .awards-note {
+      margin: 20px 0 4px;
+      color: #666;
+      font-size: 13px;
+      text-align: right;
+    }
+
+    @media (max-width: 700px) {
+      .awards-lead {
+        font-size: 15px;
+      }
+
+      .award-category {
+        padding: 16px;
+      }
+
+      .category-description {
+        font-size: 14px;
+      }
+
+      .award-link-main strong {
+        font-size: 15px;
+      }
+
+      .award-link-main small {
+        font-size: 12px;
+      }
+    }
+  </style>
+</BaseLayout>
