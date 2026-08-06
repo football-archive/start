@@ -168,7 +168,7 @@ export function playerUrl({ playerId }: PlayerUrlArgs): string {
  * ------------------------- */
 
 export const DEFAULTS = {
-  currentClubSeason: "2025-26" as Season,
+  currentClubSeason: "2026-27" as Season,
   currentWcYear: "2026" as Year,
   currentWcTournament: "wc" as TournamentKey,
 };
