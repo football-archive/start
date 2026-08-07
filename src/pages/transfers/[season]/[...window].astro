@@ -373,6 +373,35 @@ const dateText = (r) => {
   const raw = String(r.date_raw || "");
   return raw || "—";
 };
+
+// 備考欄：URLを検出して本文とリンクに分離
+const parseNote = (value) => {
+  const raw = String(value ?? "").trim();
+
+  if (!raw) {
+    return {
+      text: "",
+      url: "",
+    };
+  }
+
+  // 現状は1備考につき関連URL 1件を想定
+  const match = raw.match(/https?:\/\/[^\s　]+/);
+
+  if (!match) {
+    return {
+      text: raw,
+      url: "",
+    };
+  }
+
+  const url = match[0];
+
+  return {
+    text: raw.replace(url, "").trim(),
+    url,
+  };
+};
 ---
 
 <BaseLayout
@@ -592,6 +621,26 @@ const dateText = (r) => {
       font-weight: 700;
       white-space: normal;
       min-width: 220px;
+      max-width: 360px;
+      overflow-wrap: anywhere;
+      line-height: 1.5;
+    }
+
+    .note-text {
+      display: block;
+    }
+
+    .note-link {
+      display: inline-block;
+      margin-top: 4px;
+      color: #2563eb; /* 青 */
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      font-weight: 700;
+    }
+
+    .note-link:hover {
+      color: #1d4ed8; /* 少し濃い青 */
     }
 
     a.link {
@@ -791,32 +840,51 @@ const dateText = (r) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {playerRows.map((r) => (
-                    <tr>
-                      <td class="mono">{dateText(r)}</td>
-                      <td>{r.name}</td>
-                      <td class="type">{moveLabel(r.move_type)}</td>
-                      <td class="club-cell">
-                        {clubHref(r, "from") ? (
-                          <a class="club-link" href={clubHref(r, "from")}>
-                            {clubText(r, "from")}
-                          </a>
-                        ) : (
-                          clubText(r, "from")
-                        )}
-                      </td>
-                      <td class="club-cell">
-                        {clubHref(r, "to") ? (
-                          <a class="club-link" href={clubHref(r, "to")}>
-                            {clubText(r, "to")}
-                          </a>
-                        ) : (
-                          clubText(r, "to")
-                        )}
-                      </td>
-                      <td class="note">{r.note}</td>
-                    </tr>
-                  ))}
+                  {playerRows.map((r) => {
+                    const note = parseNote(r.note);
+
+                    return (
+                      <tr>
+                        <td class="mono">{dateText(r)}</td>
+                        <td>{r.name}</td>
+                        <td class="type">{moveLabel(r.move_type)}</td>
+                        <td class="club-cell">
+                          {clubHref(r, "from") ? (
+                            <a class="club-link" href={clubHref(r, "from")}>
+                              {clubText(r, "from")}
+                            </a>
+                          ) : (
+                            clubText(r, "from")
+                          )}
+                        </td>
+                        <td class="club-cell">
+                          {clubHref(r, "to") ? (
+                            <a class="club-link" href={clubHref(r, "to")}>
+                              {clubText(r, "to")}
+                            </a>
+                          ) : (
+                            clubText(r, "to")
+                          )}
+                        </td>
+                        <td class="note">
+                          {note.text && (
+                            <span class="note-text">{note.text}</span>
+                          )}
+
+                          {note.url && (
+                            <a
+                              class="note-link"
+                              href={note.url}
+                              target="_blank"
+                              rel="noopener"
+                            >
+                              🔗 関連リンク
+                            </a>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

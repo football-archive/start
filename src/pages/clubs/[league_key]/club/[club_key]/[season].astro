@@ -286,7 +286,7 @@ const seasonCandidates = Array.from(
 
 // 「最新season」= 初期表示に使う（静的HTML）
 const latestSeason = seasonCandidates[0] ?? "";
-const currentClubSeason = "2025-26"; // 手動更新：最新シーズンに合わせて切替
+const currentClubSeason = "2026-27"; // 手動更新：最新シーズンに合わせて切替
 const isCurrentSeason = (season: string) =>
   String(season ?? "").trim() === currentClubSeason;
 
@@ -362,7 +362,8 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
     .filter((r) => String((r as any).is_star ?? "").trim() === "1")
     .slice(0, 3);
 
-  const showStats = isCurrentSeason(s);
+  // const showStats = isCurrentSeason(s);
+  const showStats = true;
 
   const statsSummer = buildClubStatsLine(
     rosterSummer,
