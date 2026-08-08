@@ -5,6 +5,7 @@ import { loadClubSquads, type ClubSquadRow } from "./clubSquads";
 import { loadCallups } from "./callups";
 import { loadClubMaster } from "./clubMaster";
 import { awardUrl, clubUrl, type Season, type Year } from "./urls";
+import { loadCompetitionSchedule } from "./competitionSchedule";
 
 export type BallonDorEdition = {
   year: string;
@@ -35,6 +36,8 @@ export type BallonDorRanking = {
   club2_override: string;
   club2_league_key: string;
   club2_season: string;
+  cup_competition: string;
+  cup_edition: string;
   _csvOrder: number;
 };
 
@@ -48,6 +51,12 @@ export type AwardCompetition = {
   label: string;
   href: string;
   country: string;
+};
+
+export type AwardCupCompetition = {
+  label: string;
+  href: string;
+  kind: string;
 };
 
 export type BallonDorWinnerRow = {
@@ -107,6 +116,8 @@ export function loadBallonDorRankings(): BallonDorRanking[] {
       club2_override: clean(row.club2_override),
       club2_league_key: clean(row.club2_league_key),
       club2_season: clean(row.club2_season),
+      cup_competition: clean(row.cup_competition),
+      cup_edition: clean(row.cup_edition),
       _csvOrder: index,
     }))
     .filter((row) => /^\d{4}$/.test(row.year) && row.player_name_ja);
@@ -516,6 +527,7 @@ export type BallonDorCandidateRow = {
   nationality: string;
   position: string;
   clubs: AwardClub[];
+  cupCompetitions: AwardCupCompetition[];
   competitions: AwardCompetition[];
   points: string;
   notes: string;
@@ -574,6 +586,7 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
         ? fallbackClubs(row)
         : mergeAwardClubs(autoClubs, fallbackClubs(row)),
       competitions: competitionsFor(row),
+      cupCompetitions: cupCompetitionsFor(row),
       points: row.points,
       notes: row.notes,
     };
@@ -591,4 +604,52 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
     previousYear: index > 0 ? years[index - 1] : "",
     nextYear: index >= 0 && index < years.length - 1 ? years[index + 1] : "",
   };
+}
+
+function cupCompetitionsFor(row: BallonDorRanking): AwardCupCompetition[] {
+  const competition = clean(row.cup_competition).toUpperCase();
+  const edition = clean(row.cup_edition);
+
+  if (!competition || !edition) return [];
+
+  const labelMap: Record<string, string> = {
+    UCL: "CL",
+    CL: "CL",
+    UEL: "EL",
+    EL: "EL",
+    UECL: "ECL",
+    ECL: "ECL",
+    UEFA: "UEFAカップ",
+    "UEFA CUP": "UEFAカップ",
+  };
+
+  const displayCompetition = labelMap[competition] ?? competition;
+
+  const label =
+    displayCompetition === "UEFAカップ"
+      ? `${displayCompetition}${edition}`
+      : `${displayCompetition}${edition}`;
+
+  let href = "";
+
+  // 暫定仕様：CLページだけ内部リンク
+  if (competition === "UCL" || competition === "CL") {
+    const exists = loadCompetitionSchedule().some(
+      (match) =>
+        clean(match.competition).toUpperCase() === "UCL" &&
+        clean(match.edition) === edition,
+    );
+
+    if (exists) {
+      href = `/ucl/${encodeURIComponent(edition)}/`;
+    }
+  }
+
+  return [
+    {
+      label,
+      href,
+      kind: competition,
+    },
+  ];
 }
