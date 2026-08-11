@@ -411,7 +411,7 @@ const heading = `${leagueName} ${seasonKey}`;
   </p>
 
   <div class="pill-block" style="margin: 10px 0 14px;">
-    <div class="pill-label">👉 シーズンを切り替える</div>
+    <div class="pill-label">🔎 シーズンを切り替える</div>
 
     <div class="pills season-nav-pills">
       <a class="pill" href={`/clubs/${leagueKey}`}>
@@ -437,6 +437,30 @@ const heading = `${leagueName} ${seasonKey}`;
       </a>
     </div>
 
+    {
+      (prevSeason || nextSeason) && (
+        <div class="season-jump">
+          <div class="season-jump-inner">
+            {nextSeason ? (
+              <a class="season-jump-link is-next" href={nextSeasonHref}>
+                👈 次シーズンへ（{nextSeason}）
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">👈 次シーズン</span>
+            )}
+
+            {prevSeason ? (
+              <a class="season-jump-link is-prev" href={prevSeasonHref}>
+                前シーズンへ（{prevSeason}） 👉
+              </a>
+            ) : (
+              <span class="season-jump-link is-disabled">前シーズン 👉</span>
+            )}
+          </div>
+        </div>
+      )
+    }
+
     <section class="season-summary">
       <div class="season-head">
         <h2 class="sec-title">
@@ -453,30 +477,6 @@ const heading = `${leagueName} ${seasonKey}`;
           )
         }
       </div>
-
-      {
-        (prevSeason || nextSeason) && (
-          <div class="season-jump">
-            <div class="season-jump-inner">
-              {nextSeason ? (
-                <a class="season-jump-link is-next" href={nextSeasonHref}>
-                  ← 次シーズンへ（{nextSeason}）
-                </a>
-              ) : (
-                <span class="season-jump-link is-disabled">← 次シーズン</span>
-              )}
-
-              {prevSeason ? (
-                <a class="season-jump-link is-prev" href={prevSeasonHref}>
-                  前シーズンへ（{prevSeason}） →
-                </a>
-              ) : (
-                <span class="season-jump-link is-disabled">前シーズン →</span>
-              )}
-            </div>
-          </div>
-        )
-      }
 
       <p class="season-desc">
         {leagueName}{

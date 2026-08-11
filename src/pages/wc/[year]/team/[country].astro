@@ -1031,13 +1031,13 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       </div>
 
       <p class="nt-roster-jump">
-        <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
+        <a href="#roster">👕 {countryName}代表メンバー一覧を見る</a>
       </p>
       {
         hasNtLineupImage && (
           <section class="nt-lineup-section" aria-label="想定スタメン">
             <p class="nt-lineup-lead">
-              👇 {countryName}代表の想定スタメン
+              👕 {countryName}代表の想定スタメン
               {ntLineupFormation ? `（${ntLineupFormation}） システム` : ""}
               。直近の試合ベースのフォーメーション例です。
             </p>
@@ -1242,7 +1242,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       (group || groupLinks.length > 0) && (
         <div class="nt-related-block">
           <div class="nt-related-label">
-            👉 {countryName}と同じグループの国を見る
+            🔎 {countryName}と同じグループの国を見る
           </div>
           <div class="nt-nav-row">
             {group && (
@@ -1271,7 +1271,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     {
       allGroupLetters.length > 0 && (
         <div class="nt-related-block">
-          <div class="nt-related-label">👉 グループを切り替える</div>
+          <div class="nt-related-label">🔎 グループを切り替える</div>
           <div class="nt-nav-row">
             {allGroupLetters.map((g) => (
               <a
@@ -1289,7 +1289,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       yearsForCountry.length > 1 && (
         <div class="nt-related-block">
           <div class="nt-related-label">
-            👉 {countryName}の出場大会を切り替える
+            🔎 {countryName}の出場大会を切り替える
           </div>
           <div class="pills nt-year-pills">
             {yearsForCountry.map((y) => (
@@ -1310,7 +1310,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       (continent || continentLinks.length > 0) && (
         <div class="nt-related-block">
           <div class="nt-related-label">
-            👉 {countryName}と同じ大陸の国を見る
+            🔎 {countryName}と同じ大陸の国を見る
           </div>
           <div class="nt-nav-row">
             {continent && (
@@ -1337,9 +1337,9 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     }
 
     <div class="nt-related-block">
-      <div class="nt-related-label">👉 大会全体を見る</div>
+      <div class="nt-related-label">🔎 大会全体を見る</div>
       <div class="nt-tournament-link">
-        <a href={tournamentHref}>← {tournamentText} ポータルページへ</a>
+        <a href={tournamentHref}>👉 {tournamentText} ポータルページへ</a>
       </div>
     </div>
   </div>

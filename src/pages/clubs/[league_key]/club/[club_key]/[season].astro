@@ -816,7 +816,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   }
 
   <div class="club-related-label">
-    👉 {clubLabel}の他のシーズンと比較する
+    🔎 {clubLabel}の他のシーズンと比較する
   </div>
 
   {
@@ -845,10 +845,10 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                   season: nextSeason as any,
                 })}
               >
-                ← 次シーズンへ（{seasonShort(nextSeason)}）
+                👈 次シーズンへ（{seasonShort(nextSeason)}）
               </a>
             ) : (
-              <span class="season-jump-link is-disabled">← 次シーズンへ</span>
+              <span class="season-jump-link is-disabled">👈 次シーズンへ</span>
             )}
 
             {prevSeason ? (
@@ -860,10 +860,10 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
                   season: prevSeason as any,
                 })}
               >
-                前シーズンへ（{seasonShort(prevSeason)}） →
+                前シーズンへ（{seasonShort(prevSeason)}） 👉
               </a>
             ) : (
-              <span class="season-jump-link is-disabled">前シーズンへ →</span>
+              <span class="season-jump-link is-disabled">前シーズンへ 👉</span>
             )}
           </div>
         </div>
@@ -970,7 +970,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       id="club-roster-jump-link"
       href={`#club-roster-${initialSeason}-${initialWindow}-section`}
     >
-      👉 {clubLabel}
+      👕 {clubLabel}
       {seasonShort(initialSeason)} メンバー一覧を見る
     </a>
   </p>
@@ -978,7 +978,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
     hasClubLineupImage && (
       <section class="club-lineup-section" aria-label="想定スタメン">
         <p class="club-lineup-lead">
-          👇 {clubLabel}
+          👕 {clubLabel}
           {seasonShort(initialSeason)}
           想定スタメン
           {clubLineupFormation ? `（${clubLineupFormation}）` : ""}
@@ -1119,7 +1119,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
   <p class="club-roster-jump">
     <a href={clubTopPath}>
-      👉 {clubLabel} ポータルページを見る
+      🔎 {clubLabel} ポータルページを見る
     </a>
   </p>
 
@@ -1127,7 +1127,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   hasLeagueStandingSeason(initialSeason) && (
     <p class="club-roster-jump">
       <a href={leagueSeasonPath(initialSeason)}>
-        👉 {leagueLabel}
+        🔎 {leagueLabel}
         {seasonShort(initialSeason)}順位表へ
       </a>
     </p>
@@ -1136,7 +1136,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
   <p class="club-roster-jump">
     <a href={leagueTopPath}>
-      👉 {leagueLabel}トップへ
+      🔎 {leagueLabel}トップへ
     </a>
   </p>
 
@@ -1148,7 +1148,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       {
         topLeagueClubLinks.length > 0 && (
           <div class="club-related-block">
-            <div class="club-related-label">👉 同リーグのクラブを見る</div>
+            <div class="club-related-label">🔎 同リーグのクラブを見る</div>
             <div class="club-nav-row">
               {topLeagueClubLinks.map((item) => (
                 <a class="pill" href={item.href}>
@@ -1166,7 +1166,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       {
         topOtherLeaguePills.length > 0 && (
           <div class="club-related-block">
-            <div class="club-related-label">👉 他のリーグを見る</div>
+            <div class="club-related-label">🔎 他のリーグを見る</div>
             <div class="club-nav-row">
               {topOtherLeaguePills.map((p) => (
                 <a class="pill" href={`/clubs/${encodeURIComponent(p.key)}/`}>
