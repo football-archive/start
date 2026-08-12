@@ -7,8 +7,8 @@ import type { Season } from "./urls";
 
 export type UclLeaguePhaseRow = {
   season: Season | string;
-  club_key: string; // may be empty while mapping
-  rank: number;
+  club_key: string;
+  rank: number | null;
   played: number;
   won: number;
   draw: number;
@@ -18,8 +18,12 @@ export type UclLeaguePhaseRow = {
   gd: number;
   pts: number;
   qualified: "R16" | "PO" | "OUT" | string;
-  updated_at: string; // YYYY-MM-DD
-  club_name_raw?: string; // optional helper for mapping club_key
+  updated_at: string;
+  club_name_raw?: string;
+
+  pot: number | null;
+  league_name_override?: string;
+  league_rank_override: number | null;
 };
 
 function parseCSVLine(line: string): string[] {
@@ -76,6 +80,14 @@ function toNum(v: any, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
+function toOptionalNum(v: any): number | null {
+  const raw = String(v ?? "").trim();
+  if (!raw) return null;
+
+  const n = Number(raw);
+  return Number.isFinite(n) ? n : null;
+}
+
 export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
   const csvPath = path.join(
     process.cwd(),
@@ -88,9 +100,9 @@ export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
   return rows
     .map((r) => {
       const season = (r.season ?? "").trim();
-      const rank = toNum(r.rank, NaN as any);
-      // rank must exist to be considered a valid row
-      if (!season || !Number.isFinite(rank)) return null;
+      const rank = toOptionalNum(r.rank);
+
+      if (!season) return null;
 
       return {
         season,
@@ -107,6 +119,11 @@ export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
         qualified: (r.qualified ?? "").trim(),
         updated_at: (r.updated_at ?? "").trim(),
         club_name_raw: (r.club_name_raw ?? "").trim() || undefined,
+
+        pot: toOptionalNum(r.pot),
+        league_name_override:
+          (r.league_name_override ?? "").trim() || undefined,
+        league_rank_override: toOptionalNum(r.league_rank_override),
       } as UclLeaguePhaseRow;
     })
     .filter(Boolean) as UclLeaguePhaseRow[];

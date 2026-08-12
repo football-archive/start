@@ -13,6 +13,9 @@ import { getCompetitionSummary } from "../../lib/competitionSummary";
 import { getCompetitionPlayerStats } from "../../lib/competitionPlayerStats";
 import MatchScheduleTable from "../../components/MatchScheduleTable.astro";
 
+import { loadLeagueMaster } from "../../lib/leagueMaster";
+import { loadLeagueStandings } from "../../lib/leagueStandings";
+
 // ✅ 静的生成
 export function getStaticPaths() {
   const seasons = getUclSeasons().map((s) => String(s).trim());
@@ -26,6 +29,74 @@ const rows = loadUclLeaguePhaseBySeason(season);
 const clubMaster = loadClubMaster();
 const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
 
+const leagueMaster = loadLeagueMaster();
+
+const leagueLabelMap = new Map(
+  leagueMaster
+    .filter((r) => r.league_key)
+    .map((r) => [
+      String(r.league_key).trim(),
+      String(r.league_display_ja || r.league_display_en || r.league_key).trim(),
+    ]),
+);
+
+const leagueLabel = (leagueKey: string) => {
+  const key = String(leagueKey ?? "").trim();
+  return leagueLabelMap.get(key) || key || "—";
+};
+
+const previousSeason = (season: string) => {
+  const m = String(season ?? "")
+    .trim()
+    .match(/^(\d{4})-(\d{2})$/);
+
+  if (!m) return "";
+
+  const startYear = Number(m[1]);
+
+  return `${startYear - 1}-${String(startYear).slice(-2)}`;
+};
+
+const previousLeagueSeason = previousSeason(season);
+
+const leagueStandings = loadLeagueStandings();
+
+const standingByClub = new Map(
+  leagueStandings
+    .filter((r) => r.season === previousLeagueSeason)
+    .map((r) => [`${r.league_key}|||${r.club_key}`, r]),
+);
+
+const getUclClubLeagueInfo = (r: any) => {
+  const clubKey = String(r.club_key ?? "").trim();
+  const c: any = clubMap.get(clubKey);
+
+  const leagueKey = String(c?.league_key ?? "").trim();
+
+  const overrideName = String(r.league_name_override ?? "").trim();
+
+  const overrideRank =
+    r.league_rank_override != null &&
+    Number.isFinite(Number(r.league_rank_override))
+      ? Number(r.league_rank_override)
+      : null;
+
+  const leagueName = overrideName || leagueLabel(leagueKey);
+
+  const standing = leagueKey
+    ? standingByClub.get(`${leagueKey}|||${clubKey}`)
+    : undefined;
+
+  const rank = overrideRank ?? (standing?.rank ? Number(standing.rank) : null);
+
+  return {
+    leagueKey,
+    leagueName,
+    rank,
+    label: leagueName && rank ? `${leagueName} ${rank}位` : leagueName || "—",
+  };
+};
+
 const summary = getCompetitionSummary("UCL", season);
 
 const allMatches = loadCompetitionSchedule();
@@ -38,16 +109,34 @@ const assistRank = getCompetitionPlayerStats("UCL", season, "assists");
 const topScorer = goalRank[0] ?? null;
 const topAssist = assistRank[0] ?? null;
 
-const leagueNames = Array.from(
+const majorLeagueOrder = [
+  "プレミアリーグ",
+  "ラ・リーガ",
+  "セリエA",
+  "ブンデスリーガ",
+  "リーグ・アン",
+  "エールディヴィジ",
+  "プリメイラ・リーガ",
+];
+
+const allLeagueNames = Array.from(
   new Set(
-    rows
-      .map((r: any) => {
-        const c = clubMap.get(String(r.club_key));
-        return String(c?.league_display_ja || c?.league_key || "").trim();
-      })
-      .filter(Boolean),
+    rows.map((r: any) => getUclClubLeagueInfo(r).leagueName).filter(Boolean),
   ),
-).sort();
+);
+
+const majorLeagueNames = majorLeagueOrder.filter((name) =>
+  allLeagueNames.includes(name),
+);
+
+const hasOtherLeagues = allLeagueNames.some(
+  (name) => !majorLeagueOrder.includes(name),
+);
+
+const leagueNames = [
+  ...majorLeagueNames,
+  ...(hasOtherLeagues ? ["その他"] : []),
+];
 
 const clubHrefByKey = (clubKey: string) => {
   const c: any = clubMap.get(String(clubKey));
@@ -84,23 +173,6 @@ const seasons = getUclSeasons()
   .map((s) => String(s).trim())
   .sort()
   .reverse();
-
-const statusKey = (qualified: string) => {
-  const q = String(qualified ?? "")
-    .trim()
-    .toUpperCase();
-  if (q === "KP") return "kp";
-  if (q === "PO") return "po";
-  if (q.includes("敗退")) return "out";
-  return "other";
-};
-
-const statusLabel = (key: string) => {
-  if (key === "kp") return "KP";
-  if (key === "po") return "PO";
-  if (key === "out") return "敗退";
-  return "その他";
-};
 ---
 
 <BaseLayout
@@ -127,7 +199,7 @@ const statusLabel = (key: string) => {
   </p>
 
   <div class="pill-block">
-    <div class="pill-label">👉 シーズンを切り替える</div>
+    <div class="pill-label">🔎 シーズンを切り替える</div>
 
     <div class="pills">
       {
@@ -221,7 +293,7 @@ const statusLabel = (key: string) => {
     <h2>⚽ リーグフェーズ(LP) 出場クラブ一覧</h2>
 
     <div class="filter-line">
-      <div class="filter-label">👉 所属リーグで絞り込み</div>
+      <div class="filter-label">🔎 所属リーグで絞り込み</div>
       <div class="pills" id="ucl-league-pills">
         <button class="pill clear is-active" type="button" data-league="">
           <span class="dot"></span>全て
@@ -237,20 +309,25 @@ const statusLabel = (key: string) => {
       </div>
     </div>
     <div class="filter-line">
-      <div class="filter-label">👉 状態</div>
-      <div class="pills" id="ucl-status-pills">
-        <button class="pill clear is-active" type="button" data-status="">
+      <div class="filter-label">🔎 ポットで絞り込み</div>
+
+      <div class="pills" id="ucl-pot-pills">
+        <button class="pill clear is-active" type="button" data-pot="">
           <span class="dot"></span>全て
         </button>
-        <button class="pill" type="button" data-status="kp">
-          <span class="dot"></span>KP
-        </button>
-        <button class="pill" type="button" data-status="po">
-          <span class="dot"></span>PO
-        </button>
-        <button class="pill" type="button" data-status="out">
-          <span class="dot"></span>敗退
-        </button>
+
+        {
+          [1, 2, 3, 4].map((pot) => (
+            <button
+              class={`pill pot-filter pot-${pot}`}
+              type="button"
+              data-pot={String(pot)}
+            >
+              <span class="dot" />
+              ポット{pot}
+            </button>
+          ))
+        }
       </div>
     </div>
 
@@ -259,22 +336,29 @@ const statusLabel = (key: string) => {
         rows.map((r: any) => {
           const clubKey = String(r.club_key ?? "").trim();
           const c: any = clubMap.get(clubKey);
-          const league = String(
-            c?.league_display_ja || c?.league_key || "",
-          ).trim();
+          const leagueInfo = getUclClubLeagueInfo(r);
+          const league = leagueInfo.leagueName;
+          const leagueFilter = majorLeagueOrder.includes(league)
+            ? league
+            : "その他";
+          const pot =
+            r.pot != null && Number.isFinite(Number(r.pot))
+              ? String(r.pot)
+              : "";
+
           const href = clubKey ? clubHrefByKey(clubKey) : "";
           const name = r.club_name_raw || clubDisplay(clubKey);
-          const status = statusKey(String(r.qualified ?? ""));
           const inner = (
             <>
               <div class="row1">
                 <div class="name">{name}</div>
               </div>
+
               <div class="meta">
-                <span class="badge">{league || "—"}</span>
-                <span class="badge">LP {r.rank}位</span>
-                <span class={`badge status-${status}`}>
-                  {r.qualified || "—"}
+                <span class="badge">{leagueInfo.label}</span>
+
+                <span class={`badge pot-badge ${pot ? `pot-${pot}` : ""}`}>
+                  {pot ? `ポット${pot}` : "ポット —"}
                 </span>
               </div>
             </>
@@ -284,8 +368,8 @@ const statusLabel = (key: string) => {
             <a
               class="team-card"
               data-ucl-club-card
-              data-league={league}
-              data-status={status}
+              data-league={leagueFilter}
+              data-pot={pot}
               href={href}
             >
               {inner}
@@ -294,8 +378,8 @@ const statusLabel = (key: string) => {
             <div
               class="team-card is-disabled"
               data-ucl-club-card
-              data-league={league}
-              data-status={status}
+              data-league={leagueFilter}
+              data-pot={pot}
             >
               {inner}
             </div>
@@ -642,7 +726,7 @@ const statusLabel = (key: string) => {
     }
 
     .page-ucl .pill-label {
-      font-size: 13px;
+      font-size: 15px;
       color: #666;
       margin-bottom: 6px;
       font-weight: 600;
@@ -733,6 +817,62 @@ const statusLabel = (key: string) => {
       background: #fff;
     }
 
+    /* ===== UCL Pot colors ===== */
+
+    /* Pot 1：CLテーマカラー */
+    .page-ucl .pot-1 {
+      --pot-color: var(--color-ucl, #0f3b82);
+      --pot-bg: color-mix(in srgb, var(--color-ucl, #0f3b82) 12%, white);
+    }
+
+    /* Pot 2：緑 */
+    .page-ucl .pot-2 {
+      --pot-color: #166534;
+      --pot-bg: #dcfce7;
+    }
+
+    /* Pot 3：黄 */
+    .page-ucl .pot-3 {
+      --pot-color: #92400e;
+      --pot-bg: #fef3c7;
+    }
+
+    /* Pot 4：赤 */
+    .page-ucl .pot-4 {
+      --pot-color: #991b1b;
+      --pot-bg: #fee2e2;
+    }
+
+    /* カード内Potバッジ */
+    .page-ucl .pot-badge.pot-1,
+    .page-ucl .pot-badge.pot-2,
+    .page-ucl .pot-badge.pot-3,
+    .page-ucl .pot-badge.pot-4 {
+      color: var(--pot-color);
+      background: var(--pot-bg);
+      border-color: color-mix(in srgb, var(--pot-color) 30%, white);
+      font-weight: 700;
+    }
+
+    /* Pot絞り込み */
+    .page-ucl .pot-filter.pot-1 .dot,
+    .page-ucl .pot-filter.pot-2 .dot,
+    .page-ucl .pot-filter.pot-3 .dot,
+    .page-ucl .pot-filter.pot-4 .dot {
+      background: var(--pot-color);
+      opacity: 1;
+    }
+
+    .page-ucl .pot-filter.pot-1.is-active,
+    .page-ucl .pot-filter.pot-2.is-active,
+    .page-ucl .pot-filter.pot-3.is-active,
+    .page-ucl .pot-filter.pot-4.is-active {
+      color: var(--pot-color);
+      background: var(--pot-bg);
+      border-color: var(--pot-color);
+      font-weight: 800;
+    }
+
     .page-ucl .rank-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
@@ -765,27 +905,6 @@ const statusLabel = (key: string) => {
       text-align: right;
     }
 
-    .page-ucl .badge.status-kp {
-      background: #dcfce7;
-      border-color: #bbf7d0;
-      color: #166534;
-      font-weight: 700;
-    }
-
-    .page-ucl .badge.status-po {
-      background: #fef3c7;
-      border-color: #fde68a;
-      color: #92400e;
-      font-weight: 700;
-    }
-
-    .page-ucl .badge.status-out {
-      background: #fee2e2;
-      border-color: #fecaca;
-      color: #991b1b;
-      font-weight: 700;
-    }
-
     .page-ucl .summaryGrid a {
       color: #2f855a;
       font-weight: 700;
@@ -806,43 +925,51 @@ const statusLabel = (key: string) => {
 
     window.addEventListener("DOMContentLoaded", () => {
       const leaguePills = $$("#ucl-league-pills [data-league]");
-      const statusPills = $$("#ucl-status-pills [data-status]");
+      const potPills = $$("#ucl-pot-pills [data-pot]");
       const cards = $$("[data-ucl-club-card]");
 
       let currentLeague = "";
-      let currentStatus = "";
+      let currentPot = "";
 
       function applyFilter() {
         cards.forEach((card) => {
           const league = card.getAttribute("data-league") || "";
-          const status = card.getAttribute("data-status") || "";
+          const pot = card.getAttribute("data-pot") || "";
 
-          const okLeague = !currentLeague || league === currentLeague;
-          const okStatus = !currentStatus || status === currentStatus;
+          const okLeague = currentLeague === "" || league === currentLeague;
 
-          card.style.display = okLeague && okStatus ? "" : "none";
+          const okPot = currentPot === "" || pot === currentPot;
+
+          card.style.display = okLeague && okPot ? "" : "none";
         });
       }
 
       leaguePills.forEach((pill) => {
         pill.addEventListener("click", () => {
           currentLeague = pill.getAttribute("data-league") || "";
-          leaguePills.forEach((p) =>
-            p.classList.toggle("is-active", p === pill),
-          );
+
+          leaguePills.forEach((p) => {
+            p.classList.toggle("is-active", p === pill);
+          });
+
           applyFilter();
         });
       });
 
-      statusPills.forEach((pill) => {
+      potPills.forEach((pill) => {
         pill.addEventListener("click", () => {
-          currentStatus = pill.getAttribute("data-status") || "";
-          statusPills.forEach((p) =>
-            p.classList.toggle("is-active", p === pill),
-          );
+          currentPot = pill.getAttribute("data-pot") || "";
+
+          potPills.forEach((p) => {
+            p.classList.toggle("is-active", p === pill);
+          });
+
           applyFilter();
         });
       });
+
+      /* 初期状態を明示的に全表示 */
+      applyFilter();
     });
   </script>
 </BaseLayout>

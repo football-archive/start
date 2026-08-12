@@ -48,6 +48,7 @@ href,level,sort_order,id,visible,label,parent_id
 /clubs/history/,2,290,club-history,true,📓歴代強豪クラブ アーカイブ,clubs
 /ucl/,1,190,ucl,true,👑UEFAチャンピオンズリーグ,
 /ucl/,2,191,ucl-seasons,false,シーズン一覧,ucl
-/ucl/2025-26/,3,191,ucl-seasons-latest,true,2025-26,ucl-seasons
-/ucl/2024-25/,3,192,ucl-seasons-past,true,2024-25,ucl-seasons
+/ucl/2026-27/,3,194,ucl-seasons-latest,true,2026-27,ucl-seasons
+/ucl/2025-26/,3,195,ucl-seasons-latest,true,2025-26,ucl-seasons
+/ucl/2024-25/,3,196,ucl-seasons-past,true,2024-25,ucl-seasons
 /about/,1,900,about,true,サイト情報,
