@@ -16,6 +16,8 @@ import MatchScheduleTable from "../../components/MatchScheduleTable.astro";
 import { loadLeagueMaster } from "../../lib/leagueMaster";
 import { loadLeagueStandings } from "../../lib/leagueStandings";
 
+import { loadClubSquads } from "../../lib/clubSquads";
+
 // ✅ 静的生成
 export function getStaticPaths() {
   const seasons = getUclSeasons().map((s) => String(s).trim());
@@ -28,6 +30,15 @@ const rows = loadUclLeaguePhaseBySeason(season);
 
 const clubMaster = loadClubMaster();
 const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
+
+const clubSquadRows = loadClubSquads();
+
+const hasClubSeason = (clubKey: string, season: string) =>
+  clubSquadRows.some(
+    (r: any) =>
+      String(r.club_key ?? "").trim() === String(clubKey).trim() &&
+      String(r.season ?? "").trim() === String(season).trim(),
+  );
 
 const leagueMaster = loadLeagueMaster();
 
@@ -139,11 +150,17 @@ const leagueNames = [
 ];
 
 const clubHrefByKey = (clubKey: string) => {
-  const c: any = clubMap.get(String(clubKey));
+  const key = String(clubKey ?? "").trim();
+  const c: any = clubMap.get(key);
+
   if (!c) return "";
+
+  // このシーズンのクラブ詳細ページが実際に生成される場合だけリンク
+  if (!hasClubSeason(key, season)) return "";
+
   return clubUrl({
     leagueKey: String(c.league_key),
-    clubKey,
+    clubKey: key,
     season: season as any,
   });
 };
@@ -173,6 +190,14 @@ const seasons = getUclSeasons()
   .map((s) => String(s).trim())
   .sort()
   .reverse();
+
+const championHref = summary?.champion_club_key
+  ? clubHrefByKey(summary.champion_club_key)
+  : "";
+
+const runnerUpHref = summary?.runner_up_club_key
+  ? clubHrefByKey(summary.runner_up_club_key)
+  : "";
 ---
 
 <BaseLayout
@@ -240,9 +265,13 @@ const seasons = getUclSeasons()
         <b>
           {
             summary?.champion_club_key ? (
-              <a href={clubHrefByKey(summary.champion_club_key)}>
-                {clubDisplay(summary.champion_club_key)}
-              </a>
+              championHref ? (
+                <a href={championHref}>
+                  {clubDisplay(summary.champion_club_key)}
+                </a>
+              ) : (
+                clubDisplay(summary.champion_club_key)
+              )
             ) : (
               "未定"
             )
@@ -255,9 +284,13 @@ const seasons = getUclSeasons()
         <b>
           {
             summary?.runner_up_club_key ? (
-              <a href={clubHrefByKey(summary.runner_up_club_key)}>
-                {clubDisplay(summary.runner_up_club_key)}
-              </a>
+              runnerUpHref ? (
+                <a href={runnerUpHref}>
+                  {clubDisplay(summary.runner_up_club_key)}
+                </a>
+              ) : (
+                clubDisplay(summary.runner_up_club_key)
+              )
             ) : (
               "未定"
             )
@@ -410,16 +443,8 @@ const seasons = getUclSeasons()
         <tbody>
           {
             rows.map((r: any) => {
-              const href =
-                r.club_key && clubMap.get(String(r.club_key))
-                  ? clubUrl({
-                      leagueKey: String(
-                        clubMap.get(String(r.club_key)).league_key,
-                      ),
-                      clubKey: String(r.club_key),
-                      season: season as any,
-                    })
-                  : "";
+              const clubKey = String(r.club_key ?? "").trim();
+              const href = clubKey ? clubHrefByKey(clubKey) : "";
               return (
                 <tr>
                   <td>{fmt(r.rank)}</td>
