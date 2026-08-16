@@ -607,6 +607,8 @@ async function main() {
   const skipMs = Math.max(0, skipDays) * 24 * 60 * 60 * 1000;
 
   const countryFilter = String(kv["country"] ?? "").trim();
+  const clubFilter = String(kv["club"] ?? "").trim();
+  const seasonFilter = String(kv["season"] ?? "").trim();
   const concurrency = Number(kv["concurrency"] ?? "3");
   const delayMs = Number(kv["delay"] ?? "150");
   const dumpPath = String(kv["dump"] ?? "").trim();
@@ -666,6 +668,12 @@ async function main() {
 
     // fill対象：name_en + birth_date があり、name_jaが空（またはoverwrite）
     const candidates = rows.filter((r) => {
+      if (clubFilter && String(r.club_key ?? "").trim() !== clubFilter)
+        return false;
+
+      if (seasonFilter && String(r.season ?? "").trim() !== seasonFilter)
+        return false;
+
       if (countryFilter && String(r.country ?? "").trim() !== countryFilter)
         return false;
 
