@@ -281,28 +281,15 @@ export function loadTransfers(args: LoadTransfersArgs = {}): TransferEvent[] {
     });
   }
 
-  // ざっくりおすすめのデフォルト並び：
-  // importance(A→B→C) → date_iso desc → player_name
-  const impRank = (v: string): number => {
-    const s = String(v ?? "")
-      .trim()
-      .toUpperCase();
-    if (s === "A") return 0;
-    if (s === "B") return 1;
-    if (s === "C") return 2;
-    return 9;
-  };
-
+  // 日付の新しい順。
+  // 同じ日付の場合はCSVのレコード順を維持する。
   return [...out].sort((a, b) => {
-    const ir = impRank(a.importance) - impRank(b.importance);
-    if (ir !== 0) return ir;
-
-    // date desc（空は最後）
     const da = a.date_iso || "0000-00-00";
     const db = b.date_iso || "0000-00-00";
+
     if (da !== db) return db.localeCompare(da);
 
-    return a.name.localeCompare(b.name, "en");
+    return 0;
   });
 }
 
