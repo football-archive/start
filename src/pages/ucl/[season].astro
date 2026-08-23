@@ -2,7 +2,7 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../../lib/ucl";
 import { loadClubMaster } from "../../lib/clubMaster";
-import { clubUrl } from "../../lib/urls";
+import { hasClubUclMode } from "../../lib/clubCompetitionMode";
 
 import {
   loadCompetitionSchedule,
@@ -31,16 +31,21 @@ const rows = loadUclLeaguePhaseBySeason(season);
 const clubMaster = loadClubMaster();
 const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
 
+const leagueMaster = loadLeagueMaster();
+
 const clubSquadRows = loadClubSquads();
 
-const hasClubSeason = (clubKey: string, season: string) =>
+const hasDomesticClubPage = (
+  leagueKey: string,
+  clubKey: string,
+  season: string,
+) =>
   clubSquadRows.some(
     (r: any) =>
-      String(r.club_key ?? "").trim() === String(clubKey).trim() &&
-      String(r.season ?? "").trim() === String(season).trim(),
+      String(r.league_key ?? "").trim() === leagueKey &&
+      String(r.club_key ?? "").trim() === clubKey &&
+      String(r.season ?? "").trim() === season,
   );
-
-const leagueMaster = loadLeagueMaster();
 
 const leagueLabelMap = new Map(
   leagueMaster
@@ -111,8 +116,37 @@ const getUclClubLeagueInfo = (r: any) => {
 const summary = getCompetitionSummary("UCL", season);
 
 const allMatches = loadCompetitionSchedule();
-const knockoutMatches = filterMatches(allMatches, "UCL", season).sort(
+
+const uclMatches = filterMatches(allMatches, "UCL", season).sort(
   (a: any, b: any) => mdNum(a.md) - mdNum(b.md),
+);
+
+const leaguePhaseMatches = uclMatches.filter(
+  (r: any) => String(r.stage ?? "").trim() === "League Phase",
+);
+
+const opponentMap = new Map<string, Set<string>>();
+
+for (const m of leaguePhaseMatches) {
+  const homeKey = String(m.homeKey ?? "").trim();
+  const awayKey = String(m.awayKey ?? "").trim();
+
+  if (!homeKey || !awayKey) continue;
+
+  if (!opponentMap.has(homeKey)) {
+    opponentMap.set(homeKey, new Set());
+  }
+
+  if (!opponentMap.has(awayKey)) {
+    opponentMap.set(awayKey, new Set());
+  }
+
+  opponentMap.get(homeKey)!.add(awayKey);
+  opponentMap.get(awayKey)!.add(homeKey);
+}
+
+const knockoutMatches = uclMatches.filter(
+  (r: any) => String(r.stage ?? "").trim() !== "League Phase",
 );
 
 const goalRank = getCompetitionPlayerStats("UCL", season, "goals");
@@ -155,14 +189,32 @@ const clubHrefByKey = (clubKey: string) => {
 
   if (!c) return "";
 
-  // このシーズンのクラブ詳細ページが実際に生成される場合だけリンク
-  if (!hasClubSeason(key, season)) return "";
+  const leagueKey = String(c.league_key ?? "").trim();
+  if (!leagueKey) return "";
 
-  return clubUrl({
-    leagueKey: String(c.league_key),
-    clubKey: key,
-    season: season as any,
-  });
+  if (
+    hasClubUclMode({
+      season,
+      leagueKey,
+      clubKey: key,
+    })
+  ) {
+    return (
+      `/ucl/${encodeURIComponent(season)}` + `/club/${encodeURIComponent(key)}/`
+    );
+  }
+
+  // CLモード未完成なら、国内ページが実在する場合のみそちらへ
+  if (hasDomesticClubPage(leagueKey, key, season)) {
+    return (
+      `/clubs/${encodeURIComponent(leagueKey)}` +
+      `/club/${encodeURIComponent(key)}` +
+      `/${encodeURIComponent(season)}/`
+    );
+  }
+
+  // CL版も国内版も未整備ならリンクしない
+  return "";
 };
 
 const clubDisplay = (clubKey: string, fallback = "") => {
@@ -324,23 +376,6 @@ const runnerUpHref = summary?.runner_up_club_key
 
   <section id="clubs">
     <h2>⚽ リーグフェーズ(LP) 出場クラブ一覧</h2>
-
-    <div class="filter-line">
-      <div class="filter-label">🔎 所属リーグで絞り込み</div>
-      <div class="pills" id="ucl-league-pills">
-        <button class="pill clear is-active" type="button" data-league="">
-          <span class="dot"></span>全て
-        </button>
-        {
-          leagueNames.map((name) => (
-            <button class="pill" type="button" data-league={name}>
-              <span class="dot" />
-              {name}
-            </button>
-          ))
-        }
-      </div>
-    </div>
     <div class="filter-line">
       <div class="filter-label">🔎 ポットで絞り込み</div>
 
@@ -363,6 +398,36 @@ const runnerUpHref = summary?.runner_up_club_key
         }
       </div>
     </div>
+    <div class="filter-line">
+      <div class="filter-label">🔎 所属リーグで絞り込み</div>
+      <div class="pills" id="ucl-league-pills">
+        <button class="pill clear is-active" type="button" data-league="">
+          <span class="dot"></span>全て
+        </button>
+        {
+          leagueNames.map((name) => (
+            <button class="pill" type="button" data-league={name}>
+              <span class="dot" />
+              {name}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="ucl-opponent-status" id="ucl-opponent-status" hidden>
+      <span id="ucl-opponent-status-text" class="ucl-focus-action"></span>
+
+      <button
+        type="button"
+        id="ucl-jump-to-schedule"
+        class="ucl-focus-action ucl-focus-button"
+      >
+        ↓ 日程・結果へジャンプ
+      </button>
+
+      <button type="button" id="ucl-opponent-clear"> 選択をリセット </button>
+    </div>
 
     <div class="team-grid" id="ucl-club-grid">
       {
@@ -381,45 +446,78 @@ const runnerUpHref = summary?.runner_up_club_key
 
           const href = clubKey ? clubHrefByKey(clubKey) : "";
           const name = r.club_name_raw || clubDisplay(clubKey);
-          const inner = (
-            <>
+          const opponentKeys = clubKey
+            ? [...(opponentMap.get(clubKey) ?? [])]
+            : [];
+          return (
+            <div
+              class="team-card"
+              data-ucl-club-card
+              data-club-key={clubKey}
+              data-opponents={opponentKeys.join("|")}
+              data-league={leagueFilter}
+              data-pot={pot}
+            >
               <div class="row1">
                 <div class="name">{name}</div>
               </div>
 
               <div class="meta">
-                <span class="badge">{leagueInfo.label}</span>
-
                 <span class={`badge pot-badge ${pot ? `pot-${pot}` : ""}`}>
                   {pot ? `ポット${pot}` : "ポット —"}
                 </span>
-              </div>
-            </>
-          );
 
-          return href ? (
-            <a
-              class="team-card"
-              data-ucl-club-card
-              data-league={leagueFilter}
-              data-pot={pot}
-              href={href}
-            >
-              {inner}
-            </a>
-          ) : (
-            <div
-              class="team-card is-disabled"
-              data-ucl-club-card
-              data-league={leagueFilter}
-              data-pot={pot}
-            >
-              {inner}
+                <span class="badge">{leagueInfo.label}</span>
+              </div>
+
+              <div class="team-card-actions">
+                {href ? (
+                  <a class="team-card-link" href={href}>
+                    👕メンバー一覧へ
+                  </a>
+                ) : (
+                  <span class="team-card-link is-disabled">メンバー一覧へ</span>
+                )}
+
+                <button
+                  type="button"
+                  class="team-card-opponents"
+                  data-ucl-opponents-button
+                  data-club-key={clubKey}
+                  disabled={!clubKey}
+                >
+                  🔎 対戦相手を見る
+                </button>
+              </div>
             </div>
           );
         })
       }
     </div>
+  </section>
+
+  <section id="league-phase-schedule">
+    <h2>🏟 リーグフェーズ(LP) 日程・結果</h2>
+
+    <div class="ucl-lp-filter-status" id="ucl-lp-filter-status" hidden>
+      <span id="ucl-lp-filter-status-text" class="ucl-focus-action"></span>
+
+      <button
+        type="button"
+        id="ucl-jump-to-clubs"
+        class="ucl-focus-action ucl-focus-button"
+      >
+        ↑ 出場クラブ一覧へ戻る
+      </button>
+
+      <button type="button" id="ucl-lp-filter-clear"> 選択をリセット </button>
+    </div>
+
+    <MatchScheduleTable
+      matches={leaguePhaseMatches}
+      heading={`UCL ${season} リーグフェーズ`}
+      showMatchLinks={false}
+    />
   </section>
 
   <section id="league-phase">
@@ -485,6 +583,7 @@ const runnerUpHref = summary?.runner_up_club_key
     <MatchScheduleTable
       matches={knockoutMatches}
       heading={`UCL ${season} 決勝トーナメント`}
+      showMatchLinks={false}
     />
   </section>
 
@@ -811,11 +910,57 @@ const runnerUpHref = summary?.runner_up_club_key
       border-radius: 14px;
       background: #fff;
       color: #111;
-      text-decoration: none;
     }
 
-    .page-ucl .team-card:hover {
-      background: #eef6fd;
+    .page-ucl .team-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-ucl .team-card-link,
+    .page-ucl .team-card-opponents {
+      padding: 0;
+      min-height: auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page-ucl .team-card-link {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-ucl .team-card-link:hover {
+      color: #fff;
+      background: var(--theme-color);
+    }
+
+    .page-ucl .team-card-opponents {
+      color: #c0392b;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-ucl .team-card-opponents:hover {
+      background: color-mix(in srgb, var(--theme-color) 7%, white);
+    }
+
+    .page-ucl .team-card-link.is-disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .page-ucl .team-card-opponents:disabled {
+      opacity: 0.45;
+      cursor: default;
     }
 
     .page-ucl .team-card.is-disabled {
@@ -831,6 +976,111 @@ const runnerUpHref = summary?.runner_up_club_key
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
+    }
+
+    /* ===== LP対戦相手ハイライト ===== */
+
+    .page-ucl .team-card {
+      transition:
+        opacity 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    /* 選択したクラブ */
+    .page-ucl .team-card.is-selected-club {
+      opacity: 1;
+      background: color-mix(in srgb, var(--theme-color) 13%, white);
+      border-color: var(--theme-color);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--theme-color) 18%, transparent);
+    }
+
+    /* 対戦相手 */
+    .page-ucl .team-card.is-opponent-club {
+      opacity: 1;
+      background: color-mix(in srgb, var(--theme-color) 5%, white);
+      border-color: color-mix(in srgb, var(--theme-color) 55%, #e6e6e6);
+    }
+
+    /* 非対戦クラブ */
+    .page-ucl .team-card.is-dimmed-club {
+      opacity: 0.28;
+    }
+
+    /* 選択中ボタン */
+    .page-ucl .team-card-opponents.is-active {
+      color: #c0392b;
+      font-size: 16px;
+      font-weight: 1200;
+      text-decoration: none;
+    }
+
+    /* 選択状態説明 */
+    .page-ucl .ucl-opponent-status,
+    .page-ucl .ucl-lp-filter-status {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 12px;
+      margin: 12px 0 10px;
+    }
+
+    .page-ucl #ucl-opponent-status-text,
+    .page-ucl #ucl-lp-filter-status-text {
+      flex-basis: 100%;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.5;
+      color: #c0392b;
+    }
+
+    .page-ucl .ucl-opponent-status[hidden] {
+      display: none;
+    }
+
+    .page-ucl .ucl-lp-filter-status[hidden] {
+      display: none;
+    }
+
+    /* ===== 対戦可視化機能の操作色 ===== */
+
+    .page-ucl .ucl-focus-action {
+      color: var(--theme-color);
+      font-weight: 800;
+    }
+
+    .page-ucl .ucl-focus-button {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font-size: 14px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .page-ucl .ucl-focus-button:hover {
+      color: #922b21;
+      background: transparent;
+    }
+
+    .page-ucl #clubs,
+    .page-ucl #league-phase-schedule {
+      scroll-margin-top: 80px;
+    }
+
+    .page-ucl #ucl-opponent-clear {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #c0392b;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
     }
 
     .page-ucl .badge {
@@ -931,17 +1181,29 @@ const runnerUpHref = summary?.runner_up_club_key
     }
 
     .page-ucl .summaryGrid a {
-      color: #2f855a;
+      color: var(--theme-color);
       font-weight: 700;
     }
 
     .page-ucl .summaryGrid a:hover {
-      color: #2f855a;
+      color: var(--theme-color);
     }
 
     .page-ucl .club-link {
-      color: #2f855a;
+      color: var(--theme-color);
       font-weight: 600;
+    }
+
+    .page-ucl #ucl-lp-filter-clear {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #c0392b;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
     }
   </style>
 
@@ -952,6 +1214,30 @@ const runnerUpHref = summary?.runner_up_club_key
       const leaguePills = $$("#ucl-league-pills [data-league]");
       const potPills = $$("#ucl-pot-pills [data-pot]");
       const cards = $$("[data-ucl-club-card]");
+      const opponentButtons = $$("[data-ucl-opponents-button]");
+      const opponentStatus = document.getElementById("ucl-opponent-status");
+      const opponentStatusText = document.getElementById(
+        "ucl-opponent-status-text",
+      );
+      const opponentClear = document.getElementById("ucl-opponent-clear");
+
+      const leaguePhaseMatchRows = $$(
+        "#league-phase-schedule [data-match-row]",
+      );
+
+      const lpFilterStatus = document.getElementById("ucl-lp-filter-status");
+
+      const lpFilterStatusText = document.getElementById(
+        "ucl-lp-filter-status-text",
+      );
+
+      const lpFilterClear = document.getElementById("ucl-lp-filter-clear");
+
+      const jumpToSchedule = document.getElementById("ucl-jump-to-schedule");
+
+      const jumpToClubs = document.getElementById("ucl-jump-to-clubs");
+
+      let selectedClubKey = "";
 
       let currentLeague = "";
       let currentPot = "";
@@ -968,6 +1254,185 @@ const runnerUpHref = summary?.runner_up_club_key
           card.style.display = okLeague && okPot ? "" : "none";
         });
       }
+
+      function resetOpponentHighlight() {
+        selectedClubKey = "";
+
+        cards.forEach((card) => {
+          card.classList.remove(
+            "is-selected-club",
+            "is-opponent-club",
+            "is-dimmed-club",
+          );
+        });
+
+        opponentButtons.forEach((button) => {
+          button.classList.remove("is-active");
+          button.textContent = "🔎 対戦相手を見る";
+          button.setAttribute("aria-pressed", "false");
+        });
+
+        if (opponentStatus) {
+          opponentStatus.hidden = true;
+        }
+
+        if (opponentStatusText) {
+          opponentStatusText.textContent = "";
+        }
+
+        resetLeaguePhaseMatchFilter();
+      }
+
+      function resetClubFilters() {
+        currentLeague = "";
+        currentPot = "";
+
+        leaguePills.forEach((pill) => {
+          pill.classList.toggle(
+            "is-active",
+            (pill.getAttribute("data-league") || "") === "",
+          );
+        });
+
+        potPills.forEach((pill) => {
+          pill.classList.toggle(
+            "is-active",
+            (pill.getAttribute("data-pot") || "") === "",
+          );
+        });
+
+        applyFilter();
+      }
+
+      function selectClub(card, button) {
+        const clubKey = card.getAttribute("data-club-key") || "";
+
+        if (!clubKey) return;
+
+        // 同じクラブをもう一度押したら解除
+        if (selectedClubKey === clubKey) {
+          resetOpponentHighlight();
+          return;
+        }
+
+        selectedClubKey = clubKey;
+
+        // 対戦関係を見る時は36クラブ全部を表示する
+        resetClubFilters();
+
+        const opponents = new Set(
+          (card.getAttribute("data-opponents") || "")
+            .split("|")
+            .filter(Boolean),
+        );
+
+        cards.forEach((targetCard) => {
+          const targetKey = targetCard.getAttribute("data-club-key") || "";
+
+          targetCard.classList.remove(
+            "is-selected-club",
+            "is-opponent-club",
+            "is-dimmed-club",
+          );
+
+          if (targetKey === clubKey) {
+            targetCard.classList.add("is-selected-club");
+          } else if (opponents.has(targetKey)) {
+            targetCard.classList.add("is-opponent-club");
+          } else {
+            targetCard.classList.add("is-dimmed-club");
+          }
+        });
+
+        opponentButtons.forEach((targetButton) => {
+          const targetKey = targetButton.getAttribute("data-club-key") || "";
+
+          const active = targetKey === clubKey;
+
+          targetButton.classList.toggle("is-active", active);
+          targetButton.setAttribute("aria-pressed", active ? "true" : "false");
+
+          targetButton.textContent = active ? "✓ 選択中" : "🔎 対戦相手を見る";
+        });
+
+        const clubName =
+          card.querySelector(".name")?.textContent?.trim() || clubKey;
+
+        applyLeaguePhaseMatchFilter(clubKey, clubName);
+
+        if (opponentStatus && opponentStatusText) {
+          opponentStatusText.textContent = `※ ${clubName}のLP対戦カード（絞込表示中）`;
+
+          opponentStatus.hidden = false;
+        }
+
+        lpFilterClear?.addEventListener("click", () => {
+          resetOpponentHighlight();
+        });
+      }
+
+      function resetLeaguePhaseMatchFilter() {
+        leaguePhaseMatchRows.forEach((row) => {
+          row.style.display = "";
+        });
+
+        if (lpFilterStatus) {
+          lpFilterStatus.hidden = true;
+        }
+
+        if (lpFilterStatusText) {
+          lpFilterStatusText.textContent = "";
+        }
+      }
+
+      function applyLeaguePhaseMatchFilter(clubKey, clubName) {
+        if (!clubKey) {
+          resetLeaguePhaseMatchFilter();
+          return;
+        }
+
+        let visibleCount = 0;
+
+        leaguePhaseMatchRows.forEach((row) => {
+          const homeKey = row.getAttribute("data-home-key") || "";
+
+          const awayKey = row.getAttribute("data-away-key") || "";
+
+          const visible = homeKey === clubKey || awayKey === clubKey;
+
+          row.style.display = visible ? "" : "none";
+
+          if (visible) {
+            visibleCount++;
+          }
+        });
+
+        if (lpFilterStatus && lpFilterStatusText) {
+          lpFilterStatusText.textContent = `※ ${clubName}のLP対戦カード（絞込表示中）（${visibleCount}試合）`;
+
+          lpFilterStatus.hidden = false;
+        }
+      }
+
+      opponentButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", "false");
+
+        button.addEventListener("click", () => {
+          const clubKey = button.getAttribute("data-club-key") || "";
+
+          const card = cards.find(
+            (item) => (item.getAttribute("data-club-key") || "") === clubKey,
+          );
+
+          if (!card) return;
+
+          selectClub(card, button);
+        });
+      });
+
+      opponentClear?.addEventListener("click", () => {
+        resetOpponentHighlight();
+      });
 
       leaguePills.forEach((pill) => {
         pill.addEventListener("click", () => {
@@ -990,6 +1455,20 @@ const runnerUpHref = summary?.runner_up_club_key
           });
 
           applyFilter();
+        });
+      });
+
+      jumpToSchedule?.addEventListener("click", () => {
+        document.getElementById("league-phase-schedule")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+
+      jumpToClubs?.addEventListener("click", () => {
+        document.getElementById("clubs")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
         });
       });
 

@@ -64,3 +64,13 @@ export function findCtSeasonMeta(
     ) ?? null
   );
 }
+
+export function isCtSeasonMetaUcl(
+  row: CtSeasonMetaRow | null | undefined,
+): boolean {
+  return (
+    String(row?.uefa_cup ?? "")
+      .trim()
+      .toUpperCase() === "CL"
+  );
+}

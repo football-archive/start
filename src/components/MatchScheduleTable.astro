@@ -6,10 +6,10 @@ import { formatScore, isPlayed } from "../lib/competitionSchedule";
 type Props = {
   matches: MatchRow[];
   heading?: string;
-  /** 内部スクロールにしたいなら true（デフォルトtrue） */
   scroll?: boolean;
-  /** scroll=true のときの高さ */
   maxHeight?: number;
+  /** 試合詳細ページへのリンクを有効にする */
+  showMatchLinks?: boolean;
 };
 
 const {
@@ -17,6 +17,7 @@ const {
   heading = "日程・結果",
   scroll = true,
   maxHeight = 560,
+  showMatchLinks = true,
 } = Astro.props;
 
 // 1つのtableに「ステージ区切り行」を挟む
@@ -80,7 +81,12 @@ for (const m of matches) {
 
             const m = r.m;
             return (
-              <tr class={isPlayed(m) ? "played" : ""}>
+              <tr
+                class={isPlayed(m) ? "played" : ""}
+                data-match-row
+                data-home-key={m.homeKey}
+                data-away-key={m.awayKey}
+              >
                 <td class="col-dt">{(m as any)["datetimeLocal"]}</td>
                 <td class="col-sec">{(m as any).sec || "—"}</td>
                 {/* ✅ “G”は付けずに A/B/... だけ */}
@@ -100,7 +106,7 @@ for (const m of matches) {
                     const score = formatScore(m);
                     const slug = String((m as any).slug ?? "").trim();
 
-                    if (!slug || !isPlayed(m)) {
+                    if (!showMatchLinks || !slug || !isPlayed(m)) {
                       return <b>{score}</b>;
                     }
 

@@ -1,7 +1,11 @@
 ---
 import BaseLayout from "../../../../../layouts/BaseLayout.astro";
 
-import { loadClubSquads, sortClubRoster } from "../../../../../lib/clubSquads";
+import {
+  loadClubSquads,
+  sortClubRoster,
+  applyClubStatsMode,
+} from "../../../../../lib/clubSquads";
 import { loadClubMaster } from "../../../../../lib/clubMaster";
 import { loadLeagueMaster } from "../../../../../lib/leagueMaster";
 
@@ -30,6 +34,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { clubUrl } from "../../../../../lib/urls";
+
+import { hasClubUclMode } from "../../../../../lib/clubCompetitionMode";
 
 // --------------------
 // getStaticPaths：keyで生成
@@ -61,6 +67,12 @@ export async function getStaticPaths() {
 const league_key = Astro.params.league_key!;
 const club_key = Astro.params.club_key!;
 const routeSeason = String(Astro.params.season ?? "").trim();
+
+const hasUclMode = hasClubUclMode({
+  season: routeSeason,
+  leagueKey: league_key,
+  clubKey: club_key,
+});
 
 // --------------------
 // master 参照：表示名（日本語）をここで確定
@@ -329,16 +341,23 @@ const seasonPacks: SeasonPack[] = seasonCandidates.map((s) => {
   const summerSnapMax = maxSnapIn(summerRows);
   const winterSnapMax = maxSnapIn(winterRows);
 
-  const rosterSummer = sortClubRoster(
+const rosterSummer = applyClubStatsMode(
+  sortClubRoster(
     summerRows.filter(
       (r) => toYMD(String(r.snapshot_date ?? "")) === summerSnapMax,
     ),
-  );
-  const rosterWinter = sortClubRoster(
+  ),
+  "domestic",
+);
+
+const rosterWinter = applyClubStatsMode(
+  sortClubRoster(
     winterRows.filter(
       (r) => toYMD(String(r.snapshot_date ?? "")) === winterSnapMax,
     ),
-  );
+  ),
+  "domestic",
+);
 
   const hasSummer = rosterSummer.length > 0;
   const hasWinter = rosterWinter.length > 0;
@@ -729,6 +748,23 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       );
     })
   }
+
+{
+  hasUclMode && (
+    <div class="club-mode-switch">
+      <span class="club-mode-current">
+        -- 国内モード表示中 --
+      </span>
+
+      <a
+        class="club-mode-switch-link club-mode-switch-link-ucl"
+        href={`/ucl/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
+      >
+        CLモードへ切替
+      </a>
+    </div>
+  )
+}
 
   {
     seasonPacks.map((p) => {
@@ -1636,6 +1672,73 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       font-size: 16px;
       line-height: 1.6;
       color: #666;
+    }
+
+        .page-club .club-mode-switch {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 10px;
+      margin: 8px 0 4px;
+      flex-wrap: wrap;
+    }
+
+.page-club .club-mode-current {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--color-club-accent);
+  white-space: nowrap;
+}
+
+    .page-club .club-mode-switch-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 38px;
+      padding: 8px 15px;
+      border-radius: 999px;
+      font-size: 15px;
+      font-weight: 900;
+      line-height: 1;
+      text-decoration: none;
+      box-shadow: 0 2px 7px rgba(0, 0, 0, 0.16);
+      transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        opacity 0.08s ease;
+    }
+
+    .page-club .club-mode-switch-link-ucl {
+      color: #fff;
+      background: var(--color-ucl);
+      border: 2px solid var(--color-ucl);
+    }
+
+    .page-club .club-mode-switch-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 640px) {
+      .page-club .club-mode-switch {
+        gap: 7px;
+        margin-top: 7px;
+      }
+
+      .page-club .club-mode-current {
+        min-height: 31px;
+        padding: 5px 9px;
+        font-size: 12px;
+      }
+
+      .page-club .club-mode-switch-link {
+        min-height: 34px;
+        padding: 7px 11px;
+        font-size: 13px;
+      }
     }
 
     @media (max-width: 640px) {

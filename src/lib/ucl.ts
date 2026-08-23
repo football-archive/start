@@ -145,3 +145,19 @@ export function loadUclLeaguePhaseBySeason(
   rows.sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
   return rows;
 }
+
+export function hasUclLeaguePhaseClub(
+  season: string,
+  clubKey: string,
+): boolean {
+  const targetSeason = String(season ?? "").trim();
+  const targetClubKey = String(clubKey ?? "").trim();
+
+  if (!targetSeason || !targetClubKey) return false;
+
+  return loadUclLeaguePhaseAll().some(
+    (r) =>
+      String(r.season ?? "").trim() === targetSeason &&
+      String(r.club_key ?? "").trim() === targetClubKey,
+  );
+}

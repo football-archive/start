@@ -36,6 +36,12 @@ export type ClubSquadRow = {
   starts?: string;
   goals?: string;
   assists?: string;
+
+  // UEFA competition stats
+  uefa_apps?: string;
+  uefa_starts?: string;
+  uefa_goals?: string;
+  uefa_assists?: string;
 };
 
 function parseCSVLine(line: string): string[] {
@@ -164,6 +170,11 @@ export function loadClubSquads(): ClubSquadRow[] {
       starts: r.starts ?? "",
       goals: r.goals ?? "",
       assists: r.assists ?? "",
+
+      uefa_apps: r.uefa_apps ?? "",
+      uefa_starts: r.uefa_starts ?? "",
+      uefa_goals: r.uefa_goals ?? "",
+      uefa_assists: r.uefa_assists ?? "",
     });
   }
 
@@ -211,4 +222,25 @@ export function sortClubRoster(rows?: ClubSquadRow[] | null): ClubSquadRow[] {
 
     return nameKey(a).localeCompare(nameKey(b), "ja");
   });
+}
+
+export type ClubStatsMode = "domestic" | "uefa";
+
+export function applyClubStatsMode(
+  rows: ClubSquadRow[],
+  mode: ClubStatsMode,
+): ClubSquadRow[] {
+  // 国内モードは今までの値をそのまま使う
+  if (mode === "domestic") {
+    return rows;
+  }
+
+  // UEFAモードでは、表示用の4項目だけUEFA成績へ差し替える
+  return rows.map((r) => ({
+    ...r,
+    apps: r.uefa_apps ?? "",
+    starts: r.uefa_starts ?? "",
+    goals: r.uefa_goals ?? "",
+    assists: r.uefa_assists ?? "",
+  }));
 }

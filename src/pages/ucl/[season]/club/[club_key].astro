@@ -1,0 +1,599 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+
+import { loadClubMaster } from "../../../../lib/clubMaster";
+import { loadLeagueMaster } from "../../../../lib/leagueMaster";
+
+import {
+  loadCtSeasonMeta,
+  findCtSeasonMeta,
+  isCtSeasonMetaUcl,
+} from "../../../../lib/ctSeasonMeta";
+
+import {
+  loadUclLeaguePhaseAll,
+  hasUclLeaguePhaseClub,
+} from "../../../../lib/ucl";
+
+import {
+  loadClubSquads,
+  sortClubRoster,
+  applyClubStatsMode,
+} from "../../../../lib/clubSquads";
+
+import RosterView from "../../../../components/RosterView.astro";
+import { buildClubColumns } from "../../../../lib/rosterColumns";
+import { toYMD } from "../../../../lib/rosterFormat";
+
+import { loadCallups } from "../../../../lib/callups";
+import {
+  buildRepLabelFromCallups,
+  buildRepHistoryLinksFromCallups,
+} from "../../../../lib/repCandidate";
+
+import { seasonShort } from "../../../../lib/seasonFormat";
+
+import { hasClubUclMode } from "../../../../lib/clubCompetitionMode";
+
+// --------------------
+// getStaticPaths
+// ct_season_meta = CL
+// ＋ ucl_league_phase に存在
+// の両方を満たすページだけ生成
+// --------------------
+export async function getStaticPaths() {
+  const metaRows = loadCtSeasonMeta();
+
+  const targets = metaRows.filter((meta) => {
+    const season = String(meta.season ?? "").trim();
+    const leagueKey = String(meta.league_key ?? "").trim();
+    const clubKey = String(meta.club_key ?? "").trim();
+
+    return hasClubUclMode({
+      season,
+      leagueKey,
+      clubKey,
+    });
+  });
+
+  return targets.map((meta) => ({
+    params: {
+      season: meta.season,
+      club_key: meta.club_key,
+    },
+    props: {
+      league_key: meta.league_key,
+    },
+  }));
+}
+
+const season = String(Astro.params.season ?? "").trim();
+const club_key = String(Astro.params.club_key ?? "").trim();
+
+const { league_key } = Astro.props as {
+  league_key: string;
+};
+
+const clubMaster = loadClubMaster();
+const leagueMaster = loadLeagueMaster();
+
+const clubInfo = clubMaster.find(
+  (c) => String(c.club_key ?? "").trim() === club_key,
+);
+
+const leagueInfo = leagueMaster.find(
+  (l) => String(l.league_key ?? "").trim() === league_key,
+);
+
+const clubLabel = clubInfo?.club_display_ja ?? club_key;
+const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
+
+// 念のため、このページ自身でも正本を再確認
+const ctMetaAll = loadCtSeasonMeta();
+
+const ctMeta = findCtSeasonMeta(ctMetaAll, {
+  season,
+  league_key,
+  club_key,
+});
+
+// --------------------
+// CLモードで表示できるシーズン一覧
+// ct_season_meta = CL
+// ＋ ucl_league_phase に club + season が存在
+// --------------------
+const uclSeasonCandidates = ctMetaAll
+  .filter((r) => {
+    const targetSeason = String(r.season ?? "").trim();
+
+    return (
+      String(r.league_key ?? "").trim() === league_key &&
+      String(r.club_key ?? "").trim() === club_key &&
+      hasClubUclMode({
+        season: targetSeason,
+        leagueKey: league_key,
+        clubKey: club_key,
+      })
+    );
+  })
+  .map((r) => String(r.season ?? "").trim())
+  .filter(Boolean);
+
+// 念のため重複除去＋新しい順
+const uclSeasons = [...new Set(uclSeasonCandidates)].sort((a, b) =>
+  b.localeCompare(a),
+);
+
+const uclClubUrl = (targetSeason: string) =>
+  `/ucl/${encodeURIComponent(targetSeason)}` +
+  `/club/${encodeURIComponent(club_key)}/`;
+
+const uclResult = String(ctMeta?.uefa_cup_rank ?? "").trim();
+
+// --------------------
+// CLリーグフェーズ情報
+// rank / pot は ucl_league_phase.csv から取得
+// --------------------
+const uclLeaguePhaseRows = loadUclLeaguePhaseAll();
+
+const uclLeaguePhaseRow = uclLeaguePhaseRows.find(
+  (r) =>
+    String(r.season ?? "").trim() === season &&
+    String(r.club_key ?? "").trim() === club_key,
+);
+
+const leaguePhaseRank = String(uclLeaguePhaseRow?.rank ?? "").trim();
+const pot = String(uclLeaguePhaseRow?.pot ?? "").trim();
+
+const hasValidUclMode = hasClubUclMode({
+  season,
+  leagueKey: league_key,
+  clubKey: club_key,
+});
+
+// --------------------
+// CLモード用 roster
+// 当該seasonの最新snapshotを1枚だけ使用
+// window（summer / winter）は画面には持ち込まない
+// --------------------
+const allClubSquadRows = loadClubSquads();
+
+const clubSeasonRows = allClubSquadRows.filter(
+  (r) =>
+    String(r.league_key ?? "").trim() === league_key &&
+    String(r.club_key ?? "").trim() === club_key &&
+    String(r.season ?? "").trim() === season,
+);
+
+let latestSnapshot = "";
+
+for (const r of clubSeasonRows) {
+  const snap = toYMD(String(r.snapshot_date ?? ""));
+
+  if (snap && snap > latestSnapshot) {
+    latestSnapshot = snap;
+  }
+}
+
+const latestRosterRows = clubSeasonRows.filter(
+  (r) => toYMD(String(r.snapshot_date ?? "")) === latestSnapshot,
+);
+
+const roster = applyClubStatsMode(sortClubRoster(latestRosterRows), "uefa");
+
+// --------------------
+// 代表情報
+// 国内クラブページと同じロジックを使用
+// --------------------
+const callups = loadCallups();
+
+const { repLabel, repLinks } = buildRepLabelFromCallups(callups, {
+  competition: "WC",
+  edition: 2026,
+});
+
+const repHistoryLinks = buildRepHistoryLinksFromCallups(callups, {
+  competition: "WC",
+  excludeEdition: 2026,
+  max: 6,
+});
+
+const columns = buildClubColumns({
+  isLatestView: true,
+  repLabel,
+  repLinks,
+  repHistoryLinks,
+
+  // CLページでは出場成績が主役なので常時表示
+  showStats: true,
+});
+
+const searchTextFn = (r: any) =>
+  `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
+
+const clubRosterRowClass = (r: any) => {
+  const note = String(r.notes ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (note.includes("new")) return "row-new";
+  if (note.includes("out")) return "row-out";
+
+  return "";
+};
+
+// 国内ページへ戻るURL
+const domesticUrl =
+  `/clubs/${encodeURIComponent(league_key)}` +
+  `/club/${encodeURIComponent(club_key)}` +
+  `/${encodeURIComponent(season)}/`;
+
+const clubTopUrl =
+  `/clubs/${encodeURIComponent(league_key)}` +
+  `/club/${encodeURIComponent(club_key)}/`;
+
+const uclSeasonTopUrl =
+  `/ucl/${encodeURIComponent(season)}/`;
+
+const domesticLeagueLinks = leagueMaster
+  .filter((l: any) => (l.is_public ?? true) === true)
+  .filter((l: any) => String(l.league_key ?? "").trim())
+  .map((l: any) => ({
+    key: String(l.league_key ?? "").trim(),
+    label:
+      String(l.league_display_ja ?? "").trim() ||
+      String(l.league_key ?? "").trim(),
+  }));
+
+// SEO：ひとまずCL専用ページとして独立
+const title =
+  `${clubLabel} CL ${season}メンバー・出場成績` + `｜UEFAチャンピオンズリーグ`;
+
+const description =
+  `${clubLabel}の${season}シーズンUEFAチャンピオンズリーグ` +
+  `メンバー・出場成績を掲載。出場試合数・先発数・ゴール・アシストを確認できます。`;
+
+const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-ucl"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "CL", href: "/ucl/" },
+    { label: season, href: `/ucl/${encodeURIComponent(season)}/` },
+    { label: clubLabel },
+  ]}
+  heading={heading}
+>
+  <h1 class="ucl-club-title">
+    {heading}
+  </h1>
+
+  {
+    hasValidUclMode && (
+      <>
+        <p class="ucl-club-lead">
+          {clubLabel}の{season}シーズン UEFAチャンピオンズリーグ
+          メンバー・出場成績ページです。
+        </p>
+
+        <div class="club-mode-switch">
+          <span class="club-mode-current">-- CLモード表示中 --</span>
+
+          <a
+            class="club-mode-switch-link club-mode-switch-link-domestic"
+            href={domesticUrl}
+          >
+            国内モードへ切替
+          </a>
+        </div>
+
+        {(uclResult || leaguePhaseRank || pot) && (
+  <div class="ucl-club-meta">
+    {uclResult && <>🏆 CL：{uclResult}</>}
+
+    {uclResult && leaguePhaseRank && " ｜ "}
+
+    {leaguePhaseRank && (
+      <>リーグフェーズ {leaguePhaseRank}位</>
+    )}
+
+    {(uclResult || leaguePhaseRank) && pot && " ｜ "}
+
+    {pot && <>ポット{pot}</>}
+  </div>
+)}
+
+        {uclSeasons.length > 1 && (
+          <div class="ucl-season-block">
+            <div class="ucl-season-label">
+              🔎 {clubLabel}のCL出場シーズンを見る
+            </div>
+
+            <div class="ucl-season-pills">
+              {uclSeasons.map((s) => (
+                <a
+                  class={`ucl-season-pill ${s === season ? "is-active" : ""}`}
+                  href={uclClubUrl(s)}
+                >
+                  {seasonShort(s)}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div class="ucl-guide">
+  <p class="ucl-guide-link">
+    <a href={clubTopUrl}>
+      🔎 {clubLabel} ポータルページを見る
+    </a>
+  </p>
+
+  <p class="ucl-guide-link">
+    <a href={uclSeasonTopUrl}>
+      🔎 CL {seasonShort(season)}トップへ
+    </a>
+  </p>
+
+  {domesticLeagueLinks.length > 0 && (
+    <div class="ucl-domestic-leagues">
+      <div class="ucl-guide-label">
+        🔎 各国の国内リーグを見る
+      </div>
+
+      <div class="ucl-league-pills">
+        {domesticLeagueLinks.map((item) => (
+          <a
+            class="ucl-league-pill"
+            href={`/clubs/${encodeURIComponent(item.key)}/`}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+        {roster.length > 0 ? (
+          <RosterView
+            tableId={`ucl-club-roster-${season}-${club_key}`}
+            rows={roster}
+            minWidthPx={920}
+            borderColor="var(--border, #e6e6e6)"
+            placeholder="検索：選手名 / 国名 / 国籍"
+            searchText={searchTextFn}
+            columns={columns}
+            rowClass={clubRosterRowClass}
+          />
+        ) : (
+          <p>選手データがありません。</p>
+        )}
+      </>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .ucl-club-lead {
+    margin: 0 0 8px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  .club-mode-switch {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 18px;
+    flex-wrap: wrap;
+  }
+
+  .club-mode-current {
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--theme-color);
+    white-space: nowrap;
+  }
+
+  .club-mode-switch-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.16);
+  }
+
+  .club-mode-switch-link-domestic {
+    color: #fff;
+    background: var(--color-club-accent);
+    border: 2px solid var(--color-club-accent);
+  }
+
+  :global(.mob-stat-line) {
+    display: none;
+  }
+
+
+
+  .ucl-season-pill {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  }
+
+  .ucl-club-title {
+    margin: 4px 0 8px;
+    font-size: 28px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .ucl-club-meta {
+    margin: 4px 0 18px;
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 700;
+  }
+
+  .ucl-season-block {
+  margin: 8px 0 14px;
+}
+
+.ucl-season-label {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+.ucl-season-pills {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.ucl-season-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid #b8bec8;
+  border-radius: 999px;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.ucl-season-pill.is-active {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ucl-season-pill:hover {
+  border-color: var(--theme-color);
+}
+
+.ucl-guide {
+  margin: 10px 0 18px;
+}
+
+.ucl-guide-link {
+  margin: 5px 0;
+  font-weight: 700;
+}
+
+.ucl-guide-link a {
+  color: var(--theme-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ucl-domestic-leagues {
+  margin-top: 12px;
+}
+
+.ucl-guide-label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+.ucl-league-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.ucl-league-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-club-accent) 45%, #d1d5db);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-club-accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ucl-league-pill:hover {
+  border-color: var(--color-club-accent);
+  background: color-mix(
+    in srgb,
+    var(--color-club-accent) 7%,
+    #fff
+  );
+}
+
+.ucl-league-pill:hover {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+}
+
+ @media (max-width: 640px) {
+    .club-mode-switch {
+      gap: 7px;
+    }
+
+    .club-mode-current {
+      font-size: 12px;
+    }
+
+    .club-mode-switch-link {
+      min-height: 34px;
+      padding: 7px 11px;
+      font-size: 13px;
+    }
+
+    :global(.mob-stat-line) {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--meta-color, #2f4f46);
+    }
+
+    .ucl-club-title {
+      font-size: 23px;
+    }
+
+    .ucl-season-pills {
+    gap: 6px;
+    }
+ }
+</style>
