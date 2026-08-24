@@ -365,6 +365,17 @@ const opponentClubHref = (targetClubKey: string) => {
 
   if (!opponentLeagueKey) return "";
 
+  // ★ 実際にそのseasonのCLクラブページが生成される場合だけリンク
+  if (
+    !hasClubUclMode({
+      season,
+      leagueKey: opponentLeagueKey,
+      clubKey: key,
+    })
+  ) {
+    return "";
+  }
+
   return (
     `/ucl/${encodeURIComponent(season)}` +
     `/club/${encodeURIComponent(key)}/`
@@ -607,24 +618,28 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
                 <td class="match-result-game">
                   <div class="match-result-game-line">
                     <span class="match-team match-team-home">
-                      {homeHref ? (
-                        <a href={homeHref}>{m.home}</a>
-                      ) : (
-                        <span>{m.home}</span>
-                      )}
-                    </span>
+  {homeHref ? (
+    <a href={homeHref}>{m.home}</a>
+  ) : (
+    <span class:list={{ "match-team-current": m.home_key === club_key }}>
+      {m.home}
+    </span>
+  )}
+</span>
 
                     <span class="match-vs" aria-hidden="true">
                       vs
                     </span>
 
-                    <span class="match-team match-team-away">
-                      {awayHref ? (
-                        <a href={awayHref}>{m.away}</a>
-                      ) : (
-                        <span>{m.away}</span>
-                      )}
-                    </span>
+<span class="match-team match-team-away">
+  {awayHref ? (
+    <a href={awayHref}>{m.away}</a>
+  ) : (
+    <span class:list={{ "match-team-current": m.away_key === club_key }}>
+      {m.away}
+    </span>
+  )}
+</span>
                   </div>
                 </td>
 
@@ -690,7 +705,7 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
   }
 
   .club-mode-current {
-    font-size: 14px;
+    font-size: 20px;
     font-weight: 800;
     line-height: 1;
     color: var(--theme-color);
@@ -1062,5 +1077,14 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
   color: var(--theme-color);
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+.match-team-current {
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--theme-color) 12%, #fff);
+  color: var(--theme-color);
+  font-weight: 900;
 }
 </style>
