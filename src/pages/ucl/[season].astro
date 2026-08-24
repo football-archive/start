@@ -26,6 +26,12 @@ export function getStaticPaths() {
 
 const season = String(Astro.params.season ?? "").trim();
 
+/* ===== 決勝トーナメント表 ===== */
+const bracketSeasons = new Set(["2024-25", "2025-26"]);
+
+const hasTournamentBracket = bracketSeasons.has(season);
+const tournamentBracketSrc = `/images/brackets/ucl-${season}.svg`;
+
 const rows = loadUclLeaguePhaseBySeason(season);
 
 const clubMaster = loadClubMaster();
@@ -235,7 +241,7 @@ const updated = rows[0]?.updated_at
   ? String(rows[0].updated_at).replaceAll("-", "/")
   : "—";
 
-const title = `UEFAチャンピオンズリーグ ${season}｜出場クラブ・順位表・日程結果・得点ランキング｜海外サッカーDB`;
+const title = `UEFAチャンピオンズリーグ ${season}｜組み合わせ・出場クラブ・順位表・日程結果｜海外サッカーDB`;
 
 // under-title に “シーズンピル” を出す
 const seasons = getUclSeasons()
@@ -272,7 +278,7 @@ const runnerUpHref = summary?.runner_up_club_key
   <p class="lead">
     UEFAチャンピオンズリーグ（CL）{
       season
-    }シーズンの出場クラブ、リーグフェーズ順位表、決勝トーナメント日程・結果、得点・アシストランキングをまとめた大会ポータルページです。
+    }シーズンの抽選結果・組み合わせ、出場クラブ、リーグフェーズ順位表、日程・結果、決勝トーナメント、得点・アシストランキングをまとめた大会ポータルページです。
   </p>
 
   <div class="pill-block">
@@ -586,6 +592,33 @@ const runnerUpHref = summary?.runner_up_club_key
       showMatchLinks={false}
     />
   </section>
+
+  {
+    hasTournamentBracket && (
+      <section id="tournament-bracket" class="ucl-bracket-section">
+        <h2>🏆 ノックアウトフェーズ(KP) 決勝トーナメント表</h2>
+
+        <p class="note ucl-bracket-note">
+          ラウンド16以降の組み合わせ、2戦合計スコア、決勝までの勝ち上がりを一覧で確認できます。
+        </p>
+
+        <div class="tournament-bracket-wrap">
+          <img
+            class="tournament-bracket-image"
+            src={tournamentBracketSrc}
+            alt={`UEFAチャンピオンズリーグ ${season} 決勝トーナメント表`}
+            loading="lazy"
+          />
+        </div>
+
+        <p class="tournament-bracket-open">
+          <a href={`/ucl/${season}/bracket/`} target="_blank" rel="noopener">
+            トーナメント表を大きく表示する →
+          </a>
+        </p>
+      </section>
+    )
+  }
 
   <section id="rankings">
     <h2>🥇 得点・アシストランキング</h2>
@@ -1204,6 +1237,46 @@ const runnerUpHref = summary?.runner_up_club_key
       text-decoration: underline;
       text-underline-offset: 2px;
       cursor: pointer;
+    }
+
+    /* ===== UCL 決勝トーナメント表 ===== */
+
+    .page-ucl .ucl-bracket-section {
+      margin: 18px 0;
+    }
+
+    .page-ucl .ucl-bracket-note {
+      margin: 6px 0 10px;
+    }
+
+    .page-ucl .tournament-bracket-wrap {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ucl .tournament-bracket-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .page-ucl .tournament-bracket-open {
+      margin: 8px 0 0;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      .page-ucl .tournament-bracket-image {
+        width: 1100px;
+        max-width: none;
+      }
     }
   </style>
 

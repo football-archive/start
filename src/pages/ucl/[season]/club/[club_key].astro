@@ -35,6 +35,10 @@ import { seasonShort } from "../../../../lib/seasonFormat";
 
 import { hasClubUclMode } from "../../../../lib/clubCompetitionMode";
 
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "../../../../lib/csvSimple";
+
 // --------------------
 // getStaticPaths
 // ct_season_meta = CL
@@ -208,6 +212,206 @@ const columns = buildClubColumns({
   showStats: true,
 });
 
+// ====================
+// CL 試合結果一覧
+// 参照：src/data/competition_schedule_and_results.csv
+// ====================
+
+type UclMatchResultRow = {
+  match_id: string;
+  slug: string;
+  competition: string;
+  edition: string;
+  md: string;
+  stage: string;
+  group: string;
+  sec: string;
+  datetime_local: string;
+  home: string;
+  home_key: string;
+  away: string;
+  away_key: string;
+  home_score: string;
+  away_score: string;
+  home_score_pk: string;
+  away_score_pk: string;
+  note: string;
+};
+
+const readCsv = (fileName: string) => {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+};
+
+const isScoreValue = (v: any) => {
+  const s = String(v ?? "").trim();
+
+  return (
+    s !== "" &&
+    s.toLowerCase() !== "nan" &&
+    Number.isFinite(Number(s))
+  );
+};
+
+const uclStageLabel = (stage: string, sec = "") => {
+  const st = String(stage ?? "").trim();
+  const s = String(sec ?? "").trim();
+
+  if (st === "League Phase") return "LP";
+
+  if (st === "KPプレーオフ") {
+    return /2nd/i.test(s) ? "PO 2nd" : "PO 1st";
+  }
+
+  if (st === "Round 16") {
+    return /2nd/i.test(s) ? "R16 2nd" : "R16 1st";
+  }
+
+  if (st === "Quarter-Final") {
+    return /2nd/i.test(s) ? "QF 2nd" : "QF 1st";
+  }
+
+  if (st === "Semi-Final") {
+    return /2nd/i.test(s) ? "SF 2nd" : "SF 1st";
+  }
+
+  if (st === "Final") return "決勝";
+
+  return st;
+};
+
+const matchScoreCore = (m: UclMatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "試合前";
+  }
+
+  return `${Number(m.home_score)}-${Number(m.away_score)}`;
+};
+
+const matchPkText = (m: UclMatchResultRow) => {
+  if (
+    isScoreValue(m.home_score_pk) &&
+    isScoreValue(m.away_score_pk)
+  ) {
+    return `PK ${Number(m.home_score_pk)}-${Number(m.away_score_pk)}`;
+  }
+
+  return "";
+};
+
+const matchResultClass = (m: UclMatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "is-upcoming";
+  }
+
+  const isHome = m.home_key === club_key;
+
+  const gf = isHome
+    ? Number(m.home_score)
+    : Number(m.away_score);
+
+  const ga = isHome
+    ? Number(m.away_score)
+    : Number(m.home_score);
+
+  // PKがある場合はPKで勝敗判定
+  if (
+    isScoreValue(m.home_score_pk) &&
+    isScoreValue(m.away_score_pk)
+  ) {
+    const pkFor = isHome
+      ? Number(m.home_score_pk)
+      : Number(m.away_score_pk);
+
+    const pkAgainst = isHome
+      ? Number(m.away_score_pk)
+      : Number(m.home_score_pk);
+
+    if (pkFor > pkAgainst) return "is-win";
+    if (pkFor < pkAgainst) return "is-loss";
+    return "is-draw";
+  }
+
+  if (gf > ga) return "is-win";
+  if (gf < ga) return "is-loss";
+
+  return "is-draw";
+};
+
+const matchResultLabel = (m: UclMatchResultRow) => {
+  const cls = matchResultClass(m);
+
+  if (cls === "is-win") return "○";
+  if (cls === "is-loss") return "●";
+  if (cls === "is-draw") return "△";
+
+  return "—";
+};
+
+const opponentClubHref = (targetClubKey: string) => {
+  const key = String(targetClubKey ?? "").trim();
+  if (!key || key === club_key) return "";
+
+  const opponent = clubMaster.find(
+    (c: any) => String(c.club_key ?? "").trim() === key,
+  );
+
+  if (!opponent) return "";
+
+  const opponentLeagueKey = String(
+    opponent.league_key ?? "",
+  ).trim();
+
+  if (!opponentLeagueKey) return "";
+
+  return (
+    `/ucl/${encodeURIComponent(season)}` +
+    `/club/${encodeURIComponent(key)}/`
+  );
+};
+
+const uclMatchResultsAll: UclMatchResultRow[] = readCsv(
+  "competition_schedule_and_results.csv",
+).map((r: any) => ({
+  match_id: String(r["match-id"] ?? "").trim(),
+  slug: String(r.slug ?? "").trim(),
+  competition: String(r.competition ?? "").trim(),
+  edition: String(r.edition ?? "").trim(),
+  md: String(r.md ?? "").trim(),
+  stage: String(r.stage ?? "").trim(),
+  group: String(r.group ?? "").trim(),
+  sec: String(r.sec ?? "").trim(),
+  datetime_local: String(r["datetime-local"] ?? "").trim(),
+  home: String(r.home ?? "").trim(),
+  home_key: String(r.home_key ?? "").trim(),
+  away: String(r.away ?? "").trim(),
+  away_key: String(r.away_key ?? "").trim(),
+  home_score: String(r.home_score ?? "").trim(),
+  away_score: String(r.away_score ?? "").trim(),
+  home_score_pk: String(r.home_score_pk ?? "").trim(),
+  away_score_pk: String(r.away_score_pk ?? "").trim(),
+  note: String(r.note ?? "").trim(),
+}));
+
+const teamMatchResults = uclMatchResultsAll
+  .filter(
+    (m) => String(m.competition ?? "").toUpperCase() === "UCL",
+  )
+  .filter(
+    (m) => String(m.edition ?? "").trim() === season,
+  )
+  .filter(
+    (m) =>
+      m.home_key === club_key ||
+      m.away_key === club_key,
+  )
+  .sort((a, b) =>
+  String(a.datetime_local).localeCompare(String(b.datetime_local)),
+);
+
+const hasTeamMatchResults = teamMatchResults.length > 0;
+
 const searchTextFn = (r: any) =>
   `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
 
@@ -247,11 +451,12 @@ const domesticLeagueLinks = leagueMaster
 
 // SEO：ひとまずCL専用ページとして独立
 const title =
-  `${clubLabel} CL ${season}メンバー・出場成績` + `｜UEFAチャンピオンズリーグ`;
+  `${clubLabel} CL ${season}メンバー・出場成績・試合結果` +
+  `｜UEFAチャンピオンズリーグ`;
 
 const description =
   `${clubLabel}の${season}シーズンUEFAチャンピオンズリーグ` +
-  `メンバー・出場成績を掲載。出場試合数・先発数・ゴール・アシストを確認できます。`;
+  `メンバー・出場成績・試合結果を掲載。選手ごとの出場試合数・先発数・ゴール・アシストを確認できます。`;
 
 const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
 ---
@@ -278,9 +483,10 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
     hasValidUclMode && (
       <>
         <p class="ucl-club-lead">
-          {clubLabel}の{season}シーズン UEFAチャンピオンズリーグ
-          メンバー・出場成績ページです。
-        </p>
+  {clubLabel}の{season}シーズン UEFAチャンピオンズリーグ
+  メンバー・出場成績・試合結果を掲載しています。
+  選手ごとの出場・先発・ゴール・アシストと、大会を通じた試合結果を確認できます。
+</p>
 
         <div class="club-mode-switch">
           <span class="club-mode-current">-- CLモード表示中 --</span>
@@ -360,6 +566,93 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
     </div>
   )}
 </div>
+
+{hasTeamMatchResults && (
+  <section class="match-results-block" aria-label="CL試合結果一覧">
+    <h2 class="match-results-title">
+      📅 今大会の試合結果
+    </h2>
+
+    <div class="match-results-table-wrap">
+      <table class="match-results-table">
+        <thead>
+          <tr>
+            <th>日時</th>
+            <th>Stage</th>
+            <th>試合</th>
+            <th>スコア</th>
+            <th>結果</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {teamMatchResults.map((m) => {
+            const resultClass = matchResultClass(m);
+            const stage = uclStageLabel(m.stage, m.sec);
+            const pk = matchPkText(m);
+
+            const homeHref = opponentClubHref(m.home_key);
+            const awayHref = opponentClubHref(m.away_key);
+
+            return (
+              <tr class={`match-result-row ${resultClass}`}>
+                <td class="match-result-date">
+                  {m.datetime_local}
+                </td>
+
+                <td class="match-result-stage">
+                  {stage}
+                </td>
+
+                <td class="match-result-game">
+                  <div class="match-result-game-line">
+                    <span class="match-team match-team-home">
+                      {homeHref ? (
+                        <a href={homeHref}>{m.home}</a>
+                      ) : (
+                        <span>{m.home}</span>
+                      )}
+                    </span>
+
+                    <span class="match-vs" aria-hidden="true">
+                      vs
+                    </span>
+
+                    <span class="match-team match-team-away">
+                      {awayHref ? (
+                        <a href={awayHref}>{m.away}</a>
+                      ) : (
+                        <span>{m.away}</span>
+                      )}
+                    </span>
+                  </div>
+                </td>
+
+                <td class="match-result-score">
+                  <span>{matchScoreCore(m)}</span>
+
+                  {pk && (
+                    <div class="match-result-pk">
+                      {pk}
+                    </div>
+                  )}
+                </td>
+
+                <td class="match-result-status">
+                  <span
+                    class={`match-result-badge ${resultClass}`}
+                  >
+                    {matchResultLabel(m)}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}
 
         {roster.length > 0 ? (
           <RosterView
@@ -596,4 +889,178 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
     gap: 6px;
     }
  }
+
+ .match-results-block {
+  margin: 12px 0 20px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--theme-color) 22%,
+      var(--border, #e5e7eb)
+    );
+}
+
+.match-results-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 750;
+  color: var(--theme-color);
+}
+
+.match-results-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.match-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.match-results-table th,
+.match-results-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  vertical-align: middle;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.match-results-table th {
+  font-size: 11px;
+  color: #666;
+  font-weight: 800;
+  background: #f9fafb;
+}
+
+.match-results-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.match-results-table th:nth-child(1),
+.match-results-table td:nth-child(1) {
+  width: 118px;
+}
+
+.match-results-table th:nth-child(2),
+.match-results-table td:nth-child(2) {
+  width: 72px;
+}
+
+.match-results-table th:nth-child(4),
+.match-results-table td:nth-child(4) {
+  width: 74px;
+}
+
+.match-results-table th:nth-child(5),
+.match-results-table td:nth-child(5) {
+  width: 46px;
+}
+
+.match-result-date {
+  color: #555;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.match-result-stage {
+  color: #666;
+  font-weight: 800;
+}
+
+.match-result-game {
+  min-width: 0;
+  font-weight: 750;
+  color: #111;
+}
+
+.match-result-game-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.match-team {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.match-team-home {
+  text-align: right;
+}
+
+.match-team-away {
+  text-align: left;
+}
+
+.match-vs {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  font-weight: 800;
+}
+
+.match-result-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  color: #111;
+}
+
+.match-result-pk {
+  display: block;
+  margin-top: 1px;
+  font-size: 10px;
+  line-height: 1.1;
+  color: #666;
+  font-weight: 700;
+}
+
+.match-result-badge {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.match-result-badge.is-win {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.match-result-badge.is-loss {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.match-result-badge.is-draw {
+  background: #f3f4f6;
+  color: #555;
+}
+
+.match-result-badge.is-upcoming {
+  background: #f3f4f6;
+  color: #777;
+}
+
+.match-team a {
+  color: var(--theme-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
 </style>

@@ -118,6 +118,13 @@ const thClass = (c: any) =>
     text-align: right;
   }
 
+  :global(.roster-table .rep2-ed) {
+    color: var(--color-wc);
+    font-weight: 700;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+
   /* ✅ 追加：行ハイライト */
   :global(.roster-table tbody tr.row-highlight td) {
     background: color-mix(in srgb, var(--theme-color) 14%, #ffffff) !important;
@@ -221,12 +228,6 @@ const thClass = (c: any) =>
 
     .roster-table td:nth-child(3) {
       vertical-align: top;
-    }
-
-    .roster-table th:nth-child(5),
-    .roster-table td:nth-child(5) {
-      width: 72px;
-      white-space: nowrap;
     }
 
     .roster-table td {

@@ -6,49 +6,36 @@ import {
 
 import { hasUclLeaguePhaseClub } from "./ucl";
 
-import { loadClubSquads } from "./clubSquads";
-import { toYMD } from "./rosterFormat";
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "./csvSimple";
 
-function hasPublishedUefaStats(args: {
-  season: string;
-  leagueKey: string;
-  clubKey: string;
-}): boolean {
+function hasUclSchedule(args: { season: string; clubKey: string }): boolean {
   const season = String(args.season ?? "").trim();
-  const leagueKey = String(args.leagueKey ?? "").trim();
   const clubKey = String(args.clubKey ?? "").trim();
 
-  if (!season || !leagueKey || !clubKey) return false;
+  if (!season || !clubKey) return false;
 
-  const rows = loadClubSquads().filter(
-    (r) =>
-      String(r.season ?? "").trim() === season &&
-      String(r.league_key ?? "").trim() === leagueKey &&
-      String(r.club_key ?? "").trim() === clubKey,
+  const filePath = path.join(
+    process.cwd(),
+    "src",
+    "data",
+    "competition_schedule_and_results.csv",
   );
 
-  if (!rows.length) return false;
+  if (!fs.existsSync(filePath)) return false;
 
-  // CLページ本体と同じく、そのseasonの最新snapshotを判定対象にする
-  let latestSnapshot = "";
+  const rows = parseCsv(fs.readFileSync(filePath, "utf-8"));
 
-  for (const r of rows) {
-    const snap = toYMD(String(r.snapshot_date ?? ""));
-
-    if (snap && snap > latestSnapshot) {
-      latestSnapshot = snap;
-    }
-  }
-
-  if (!latestSnapshot) return false;
-
-  const latestRows = rows.filter(
-    (r) => toYMD(String(r.snapshot_date ?? "")) === latestSnapshot,
+  return rows.some(
+    (r: any) =>
+      String(r.competition ?? "")
+        .trim()
+        .toUpperCase() === "UCL" &&
+      String(r.edition ?? "").trim() === season &&
+      (String(r.home_key ?? "").trim() === clubKey ||
+        String(r.away_key ?? "").trim() === clubKey),
   );
-
-  // "0" も入力済みとみなす。
-  // 少なくとも誰か1人に出場数が入力されていれば公開可能。
-  return latestRows.some((r) => String(r.uefa_apps ?? "").trim() !== "");
 }
 
 export function hasClubUclMode(args: {
@@ -78,11 +65,8 @@ export function hasClubUclMode(args: {
     return false;
   }
 
-  return hasPublishedUefaStats({
+  return hasUclSchedule({
     season,
-    leagueKey,
     clubKey,
   });
-
-  return hasUclLeaguePhaseClub(season, clubKey);
 }

@@ -1,0 +1,233 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2440" height="1033" viewBox="0 0 2440 1033" role="img" aria-labelledby="title desc">
+<title id="title">2025-26 UEFAチャンピオンズリーグ 決勝トーナメント</title>
+<desc id="desc">試合データから自動生成した決勝トーナメント表</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#0a1f44}
+    .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: #0a1f44;}
+.rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
+.score{font:700 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#0a1f44}
+    .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+    .legend{font:400 22px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#666;}
+  </style>
+<text class="title" x="1220" y="64" text-anchor="middle">2025-26 UEFAチャンピオンズリーグ　決勝トーナメント</text>
+<text
+    class="legend"
+    x="1220"
+    y="102"
+    text-anchor="middle"
+  >R16～準決勝：1st leg + 2nd leg = 2戦合計</text>
+<rect
+      x="40"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="185"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >ラウンド16</text>
+<rect
+      x="2110"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="2255"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >ラウンド16</text>
+<rect
+      x="385"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="530"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="1765"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="1910"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="730"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="875"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="1420"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="1565"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="1075"
+      y="118"
+      width="290"
+      height="54"
+      rx="4"
+      fill="#0a1f44"
+    />
+<text
+      class="round"
+      x="1220"
+      y="145"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >決勝</text>
+<path d="M 675 374 H 702.5 V 584 H 730" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 330 269 H 357.5 V 374 H 385" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 330 479 H 357.5 V 374 H 385" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 675 794 H 702.5 V 584 H 730" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 330 689 H 357.5 V 794 H 385" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 330 899 H 357.5 V 794 H 385" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1765 374 H 1737.5 V 584 H 1710" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2110 269 H 2082.5 V 374 H 2055" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2110 479 H 2082.5 V 374 H 2055" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1765 794 H 1737.5 V 584 H 1710" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2110 689 H 2082.5 V 794 H 2055" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2110 899 H 2082.5 V 794 H 2055" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1020 584 H 1047.5 V 584 H 1075" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1420 584 H 1392.5 V 584 H 1365" fill="none" stroke="#222222" stroke-width="3"/>
+<rect x="40" y="205" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="269" x2="330" y2="269" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="229">パリSG</text>
+<text class="score" x="52" y="254">(1st) 5 ＋ (2nd) 3 ＝ 8</text>
+<text class="team" x="52" y="293">チェルシー</text>
+<text class="score" x="52" y="318">(1st) 2 ＋ (2nd) 0 ＝ 2</text>
+<rect x="40" y="415" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="479" x2="330" y2="479" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="439">ガラタサライ</text>
+<text class="score" x="52" y="464">(1st) 1 ＋ (2nd) 0 ＝ 1</text>
+<text class="team" x="52" y="503">リヴァプール</text>
+<text class="score" x="52" y="528">(1st) 0 ＋ (2nd) 4 ＝ 4</text>
+<rect x="385" y="310" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="385" y1="374" x2="675" y2="374" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="397" y="334">パリSG</text>
+<text class="score" x="397" y="359">(1st) 2 ＋ (2nd) 2 ＝ 4</text>
+<text class="team" x="397" y="398">リヴァプール</text>
+<text class="score" x="397" y="423">(1st) 0 ＋ (2nd) 0 ＝ 0</text>
+<rect x="40" y="625" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="689" x2="330" y2="689" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="649">レアル・マドリード</text>
+<text class="score" x="52" y="674">(1st) 3 ＋ (2nd) 2 ＝ 5</text>
+<text class="team" x="52" y="713">マンチェスター・シティ</text>
+<text class="score" x="52" y="738">(1st) 0 ＋ (2nd) 1 ＝ 1</text>
+<rect x="40" y="835" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="899" x2="330" y2="899" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="859">アタランタ</text>
+<text class="score" x="52" y="884">(1st) 1 ＋ (2nd) 1 ＝ 2</text>
+<text class="team" x="52" y="923">バイエルン</text>
+<text class="score" x="52" y="948">(1st) 6 ＋ (2nd) 4 ＝ 10</text>
+<rect x="385" y="730" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="385" y1="794" x2="675" y2="794" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="397" y="754">レアル・マドリード</text>
+<text class="score" x="397" y="779">(1st) 1 ＋ (2nd) 3 ＝ 4</text>
+<text class="team" x="397" y="818">バイエルン</text>
+<text class="score" x="397" y="843">(1st) 2 ＋ (2nd) 4 ＝ 6</text>
+<rect x="730" y="520" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="730" y1="584" x2="1020" y2="584" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="742" y="544">パリSG</text>
+<text class="score" x="742" y="569">(1st) 5 ＋ (2nd) 1 ＝ 6</text>
+<text class="team" x="742" y="608">バイエルン</text>
+<text class="score" x="742" y="633">(1st) 4 ＋ (2nd) 1 ＝ 5</text>
+<rect x="2110" y="205" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2110" y1="269" x2="2400" y2="269" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2122" y="229">ニューカッスル</text>
+<text class="score" x="2122" y="254">(1st) 1 ＋ (2nd) 2 ＝ 3</text>
+<text class="team" x="2122" y="293">バルセロナ</text>
+<text class="score" x="2122" y="318">(1st) 1 ＋ (2nd) 7 ＝ 8</text>
+<rect x="2110" y="415" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2110" y1="479" x2="2400" y2="479" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2122" y="439">アトレティコ</text>
+<text class="score" x="2122" y="464">(1st) 5 ＋ (2nd) 2 ＝ 7</text>
+<text class="team" x="2122" y="503">トッテナム</text>
+<text class="score" x="2122" y="528">(1st) 2 ＋ (2nd) 3 ＝ 5</text>
+<rect x="1765" y="310" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1765" y1="374" x2="2055" y2="374" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1777" y="334">バルセロナ</text>
+<text class="score" x="1777" y="359">(1st) 0 ＋ (2nd) 2 ＝ 2</text>
+<text class="team" x="1777" y="398">アトレティコ</text>
+<text class="score" x="1777" y="423">(1st) 2 ＋ (2nd) 1 ＝ 3</text>
+<rect x="2110" y="625" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2110" y1="689" x2="2400" y2="689" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2122" y="649">ボデ/グリムト</text>
+<text class="score" x="2122" y="674">(1st) 3 ＋ (2nd) 0 ＝ 3</text>
+<text class="team" x="2122" y="713">スポルティング</text>
+<text class="score" x="2122" y="738">(1st) 0 ＋ (2nd) 5 ＝ 5</text>
+<rect x="2110" y="835" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2110" y1="899" x2="2400" y2="899" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2122" y="859">レバークーゼン</text>
+<text class="score" x="2122" y="884">(1st) 1 ＋ (2nd) 0 ＝ 1</text>
+<text class="team" x="2122" y="923">アーセナル</text>
+<text class="score" x="2122" y="948">(1st) 1 ＋ (2nd) 2 ＝ 3</text>
+<rect x="1765" y="730" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1765" y1="794" x2="2055" y2="794" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1777" y="754">スポルティング</text>
+<text class="score" x="1777" y="779">(1st) 0 ＋ (2nd) 0 ＝ 0</text>
+<text class="team" x="1777" y="818">アーセナル</text>
+<text class="score" x="1777" y="843">(1st) 1 ＋ (2nd) 0 ＝ 1</text>
+<rect x="1420" y="520" width="290" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1420" y1="584" x2="1710" y2="584" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1432" y="544">アトレティコ</text>
+<text class="score" x="1432" y="569">(1st) 1 ＋ (2nd) 0 ＝ 1</text>
+<text class="team" x="1432" y="608">アーセナル</text>
+<text class="score" x="1432" y="633">(1st) 1 ＋ (2nd) 1 ＝ 2</text>
+<rect x="1075" y="520" width="290" height="128" rx="5" fill="#fff" stroke="#0a1f44" stroke-width="3"/>
+<line x1="1075" y1="584" x2="1365" y2="584" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1087" y="544">パリSG</text>
+<text class="score" x="1087" y="569">1 PK4</text>
+<text class="team" x="1087" y="608">アーセナル</text>
+<text class="score" x="1087" y="633">1 PK3</text>
+<text class="champ" x="1220" y="495" text-anchor="middle">優勝</text>
+<text class="champ" x="1220" y="693" text-anchor="middle">パリSG</text>
+</svg>

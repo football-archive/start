@@ -537,7 +537,7 @@ UCL-2025-26-F001,,UCL,2025-26,MD900,Final,,決勝,2026-05-31,パリSG,paris-sain
 UCL-2024-25-PO-001,,UCL,2024-25,MD501,KPプレーオフ,,KP-PO 1st leg,2025/2/12,ブレスト,brest,パリSG,paris-saint-germain,,0,3,,,,,,2025/05/31
 UCL-2024-25-PO-002,,UCL,2024-25,MD502,KPプレーオフ,,KP-PO 1st leg,2025/2/12,スポルティングCP,sporting,ドルトムント,borussia-dortmund,,0,3,,,,,,2025/05/31
 UCL-2024-25-PO-003,,UCL,2024-25,MD503,KPプレーオフ,,KP-PO 1st leg,2025/2/12,ユヴェントス,juventus,PSV,psv,,2,1,,,,,,2025/05/31
-UCL-2024-25-PO-004,,UCL,2024-25,MD504,KPプレーオフ,,KP-PO 1st leg,2025/2/12,マンC,manchester-city,Rマドリード,real-madrid,,2,3,,,,,,2025/05/31
+UCL-2024-25-PO-004,,UCL,2024-25,MD504,KPプレーオフ,,KP-PO 1st leg,2025/2/12,マンC,manchester-city,レアル・マドリード,real-madrid,,2,3,,,,,,2025/05/31
 UCL-2024-25-PO-005,,UCL,2024-25,MD505,KPプレーオフ,,KP-PO 1st leg,2025/2/13,クラブ・ブルッヘ,club-brugge,アタランタ,atalanta,,2,1,,,,,,2025/05/31
 UCL-2024-25-PO-006,,UCL,2024-25,MD506,KPプレーオフ,,KP-PO 1st leg,2025/2/13,セルティック,celtic,バイエルン,bayern-munich,,1,2,,,,,,2025/05/31
 UCL-2024-25-PO-007,,UCL,2024-25,MD507,KPプレーオフ,,KP-PO 1st leg,2025/2/13,モナコ,monaco,ベンフィカ,benfica,,0,1,,,,,,2025/05/31
@@ -547,11 +547,11 @@ UCL-2024-25-PO-010,,UCL,2024-25,MD510,KPプレーオフ,,KP-PO 2nd leg,2025/2/19
 UCL-2024-25-PO-011,,UCL,2024-25,MD511,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,アタランタ,atalanta,クラブ・ブルッヘ,club-brugge,,1,3,,,,,,2025/05/31
 UCL-2024-25-PO-012,,UCL,2024-25,MD512,KPプレーオフ,,KP-PO 2nd leg,2025/2/19,バイエルン,bayern-munich,セルティック,celtic,,1,1,,,,,,2025/05/31
 UCL-2024-25-PO-013,,UCL,2024-25,MD513,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,ドルトムント,borussia-dortmund,スポルティングCP,sporting,,0,0,,,,,,2025/05/31
-UCL-2024-25-PO-014,,UCL,2024-25,MD514,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,Rマドリード,real-madrid,マンC,manchester-city,,3,1,,,,,,2025/05/31
+UCL-2024-25-PO-014,,UCL,2024-25,MD514,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,レアル・マドリード,real-madrid,マンC,manchester-city,,3,1,,,,,,2025/05/31
 UCL-2024-25-PO-015,,UCL,2024-25,MD515,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,パリSG,paris-saint-germain,ブレスト,brest,,7,0,,,,,,2025/05/31
 UCL-2024-25-PO-016,,UCL,2024-25,MD516,KPプレーオフ,,KP-PO 2nd leg,2025/2/20,PSV,psv,ユヴェントス,juventus,,3,1,,,,,,2025/05/31
 UCL-2024-25-R16-001,,UCL,2024-25,MD601,Round 16,,Round16 1st leg,2025/3/5,クラブ・ブルッヘ,club-brugge,アストン・ビラ,aston-villa,,1,3,,,,,,2025/05/31
-UCL-2024-25-R16-002,,UCL,2024-25,MD602,Round 16,,Round16 1st leg,2025/3/5,Rマドリード,real-madrid,アトレティコ,atletico-madrid,,2,1,,,,,,2025/05/31
+UCL-2024-25-R16-002,,UCL,2024-25,MD602,Round 16,,Round16 1st leg,2025/3/5,レアル・マドリード,real-madrid,アトレティコ,atletico-madrid,,2,1,,,,,,2025/05/31
 UCL-2024-25-R16-003,,UCL,2024-25,MD603,Round 16,,Round16 1st leg,2025/3/5,PSV,psv,アーセナル,arsenal,,1,7,,,,,,2025/05/31
 UCL-2024-25-R16-004,,UCL,2024-25,MD604,Round 16,,Round16 1st leg,2025/3/5,ドルトムント,borussia-dortmund,リール,lille,,1,1,,,,,,2025/05/31
 UCL-2024-25-R16-005,,UCL,2024-25,MD605,Round 16,,Round16 1st leg,2025/3/6,フェイエノールト,feyenoord,インテル,inter,,0,2,,,,,,2025/05/31
@@ -560,19 +560,19 @@ UCL-2024-25-R16-007,,UCL,2024-25,MD607,Round 16,,Round16 1st leg,2025/3/6,ベン
 UCL-2024-25-R16-008,,UCL,2024-25,MD608,Round 16,,Round16 1st leg,2025/3/6,パリSG,paris-saint-germain,リヴァプール,liverpool,,0,1,,,,,,2025/05/31
 UCL-2024-25-R16-009,,UCL,2024-25,MD609,Round 16,,Round16 2nd leg,2025/3/12,バルセロナ,barcelona,ベンフィカ,benfica,,3,1,,,,,,2025/05/31
 UCL-2024-25-R16-010,,UCL,2024-25,MD610,Round 16,,Round16 2nd leg,2025/3/12,インテル,inter,フェイエノールト,feyenoord,,2,1,,,,,,2025/05/31
-UCL-2024-25-R16-011,,UCL,2024-25,MD611,Round 16,,Round16 2nd leg,2025/3/12,リヴァプール,liverpool,パリSG,paris-saint-germain,,0,1,,,,,,2025/05/31
+UCL-2024-25-R16-011,,UCL,2024-25,MD611,Round 16,,Round16 2nd leg,2025/3/12,リヴァプール,liverpool,パリSG,paris-saint-germain,,0,1,1,4,,,,2025/05/31
 UCL-2024-25-R16-012,,UCL,2024-25,MD612,Round 16,,Round16 2nd leg,2025/3/12,レバークーゼン,bayer-leverkusen,バイエルン,bayern-munich,,0,2,,,,,,2025/05/31
 UCL-2024-25-R16-013,,UCL,2024-25,MD613,Round 16,,Round16 2nd leg,2025/3/13,リール,lille,ドルトムント,borussia-dortmund,,1,2,,,,,,2025/05/31
 UCL-2024-25-R16-014,,UCL,2024-25,MD614,Round 16,,Round16 2nd leg,2025/3/13,アストン・ビラ,aston-villa,クラブ・ブルッヘ,club-brugge,,3,0,,,,,,2025/05/31
 UCL-2024-25-R16-015,,UCL,2024-25,MD615,Round 16,,Round16 2nd leg,2025/3/13,アーセナル,arsenal,PSV,psv,,2,2,,,,,,2025/05/31
-UCL-2024-25-R16-016,,UCL,2024-25,MD616,Round 16,,Round16 2nd leg,2025/3/13,アトレティコ,atletico-madrid,Rマドリード,real-madrid,,1,0,2,4,,,,2025/05/31
+UCL-2024-25-R16-016,,UCL,2024-25,MD616,Round 16,,Round16 2nd leg,2025/3/13,アトレティコ,atletico-madrid,レアル・マドリード,real-madrid,,1,0,2,4,,,,2025/05/31
 UCL-2024-25-R8-001,,UCL,2024-25,MD701,Quarter-Final,,準々決勝 1st leg,2025/4/9,バイエルン,bayern-munich,インテル,inter,,1,2,,,,,,2025/05/31
-UCL-2024-25-R8-002,,UCL,2024-25,MD702,Quarter-Final,,準々決勝 1st leg,2025/4/9,アーセナル,arsenal,Rマドリード,real-madrid,,3,0,,,,,,2025/05/31
+UCL-2024-25-R8-002,,UCL,2024-25,MD702,Quarter-Final,,準々決勝 1st leg,2025/4/9,アーセナル,arsenal,レアル・マドリード,real-madrid,,3,0,,,,,,2025/05/31
 UCL-2024-25-R8-003,,UCL,2024-25,MD703,Quarter-Final,,準々決勝 1st leg,2025/4/10,バルセロナ,barcelona,ドルトムント,borussia-dortmund,,4,0,,,,,,2025/05/31
 UCL-2024-25-R8-004,,UCL,2024-25,MD704,Quarter-Final,,準々決勝 1st leg,2025/4/10,パリSG,paris-saint-germain,アストン・ビラ,aston-villa,,3,1,,,,,,2025/05/31
 UCL-2024-25-R8-005,,UCL,2024-25,MD705,Quarter-Final,,準々決勝 2nd leg,2025/4/16,アストン・ビラ,aston-villa,パリSG,paris-saint-germain,,3,2,,,,,,2025/05/31
 UCL-2024-25-R8-006,,UCL,2024-25,MD706,Quarter-Final,,準々決勝 2nd leg,2025/4/16,ドルトムント,borussia-dortmund,バルセロナ,barcelona,,3,1,,,,,,2025/05/31
-UCL-2024-25-R8-007,,UCL,2024-25,MD707,Quarter-Final,,準々決勝 2nd leg,2025/4/17,Rマドリード,real-madrid,アーセナル,arsenal,,1,2,,,,,,2025/05/31
+UCL-2024-25-R8-007,,UCL,2024-25,MD707,Quarter-Final,,準々決勝 2nd leg,2025/4/17,レアル・マドリード,real-madrid,アーセナル,arsenal,,1,2,,,,,,2025/05/31
 UCL-2024-25-R8-008,,UCL,2024-25,MD708,Quarter-Final,,準々決勝 2nd leg,2025/4/17,インテル,inter,バイエルン,bayern-munich,,2,2,,,,,,2025/05/31
 UCL-2024-25-SF001,,UCL,2024-25,MD801,Semi-Final,,準決勝 1st leg,2025/4/30,アーセナル,arsenal,パリSG,paris-saint-germain,,0,1,,,,,,2025/05/31
 UCL-2024-25-SF002,,UCL,2024-25,MD802,Semi-Final,,準決勝 1st leg,2025/5/1,バルセロナ,barcelona,インテル,inter,,3,3,,,,,,2025/05/31
@@ -724,3 +724,147 @@ UCL-2025-26-LP-142,napoli-vs-chelsea,UCL,2025-26,MD142,League Phase,,LP 第8節,
 UCL-2025-26-LP-143,benfica-vs-real-madrid,UCL,2025-26,MD143,League Phase,,LP 第8節,2026-01-28,SLベンフィカ,benfica,レアル・マドリード,real-madrid,,4,2,,,,,,2026/01/28
 UCL-2025-26-LP-144,borussia-dortmund-vs-inter,UCL,2025-26,MD144,League Phase,,LP 第8節,2026-01-28,ボルシア・ドルトムント,borussia-dortmund,インテル・ミラノ,inter,,0,2,,,,,,2026/01/28
 ,,,,,,,,,,,,,,,,,,,,,
+UCL-2024-25-LP-001,young-boys-vs-aston-villa,UCL,2024-25,MD001,League Phase,,LP 第1節,2024-09-17,ヤングボーイズ,young-boys,アストン・ヴィラ,aston-villa,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-002,juventus-vs-psv,UCL,2024-25,MD002,League Phase,,LP 第1節,2024-09-17,ユヴェントス,juventus,PSV,psv,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-003,sporting-vs-lille,UCL,2024-25,MD003,League Phase,,LP 第1節,2024-09-17,スポルティングCP,sporting,リール,lille,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-004,bayern-munich-vs-dinamo-zagreb,UCL,2024-25,MD004,League Phase,,LP 第1節,2024-09-17,バイエルン・ミュンヘン,bayern-munich,ディナモ・ザグレブ,dinamo-zagreb,,9,2,,,,,,2025/01/29
+UCL-2024-25-LP-005,real-madrid-vs-stuttgart,UCL,2024-25,MD005,League Phase,,LP 第1節,2024-09-17,レアル・マドリード,real-madrid,シュトゥットガルト,stuttgart,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-006,milan-vs-liverpool,UCL,2024-25,MD006,League Phase,,LP 第1節,2024-09-17,ミラン,milan,リヴァプール,liverpool,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-007,bologna-vs-shakhtar-donetsk,UCL,2024-25,MD007,League Phase,,LP 第1節,2024-09-18,ボローニャ,bologna,シャフタール・ドネツク,shakhtar-donetsk,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-008,sparta-praha-vs-salzburg,UCL,2024-25,MD008,League Phase,,LP 第1節,2024-09-18,スパルタ・プラハ,sparta-praha,ザルツブルク,salzburg,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-009,manchester-city-vs-inter,UCL,2024-25,MD009,League Phase,,LP 第1節,2024-09-18,マンチェスター・シティ,manchester-city,インテル,inter,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-010,paris-saint-germain-vs-girona,UCL,2024-25,MD010,League Phase,,LP 第1節,2024-09-18,パリ・サンジェルマン,paris-saint-germain,ジローナ,girona,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-011,club-brugge-vs-borussia-dortmund,UCL,2024-25,MD011,League Phase,,LP 第1節,2024-09-18,クラブ・ブルッヘ,club-brugge,ボルシア・ドルトムント,borussia-dortmund,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-012,celtic-vs-slovan-bratislava,UCL,2024-25,MD012,League Phase,,LP 第1節,2024-09-18,セルティック,celtic,スロヴァン・ブラチスラヴァ,slovan-bratislava,,5,1,,,,,,2025/01/29
+UCL-2024-25-LP-013,feyenoord-vs-bayer-leverkusen,UCL,2024-25,MD013,League Phase,,LP 第1節,2024-09-19,フェイエノールト,feyenoord,バイエル・レバークーゼン,bayer-leverkusen,,0,4,,,,,,2025/01/29
+UCL-2024-25-LP-014,crvena-zvezda-vs-benfica,UCL,2024-25,MD014,League Phase,,LP 第1節,2024-09-19,ツルヴェナ・ズヴェズダ,crvena-zvezda,ベンフィカ,benfica,,1,2,,,,,,2025/01/29
+UCL-2024-25-LP-015,monaco-vs-barcelona,UCL,2024-25,MD015,League Phase,,LP 第1節,2024-09-19,モナコ,monaco,バルセロナ,barcelona,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-016,brest-vs-sturm-graz,UCL,2024-25,MD016,League Phase,,LP 第1節,2024-09-19,ブレスト,brest,シュトゥルム・グラーツ,sturm-graz,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-017,atalanta-vs-arsenal,UCL,2024-25,MD017,League Phase,,LP 第1節,2024-09-19,アタランタ,atalanta,アーセナル,arsenal,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-018,atletico-madrid-vs-rb-leipzig,UCL,2024-25,MD018,League Phase,,LP 第1節,2024-09-19,アトレティコ・マドリード,atletico-madrid,RBライプツィヒ,rb-leipzig,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-019,stuttgart-vs-sparta-praha,UCL,2024-25,MD019,League Phase,,LP 第2節,2024-10-01,シュトゥットガルト,stuttgart,スパルタ・プラハ,sparta-praha,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-020,salzburg-vs-brest,UCL,2024-25,MD020,League Phase,,LP 第2節,2024-10-01,ザルツブルク,salzburg,ブレスト,brest,,0,4,,,,,,2025/01/29
+UCL-2024-25-LP-021,slovan-bratislava-vs-manchester-city,UCL,2024-25,MD021,League Phase,,LP 第2節,2024-10-01,スロヴァン・ブラチスラヴァ,slovan-bratislava,マンチェスター・シティ,manchester-city,,0,4,,,,,,2025/01/29
+UCL-2024-25-LP-022,borussia-dortmund-vs-celtic,UCL,2024-25,MD022,League Phase,,LP 第2節,2024-10-01,ボルシア・ドルトムント,borussia-dortmund,セルティック,celtic,,7,1,,,,,,2025/01/29
+UCL-2024-25-LP-023,barcelona-vs-young-boys,UCL,2024-25,MD023,League Phase,,LP 第2節,2024-10-01,バルセロナ,barcelona,ヤングボーイズ,young-boys,,5,0,,,,,,2025/01/29
+UCL-2024-25-LP-024,inter-vs-crvena-zvezda,UCL,2024-25,MD024,League Phase,,LP 第2節,2024-10-01,インテル,inter,ツルヴェナ・ズヴェズダ,crvena-zvezda,,4,0,,,,,,2025/01/29
+UCL-2024-25-LP-025,bayer-leverkusen-vs-milan,UCL,2024-25,MD025,League Phase,,LP 第2節,2024-10-01,バイエル・レバークーゼン,bayer-leverkusen,ミラン,milan,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-026,arsenal-vs-paris-saint-germain,UCL,2024-25,MD026,League Phase,,LP 第2節,2024-10-01,アーセナル,arsenal,パリ・サンジェルマン,paris-saint-germain,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-027,psv-vs-sporting,UCL,2024-25,MD027,League Phase,,LP 第2節,2024-10-01,PSV,psv,スポルティングCP,sporting,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-028,girona-vs-feyenoord,UCL,2024-25,MD028,League Phase,,LP 第2節,2024-10-02,ジローナ,girona,フェイエノールト,feyenoord,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-029,shakhtar-donetsk-vs-atalanta,UCL,2024-25,MD029,League Phase,,LP 第2節,2024-10-02,シャフタール・ドネツク,shakhtar-donetsk,アタランタ,atalanta,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-030,aston-villa-vs-bayern-munich,UCL,2024-25,MD030,League Phase,,LP 第2節,2024-10-02,アストン・ヴィラ,aston-villa,バイエルン・ミュンヘン,bayern-munich,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-031,sturm-graz-vs-club-brugge,UCL,2024-25,MD031,League Phase,,LP 第2節,2024-10-02,シュトゥルム・グラーツ,sturm-graz,クラブ・ブルッヘ,club-brugge,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-032,liverpool-vs-bologna,UCL,2024-25,MD032,League Phase,,LP 第2節,2024-10-02,リヴァプール,liverpool,ボローニャ,bologna,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-033,rb-leipzig-vs-juventus,UCL,2024-25,MD033,League Phase,,LP 第2節,2024-10-02,RBライプツィヒ,rb-leipzig,ユヴェントス,juventus,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-034,benfica-vs-atletico-madrid,UCL,2024-25,MD034,League Phase,,LP 第2節,2024-10-02,ベンフィカ,benfica,アトレティコ・マドリード,atletico-madrid,,4,0,,,,,,2025/01/29
+UCL-2024-25-LP-035,dinamo-zagreb-vs-monaco,UCL,2024-25,MD035,League Phase,,LP 第2節,2024-10-02,ディナモ・ザグレブ,dinamo-zagreb,モナコ,monaco,,2,2,,,,,,2025/01/29
+UCL-2024-25-LP-036,lille-vs-real-madrid,UCL,2024-25,MD036,League Phase,,LP 第2節,2024-10-02,リール,lille,レアル・マドリード,real-madrid,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-037,monaco-vs-crvena-zvezda,UCL,2024-25,MD037,League Phase,,LP 第3節,2024-10-22,モナコ,monaco,ツルヴェナ・ズヴェズダ,crvena-zvezda,,5,1,,,,,,2025/01/29
+UCL-2024-25-LP-038,milan-vs-club-brugge,UCL,2024-25,MD038,League Phase,,LP 第3節,2024-10-22,ミラン,milan,クラブ・ブルッヘ,club-brugge,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-039,aston-villa-vs-bologna,UCL,2024-25,MD039,League Phase,,LP 第3節,2024-10-22,アストン・ヴィラ,aston-villa,ボローニャ,bologna,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-040,girona-vs-slovan-bratislava,UCL,2024-25,MD040,League Phase,,LP 第3節,2024-10-22,ジローナ,girona,スロヴァン・ブラチスラヴァ,slovan-bratislava,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-041,sturm-graz-vs-sporting,UCL,2024-25,MD041,League Phase,,LP 第3節,2024-10-22,シュトゥルム・グラーツ,sturm-graz,スポルティングCP,sporting,,0,2,,,,,,2025/01/29
+UCL-2024-25-LP-042,paris-saint-germain-vs-psv,UCL,2024-25,MD042,League Phase,,LP 第3節,2024-10-22,パリ・サンジェルマン,paris-saint-germain,PSV,psv,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-043,real-madrid-vs-borussia-dortmund,UCL,2024-25,MD043,League Phase,,LP 第3節,2024-10-22,レアル・マドリード,real-madrid,ボルシア・ドルトムント,borussia-dortmund,,5,2,,,,,,2025/01/29
+UCL-2024-25-LP-044,arsenal-vs-shakhtar-donetsk,UCL,2024-25,MD044,League Phase,,LP 第3節,2024-10-22,アーセナル,arsenal,シャフタール・ドネツク,shakhtar-donetsk,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-045,juventus-vs-stuttgart,UCL,2024-25,MD045,League Phase,,LP 第3節,2024-10-22,ユヴェントス,juventus,シュトゥットガルト,stuttgart,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-046,brest-vs-bayer-leverkusen,UCL,2024-25,MD046,League Phase,,LP 第3節,2024-10-23,ブレスト,brest,バイエル・レバークーゼン,bayer-leverkusen,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-047,atalanta-vs-celtic,UCL,2024-25,MD047,League Phase,,LP 第3節,2024-10-23,アタランタ,atalanta,セルティック,celtic,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-048,young-boys-vs-inter,UCL,2024-25,MD048,League Phase,,LP 第3節,2024-10-23,ヤングボーイズ,young-boys,インテル,inter,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-049,barcelona-vs-bayern-munich,UCL,2024-25,MD049,League Phase,,LP 第3節,2024-10-23,バルセロナ,barcelona,バイエルン・ミュンヘン,bayern-munich,,4,1,,,,,,2025/01/29
+UCL-2024-25-LP-050,manchester-city-vs-sparta-praha,UCL,2024-25,MD050,League Phase,,LP 第3節,2024-10-23,マンチェスター・シティ,manchester-city,スパルタ・プラハ,sparta-praha,,5,0,,,,,,2025/01/29
+UCL-2024-25-LP-051,rb-leipzig-vs-liverpool,UCL,2024-25,MD051,League Phase,,LP 第3節,2024-10-23,RBライプツィヒ,rb-leipzig,リヴァプール,liverpool,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-052,atletico-madrid-vs-lille,UCL,2024-25,MD052,League Phase,,LP 第3節,2024-10-23,アトレティコ・マドリード,atletico-madrid,リール,lille,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-053,benfica-vs-feyenoord,UCL,2024-25,MD053,League Phase,,LP 第3節,2024-10-23,ベンフィカ,benfica,フェイエノールト,feyenoord,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-054,salzburg-vs-dinamo-zagreb,UCL,2024-25,MD054,League Phase,,LP 第3節,2024-10-23,ザルツブルク,salzburg,ディナモ・ザグレブ,dinamo-zagreb,,0,2,,,,,,2025/01/29
+UCL-2024-25-LP-055,slovan-bratislava-vs-dinamo-zagreb,UCL,2024-25,MD055,League Phase,,LP 第4節,2024-11-05,スロヴァン・ブラチスラヴァ,slovan-bratislava,ディナモ・ザグレブ,dinamo-zagreb,,1,4,,,,,,2025/01/29
+UCL-2024-25-LP-056,psv-vs-girona,UCL,2024-25,MD056,League Phase,,LP 第4節,2024-11-05,PSV,psv,ジローナ,girona,,4,0,,,,,,2025/01/29
+UCL-2024-25-LP-057,sporting-vs-manchester-city,UCL,2024-25,MD057,League Phase,,LP 第4節,2024-11-05,スポルティングCP,sporting,マンチェスター・シティ,manchester-city,,4,1,,,,,,2025/01/29
+UCL-2024-25-LP-058,bologna-vs-monaco,UCL,2024-25,MD058,League Phase,,LP 第4節,2024-11-05,ボローニャ,bologna,モナコ,monaco,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-059,borussia-dortmund-vs-sturm-graz,UCL,2024-25,MD059,League Phase,,LP 第4節,2024-11-05,ボルシア・ドルトムント,borussia-dortmund,シュトゥルム・グラーツ,sturm-graz,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-060,liverpool-vs-bayer-leverkusen,UCL,2024-25,MD060,League Phase,,LP 第4節,2024-11-05,リヴァプール,liverpool,バイエル・レバークーゼン,bayer-leverkusen,,4,0,,,,,,2025/01/29
+UCL-2024-25-LP-061,real-madrid-vs-milan,UCL,2024-25,MD061,League Phase,,LP 第4節,2024-11-05,レアル・マドリード,real-madrid,ミラン,milan,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-062,celtic-vs-rb-leipzig,UCL,2024-25,MD062,League Phase,,LP 第4節,2024-11-05,セルティック,celtic,RBライプツィヒ,rb-leipzig,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-063,lille-vs-juventus,UCL,2024-25,MD063,League Phase,,LP 第4節,2024-11-05,リール,lille,ユヴェントス,juventus,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-064,club-brugge-vs-aston-villa,UCL,2024-25,MD064,League Phase,,LP 第4節,2024-11-06,クラブ・ブルッヘ,club-brugge,アストン・ヴィラ,aston-villa,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-065,shakhtar-donetsk-vs-young-boys,UCL,2024-25,MD065,League Phase,,LP 第4節,2024-11-06,シャフタール・ドネツク,shakhtar-donetsk,ヤングボーイズ,young-boys,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-066,sparta-praha-vs-brest,UCL,2024-25,MD066,League Phase,,LP 第4節,2024-11-06,スパルタ・プラハ,sparta-praha,ブレスト,brest,,1,2,,,,,,2025/01/29
+UCL-2024-25-LP-067,stuttgart-vs-atalanta,UCL,2024-25,MD067,League Phase,,LP 第4節,2024-11-06,シュトゥットガルト,stuttgart,アタランタ,atalanta,,0,2,,,,,,2025/01/29
+UCL-2024-25-LP-068,inter-vs-arsenal,UCL,2024-25,MD068,League Phase,,LP 第4節,2024-11-06,インテル,inter,アーセナル,arsenal,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-069,paris-saint-germain-vs-atletico-madrid,UCL,2024-25,MD069,League Phase,,LP 第4節,2024-11-06,パリ・サンジェルマン,paris-saint-germain,アトレティコ・マドリード,atletico-madrid,,1,2,,,,,,2025/01/29
+UCL-2024-25-LP-070,feyenoord-vs-salzburg,UCL,2024-25,MD070,League Phase,,LP 第4節,2024-11-06,フェイエノールト,feyenoord,ザルツブルク,salzburg,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-071,crvena-zvezda-vs-barcelona,UCL,2024-25,MD071,League Phase,,LP 第4節,2024-11-06,ツルヴェナ・ズヴェズダ,crvena-zvezda,バルセロナ,barcelona,,2,5,,,,,,2025/01/29
+UCL-2024-25-LP-072,bayern-munich-vs-benfica,UCL,2024-25,MD072,League Phase,,LP 第4節,2024-11-06,バイエルン・ミュンヘン,bayern-munich,ベンフィカ,benfica,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-073,slovan-bratislava-vs-milan,UCL,2024-25,MD073,League Phase,,LP 第5節,2024-11-26,スロヴァン・ブラチスラヴァ,slovan-bratislava,ミラン,milan,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-074,sparta-praha-vs-atletico-madrid,UCL,2024-25,MD074,League Phase,,LP 第5節,2024-11-26,スパルタ・プラハ,sparta-praha,アトレティコ・マドリード,atletico-madrid,,0,6,,,,,,2025/01/29
+UCL-2024-25-LP-075,sporting-vs-arsenal,UCL,2024-25,MD075,League Phase,,LP 第5節,2024-11-26,スポルティングCP,sporting,アーセナル,arsenal,,1,5,,,,,,2025/01/29
+UCL-2024-25-LP-076,young-boys-vs-atalanta,UCL,2024-25,MD076,League Phase,,LP 第5節,2024-11-26,ヤングボーイズ,young-boys,アタランタ,atalanta,,1,6,,,,,,2025/01/29
+UCL-2024-25-LP-077,bayern-munich-vs-paris-saint-germain,UCL,2024-25,MD077,League Phase,,LP 第5節,2024-11-26,バイエルン・ミュンヘン,bayern-munich,パリ・サンジェルマン,paris-saint-germain,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-078,barcelona-vs-brest,UCL,2024-25,MD078,League Phase,,LP 第5節,2024-11-26,バルセロナ,barcelona,ブレスト,brest,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-079,inter-vs-rb-leipzig,UCL,2024-25,MD079,League Phase,,LP 第5節,2024-11-26,インテル,inter,RBライプツィヒ,rb-leipzig,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-080,manchester-city-vs-feyenoord,UCL,2024-25,MD080,League Phase,,LP 第5節,2024-11-26,マンチェスター・シティ,manchester-city,フェイエノールト,feyenoord,,3,3,,,,,,2025/01/29
+UCL-2024-25-LP-081,bayer-leverkusen-vs-salzburg,UCL,2024-25,MD081,League Phase,,LP 第5節,2024-11-26,バイエル・レバークーゼン,bayer-leverkusen,ザルツブルク,salzburg,,5,0,,,,,,2025/01/29
+UCL-2024-25-LP-082,sturm-graz-vs-girona,UCL,2024-25,MD082,League Phase,,LP 第5節,2024-11-27,シュトゥルム・グラーツ,sturm-graz,ジローナ,girona,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-083,crvena-zvezda-vs-stuttgart,UCL,2024-25,MD083,League Phase,,LP 第5節,2024-11-27,ツルヴェナ・ズヴェズダ,crvena-zvezda,シュトゥットガルト,stuttgart,,5,1,,,,,,2025/01/29
+UCL-2024-25-LP-084,monaco-vs-benfica,UCL,2024-25,MD084,League Phase,,LP 第5節,2024-11-27,モナコ,monaco,ベンフィカ,benfica,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-085,aston-villa-vs-juventus,UCL,2024-25,MD085,League Phase,,LP 第5節,2024-11-27,アストン・ヴィラ,aston-villa,ユヴェントス,juventus,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-086,bologna-vs-lille,UCL,2024-25,MD086,League Phase,,LP 第5節,2024-11-27,ボローニャ,bologna,リール,lille,,1,2,,,,,,2025/01/29
+UCL-2024-25-LP-087,liverpool-vs-real-madrid,UCL,2024-25,MD087,League Phase,,LP 第5節,2024-11-27,リヴァプール,liverpool,レアル・マドリード,real-madrid,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-088,celtic-vs-club-brugge,UCL,2024-25,MD088,League Phase,,LP 第5節,2024-11-27,セルティック,celtic,クラブ・ブルッヘ,club-brugge,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-089,dinamo-zagreb-vs-borussia-dortmund,UCL,2024-25,MD089,League Phase,,LP 第5節,2024-11-27,ディナモ・ザグレブ,dinamo-zagreb,ボルシア・ドルトムント,borussia-dortmund,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-090,psv-vs-shakhtar-donetsk,UCL,2024-25,MD090,League Phase,,LP 第5節,2024-11-27,PSV,psv,シャフタール・ドネツク,shakhtar-donetsk,,3,2,,,,,,2025/01/29
+UCL-2024-25-LP-091,girona-vs-liverpool,UCL,2024-25,MD091,League Phase,,LP 第6節,2024-12-10,ジローナ,girona,リヴァプール,liverpool,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-092,dinamo-zagreb-vs-celtic,UCL,2024-25,MD092,League Phase,,LP 第6節,2024-12-10,ディナモ・ザグレブ,dinamo-zagreb,セルティック,celtic,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-093,brest-vs-psv,UCL,2024-25,MD093,League Phase,,LP 第6節,2024-12-10,ブレスト,brest,PSV,psv,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-094,rb-leipzig-vs-aston-villa,UCL,2024-25,MD094,League Phase,,LP 第6節,2024-12-10,RBライプツィヒ,rb-leipzig,アストン・ヴィラ,aston-villa,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-095,atalanta-vs-real-madrid,UCL,2024-25,MD095,League Phase,,LP 第6節,2024-12-10,アタランタ,atalanta,レアル・マドリード,real-madrid,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-096,bayer-leverkusen-vs-inter,UCL,2024-25,MD096,League Phase,,LP 第6節,2024-12-10,バイエル・レバークーゼン,bayer-leverkusen,インテル,inter,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-097,club-brugge-vs-sporting,UCL,2024-25,MD097,League Phase,,LP 第6節,2024-12-10,クラブ・ブルッヘ,club-brugge,スポルティングCP,sporting,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-098,shakhtar-donetsk-vs-bayern-munich,UCL,2024-25,MD098,League Phase,,LP 第6節,2024-12-10,シャフタール・ドネツク,shakhtar-donetsk,バイエルン・ミュンヘン,bayern-munich,,1,5,,,,,,2025/01/29
+UCL-2024-25-LP-099,salzburg-vs-paris-saint-germain,UCL,2024-25,MD099,League Phase,,LP 第6節,2024-12-10,ザルツブルク,salzburg,パリ・サンジェルマン,paris-saint-germain,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-100,atletico-madrid-vs-slovan-bratislava,UCL,2024-25,MD100,League Phase,,LP 第6節,2024-12-11,アトレティコ・マドリード,atletico-madrid,スロヴァン・ブラチスラヴァ,slovan-bratislava,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-101,lille-vs-sturm-graz,UCL,2024-25,MD101,League Phase,,LP 第6節,2024-12-11,リール,lille,シュトゥルム・グラーツ,sturm-graz,,3,2,,,,,,2025/01/29
+UCL-2024-25-LP-102,stuttgart-vs-young-boys,UCL,2024-25,MD102,League Phase,,LP 第6節,2024-12-11,シュトゥットガルト,stuttgart,ヤングボーイズ,young-boys,,5,1,,,,,,2025/01/29
+UCL-2024-25-LP-103,borussia-dortmund-vs-barcelona,UCL,2024-25,MD103,League Phase,,LP 第6節,2024-12-11,ボルシア・ドルトムント,borussia-dortmund,バルセロナ,barcelona,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-104,milan-vs-crvena-zvezda,UCL,2024-25,MD104,League Phase,,LP 第6節,2024-12-11,ミラン,milan,ツルヴェナ・ズヴェズダ,crvena-zvezda,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-105,benfica-vs-bologna,UCL,2024-25,MD105,League Phase,,LP 第6節,2024-12-11,ベンフィカ,benfica,ボローニャ,bologna,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-106,arsenal-vs-monaco,UCL,2024-25,MD106,League Phase,,LP 第6節,2024-12-11,アーセナル,arsenal,モナコ,monaco,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-107,juventus-vs-manchester-city,UCL,2024-25,MD107,League Phase,,LP 第6節,2024-12-11,ユヴェントス,juventus,マンチェスター・シティ,manchester-city,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-108,feyenoord-vs-sparta-praha,UCL,2024-25,MD108,League Phase,,LP 第6節,2024-12-11,フェイエノールト,feyenoord,スパルタ・プラハ,sparta-praha,,4,2,,,,,,2025/01/29
+UCL-2024-25-LP-109,monaco-vs-aston-villa,UCL,2024-25,MD109,League Phase,,LP 第7節,2025-01-21,モナコ,monaco,アストン・ヴィラ,aston-villa,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-110,atalanta-vs-sturm-graz,UCL,2024-25,MD110,League Phase,,LP 第7節,2025-01-21,アタランタ,atalanta,シュトゥルム・グラーツ,sturm-graz,,5,0,,,,,,2025/01/29
+UCL-2024-25-LP-111,bologna-vs-borussia-dortmund,UCL,2024-25,MD111,League Phase,,LP 第7節,2025-01-21,ボローニャ,bologna,ボルシア・ドルトムント,borussia-dortmund,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-112,slovan-bratislava-vs-stuttgart,UCL,2024-25,MD112,League Phase,,LP 第7節,2025-01-21,スロヴァン・ブラチスラヴァ,slovan-bratislava,シュトゥットガルト,stuttgart,,1,3,,,,,,2025/01/29
+UCL-2024-25-LP-113,liverpool-vs-lille,UCL,2024-25,MD113,League Phase,,LP 第7節,2025-01-21,リヴァプール,liverpool,リール,lille,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-114,atletico-madrid-vs-bayer-leverkusen,UCL,2024-25,MD114,League Phase,,LP 第7節,2025-01-21,アトレティコ・マドリード,atletico-madrid,バイエル・レバークーゼン,bayer-leverkusen,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-115,benfica-vs-barcelona,UCL,2024-25,MD115,League Phase,,LP 第7節,2025-01-21,ベンフィカ,benfica,バルセロナ,barcelona,,4,5,,,,,,2025/01/29
+UCL-2024-25-LP-116,club-brugge-vs-juventus,UCL,2024-25,MD116,League Phase,,LP 第7節,2025-01-21,クラブ・ブルッヘ,club-brugge,ユヴェントス,juventus,,0,0,,,,,,2025/01/29
+UCL-2024-25-LP-117,crvena-zvezda-vs-psv,UCL,2024-25,MD117,League Phase,,LP 第7節,2025-01-21,ツルヴェナ・ズヴェズダ,crvena-zvezda,PSV,psv,,2,3,,,,,,2025/01/29
+UCL-2024-25-LP-118,rb-leipzig-vs-sporting,UCL,2024-25,MD118,League Phase,,LP 第7節,2025-01-22,RBライプツィヒ,rb-leipzig,スポルティングCP,sporting,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-119,shakhtar-donetsk-vs-brest,UCL,2024-25,MD119,League Phase,,LP 第7節,2025-01-22,シャフタール・ドネツク,shakhtar-donetsk,ブレスト,brest,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-120,sparta-praha-vs-inter,UCL,2024-25,MD120,League Phase,,LP 第7節,2025-01-22,スパルタ・プラハ,sparta-praha,インテル,inter,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-121,paris-saint-germain-vs-manchester-city,UCL,2024-25,MD121,League Phase,,LP 第7節,2025-01-22,パリ・サンジェルマン,paris-saint-germain,マンチェスター・シティ,manchester-city,,4,2,,,,,,2025/01/29
+UCL-2024-25-LP-122,real-madrid-vs-salzburg,UCL,2024-25,MD122,League Phase,,LP 第7節,2025-01-22,レアル・マドリード,real-madrid,ザルツブルク,salzburg,,5,1,,,,,,2025/01/29
+UCL-2024-25-LP-123,milan-vs-girona,UCL,2024-25,MD123,League Phase,,LP 第7節,2025-01-22,ミラン,milan,ジローナ,girona,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-124,arsenal-vs-dinamo-zagreb,UCL,2024-25,MD124,League Phase,,LP 第7節,2025-01-22,アーセナル,arsenal,ディナモ・ザグレブ,dinamo-zagreb,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-125,celtic-vs-young-boys,UCL,2024-25,MD125,League Phase,,LP 第7節,2025-01-22,セルティック,celtic,ヤングボーイズ,young-boys,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-126,feyenoord-vs-bayern-munich,UCL,2024-25,MD126,League Phase,,LP 第7節,2025-01-22,フェイエノールト,feyenoord,バイエルン・ミュンヘン,bayern-munich,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-127,sporting-vs-bologna,UCL,2024-25,MD127,League Phase,,LP 第8節,2025-01-29,スポルティングCP,sporting,ボローニャ,bologna,,1,1,,,,,,2025/01/29
+UCL-2024-25-LP-128,young-boys-vs-crvena-zvezda,UCL,2024-25,MD128,League Phase,,LP 第8節,2025-01-29,ヤングボーイズ,young-boys,ツルヴェナ・ズヴェズダ,crvena-zvezda,,0,1,,,,,,2025/01/29
+UCL-2024-25-LP-129,aston-villa-vs-celtic,UCL,2024-25,MD129,League Phase,,LP 第8節,2025-01-29,アストン・ヴィラ,aston-villa,セルティック,celtic,,4,2,,,,,,2025/01/29
+UCL-2024-25-LP-130,girona-vs-arsenal,UCL,2024-25,MD130,League Phase,,LP 第8節,2025-01-29,ジローナ,girona,アーセナル,arsenal,,1,2,,,,,,2025/01/29
+UCL-2024-25-LP-131,brest-vs-real-madrid,UCL,2024-25,MD131,League Phase,,LP 第8節,2025-01-29,ブレスト,brest,レアル・マドリード,real-madrid,,0,3,,,,,,2025/01/29
+UCL-2024-25-LP-132,sturm-graz-vs-rb-leipzig,UCL,2024-25,MD132,League Phase,,LP 第8節,2025-01-29,シュトゥルム・グラーツ,sturm-graz,RBライプツィヒ,rb-leipzig,,1,0,,,,,,2025/01/29
+UCL-2024-25-LP-133,stuttgart-vs-paris-saint-germain,UCL,2024-25,MD133,League Phase,,LP 第8節,2025-01-29,シュトゥットガルト,stuttgart,パリ・サンジェルマン,paris-saint-germain,,1,4,,,,,,2025/01/29
+UCL-2024-25-LP-134,bayern-munich-vs-slovan-bratislava,UCL,2024-25,MD134,League Phase,,LP 第8節,2025-01-29,バイエルン・ミュンヘン,bayern-munich,スロヴァン・ブラチスラヴァ,slovan-bratislava,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-135,borussia-dortmund-vs-shakhtar-donetsk,UCL,2024-25,MD135,League Phase,,LP 第8節,2025-01-29,ボルシア・ドルトムント,borussia-dortmund,シャフタール・ドネツク,shakhtar-donetsk,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-136,barcelona-vs-atalanta,UCL,2024-25,MD136,League Phase,,LP 第8節,2025-01-29,バルセロナ,barcelona,アタランタ,atalanta,,2,2,,,,,,2025/01/29
+UCL-2024-25-LP-137,inter-vs-monaco,UCL,2024-25,MD137,League Phase,,LP 第8節,2025-01-29,インテル,inter,モナコ,monaco,,3,0,,,,,,2025/01/29
+UCL-2024-25-LP-138,manchester-city-vs-club-brugge,UCL,2024-25,MD138,League Phase,,LP 第8節,2025-01-29,マンチェスター・シティ,manchester-city,クラブ・ブルッヘ,club-brugge,,3,1,,,,,,2025/01/29
+UCL-2024-25-LP-139,bayer-leverkusen-vs-sparta-praha,UCL,2024-25,MD139,League Phase,,LP 第8節,2025-01-29,バイエル・レバークーゼン,bayer-leverkusen,スパルタ・プラハ,sparta-praha,,2,0,,,,,,2025/01/29
+UCL-2024-25-LP-140,juventus-vs-benfica,UCL,2024-25,MD140,League Phase,,LP 第8節,2025-01-29,ユヴェントス,juventus,ベンフィカ,benfica,,0,2,,,,,,2025/01/29
+UCL-2024-25-LP-141,dinamo-zagreb-vs-milan,UCL,2024-25,MD141,League Phase,,LP 第8節,2025-01-29,ディナモ・ザグレブ,dinamo-zagreb,ミラン,milan,,2,1,,,,,,2025/01/29
+UCL-2024-25-LP-142,lille-vs-feyenoord,UCL,2024-25,MD142,League Phase,,LP 第8節,2025-01-29,リール,lille,フェイエノールト,feyenoord,,6,1,,,,,,2025/01/29
+UCL-2024-25-LP-143,psv-vs-liverpool,UCL,2024-25,MD143,League Phase,,LP 第8節,2025-01-29,PSV,psv,リヴァプール,liverpool,,3,2,,,,,,2025/01/29
+UCL-2024-25-LP-144,salzburg-vs-atletico-madrid,UCL,2024-25,MD144,League Phase,,LP 第8節,2025-01-29,ザルツブルク,salzburg,アトレティコ・マドリード,atletico-madrid,,1,4,,,,,,2025/01/29
