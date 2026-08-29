@@ -20,13 +20,21 @@ export type CtSeasonMetaRow = {
   update_date: string;
 };
 
+// ビルド中の読込結果を保持
+let ctSeasonMetaCache: CtSeasonMetaRow[] | null = null;
+
 // ct_season_meta.csv を読み込む（クラブ“あゆみ”の子ページ/メタ表示で共通利用）
 export function loadCtSeasonMeta(): CtSeasonMetaRow[] {
+  if (ctSeasonMetaCache !== null) {
+    return ctSeasonMetaCache;
+  }
+
   const csvPath = path.join(process.cwd(), "src", "data", "ct_season_meta.csv");
+
   const raw = fs.readFileSync(csvPath, "utf-8");
   const rows = parseCsv(raw);
 
-  return rows.map((r) => ({
+  ctSeasonMetaCache = rows.map((r) => ({
     season: String(r.season ?? "").trim(),
     league_key: String(r.league_key ?? "").trim(),
     club_key: String(r.club_key ?? "").trim(),
@@ -43,6 +51,8 @@ export function loadCtSeasonMeta(): CtSeasonMetaRow[] {
     note: String(r.note ?? "").trim(),
     update_date: String(r.update_date ?? "").trim(),
   }));
+
+  return ctSeasonMetaCache;
 }
 
 // 1クラブ×1シーズンのメタを引く（見つからなければ null）

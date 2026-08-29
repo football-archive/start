@@ -53,6 +53,7 @@ function parseCSVLine(line: string): string[] {
 
     cur += ch;
   }
+
   out.push(cur);
   return out;
 }
@@ -60,6 +61,7 @@ function parseCSVLine(line: string): string[] {
 function readCSV(filePath: string): Record<string, string>[] {
   const raw = fs.readFileSync(filePath, "utf-8").replace(/^\uFEFF/, "");
   const lines = raw.split(/\r?\n/).filter((l) => l.trim().length > 0);
+
   if (lines.length === 0) return [];
 
   const header = parseCSVLine(lines[0]).map((h) => h.trim());
@@ -68,10 +70,14 @@ function readCSV(filePath: string): Record<string, string>[] {
   for (const line of lines.slice(1)) {
     const cols = parseCSVLine(line);
     const row: Record<string, string> = {};
-    for (let i = 0; i < header.length; i++)
+
+    for (let i = 0; i < header.length; i++) {
       row[header[i]] = (cols[i] ?? "").trim();
+    }
+
     rows.push(row);
   }
+
   return rows;
 }
 
@@ -88,16 +94,24 @@ function toOptionalNum(v: any): number | null {
   return Number.isFinite(n) ? n : null;
 }
 
+// ビルド中の読込結果を保持
+let uclLeaguePhaseCache: UclLeaguePhaseRow[] | null = null;
+
 export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
+  if (uclLeaguePhaseCache !== null) {
+    return uclLeaguePhaseCache;
+  }
+
   const csvPath = path.join(
     process.cwd(),
     "src",
     "data",
     "ucl_league_phase.csv",
   );
+
   const rows = readCSV(csvPath) as any[];
 
-  return rows
+  uclLeaguePhaseCache = rows
     .map((r) => {
       const season = (r.season ?? "").trim();
       const rank = toOptionalNum(r.rank);
@@ -127,6 +141,8 @@ export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
       } as UclLeaguePhaseRow;
     })
     .filter(Boolean) as UclLeaguePhaseRow[];
+
+  return uclLeaguePhaseCache;
 }
 
 export function getUclSeasons(): string[] {
@@ -141,6 +157,7 @@ export function loadUclLeaguePhaseBySeason(
   const rows = loadUclLeaguePhaseAll().filter(
     (r) => String(r.season) === String(season),
   );
+
   // stable sort
   rows.sort((a, b) => (a.rank ?? 999) - (b.rank ?? 999));
   return rows;
