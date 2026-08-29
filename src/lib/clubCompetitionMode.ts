@@ -1,9 +1,4 @@
-import {
-  loadCtSeasonMeta,
-  findCtSeasonMeta,
-  isCtSeasonMetaUcl,
-} from "./ctSeasonMeta";
-
+import { loadClubSquads } from "./clubSquads";
 import { hasUclLeaguePhaseClub } from "./ucl";
 
 import fs from "node:fs";
@@ -70,22 +65,26 @@ export function hasClubUclMode(args: {
 
   if (!season || !leagueKey || !clubKey) return false;
 
-  const metaAll = loadCtSeasonMeta();
+  // 国内クラブページが存在すること
+  const squadRows = loadClubSquads();
 
-  const meta = findCtSeasonMeta(metaAll, {
-    season,
-    league_key: leagueKey,
-    club_key: clubKey,
-  });
+  const hasClubSquad = squadRows.some(
+    (r: any) =>
+      String(r.season ?? "").trim() === season &&
+      String(r.league_key ?? "").trim() === leagueKey &&
+      String(r.club_key ?? "").trim() === clubKey,
+  );
 
-  if (!isCtSeasonMetaUcl(meta)) {
+  if (!hasClubSquad) {
     return false;
   }
 
+  // UCLリーグフェーズ参加クラブ
   if (!hasUclLeaguePhaseClub(season, clubKey)) {
     return false;
   }
 
+  // UCL日程が存在
   return hasUclSchedule({
     season,
     clubKey,

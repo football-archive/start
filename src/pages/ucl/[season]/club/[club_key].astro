@@ -202,14 +202,23 @@ const repHistoryLinks = buildRepHistoryLinksFromCallups(callups, {
   max: 6,
 });
 
+const hasUclStats = roster.some((r: any) => {
+  const apps = Number(r.uefa_apps ?? 0);
+  const starts = Number(r.uefa_starts ?? 0);
+  const goals = Number(r.uefa_goals ?? 0);
+  const assists = Number(r.uefa_assists ?? 0);
+
+  return apps > 0 || starts > 0 || goals > 0 || assists > 0;
+});
+
 const columns = buildClubColumns({
   isLatestView: true,
   repLabel,
   repLinks,
   repHistoryLinks,
 
-  // CLページでは出場成績が主役なので常時表示
-  showStats: true,
+  // CL出場成績が1件でもある場合だけGA列を表示
+  showStats: hasUclStats,
 });
 
 // ====================
@@ -462,14 +471,15 @@ const domesticLeagueLinks = leagueMaster
 
 // SEO：ひとまずCL専用ページとして独立
 const title =
-  `${clubLabel} CL ${season}メンバー・出場成績・試合結果` +
+  `${clubLabel} CL ${season}メンバー・組み合わせ・日程・結果` +
   `｜UEFAチャンピオンズリーグ`;
 
 const description =
-  `${clubLabel}の${season}シーズンUEFAチャンピオンズリーグ` +
-  `メンバー・出場成績・試合結果を掲載。選手ごとの出場試合数・先発数・ゴール・アシストを確認できます。`;
+  `${clubLabel}の${season}シーズンUEFAチャンピオンズリーグ情報。` +
+  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果、選手ごとの出場・先発・ゴール・アシストを掲載。`;
 
-const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
+const heading =
+  `${clubLabel} CL ${season} メンバー・組み合わせ・試合日程`;
 ---
 
 <BaseLayout
@@ -493,10 +503,10 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
   {
     hasValidUclMode && (
       <>
-        <p class="ucl-club-lead">
-  {clubLabel}の{season}シーズン UEFAチャンピオンズリーグ
-  メンバー・出場成績・試合結果を掲載しています。
-  選手ごとの出場・先発・ゴール・アシストと、大会を通じた試合結果を確認できます。
+<p class="ucl-club-lead">
+  {clubLabel}の{season}シーズン UEFAチャンピオンズリーグ情報。
+  メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載しています。
+  選手成績があるシーズンでは、出場・先発・ゴール・アシストも確認できます。
 </p>
 
         <div class="club-mode-switch">
@@ -511,19 +521,21 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
         </div>
 
         {(uclResult || leaguePhaseRank || pot) && (
-  <div class="ucl-club-meta">
-    {uclResult && <>🏆 CL：{uclResult}</>}
+<div class="ucl-club-meta">
+  ℹ️{" "}
 
-    {uclResult && leaguePhaseRank && " ｜ "}
+  {uclResult && <>🏆 CL：{uclResult}</>}
 
-    {leaguePhaseRank && (
-      <>リーグフェーズ {leaguePhaseRank}位</>
-    )}
+  {uclResult && leaguePhaseRank && " ｜ "}
 
-    {(uclResult || leaguePhaseRank) && pot && " ｜ "}
+  {leaguePhaseRank && (
+    <>リーグフェーズ {leaguePhaseRank}位</>
+  )}
 
-    {pot && <>ポット{pot}</>}
-  </div>
+  {(uclResult || leaguePhaseRank) && pot && " ｜ "}
+
+  {pot && <>ポット{pot}</>}
+</div>
 )}
 
         {uclSeasons.length > 1 && (
@@ -1139,5 +1151,93 @@ const heading = `${clubLabel} CL ${season} メンバー・出場成績`;
   :global(.page-ucl .roster-table .note-cell) {
     max-width: 86px !important;
   }
+}
+
+/* =========================================================
+   選手の加入・退団状態（国内モードと同一仕様）
+========================================================= */
+
+/* NEW：新加入 */
+:global(.page-ucl .roster-table tbody tr.row-new td) {
+  background: #fff7cc !important;
+}
+
+/* sticky固定されている背番号・Pos列にも同じ色を適用 */
+:global(.page-ucl .roster-table tbody tr.row-new td:nth-child(1)),
+:global(.page-ucl .roster-table tbody tr.row-new td:nth-child(2)) {
+  background: #fff7cc !important;
+}
+
+/* NEW行の左端アクセント */
+:global(.page-ucl .roster-table tbody tr.row-new td:first-child) {
+  box-shadow:
+    inset 4px 0 0 #e6b800,
+    inset -1px 0 0 var(--roster-border);
+}
+
+/* OUT：退団 */
+:global(.page-ucl .roster-table tbody tr.row-out td) {
+  background: #eeeeee !important;
+  color: #707070;
+}
+
+/* sticky固定列にも同じ色を適用 */
+:global(.page-ucl .roster-table tbody tr.row-out td:nth-child(1)),
+:global(.page-ucl .roster-table tbody tr.row-out td:nth-child(2)) {
+  background: #eeeeee !important;
+}
+
+/* OUT行の左端アクセント */
+:global(.page-ucl .roster-table tbody tr.row-out td:first-child) {
+  box-shadow:
+    inset 4px 0 0 #9a9a9a,
+    inset -1px 0 0 var(--roster-border);
+}
+
+/* ホバー時 */
+:global(.page-ucl .roster-table tbody tr.row-new:hover td) {
+  background: #fff2aa !important;
+}
+
+:global(.page-ucl .roster-table tbody tr.row-out:hover td) {
+  background: #e3e3e3 !important;
+}
+
+/* NEWの備考文字は青 */
+:global(.page-ucl .roster-table tbody tr.row-new td:nth-child(10) .note-red) {
+  color: #1565c0 !important;
+  font-weight: 700;
+}
+
+/* OUTの備考文字は赤 */
+:global(.page-ucl .roster-table tbody tr.row-out td:nth-child(10) .note-red) {
+  color: #c62828 !important;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  :global(.page-ucl .roster-table tbody tr.row-new .mob-note-line) {
+    color: #1565c0 !important;
+    font-weight: 700;
+  }
+
+  :global(.page-ucl .roster-table tbody tr.row-out .mob-note-line) {
+    color: #c62828 !important;
+    font-weight: 700;
+  }
+}
+
+.club-mode-current {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--theme-color);
+  white-space: nowrap;
+
+  background: #fff3a6;
+  padding: 5px 10px;
+  border-radius: 4px;
 }
 </style>
