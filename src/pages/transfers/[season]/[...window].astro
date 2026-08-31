@@ -274,10 +274,42 @@ const moveLabel = (t) => {
 };
 
 // ピルURL生成
+// 指定した season / window に、そのリーグの移籍データが存在するか
+const hasLeagueInPeriod = (
+  targetSeason: string,
+  targetWindow: string,
+  targetLeague: string,
+) => {
+  const league = normalize(targetLeague);
+
+  if (!league) return false;
+
+  return all.some((r) => {
+    const rowSeason = String(r.season ?? "").trim();
+    const rowWindow = normalize(r.window);
+
+    if (
+      rowSeason !== String(targetSeason ?? "").trim() ||
+      rowWindow !== normalize(targetWindow)
+    ) {
+      return false;
+    }
+
+    return hasLeague(r, league);
+  });
+};
+
+// ピルURL生成
 const pageHref = (nextSeason, nextWindow, nextLeague = "") => {
   const base = `/transfers/${encodeURIComponent(nextSeason)}/${encodeURIComponent(nextWindow)}/`;
   const league = normalize(nextLeague);
-  return league ? `${base}${encodeURIComponent(league)}/` : base;
+
+  // 次の期間にも同じリーグのデータが存在するときだけ
+  // リーグ絞り込みを引き継ぐ。
+  // 存在しない場合は「すべて」の期間トップへ戻す。
+  return league && hasLeagueInPeriod(nextSeason, nextWindow, league)
+    ? `${base}${encodeURIComponent(league)}/`
+    : base;
 };
 
 // クラブ表示（masterにあれば ja/en が入ってる。無ければ値そのまま）
