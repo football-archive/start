@@ -326,6 +326,7 @@ const squadPath = path.join(
 );
 
 const availableClubSquads = new Set<string>();
+const japanesePlayerNames = new Set<string>();
 
 if (fs.existsSync(squadPath)) {
   const raw = fs.readFileSync(squadPath, "utf-8").replace(/^\uFEFF/, "");
@@ -346,6 +347,12 @@ if (fs.existsSync(squadPath)) {
 
     if (s && w && leagueKey && clubKey) {
       availableClubSquads.add(`${s}|||${w}|||${leagueKey}|||${clubKey}`);
+    }
+    const nationality = normalize(row.nationality);
+    const nameJa = String(row.name_ja ?? "").trim();
+
+    if (nationality === "japan" && nameJa) {
+      japanesePlayerNames.add(nameJa);
     }
   }
 }
@@ -565,6 +572,15 @@ const parseNote = (value) => {
     <button type="button" class="transfer-tab" data-transfer-tab="coaches">
       監督 <span>{coachRows.length}</span>
     </button>
+
+    <button
+      type="button"
+      class="transfer-japan-filter"
+      data-japan-filter
+      aria-pressed="false"
+    >
+      🇯🇵 日本人のみ
+    </button>
   </div>
 
   {
@@ -587,7 +603,7 @@ const parseNote = (value) => {
   }
 
   <style is:global>
-    <style is:global > .meta {
+    .meta {
       font-size: 16px;
       line-height: 1.6;
       color: #666;
@@ -862,6 +878,31 @@ const parseNote = (value) => {
         margin: 10px 0 14px;
       }
     }
+
+    .transfer-japan-filter {
+      margin-left: auto;
+      align-self: center;
+      appearance: none;
+      border: 1px solid #f3a6b8;
+      border-radius: 999px;
+      background: #fff0f4;
+      color: #b4234d;
+      padding: 6px 13px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .transfer-japan-filter:hover {
+      background: #ffe4eb;
+    }
+
+    .transfer-japan-filter.is-active {
+      background: #f8b4c4;
+      border-color: #e87995;
+      color: #7f1734;
+    }
   </style>
 
   {
@@ -915,7 +956,13 @@ const parseNote = (value) => {
                     const note = parseNote(r.note);
 
                     return (
-                      <tr>
+                      <tr
+                        data-japanese={
+                          japanesePlayerNames.has(String(r.name ?? "").trim())
+                            ? "true"
+                            : "false"
+                        }
+                      >
                         <td class="mono">{dateText(r)}</td>
                         <td>{r.name}</td>
                         <td class="type">{moveLabel(r.move_type)}</td>
@@ -949,7 +996,7 @@ const parseNote = (value) => {
                               target="_blank"
                               rel="noopener"
                             >
-                              🔗 関連リンク
+                              🔗 加入動画（クラブ公式X）
                             </a>
                           )}
                         </td>
@@ -1033,6 +1080,19 @@ const parseNote = (value) => {
 
       tabs.forEach((tab) => {
         tab.addEventListener("click", () => activate(tab.dataset.transferTab));
+      });
+
+      const japanFilter = document.querySelector("[data-japan-filter]");
+
+      japanFilter?.addEventListener("click", () => {
+        const active = japanFilter.classList.toggle("is-active");
+        japanFilter.setAttribute("aria-pressed", String(active));
+
+        document
+          .querySelectorAll('[data-transfer-panel="players"] tbody tr')
+          .forEach((row) => {
+            row.hidden = active && row.dataset.japanese !== "true";
+          });
       });
     })();
   </script>
