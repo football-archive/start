@@ -96,7 +96,7 @@ const latestUpdate = latestUpdateRaw ? formatDateJP(latestUpdateRaw) : "";
               {rows.map((row) => (
                 <tr class:list={[row.isCancelled && "is-cancelled"]}>
                   <td class="year-cell">
-                    <a href={row.href}>{row.year}</a>
+                    <a href={row.href}>🔍 {row.year}</a>
                   </td>
 
                   <td class="player-cell">

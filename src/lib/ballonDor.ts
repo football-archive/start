@@ -5,7 +5,7 @@ import { loadClubSquads, type ClubSquadRow } from "./clubSquads";
 import { loadCallups } from "./callups";
 import { loadClubMaster } from "./clubMaster";
 import { awardUrl, clubUrl, type Season, type Year } from "./urls";
-import { loadCompetitionSchedule } from "./competitionSchedule";
+import { hasClubUclMode } from "./clubCompetitionMode";
 
 export type BallonDorEdition = {
   year: string;
@@ -575,6 +575,10 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
     )[0];
     const autoClubs = distinctLatestClubs(clubRows);
 
+    const clubs = shouldPrioritizeOverride(edition, row)
+      ? fallbackClubs(row)
+      : mergeAwardClubs(autoClubs, fallbackClubs(row));
+
     return {
       rank: row.rank,
       playerName: row.player_name_ja,
@@ -582,11 +586,9 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
         clean(latestAttributeRow?.nationality) || row.nationality_override,
       position:
         clean(latestAttributeRow?.position_primary) || row.position_override,
-      clubs: shouldPrioritizeOverride(edition, row)
-        ? fallbackClubs(row)
-        : mergeAwardClubs(autoClubs, fallbackClubs(row)),
+      clubs,
       competitions: competitionsFor(row),
-      cupCompetitions: cupCompetitionsFor(row),
+      cupCompetitions: cupCompetitionsFor(row, clubs),
       points: row.points,
       notes: row.notes,
     };
@@ -606,7 +608,10 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
   };
 }
 
-function cupCompetitionsFor(row: BallonDorRanking): AwardCupCompetition[] {
+function cupCompetitionsFor(
+  row: BallonDorRanking,
+  clubs: AwardClub[],
+): AwardCupCompetition[] {
   const competition = clean(row.cup_competition).toUpperCase();
   const edition = clean(row.cup_edition);
 
@@ -624,24 +629,38 @@ function cupCompetitionsFor(row: BallonDorRanking): AwardCupCompetition[] {
   };
 
   const displayCompetition = labelMap[competition] ?? competition;
-
-  const label =
-    displayCompetition === "UEFAカップ"
-      ? `${displayCompetition}${edition}`
-      : `${displayCompetition}${edition}`;
+  const label = `${displayCompetition}${edition}`;
 
   let href = "";
 
-  // 暫定仕様：CLページだけ内部リンク
   if (competition === "UCL" || competition === "CL") {
-    const exists = loadCompetitionSchedule().some(
-      (match) =>
-        clean(match.competition).toUpperCase() === "UCL" &&
-        clean(match.edition) === edition,
-    );
+    for (const club of clubs) {
+      if (!club.href) continue;
 
-    if (exists) {
-      href = `/ucl/${encodeURIComponent(edition)}/`;
+      const match = club.href.match(
+        /^\/clubs\/([^/]+)\/club\/([^/]+)\/([^/]+)\/?$/,
+      );
+
+      if (!match) continue;
+
+      const [, leagueKey, clubKey, season] = match;
+
+      const compactSeason = season.replace(/^(\d{2})/, "");
+
+      if (season !== edition && compactSeason !== edition) continue;
+
+      if (
+        !hasClubUclMode({
+          season,
+          leagueKey,
+          clubKey,
+        })
+      ) {
+        continue;
+      }
+
+      href = `/ucl/${encodeURIComponent(season)}/club/${encodeURIComponent(clubKey)}/`;
+      break;
     }
   }
 
