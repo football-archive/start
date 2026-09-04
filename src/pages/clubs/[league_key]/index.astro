@@ -386,8 +386,11 @@ const leagueName =
   String(leagueInfo?.league_display ?? "").trim() ||
   leagueKey;
 
-const title = `${leagueName}｜クラブ一覧・シーズン別入口`;
-const description = `${leagueName}のクラブ一覧と掲載シーズン一覧です。各クラブの登録メンバー（スカッド）ページへ移動できます。`;
+const title = `${leagueName} クラブ一覧｜順位表・最新メンバー・シーズン別データ`;
+
+const description =
+  `${leagueName}のクラブ一覧、順位表、最新メンバー、シーズン別データを掲載。` +
+  `各クラブの所属選手・歴代監督・リーグ戦成績も確認できます。`;
 
 const heading = leagueName;
 ---
@@ -406,12 +409,12 @@ const heading = leagueName;
   heading=""
 >
   <h1 class="page-title">
-    {leagueName} ポータルページ | クラブ一覧・シーズン別データ
+    {leagueName}｜クラブ一覧・順位表・最新メンバー
   </h1>
   <p class="clubs-desc">
-    {
-      leagueName
-    }のクラブ一覧と掲載シーズンをまとめたページです。各シーズンの順位表・得点王・クラブ詳細ページへ移動できます。
+    {leagueName}のクラブ一覧・順位表・シーズン別データをまとめています。
+    欧州サッカー主要リーグの各クラブについて、最新メンバー・所属選手・
+    リーグ戦成績・歴代監督などを確認できます。
   </p>
 
   <div class="pill-block" style="margin: 10px 0 14px;">

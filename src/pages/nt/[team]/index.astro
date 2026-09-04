@@ -88,10 +88,19 @@ function getRosterHref(
   competition: string,
   edition: string,
   countryNameJa: string,
+  countrySlug?: string,
 ) {
   const code = normalizeCompetition(competition);
   const teamPath = encodeURIComponent(countryNameJa);
-  if (code === "WC") return `/wc/${edition}/team/${teamPath}/`;
+
+  if (code === "WC") {
+    return `/wc/${edition}/team/${teamPath}/`;
+  }
+
+  if (code === "IW") {
+    return `/nt/${countrySlug}/iw/${edition}/`;
+  }
+
   const info = getCompetitionInfo(code);
   return `/continental/${info.segment}/${edition}/team/${teamPath}/`;
 }
@@ -198,14 +207,17 @@ for (const [key, rows] of callupGroups) {
   });
 }
 
-const editions = Array.from(editionMap.values()).sort((a, b) => {
-  const byEdition = Number(b.edition) - Number(a.edition);
-  if (byEdition !== 0) return byEdition;
-  return (
-    getCompetitionInfo(a.competition).order -
-    getCompetitionInfo(b.competition).order
-  );
-});
+const editions = Array.from(editionMap.values())
+  .filter((item) => normalizeCompetition(item.competition) !== "IW")
+  .sort((a, b) => {
+    const byEdition = Number(b.edition) - Number(a.edition);
+    if (byEdition !== 0) return byEdition;
+
+    return (
+      getCompetitionInfo(a.competition).order -
+      getCompetitionInfo(b.competition).order
+    );
+  });
 
 const latestCallup = allCallups
   .slice()
@@ -219,13 +231,56 @@ const latestCompetition = latestCallup
 const latestEdition = latestCallup ? clean(latestCallup.edition) : "";
 const latestSnapshot = latestCallup ? clean(latestCallup.snapshot_date) : "";
 const latestRosterHref = latestCallup
-  ? getRosterHref(latestCompetition, latestEdition, countryJa)
+  ? getRosterHref(latestCompetition, latestEdition, countryJa, teamSlug)
   : "";
 
 const rankRows = readCsv("fifa_rank.csv")
   .filter((row) => clean(row.country_name_ja) === countryJa)
   .sort((a, b) => toDateKey(b.rank_date).localeCompare(toDateKey(a.rank_date)));
 const latestRank = rankRows[0];
+
+const iwHistory = Array.from(callupGroups.entries())
+  .filter(([key]) => key.startsWith("IW:"))
+  .map(([key, rows]) => {
+    const [, edition] = key.split(":");
+
+    const snapshot =
+      rows
+        .map((row) => clean(row.snapshot_date))
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? "";
+
+    const iwMeta = tournamentMeta.find(
+      (row) => row.competition === "IW" && row.edition === edition,
+    );
+
+    const coach = iwMeta?.coach ?? "";
+
+    return {
+      edition,
+      year: edition.slice(0, 4),
+      month: edition.slice(4, 6),
+      snapshot,
+      rosterCount: rows.length,
+      coach,
+      href: getRosterHref("IW", edition, countryJa, teamSlug),
+    };
+  })
+  .sort((a, b) => Number(b.edition) - Number(a.edition));
+
+const iwHistoryByYear = iwHistory.reduce<Record<string, typeof iwHistory>>(
+  (acc, item) => {
+    if (!acc[item.year]) {
+      acc[item.year] = [];
+    }
+
+    acc[item.year].push(item);
+
+    return acc;
+  },
+  {},
+);
 
 const lineupRows = readCsv("nt_lineup_images.csv")
   .filter((row) => clean(row.team_slug) === teamSlug)
@@ -256,9 +311,11 @@ const latestLineupHref = latestLineup
 const latestPublishedDate =
   formatYearMonth(latestSnapshot) || (latestLineup ? latestLineup.edition : "");
 
-const heading = `${countryJa}代表 ポータルページ | 歴代大会成績・監督・メンバー一覧`;
-const title = `${countryJa}代表 メンバー・フォーメーション・招集履歴`;
-const description = `${countryJa}代表の最新掲載メンバー、フォーメーション、ワールドカップなど国際大会の招集履歴をまとめています。`;
+const heading = `${countryJa}代表 メンバー・招集履歴・歴代大会`;
+const title = `${countryJa}代表 メンバー・背番号・フォーメーション・招集履歴`;
+const description =
+  `${countryJa}代表の最新メンバー・背番号・フォーメーション、代表活動ごとの招集履歴、` +
+  `ワールドカップなど国際大会の歴代メンバー・監督・成績をまとめています。`;
 ---
 
 <BaseLayout
@@ -280,8 +337,8 @@ const description = `${countryJa}代表の最新掲載メンバー、フォー�
     <p>
       {
         countryJa
-      }代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。</br>※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
-    </p>
+      }代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。
+    </p>※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
   </div>
 
   <div class="updated-date">
@@ -336,6 +393,44 @@ const description = `${countryJa}代表の最新掲載メンバー、フォー�
     )
   }
 
+  {
+    iwHistory.length > 0 && (
+      <section class="iw-history" aria-labelledby="iw-history-heading">
+        <h2 id="iw-history-heading">⚽ 直近の代表活動</h2>
+
+        <div class="iw-history-groups">
+          {Object.entries(iwHistoryByYear)
+            .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA))
+            .map(([year, items]) => (
+              <div class="iw-history-group">
+                <div class="iw-history-group-year">{year}</div>
+
+                <div class="iw-history-list">
+                  {items.map((item) => (
+                    <div class="iw-history-row">
+                      <div class="iw-history-date">
+                        <span>{Number(item.month)}月</span>
+                      </div>
+
+                      <div class="iw-history-count">掲載：{item.rosterCount}名</div>
+
+                      <div class="iw-history-coach">
+                        {item.coach && <span>監督：{item.coach}</span>}
+                      </div>
+
+                      <div class="iw-history-link">
+                        <a href={item.href}>👉 メンバー一覧へ</a>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+        </div>
+      </section>
+    )
+  }
+
   <section class="history" aria-labelledby="history-heading">
     <h2 id="history-heading">⚽ 歴代大会成績・監督・メンバー一覧</h2>
 
@@ -373,7 +468,7 @@ const description = `${countryJa}代表の最新掲載メンバー、フォー�
           })}
         </div>
       ) : (
-        <p class="empty-message">招集履歴は順次追加予定です。</p>
+        <p class="empty-message">順次追加予定です。</p>
       )
     }
   </section>
@@ -619,6 +714,87 @@ const description = `${countryJa}代表の最新掲載メンバー、フォー�
         grid-column: 2;
         grid-row: 1;
       }
+    }
+
+    .page-nt-country .iw-history-list {
+      border-top: 1px solid #c7ccd4;
+    }
+
+    .page-nt-country .iw-history-row {
+      display: grid;
+      grid-template-columns: 120px minmax(120px, 1fr) minmax(170px, 1.4fr) 150px;
+      align-items: center;
+      gap: 12px;
+      min-height: 48px;
+      padding: 8px 10px;
+      border-bottom: 1px solid #d9dde3;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .page-nt-country .iw-history-row:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .page-nt-country .iw-history-date {
+      display: flex;
+      gap: 10px;
+      color: #172033;
+    }
+
+    .page-nt-country .iw-history-count {
+      color: #475569;
+    }
+
+    .page-nt-country .iw-history-coach {
+      color: #334155;
+    }
+
+    .page-nt-country .iw-history-link {
+      text-align: right;
+    }
+
+    .page-nt-country .iw-history-link a {
+      color: var(--theme-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-country .iw-history-row {
+        grid-template-columns: 1fr auto;
+        gap: 5px 12px;
+        font-size: 15px;
+      }
+
+      .page-nt-country .iw-history-date {
+        grid-column: 1;
+      }
+
+      .page-nt-country .iw-history-count {
+        grid-column: 1;
+      }
+
+      .page-nt-country .iw-history-coach {
+        grid-column: 1;
+      }
+
+      .page-nt-country .iw-history-link {
+        grid-column: 2;
+        grid-row: 1 / 4;
+        align-self: center;
+      }
+    }
+
+    .page-nt-country .iw-history-group + .iw-history-group {
+      margin-top: 16px;
+    }
+
+    .page-nt-country .iw-history-group-year {
+      margin: 0 0 6px;
+      color: #8f1720;
+      font-size: 17px;
+      font-weight: 600;
     }
   </style>
 </BaseLayout>

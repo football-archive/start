@@ -5,10 +5,12 @@ import { parseCsv } from "../../lib/csvSimple";
 import fs from "node:fs";
 import path from "node:path";
 
-const heading = "各国代表一覧";
-const title = `${heading}｜国際大会・最新メンバー | World Football Archive`;
+const heading = "サッカー各国代表一覧";
+
+const title = "サッカー各国代表一覧｜最新メンバー・背番号・国際大会";
+
 const description =
-  "世界各国の代表チームと国際大会をまとめた代表ポータル。ワールドカップや各大陸選手権、各国代表の最新メンバー・歴代大会を閲覧できます。";
+  "世界各国のサッカー代表チームを大陸別に掲載。各国代表の最新メンバー・背番号・フォーメーション・招集履歴、ワールドカップなど国際大会の情報をまとめています。";
 
 const competitionCards = [
   {
@@ -171,19 +173,21 @@ for (const meta of latestMetaByCountry.values()) {
   if (!countriesByConfederation.has(conf))
     countriesByConfederation.set(conf, []);
 
+  const countryKey = countryKeyByName.get(meta.country) ?? "";
+
   const snapshotHref =
     meta.competition === "WC"
       ? `/wc/${encodeURIComponent(meta.edition)}/team/${encodeURIComponent(meta.country)}/`
-      : "";
+      : meta.competition === "IW" && countryKey
+        ? `/nt/${countryKey}/iw/${encodeURIComponent(meta.edition)}/`
+        : "";
 
   countriesByConfederation.get(conf)!.push({
     ...meta,
     count: latestCountByCountry.get(meta.country) ?? 0,
     snapshotLabel: monthLabel(meta.snapshot_date),
     snapshotHref,
-    portalHref: countryKeyByName.get(meta.country)
-      ? `/nt/${countryKeyByName.get(meta.country)}/`
-      : "",
+    portalHref: countryKey ? `/nt/${countryKey}/` : "",
   });
 }
 
@@ -203,12 +207,17 @@ const countrySections = [...countriesByConfederation.entries()]
   bodyClass="page-nt-portal page-wc"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
-  crumbs={[{ label: "トップ", href: "/" }, { label: "各国代表一覧・国際大会ポータル" }]}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "各国代表一覧・国際大会ポータル" },
+  ]}
   heading={heading}
 >
-  <h1>各国代表一覧・国際大会ポータルページ</h1>
+  <h1>サッカー各国代表一覧｜最新メンバー・国際大会</h1>
   <p class="nt-lead">
-    世界各国の代表チームと国際大会をまとめたポータルページです。大会から探すほか、大陸別の代表一覧から各国の最新メンバーや歴代大会へ移動できます。
+    世界各国のサッカー代表チームを大陸別にまとめています。
+    各国代表の最新メンバー・背番号・フォーメーション・招集履歴や、
+    ワールドカップなど国際大会の情報を国別・大会別に閲覧できます。
   </p>
 
   <section class="portal-section" aria-labelledby="competition-heading">
@@ -248,38 +257,15 @@ const countrySections = [...countriesByConfederation.entries()]
   </section>
 
   <section
-    class="portal-section history-section"
-    aria-labelledby="history-heading"
-  >
-    <div class="section-heading-row">
-      <div>
-        <p class="section-kicker">HISTORY</p>
-        <h2 id="history-heading">⚽ 代表のあゆみ</h2>
-      </div>
-      <p class="section-note">大会毎の歴史を振り返る</p>
-    </div>
-
-    <div class="history-grid">
-      {
-        historyCards.map((item) => (
-          <a class="history-card" href={item.href}>
-            <strong>{item.name}</strong>
-            <span>{item.meta}</span>
-            <small>見る →</small>
-          </a>
-        ))
-      }
-    </div>
-  </section>
-
-  <section
     class="portal-section countries-section"
     aria-labelledby="countries-heading"
   >
     <div class="section-heading-row countries-heading-row">
       <div>
         <p class="section-kicker">NATIONAL TEAMS</p>
-        <h2 id="countries-heading">⚽ 大陸別・各国代表一覧</h2>
+        <h2 id="countries-heading">
+          ⚽ サッカー各国代表一覧｜最新メンバー・招集履歴
+        </h2>
       </div>
       <p class="section-note">上段：代表国ポータルへ／下段：最新掲載メンバー</p>
     </div>
@@ -309,12 +295,12 @@ const countrySections = [...countriesByConfederation.entries()]
                   )}
                   {item.snapshotHref ? (
                     <a class="country-snapshot-link" href={item.snapshotHref}>
-                      {item.snapshotLabel} 最新掲載メンバー
+                      {item.snapshotLabel} メンバー・背番号
                       <span class="count">({item.count})</span>
                     </a>
                   ) : (
                     <span class="country-snapshot-link is-pending">
-                      {item.snapshotLabel} 最新掲載メンバー
+                      {item.snapshotLabel} メンバー・背番号
                       <span class="count">({item.count})</span>
                     </span>
                   )}
@@ -325,6 +311,31 @@ const countrySections = [...countriesByConfederation.entries()]
         </section>
       ))
     }
+  </section>
+
+    <section
+    class="portal-section history-section"
+    aria-labelledby="history-heading"
+  >
+    <div class="section-heading-row">
+      <div>
+        <p class="section-kicker">HISTORY</p>
+        <h2 id="history-heading">⚽ 代表のあゆみ</h2>
+      </div>
+      <p class="section-note">大会毎の歴史を振り返る</p>
+    </div>
+
+    <div class="history-grid">
+      {
+        historyCards.map((item) => (
+          <a class="history-card" href={item.href}>
+            <strong>{item.name}</strong>
+            <span>{item.meta}</span>
+            <small>見る →</small>
+          </a>
+        ))
+      }
+    </div>
   </section>
 
   <style is:global>

@@ -1,0 +1,501 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import RosterView from "../../../../components/RosterView.astro";
+
+import { parseCsv } from "../../../../lib/csvSimple";
+import { loadCallups, sortForRoster } from "../../../../lib/callups";
+import { loadClubMaster } from "../../../../lib/clubMaster";
+import { loadClubSquads } from "../../../../lib/clubSquads";
+import { buildNtColumns } from "../../../../lib/rosterColumns";
+import { clubUrl } from "../../../../lib/urls";
+
+import fs from "node:fs";
+import path from "node:path";
+
+type CsvRow = Record<string, string>;
+
+type CountryRow = {
+  country_key: string;
+  country_name_ja: string;
+};
+
+function readCsv(fileName: string): CsvRow[] {
+  const filePath = path.join(process.cwd(), "src", "data", fileName);
+  return parseCsv(fs.readFileSync(filePath, "utf-8")) as CsvRow[];
+}
+
+function clean(value: unknown): string {
+  return String(value ?? "").trim();
+}
+
+function normalize(value: unknown): string {
+  return clean(value).replace(/　/g, " ").replace(/\s+/g, " ").toLowerCase();
+}
+
+function formatSnapshotDate(value: unknown): string {
+  const raw = clean(value);
+  if (!raw) return "";
+
+  const m = raw.match(/^(\d{4})[\/.-](\d{1,2})[\/.-](\d{1,2})/);
+  if (!m) return raw;
+
+  return `${m[1]}年${Number(m[2])}月${Number(m[3])}日`;
+}
+
+function formatEdition(value: unknown): string {
+  const edition = clean(value);
+
+  if (!/^\d{6}$/.test(edition)) {
+    return edition;
+  }
+
+  const year = edition.slice(0, 4);
+  const month = String(Number(edition.slice(4, 6)));
+
+  return `${year}年${month}月`;
+}
+
+function editionToClubSeason(edition: string): string {
+  if (!/^\d{6}$/.test(edition)) return "";
+
+  const year = Number(edition.slice(0, 4));
+  const month = Number(edition.slice(4, 6));
+
+  if (!Number.isFinite(year) || !Number.isFinite(month)) return "";
+
+  if (month >= 7) {
+    return `${year}-${String(year + 1).slice(2)}`;
+  }
+
+  return `${year - 1}-${String(year).slice(2)}`;
+}
+
+// ====================
+// Static Paths
+// IWデータが存在する国×editionだけ生成
+// ====================
+export async function getStaticPaths() {
+  const readCsvForPaths = (fileName: string): CsvRow[] => {
+    const filePath = path.join(process.cwd(), "src", "data", fileName);
+    return parseCsv(fs.readFileSync(filePath, "utf-8")) as CsvRow[];
+  };
+
+  const cleanForPaths = (value: unknown): string => String(value ?? "").trim();
+
+  const normalizeForPaths = (value: unknown): string =>
+    cleanForPaths(value).replace(/　/g, " ").replace(/\s+/g, " ").toLowerCase();
+
+  const countries = readCsvForPaths("country_master.csv").map((row) => ({
+    country_key: cleanForPaths(row.country_key),
+    country_name_ja: cleanForPaths(row.country_name_ja),
+  })) as CountryRow[];
+
+  const countryKeyByName = new Map(
+    countries.map((country) => [
+      normalizeForPaths(country.country_name_ja),
+      country.country_key,
+    ]),
+  );
+
+  const callups = readCsvForPaths("callups_site.csv");
+
+  const seen = new Set<string>();
+  const paths = [];
+
+  for (const row of callups) {
+    if (cleanForPaths(row.competition).toUpperCase() !== "IW") {
+      continue;
+    }
+
+    const edition = cleanForPaths(row.edition);
+    const countryName = cleanForPaths(row.country);
+    const team = countryKeyByName.get(normalizeForPaths(countryName));
+
+    if (!edition || !team) continue;
+
+    const key = `${team}:${edition}`;
+
+    if (seen.has(key)) continue;
+
+    seen.add(key);
+
+    paths.push({
+      params: {
+        team,
+        edition,
+      },
+      props: {
+        countryName,
+      },
+    });
+  }
+
+  return paths;
+}
+
+// ====================
+// Page Data
+// ====================
+const { team, edition } = Astro.params;
+
+const teamSlug = clean(team);
+const editionKey = clean(edition);
+
+const countries = readCsv("country_master.csv").map((row) => ({
+  country_key: clean(row.country_key),
+  country_name_ja: clean(row.country_name_ja),
+})) as CountryRow[];
+
+const country = countries.find((row) => row.country_key === teamSlug);
+
+if (!country) {
+  throw new Error(
+    `country_master.csv に country_key=${teamSlug} が見つかりません`,
+  );
+}
+
+const countryName = country.country_name_ja;
+
+const rows = loadCallups()
+  .filter(
+    (row) =>
+      clean(row.competition).toUpperCase() === "IW" &&
+      clean(row.edition) === editionKey &&
+      clean(row.country) === countryName,
+  )
+  .sort(sortForRoster);
+
+if (rows.length === 0) {
+  throw new Error(
+    `IW ${editionKey} / ${countryName} のcallupsデータが見つかりません`,
+  );
+}
+
+const rowHighlightClass = (row: any) => {
+  const noteText = clean(
+    row.notes ?? row.note ?? row.remarks ?? row.note_ja ?? "",
+  );
+
+  if (!/^\d{6}$/.test(editionKey)) {
+    return "";
+  }
+
+  const year = editionKey.slice(0, 4);
+  const month = editionKey.slice(4, 6);
+
+  const editionPattern = new RegExp(`${year}[./-]?${month}`);
+
+  return editionPattern.test(noteText) ? "row-highlight" : "";
+};
+
+const tournamentMeta = readCsv("nt_tournament_meta.csv");
+
+const iwMeta = tournamentMeta.find(
+  (row) =>
+    clean(row.team_slug) === teamSlug &&
+    clean(row.competition).toUpperCase() === "IW" &&
+    clean(row.edition) === editionKey,
+);
+
+const coach = clean(iwMeta?.coach_ja);
+const activityMatches = clean(iwMeta?.comment_ja)
+  .split("|")
+  .map((item) => item.trim())
+  .filter(Boolean);
+
+const latestSnapshot =
+  rows
+    .map((row) => clean(row.snapshot_date))
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? "";
+
+const clubMaster = loadClubMaster();
+
+const clubSquads = loadClubSquads();
+
+const clubSquadKeySet = new Set(
+  clubSquads.map(
+    (row: any) =>
+      `${row.season}|||${row.window}|||${row.league_key}|||${row.club_key}`,
+  ),
+);
+
+const parseAliases = (aliases: string) =>
+  String(aliases || "")
+    .split(/[|,、/]/)
+    .map((value) => value.trim())
+    .filter(Boolean);
+
+const resolveClubMaster = (clubName: string) => {
+  const key = normalize(clubName);
+  if (!key) return null;
+
+  return (
+    clubMaster.find((club: any) => {
+      if (normalize(club.club_display_ja) === key) return true;
+      if (normalize(club.club_display_en) === key) return true;
+
+      return parseAliases(club.aliases).some(
+        (alias) => normalize(alias) === key,
+      );
+    }) ?? null
+  );
+};
+
+const clubSeason = editionToClubSeason(editionKey);
+
+const clubHref = (clubName: string) => {
+  const club: any = resolveClubMaster(clubName);
+  if (!club || !clubSeason) return "";
+
+  const squadKey = (window: "summer" | "winter") =>
+    `${clubSeason}|||${window}|||${club.league_key}|||${club.club_key}`;
+
+  const hasSummer = clubSquadKeySet.has(squadKey("summer"));
+  const hasWinter = clubSquadKeySet.has(squadKey("winter"));
+
+  if (!hasSummer && !hasWinter) {
+    return "";
+  }
+
+  return clubUrl({
+    leagueKey: club.league_key,
+    clubKey: club.club_key,
+    season: clubSeason as any,
+  });
+};
+
+const clubLabel = (clubName: string) => {
+  const club: any = resolveClubMaster(clubName);
+  return club?.club_display_ja || clubName;
+};
+
+const columns = buildNtColumns({
+  isLatestView: true,
+  showStats: false,
+  clubHref,
+  clubLabel,
+  tournamentLinks: () => [],
+});
+
+const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー`;
+
+const title = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー｜代表ウィーク`;
+
+const description =
+  `${countryName}代表の${formatEdition(editionKey)}代表ウィーク招集メンバー一覧。` +
+  `背番号、ポジション、所属クラブ、監督、当期間の試合日程・結果などを掲載しています。`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-nt-iw page-wc"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "各国代表一覧・国際大会ポータル", href: "/nt/" },
+    { label: `${countryName}代表`, href: `/nt/${teamSlug}/` },
+    { label: `${formatEdition(editionKey)} 招集メンバー` },
+  ]}
+  heading={heading}
+>
+  <h1 class="iw-title">{heading}</h1>
+
+  <div class="iw-lead">
+    <p>
+      {countryName}代表の{
+        formatEdition(editionKey)
+      }代表活動について、招集メンバー・背番号・所属クラブなどを掲載しています。
+    </p>
+  </div>
+
+  {
+    latestSnapshot && (
+      <div class="iw-updated">更新日：{formatSnapshotDate(latestSnapshot)}</div>
+    )
+  }
+
+  <div class="iw-summary">
+    <span>
+      <strong>●代表活動（国際Aマッチ）期間：</strong>
+      {formatEdition(editionKey)}
+    </span>
+
+    {
+      coach && (
+        <span>
+          <strong>●監督：</strong>
+          {coach}
+        </span>
+      )
+    }
+
+    <span>
+      <strong>●掲載人数：</strong>
+      {rows.length}名
+    </span>
+  </div>
+
+  {
+    activityMatches.length > 0 && (
+      <div class="iw-matches">
+        <div class="iw-matches-title">📝 当期間の試合日程・結果</div>
+
+        <div class="iw-match-list">
+          {activityMatches.map((item) => (
+            <div class="iw-match-item">⚽ {item}</div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  <section
+    id="roster"
+    class="iw-roster"
+    aria-label={`${countryName}代表 ${formatEdition(editionKey)} 招集メンバー`}
+  >
+    <h2>👕 招集メンバー</h2>
+
+    <RosterView {rows} {columns} rowClass={rowHighlightClass} />
+  </section>
+
+  <div class="iw-back">
+    <a href={`/nt/${teamSlug}/`}>
+      ← {countryName}代表トップへ戻る
+    </a>
+  </div>
+
+  <style is:global>
+    .page-nt-iw .iw-title {
+      display: block !important;
+      margin: 4px 0 10px;
+      color: #172033;
+      font-size: 28px;
+      font-weight: 500;
+      line-height: 1.35;
+    }
+
+    .page-nt-iw .iw-lead {
+      margin: 8px 0 14px;
+      color: #475569;
+      font-size: 16px;
+      line-height: 1.75;
+    }
+
+    .page-nt-iw .iw-updated {
+      margin: 8px 0 14px;
+      text-align: right;
+      font-size: 15px;
+    }
+
+    .page-nt-iw .iw-summary {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 24px;
+      margin: 0 0 28px;
+      padding: 12px 16px;
+      border-left: 5px solid #8f1720;
+      background: #f7ecee;
+      color: #8f1720;
+      font-size: 17px;
+      line-height: 1.6;
+    }
+
+    .page-nt-iw .iw-summary strong {
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-roster {
+      margin-top: 28px;
+    }
+
+    .page-nt-iw .iw-roster h2 {
+      margin: 0 0 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #9ca3af;
+      color: #8f1720;
+      font-size: 22px;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    .page-nt-iw .iw-back {
+      margin: 28px 0 12px;
+    }
+
+    .page-nt-iw .iw-back a {
+      color: var(--theme-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-iw .iw-title {
+        font-size: 24px;
+      }
+
+      .page-nt-iw .iw-lead {
+        font-size: 15px;
+      }
+
+      .page-nt-iw .iw-summary {
+        display: block;
+        font-size: 16px;
+      }
+
+      .page-nt-iw .iw-summary span {
+        display: block;
+      }
+
+      .page-nt-iw .iw-roster h2 {
+        font-size: 20px;
+      }
+    }
+
+    .page-nt-iw #roster a {
+      color: #2e7d32;
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-matches {
+      margin: 8px 0 14px;
+      padding: 10px 12px;
+      border: 1px solid #d9dde3;
+      border-radius: 6px;
+      background: #f8fafc;
+    }
+
+    .page-nt-iw .iw-matches-title {
+      margin-bottom: 5px;
+      color: var(--theme-color);
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-match-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px 20px;
+    }
+
+    .page-nt-iw .iw-match-item {
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-iw .iw-match-list {
+        display: block;
+      }
+
+      .page-nt-iw .iw-match-item + .iw-match-item {
+        margin-top: 3px;
+      }
+    }
+  </style>
+</BaseLayout>

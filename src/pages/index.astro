@@ -75,7 +75,7 @@ const groupUpdatesByDate = (rows: any[]) =>
 // 全体21件ではなく、代表・クラブそれぞれの表示枠を確保する。
 const ntUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "nt")
-  .slice(0, 33);
+  .slice(0, 36);
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
@@ -338,9 +338,9 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
 ---
 
 <BaseLayout
-  title="海外サッカーDB｜W杯2026出場国・代表メンバー一覧｜海外主要クラブメンバー一覧・移籍情報"
+  title="海外サッカーDB｜欧州主要クラブ・各国代表・メンバー・移籍情報"
   bodyClass="page-home"
-  description="FIFAワールドカップ2026の出場国・代表メンバー一覧を中心に、各国代表の背番号・所属クラブ・過去大会の情報をまとめた海外サッカーデータベースサイトです。海外クラブ登録メンバーやワールドカップ情報も一覧できます。"
+  description="欧州を中心とした海外サッカーのデータベース。主要リーグ・クラブの最新メンバー、各国代表の招集メンバー・背番号、順位表、移籍情報、ワールドカップやUEFAチャンピオンズリーグなどを掲載しています。"
   bodyStyle="margin:0; background:#fafafa; color:#111;"
 >
   <style is:global>
@@ -421,181 +421,181 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
       font-weight: 700;
     }
 
-/* ==========================
+    /* ==========================
    Updates
 ========================== */
 
-.updates {
-  margin-top: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  background: #fff;
-}
+    .updates {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: #fff;
+    }
 
-.updates > h2 {
-  margin: 0 0 10px;
-  font-size: 15px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
+    .updates > h2 {
+      margin: 0 0 10px;
+      font-size: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
 
-/* PC：代表／クラブの2列 */
-.updates-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
-}
+    /* PC：代表／クラブの2列 */
+    .updates-columns {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 14px;
+      align-items: start;
+    }
 
-.updates-column {
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid var(--border);
-  border-radius: 11px;
-  background: #fff;
-}
+    .updates-column {
+      min-width: 0;
+      padding: 10px 12px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      background: #fff;
+    }
 
-/* 代表側 */
-.updates-column-nt {
-  border-top: 3px solid #a82b3c;
-  background: color-mix(in srgb, #a82b3c 3%, #fff);
-}
+    /* 代表側 */
+    .updates-column-nt {
+      border-top: 3px solid #a82b3c;
+      background: color-mix(in srgb, #a82b3c 3%, #fff);
+    }
 
-/* クラブ側 */
-.updates-column-club {
-  border-top: 3px solid #4f806d;
-  background: color-mix(in srgb, #4f806d 4%, #fff);
-}
+    /* クラブ側 */
+    .updates-column-club {
+      border-top: 3px solid #4f806d;
+      background: color-mix(in srgb, #4f806d 4%, #fff);
+    }
 
-.updates-column-title {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin: 0 0 9px;
-  padding-bottom: 7px;
-  border-bottom: 1px solid var(--border);
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1.3;
-}
+    .updates-column-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 9px;
+      padding-bottom: 7px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 800;
+      line-height: 1.3;
+    }
 
-.updates-column-nt .updates-column-title {
-  color: #8f2434;
-}
+    .updates-column-nt .updates-column-title {
+      color: #8f2434;
+    }
 
-.updates-column-club .updates-column-title {
-  color: #356653;
-}
+    .updates-column-club .updates-column-title {
+      color: #356653;
+    }
 
-.updates-groups {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    .updates-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
-.updates-group {
-  min-width: 0;
-  padding-top: 2px;
-}
+    .updates-group {
+      min-width: 0;
+      padding-top: 2px;
+    }
 
-.updates-group-date {
-  margin-bottom: 4px;
-  color: var(--date-red);
-  font-size: 15px;
-  font-weight: 800;
-  line-height: 1.4;
-  font-variant-numeric: tabular-nums;
-}
+    .updates-group-date {
+      margin-bottom: 4px;
+      color: var(--date-red);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.4;
+      font-variant-numeric: tabular-nums;
+    }
 
-.updates-group-list {
-  margin: 0;
-  padding-left: 16px;
-}
+    .updates-group-list {
+      margin: 0;
+      padding-left: 16px;
+    }
 
-.updates-group-list li {
-  margin: 3px 0;
-  font-size: 15px;
-  line-height: 1.5;
-}
+    .updates-group-list li {
+      margin: 3px 0;
+      font-size: 15px;
+      line-height: 1.5;
+    }
 
-.updates .title {
-  font-size: 15px;
-  font-weight: 400;
-}
+    .updates .title {
+      font-size: 15px;
+      font-weight: 400;
+    }
 
-.updates .title-link {
-  color: inherit;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
+    .updates .title-link {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
 
-.updates .title-link:hover {
-  opacity: 0.82;
-}
+    .updates .title-link:hover {
+      opacity: 0.82;
+    }
 
-/* 各日最初の行は小見出しとして少し強くする */
-.updates-group-list li:first-child .title {
-  font-weight: 600;
-}
+    /* 各日最初の行は小見出しとして少し強くする */
+    .updates-group-list li:first-child .title {
+      font-weight: 600;
+    }
 
-.updates-empty {
-  margin: 0;
-  color: var(--muted);
-  font-size: 12.5px;
-  line-height: 1.6;
-}
+    .updates-empty {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
 
-/* モバイル：縦積み */
-@media (max-width: 759px) {
-  .updates {
-    padding: 10px 12px;
-  }
+    /* モバイル：縦積み */
+    @media (max-width: 759px) {
+      .updates {
+        padding: 10px 12px;
+      }
 
-  .updates > h2 {
-    margin-bottom: 8px;
-    font-size: 14px;
-  }
+      .updates > h2 {
+        margin-bottom: 8px;
+        font-size: 14px;
+      }
 
-  .updates-columns {
-    grid-template-columns: 1fr;
-    gap: 10px;
-  }
+      .updates-columns {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
 
-  .updates-column {
-    padding: 9px 10px;
-  }
+      .updates-column {
+        padding: 9px 10px;
+      }
 
-  .updates-column-title {
-    margin-bottom: 7px;
-    padding-bottom: 6px;
-    font-size: 13.5px;
-  }
+      .updates-column-title {
+        margin-bottom: 7px;
+        padding-bottom: 6px;
+        font-size: 13.5px;
+      }
 
-  .updates-groups {
-    gap: 8px;
-  }
+      .updates-groups {
+        gap: 8px;
+      }
 
-  .updates-group-date {
-    margin-bottom: 3px;
-    font-size: 12.5px;
-  }
+      .updates-group-date {
+        margin-bottom: 3px;
+        font-size: 12.5px;
+      }
 
-  .updates-group-list {
-    padding-left: 14px;
-  }
+      .updates-group-list {
+        padding-left: 14px;
+      }
 
-  .updates-group-list li {
-    margin: 2px 0;
-    font-size: 12.5px;
-    line-height: 1.45;
-  }
+      .updates-group-list li {
+        margin: 2px 0;
+        font-size: 12.5px;
+        line-height: 1.45;
+      }
 
-  .updates .title {
-    font-size: 12.5px;
-  }
-}
+      .updates .title {
+        font-size: 12.5px;
+      }
+    }
 
     .quick-title {
       margin: 0;
@@ -1345,95 +1345,97 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
   </style>
 
   <div class="container">
-<section class="updates">
-  <h2>🆕 更新情報</h2>
+    <section class="updates">
+      <h2>🆕 更新情報</h2>
 
-  {
-    !hasUpdates ? (
-      <p class="muted">更新情報は準備中です。</p>
-    ) : (
-      <div class="updates-columns">
-        {/* 左：代表・大会 */}
-        <section
-          class="updates-column updates-column-nt"
-          aria-label="代表・大会の更新情報"
-        >
-          <h3 class="updates-column-title">
-            <span aria-hidden="true">🌍</span>
-            {updateSectionLabel.nt}
-          </h3>
+      {
+        !hasUpdates ? (
+          <p class="muted">更新情報は準備中です。</p>
+        ) : (
+          <div class="updates-columns">
+            {/* 左：代表・大会 */}
+            <section
+              class="updates-column updates-column-nt"
+              aria-label="代表・大会の更新情報"
+            >
+              <h3 class="updates-column-title">
+                <span aria-hidden="true">🌍</span>
+                {updateSectionLabel.nt}
+              </h3>
 
-          {groupedNtUpdates.length > 0 ? (
-            <div class="updates-groups">
-              {groupedNtUpdates.map(([date, items]) => (
-                <section class="updates-group">
-                  <div class="updates-group-date">
-                    {date.replaceAll("-", "/")}
-                  </div>
+              {groupedNtUpdates.length > 0 ? (
+                <div class="updates-groups">
+                  {groupedNtUpdates.map(([date, items]) => (
+                    <section class="updates-group">
+                      <div class="updates-group-date">
+                        {date.replaceAll("-", "/")}
+                      </div>
 
-                  <ul class="updates-group-list">
-                    {(items as any[]).map((u) => (
-                      <li>
-                        {u.href ? (
-                          <a class="title-link" href={u.href}>
-                            <span class="title">{u.title}</span>
-                          </a>
-                        ) : (
-                          <span class="title">{u.title}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-          ) : (
-            <p class="updates-empty">代表・大会の更新情報は準備中です。</p>
-          )}
-        </section>
+                      <ul class="updates-group-list">
+                        {(items as any[]).map((u) => (
+                          <li>
+                            {u.href ? (
+                              <a class="title-link" href={u.href}>
+                                <span class="title">{u.title}</span>
+                              </a>
+                            ) : (
+                              <span class="title">{u.title}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              ) : (
+                <p class="updates-empty">代表・大会の更新情報は準備中です。</p>
+              )}
+            </section>
 
-        {/* 右：クラブ・移籍 */}
-        <section
-          class="updates-column updates-column-club"
-          aria-label="クラブ・移籍の更新情報"
-        >
-          <h3 class="updates-column-title">
-            <span aria-hidden="true">👕</span>
-            {updateSectionLabel.club}
-          </h3>
+            {/* 右：クラブ・移籍 */}
+            <section
+              class="updates-column updates-column-club"
+              aria-label="クラブ・移籍の更新情報"
+            >
+              <h3 class="updates-column-title">
+                <span aria-hidden="true">👕</span>
+                {updateSectionLabel.club}
+              </h3>
 
-          {groupedClubUpdates.length > 0 ? (
-            <div class="updates-groups">
-              {groupedClubUpdates.map(([date, items]) => (
-                <section class="updates-group">
-                  <div class="updates-group-date">
-                    {date.replaceAll("-", "/")}
-                  </div>
+              {groupedClubUpdates.length > 0 ? (
+                <div class="updates-groups">
+                  {groupedClubUpdates.map(([date, items]) => (
+                    <section class="updates-group">
+                      <div class="updates-group-date">
+                        {date.replaceAll("-", "/")}
+                      </div>
 
-                  <ul class="updates-group-list">
-                    {(items as any[]).map((u) => (
-                      <li>
-                        {u.href ? (
-                          <a class="title-link" href={u.href}>
-                            <span class="title">{u.title}</span>
-                          </a>
-                        ) : (
-                          <span class="title">{u.title}</span>
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                </section>
-              ))}
-            </div>
-          ) : (
-            <p class="updates-empty">クラブ・移籍の更新情報は準備中です。</p>
-          )}
-        </section>
-      </div>
-    )
-  }
-</section>
+                      <ul class="updates-group-list">
+                        {(items as any[]).map((u) => (
+                          <li>
+                            {u.href ? (
+                              <a class="title-link" href={u.href}>
+                                <span class="title">{u.title}</span>
+                              </a>
+                            ) : (
+                              <span class="title">{u.title}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              ) : (
+                <p class="updates-empty">
+                  クラブ・移籍の更新情報は準備中です。
+                </p>
+              )}
+            </section>
+          </div>
+        )
+      }
+    </section>
 
     <div class="hero">
       <p class="subtitle">
@@ -1757,18 +1759,17 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             </div>
           </div>
 
-          <!-- row3 col1: EURO -->
-          <div class="subcard euro-box theme-euro grid-nt-sub2">
+          <div class="subcard award-box theme-award grid-nt-sub2">
             <h3 class="subcard-title">
-              <span class="card-ico ico-euro" aria-hidden="true">🌍</span>
-              EURO 2028 予選
+              <a href="/awards/ballon-dor/">
+                <span class="card-ico" aria-hidden="true">🏆</span>
+                バロンドール｜歴代受賞者・候補者
+              </a>
             </h3>
-            <div class="euro-sub">2028年6月開催。今後データを追加予定</div>
-            <!--
-          <div class="euro-sub">
-            更新：<span class="date-red">—</span>
-          </div>
-        -->
+
+            <div class="award-sub">
+              歴代受賞者・候補者を年別に一覧で掲載
+            </div>
           </div>
 
           <!-- row3 col2: Transfers -->
