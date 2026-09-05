@@ -51,7 +51,7 @@ const decadePlayers = loadClubDecadePlayers()
       .filter(Boolean),
   }))
   .filter((r) => r.decade && r.players.length > 0)
-  .sort((a, b) => Number(a.decade) - Number(b.decade));
+  .sort((a, b) => Number(b.decade) - Number(a.decade));
 
 const club = clubMaster.find(
   (c) =>

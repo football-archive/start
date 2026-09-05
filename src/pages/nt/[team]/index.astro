@@ -1,6 +1,7 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { parseCsv } from "../../../lib/csvSimple";
+import { loadNtDecadePlayers } from "../../../lib/ntDecadePlayers";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -148,6 +149,25 @@ export async function getStaticPaths() {
 const { country } = Astro.props as { country: CountryRow };
 const teamSlug = country.country_key;
 const countryJa = country.country_name_ja;
+
+const decadePlayers = loadNtDecadePlayers()
+  .filter((row) => clean(row.country) === teamSlug)
+  .map((row) => ({
+    decade: clean(row.decade),
+    players: [
+      row.player1,
+      row.player2,
+      row.player3,
+      row.player4,
+      row.player5,
+      row.player6,
+      row.player7,
+    ]
+      .map(clean)
+      .filter(Boolean),
+  }))
+  .filter((row) => row.decade && row.players.length > 0)
+  .sort((a, b) => Number(b.decade) - Number(a.decade));
 
 const allCallups = readCsv("callups_site.csv").filter(
   (row) => clean(row.country) === countryJa,
@@ -359,6 +379,28 @@ const description =
   </div>
 
   {
+    decadePlayers.length > 0 && (
+      <section class="nt-decade-players">
+        <h2>⚽ {countryJa}代表｜年代別 主力選手</h2>
+
+        <div class="nt-decade-list">
+          {decadePlayers.map((row) => (
+            <div class="nt-decade-row">
+              <div class="nt-decade-label">{row.decade}年代</div>
+
+              <div class="nt-decade-names">
+                {row.players.map((player) => (
+                  <span class="nt-decade-player">{player}</span>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
     (latestCallup || latestLineup) && (
       <section class="latest-section" aria-labelledby="latest-heading">
         <h2 id="latest-heading">
@@ -412,7 +454,9 @@ const description =
                         <span>{Number(item.month)}月</span>
                       </div>
 
-                      <div class="iw-history-count">掲載：{item.rosterCount}名</div>
+                      <div class="iw-history-count">
+                        掲載：{item.rosterCount}名
+                      </div>
 
                       <div class="iw-history-coach">
                         {item.coach && <span>監督：{item.coach}</span>}
@@ -795,6 +839,60 @@ const description =
       color: #8f1720;
       font-size: 17px;
       font-weight: 600;
+    }
+
+    .nt-decade-players {
+      margin: 14px 0 18px;
+      padding: 12px 16px;
+      border: 1px solid rgba(179, 28, 45, 0.3);
+      border-left: 4px solid #b31c2d;
+      border-radius: 12px;
+      background: rgba(179, 28, 45, 0.07);
+    }
+
+    .nt-decade-players h2 {
+      margin: 0 0 8px;
+      color: #b31c2d;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    .nt-decade-list {
+      display: grid;
+      gap: 4px;
+    }
+
+    .nt-decade-row {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      min-width: 0;
+      font-size: 14px;
+      line-height: 1.55;
+    }
+
+    .nt-decade-label {
+      flex: 0 0 68px;
+      font-weight: 800;
+      color: #4b5563;
+      white-space: nowrap;
+    }
+
+    .nt-decade-names {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 2px 40px;
+      min-width: 0;
+    }
+
+    .nt-decade-player {
+      font-weight: 700;
+    }
+
+    .nt-decade-player::before {
+      content: "●";
+      margin-right: 6px;
+      color: #b31c2d;
     }
   </style>
 </BaseLayout>
