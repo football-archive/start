@@ -120,6 +120,71 @@ const countryKeyByName = new Map(
 );
 
 const rows = loadCallups();
+const latestUpdateDateRaw =
+  (rows as any[])
+    .map((row) => String(row.snapshot_date ?? "").trim())
+    .filter(Boolean)
+    .sort((a, b) => dateKey(b).localeCompare(dateKey(a)))[0] ?? "";
+
+const latestUpdateDate = latestUpdateDateRaw
+  ? latestUpdateDateRaw.replace(
+      /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/,
+      (_, y, m, d) => `${y}.${Number(m)}.${Number(d)}`,
+    )
+  : "";
+const iwRows = (rows as any[]).filter(
+  (row) =>
+    String(row.competition ?? "")
+      .trim()
+      .toUpperCase() === "IW",
+);
+
+const currentIwEdition =
+  iwRows
+    .map((row) => String(row.edition ?? "").trim())
+    .filter((edition) => /^\d{6}$/.test(edition))
+    .sort((a, b) => Number(b) - Number(a))[0] ?? "";
+
+const currentIwCountriesMap = new Map<
+  string,
+  {
+    country: string;
+    countryKey: string;
+    snapshotDate: string;
+    href: string;
+  }
+>();
+
+for (const row of iwRows) {
+  const edition = String(row.edition ?? "").trim();
+  if (edition !== currentIwEdition) continue;
+
+  const country = String(row.country ?? "").trim();
+  const countryKey = countryKeyByName.get(country) ?? "";
+  if (!country || !countryKey) continue;
+
+  const snapshotDate = String(row.snapshot_date ?? "").trim();
+
+  const current = currentIwCountriesMap.get(country);
+
+  if (!current || dateKey(snapshotDate) > dateKey(current.snapshotDate)) {
+    currentIwCountriesMap.set(country, {
+      country,
+      countryKey,
+      snapshotDate,
+      href: `/nt/${countryKey}/iw/${currentIwEdition}/`,
+    });
+  }
+}
+
+const currentIwCountries = Array.from(currentIwCountriesMap.values()).sort(
+  (a, b) => a.country.localeCompare(b.country, "ja"),
+);
+
+const currentIwLabel = /^\d{6}$/.test(currentIwEdition)
+  ? `${currentIwEdition.slice(0, 4)}年${Number(currentIwEdition.slice(4, 6))}月`
+  : currentIwEdition;
+
 const latestMetaByCountry = new Map<string, any>();
 
 for (const row of rows as any[]) {
@@ -220,41 +285,32 @@ const countrySections = [...countriesByConfederation.entries()]
     ワールドカップなど国際大会の情報を国別・大会別に閲覧できます。
   </p>
 
-  <section class="portal-section" aria-labelledby="competition-heading">
-    <div class="section-heading-row">
-      <div>
-        <p class="section-kicker">COMPETITIONS</p>
-        <h2 id="competition-heading">⚽ 主要国際大会</h2>
-      </div>
-      <p class="section-note">大会から代表チームを探す</p>
-    </div>
+  {
+    latestUpdateDate && (
+      <p class="nt-update-date">
+        最終更新：<span>{latestUpdateDate}</span>
+      </p>
+    )
+  }
 
-    <div class="competition-grid">
-      {
-        competitionCards.map((item) =>
-          item.href ? (
-            <a class="competition-card" href={item.href}>
-              <span class="competition-code">{item.code}</span>
-              <span class="competition-copy">
-                <strong>{item.name}</strong>
-                <small>{item.meta}</small>
-              </span>
-              <span class="competition-status is-live">{item.status}</span>
-            </a>
-          ) : (
-            <div class="competition-card is-soon" aria-disabled="true">
-              <span class="competition-code">{item.code}</span>
-              <span class="competition-copy">
-                <strong>{item.name}</strong>
-                <small>{item.meta}</small>
-              </span>
-              <span class="competition-status">{item.status}</span>
-            </div>
-          ),
-        )
-      }
-    </div>
-  </section>
+  {
+    currentIwCountries.length > 0 && (
+      <div class="iw-current-summary">
+        <div class="iw-current-summary-title">
+          🔥 {currentIwLabel} 代表ウィーク｜メンバー発表済
+        </div>
+
+        <div class="iw-current-summary-countries">
+          {currentIwCountries.map((item, idx) => (
+            <>
+              {idx > 0 ? "・" : ""}
+              <a href={item.href}>{item.country}代表</a>
+            </>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   <section
     class="portal-section countries-section"
@@ -313,7 +369,43 @@ const countrySections = [...countriesByConfederation.entries()]
     }
   </section>
 
-    <section
+  <section class="portal-section" aria-labelledby="competition-heading">
+    <div class="section-heading-row">
+      <div>
+        <p class="section-kicker">COMPETITIONS</p>
+        <h2 id="competition-heading">⚽ 主要国際大会</h2>
+      </div>
+      <p class="section-note">大会から代表チームを探す</p>
+    </div>
+
+    <div class="competition-grid">
+      {
+        competitionCards.map((item) =>
+          item.href ? (
+            <a class="competition-card" href={item.href}>
+              <span class="competition-code">{item.code}</span>
+              <span class="competition-copy">
+                <strong>{item.name}</strong>
+                <small>{item.meta}</small>
+              </span>
+              <span class="competition-status is-live">{item.status}</span>
+            </a>
+          ) : (
+            <div class="competition-card is-soon" aria-disabled="true">
+              <span class="competition-code">{item.code}</span>
+              <span class="competition-copy">
+                <strong>{item.name}</strong>
+                <small>{item.meta}</small>
+              </span>
+              <span class="competition-status">{item.status}</span>
+            </div>
+          ),
+        )
+      }
+    </div>
+  </section>
+
+  <section
     class="portal-section history-section"
     aria-labelledby="history-heading"
   >
@@ -625,6 +717,44 @@ const countrySections = [...countriesByConfederation.entries()]
         grid-template-columns: 1fr;
         gap: 9px;
       }
+    }
+
+    .page-nt-portal .iw-current-summary {
+      margin: 4px 0 16px;
+      padding: 8px 10px;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      background: #fff1f2;
+      color: #7f1d1d;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .page-nt-portal .iw-current-summary a {
+      color: #8b1a1a;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt-portal .iw-current-summary-title {
+      margin-bottom: 3px;
+    }
+
+    .page-nt-portal .iw-current-summary-countries {
+      line-height: 1.7;
+    }
+
+    .page-nt-portal .nt-update-date {
+      margin: -4px 0 10px;
+      text-align: right;
+      font-size: 13px;
+      color: #666;
+    }
+
+    .page-nt-portal .nt-update-date span {
+      color: #c62828;
+      font-weight: 600;
     }
   </style>
 </BaseLayout>

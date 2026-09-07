@@ -1,0 +1,13 @@
+edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,note
+202511,japan,,森保一,2025-11-14,ghana,H,2-0,
+202511,japan,,森保一,2025-11-18,bolivia,H,3-0,
+202603,japan,,森保一,2026-03-29,england,A,1-0,
+202603,japan,,森保一,2026-04-01,scotland,A,1-0,
+202606,venezuela,,オスワルド・ビスカロンド,,,,,
+202609,uruguay,2026-09-04,ディエゴ・フォルラン,2026-09-24,japan,A,,
+202609,uruguay,2026-09-04,ディエゴ・フォルラン,2026-09-28,south-korea,A,,
+202609,uruguay,2026-09-04,ディエゴ・フォルラン,2026-10-06,india,A,,
+202609,croatia,2026-09-07,スラベン・ビリッチ,2026-09-26,czechia,A,,
+202609,croatia,2026-09-07,スラベン・ビリッチ,2026-09-29,spain,A,,
+202609,croatia,2026-09-07,スラベン・ビリッチ,2026-10-03,england,H,,
+202609,croatia,2026-09-07,スラベン・ビリッチ,2026-10-06,spain,H,,

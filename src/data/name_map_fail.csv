@@ -128,7 +128,7 @@ Agim Zeka|1998-09-06,api_error,2026-09-03T18:57:45.010Z
 Agon Elezi|2001-03-01,no_ja,2026-03-26T16:10:59.800Z
 Agus García|1985-05-03,no_ja,2026-04-14T15:52:40.813Z
 Agustín Albarracín|2005-08-29,no_ja,2026-08-15T20:36:00.863Z
-Agustín Álvarez|2001-05-19,notfound,2026-02-19T11:32:42.309Z
+Agustín Álvarez|2001-05-19,api_error,2026-09-07T14:26:55.106Z
 Agustín Sández|2001-01-16,api_error,2026-05-09T19:47:01.400Z
 Agyemang Diawusie|1998-02-12,no_ja,2026-04-14T16:08:26.308Z
 Ahmad Al-Salman|2002-07-02,notfound,2026-03-23T14:43:50.766Z
@@ -773,7 +773,7 @@ Bremer|1997-03-18,notfound,2026-01-24T18:22:02.969Z
 Brennan Camp|2000-10-12,no_ja,2026-04-13T16:02:17.060Z
 Brenner|2000-01-16,notfound,2026-01-24T18:30:33.075Z
 Breno|1989-10-13,notfound,2026-04-14T15:56:28.787Z
-Brian Barboza|2008-05-14,notfound,2026-02-19T11:32:42.308Z
+Brian Barboza|2008-05-14,notfound,2026-09-07T14:35:57.120Z
 Brian Bayeye|2000-06-30,no_ja,2026-02-19T16:06:08.575Z
 Brian Cipenga|1998-03-11,notfound,2026-02-19T16:06:08.576Z
 Brian McGovern|1980-04-28,no_ja,2026-04-18T16:00:59.479Z
@@ -1016,7 +1016,7 @@ Cristiano Del Grosso|1983-03-24,api_error,2026-04-14T16:42:20.112Z
 Cristiano Novembre|1987-06-15,no_ja,2026-04-18T15:33:25.892Z
 Cristo Romero|2000-04-30,no_ja,2026-04-10T18:58:22.773Z
 Cristo|1997-10-24,notfound,2026-04-10T18:58:22.773Z
-Cristopher Fiermarín|1998-01-01,no_ja,2026-02-19T11:32:42.308Z
+Cristopher Fiermarín|1998-01-01,no_ja,2026-09-07T14:26:55.107Z
 Cristopher Varela|1999-11-27,no_ja,2026-09-04T18:51:45.791Z
 Cucho Hernández|1999-04-20,notfound,2026-01-24T18:11:27.031Z
 Cyriaque Irié|2005-06-20,no_ja,2026-04-08T17:02:01.157Z
@@ -1577,7 +1577,8 @@ Fabrizio Biava|1983-08-25,no_ja,2026-04-18T16:17:11.301Z
 Fabrizio Caligara|2000-04-12,no_ja,2026-04-10T19:02:40.078Z
 Facundo Bernal|2003-08-21,no_ja,2026-08-21T17:41:01.470Z
 Facundo Cambeses|1997-04-09,no_ja,2026-02-19T11:13:11.495Z
-Facundo Martínez|2008-02-04,notfound,2026-02-19T11:32:42.309Z
+Facundo Martínez|2008-02-04,no_ja,2026-09-07T14:26:55.107Z
+Facundo Rodríguez|1995-08-20,api_error,2026-09-07T18:42:45.358Z
 Fadiga Ouattara|2001-11-18,no_ja,2026-09-03T19:01:23.246Z
 Fahad Talib|1994-10-21,no_ja,2026-02-21T12:40:36.914Z
 Faik Sakar|2008-01-14,api_error,2026-08-26T16:11:00.119Z
@@ -2095,8 +2096,8 @@ Ichem Ferrah|2005-09-23,api_error,2026-09-03T18:57:45.009Z
 Idrissa Gueye|2006-09-16,no_ja,2026-08-01T19:15:05.919Z
 Ieltsin Camões|1999-04-16,notfound,2026-03-25T15:20:04.416Z
 Ifeanyi Onyebuchi|2000-04-04,notfound,2026-02-19T15:31:02.247Z
-Ignacio González|1982-05-14,notfound,2026-03-01T16:46:50.974Z
-Ignacio Laquintana|1999-02-01,no_ja,2026-02-19T11:32:42.309Z
+Ignacio González|1982-05-14,notfound,2026-09-07T14:26:55.105Z
+Ignacio Laquintana|1999-02-01,no_ja,2026-09-07T14:35:57.120Z
 Ignacio Miramón|2003-06-12,api_error,2026-09-03T18:57:45.009Z
 Ignazio Cocchiere|1987-09-19,no_ja,2026-04-18T16:17:11.301Z
 Igoh Ogbu|2000-02-08,no_ja,2026-02-19T15:31:02.247Z
@@ -2656,7 +2657,7 @@ Juan Cámara|1994-02-13,no_ja,2026-04-14T15:53:47.267Z
 Juan Carlos Arana|2000-02-08,no_ja,2026-08-21T18:35:01.072Z
 Juan Carlos Franco|1973-04-17,api_error,2026-05-09T19:49:05.091Z
 Juan Carlos|1988-01-20,notfound,2026-07-25T16:02:06.126Z
-Juan Castillo|1978-04-17,notfound,2026-03-01T16:46:50.974Z
+Juan Castillo|1978-04-17,notfound,2026-09-07T14:26:55.104Z
 Juan Cruz|1992-07-28,notfound,2026-01-24T18:12:31.655Z
 Juan Cruz|2000-04-25,notfound,2026-04-12T15:55:35.537Z
 Juan Espínola|1994-11-02,no_ja,2026-05-09T19:47:01.400Z
@@ -2693,7 +2694,7 @@ Julien Lopez|1992-03-01,no_ja,2026-08-16T19:39:03.384Z
 Julien Serrano|1998-02-13,no_ja,2026-04-12T17:28:13.305Z
 Julio Cáceres|1979-10-05,api_error,2026-05-09T19:47:01.400Z
 Júlio César|1978-11-18,notfound,2026-04-14T15:53:47.267Z
-Julio Daguer|2008-02-22,no_ja,2026-02-19T11:32:42.309Z
+Julio Daguer|2008-02-22,no_ja,2026-09-07T18:42:45.358Z
 Julio Díaz|2005-01-10,no_ja,2026-08-21T17:41:01.470Z
 Julio Manzur|1981-06-22,api_error,2026-05-09T19:49:05.091Z
 Júlíus Magnússon|1998-06-28,no_ja,2026-03-18T14:33:57.187Z
@@ -2797,7 +2798,7 @@ Keny Mbala|2004-06-02,notfound,2026-04-12T17:27:49.544Z
 Kenzo Goudmijn|2001-12-18,api_error,2026-04-18T16:40:01.481Z
 Kerim Alajbegovic|2007-09-21,api_error,2026-05-09T17:32:04.353Z
 Kerr McInroy|2000-08-31,no_ja,2026-04-18T17:59:24.654Z
-Kevin Amaro|2004-03-03,no_ja,2026-02-19T11:32:42.308Z
+Kevin Amaro|2004-03-03,no_ja,2026-09-07T14:26:55.106Z
 Kevin Carlos|2001-04-10,no_ja,2026-08-15T20:25:00.188Z
 Kevin Ciubotaru|2004-02-02,no_ja,2026-03-26T15:22:16.468Z
 Kévin Danois|2004-06-28,no_ja,2026-08-16T19:39:03.384Z
@@ -2808,7 +2809,7 @@ Kevin Koubemba|1993-03-23,no_ja,2026-09-03T19:03:22.223Z
 Kevin Lenini|1997-01-27,notfound,2026-03-25T15:20:04.415Z
 Kevin Lomónaco|2002-01-08,no_ja,2026-02-19T11:13:11.495Z
 Kevin Mac Allister|1997-11-07,no_ja,2026-02-19T11:13:39.442Z
-Kevin Martínez|2005-11-26,notfound,2026-02-19T11:32:42.308Z
+Kevin Martínez|2005-11-26,api_error,2026-09-07T18:42:45.357Z
 Kevin Mbabu|1995-04-19,api_error,2026-04-13T16:00:03.799Z
 Kevin McDonald|1988-11-04,api_error,2026-04-13T16:00:03.799Z
 Kevin Mier|2000-05-18,no_ja,2026-03-21T13:32:29.400Z
@@ -3178,10 +3179,10 @@ Lucas Shlimon|2003-02-15,no_ja,2026-02-21T12:40:36.916Z
 Lucas Stassin|2004-11-29,no_ja,2026-03-20T16:22:42.078Z
 Lucas Taibo|2006-03-02,no_ja,2026-04-11T16:56:41.560Z
 Luciano D'Auria-Henry|2002-11-11,no_ja,2026-04-13T16:00:20.627Z
-Luciano González|2006-01-01,no_ja,2026-02-19T11:32:42.309Z
+Luciano González|2006-01-01,no_ja,2026-09-07T14:26:55.107Z
 Luciano Juba|1999-08-29,no_ja,2026-02-17T16:37:22.181Z
 Luciano Narsingh|1990-09-13,api_error,2026-04-18T16:35:10.627Z
-Luciano Rodríguez|2003-07-16,no_ja,2026-02-19T11:32:42.309Z
+Luciano Rodríguez|2003-07-16,no_ja,2026-09-07T14:35:57.120Z
 Luciano|1975-12-03,notfound,2026-04-18T16:17:11.301Z
 Lucio Filomeno|1980-05-08,no_ja,2026-04-18T17:58:45.469Z
 Luck Zogbé|2005-03-24,no_ja,2026-08-16T18:22:03.866Z
@@ -4019,7 +4020,7 @@ Nicola Ravaglia|1988-12-12,no_ja,2026-04-12T16:03:35.141Z
 Nicolai Boilesen|1992-02-16,api_error,2026-04-18T16:49:42.622Z
 Nicolai Remberg|2000-06-19,no_ja,2026-08-15T19:57:43.626Z
 Nicolao Cardoso|1991-10-12,api_error,2026-04-14T16:37:31.698Z
-Nicolas Azambuja|2008-03-28,notfound,2026-02-19T11:32:42.309Z
+Nicolas Azambuja|2008-03-28,notfound,2026-09-07T18:42:45.358Z
 Nicolás Capaldo|1998-09-14,notfound,2026-08-15T19:57:43.626Z
 Nicolas de Préville|1991-01-08,api_error,2026-09-03T19:01:23.246Z
 Nicolas Feldhahn|1986-08-14,no_ja,2026-04-10T18:59:41.190Z
@@ -4227,7 +4228,7 @@ Owen Goodman|2003-11-27,no_ja,2026-03-19T18:11:23.123Z
 Owen Hesketh|2002-10-10,no_ja,2026-04-13T15:44:16.023Z
 Owen Moffat|2002-01-06,no_ja,2026-04-18T17:59:24.654Z
 Owen Parker-Price|1998-12-10,no_ja,2026-03-21T16:18:36.702Z
-Pablo Alcoba|2008-11-10,notfound,2026-02-19T11:32:42.309Z
+Pablo Alcoba|2008-11-10,api_error,2026-09-07T18:42:45.358Z
 Pablo Gálvez|2001-10-30,notfound,2026-04-12T19:26:57.564Z
 Pablo García|1977-05-11,notfound,2026-04-14T15:53:47.267Z
 Pablo García|2006-06-13,notfound,2026-08-15T20:17:42.100Z
@@ -4312,7 +4313,7 @@ Paulinho|1992-11-09,api_error,2026-04-10T19:26:41.432Z
 Paulinho|1997-12-25,api_error,2026-08-17T18:02:23.153Z
 Paulinho|2000-07-15,notfound,2026-02-28T18:27:23.613Z
 Paulo Bernardo|2002-01-24,no_ja,2026-08-16T19:44:06.448Z
-Paulo Da Costa|2008-06-13,notfound,2026-02-19T11:32:42.308Z
+Paulo Da Costa|2008-06-13,notfound,2026-09-07T18:42:45.358Z
 Paulo Henrique|1996-07-25,notfound,2026-02-17T16:37:22.182Z
 Pavel Bucha|1998-03-11,no_ja,2026-03-19T11:39:58.203Z
 Pavel Pogrebnyak|1983-11-08,api_error,2026-04-14T16:27:54.539Z

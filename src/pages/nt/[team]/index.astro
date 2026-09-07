@@ -182,6 +182,17 @@ const tournamentMeta = readCsv("nt_tournament_meta.csv")
     result: clean(row.result_ja),
   }));
 
+const iwActivityAll = readCsv("nt_iw_activity.csv")
+  .filter((row) => clean(row.team_slug) === teamSlug)
+  .map((row) => ({
+    edition: clean(row.edition),
+    coach: clean(row.coach_ja),
+    date: clean(row.date),
+    opponentKey: clean(row.opponent_key),
+    venueType: clean(row.venue_type).toUpperCase(),
+    score: clean(row.score),
+  }));
+
 const callupGroups = new Map<string, CsvRow[]>();
 for (const row of allCallups) {
   const competition = normalizeCompetition(row.competition);
@@ -254,6 +265,48 @@ const latestRosterHref = latestCallup
   ? getRosterHref(latestCompetition, latestEdition, countryJa, teamSlug)
   : "";
 
+const countryNameByKey = new Map(
+  readCsv("country_master.csv").map((row) => [
+    clean(row.country_key),
+    clean(row.country_name_ja),
+  ]),
+);
+
+const latestIwActivityRows =
+  latestCompetition === "IW"
+    ? iwActivityAll
+        .filter((row) => row.edition === latestEdition)
+        .sort((a, b) => a.date.localeCompare(b.date))
+    : [];
+
+const latestIwCoach = latestIwActivityRows[0]?.coach ?? "";
+
+const latestIwMatches = latestIwActivityRows.map((match) => {
+  const opponent = countryNameByKey.get(match.opponentKey) || match.opponentKey;
+
+  const dateLabel = match.date.replace(
+    /^\d{4}-(\d{2})-(\d{2})$/,
+    (_, month, day) => `${Number(month)}/${Number(day)}`,
+  );
+
+  const venue =
+    match.venueType === "H"
+      ? "H"
+      : match.venueType === "A"
+        ? "A"
+        : match.venueType === "N"
+          ? "中立"
+          : "";
+
+  return {
+    ...match,
+    opponent,
+    opponentHref: match.opponentKey ? `/nt/${match.opponentKey}/` : "",
+    dateLabel,
+    venue,
+  };
+});
+
 const rankRows = readCsv("fifa_rank.csv")
   .filter((row) => clean(row.country_name_ja) === countryJa)
   .sort((a, b) => toDateKey(b.rank_date).localeCompare(toDateKey(a.rank_date)));
@@ -261,6 +314,12 @@ const latestRank = rankRows[0];
 
 const iwHistory = Array.from(callupGroups.entries())
   .filter(([key]) => key.startsWith("IW:"))
+  .filter(([key]) => {
+    if (latestCompetition !== "IW") return true;
+
+    const [, edition] = key.split(":");
+    return edition !== latestEdition;
+  })
   .map(([key, rows]) => {
     const [, edition] = key.split(":");
 
@@ -271,9 +330,7 @@ const iwHistory = Array.from(callupGroups.entries())
         .sort()
         .at(-1) ?? "";
 
-    const iwMeta = tournamentMeta.find(
-      (row) => row.competition === "IW" && row.edition === edition,
-    );
+    const iwMeta = iwActivityAll.find((row) => row.edition === edition);
 
     const coach = iwMeta?.coach ?? "";
 
@@ -314,6 +371,10 @@ const lineupRows = readCsv("nt_lineup_images.csv")
   .sort((a, b) => Number(b.edition) - Number(a.edition));
 
 const latestLineup = lineupRows.find((row) => {
+  if (row.competition !== latestCompetition || row.edition !== latestEdition) {
+    return false;
+  }
+
   const imagePath = path.join(
     process.cwd(),
     "public",
@@ -321,11 +382,17 @@ const latestLineup = lineupRows.find((row) => {
     "lineups",
     row.image,
   );
+
   return fs.existsSync(imagePath);
 });
 
 const latestLineupHref = latestLineup
-  ? getRosterHref(latestLineup.competition, latestLineup.edition, countryJa)
+  ? getRosterHref(
+      latestLineup.competition,
+      latestLineup.edition,
+      countryJa,
+      teamSlug,
+    )
   : "";
 
 const latestPublishedDate =
@@ -404,15 +471,43 @@ const description =
     (latestCallup || latestLineup) && (
       <section class="latest-section" aria-labelledby="latest-heading">
         <h2 id="latest-heading">
-          ⚽ 最新の掲載状況
+          ⚽ {latestCompetition === "IW" ? "最新の代表活動" : "最新の掲載状況"}
           {latestPublishedDate && <span>（{latestPublishedDate}）</span>}
         </h2>
 
         <div class="latest-content">
           {latestCallup && (
             <a class="roster-link" href={latestRosterHref}>
-              👉 メンバー一覧（{formatYearMonth(latestSnapshot)}）
+              {latestCompetition === "IW"
+                ? `👉 ${latestEdition.slice(0, 4)}年${Number(latestEdition.slice(4, 6))}月 代表ウィーク 招集メンバー`
+                : `👉 メンバー一覧（${formatYearMonth(latestSnapshot)}）`}
             </a>
+          )}
+
+          {latestCompetition === "IW" && latestIwMatches.length > 0 && (
+            <div class="latest-iw-meta">
+              {latestIwCoach && (
+                <div class="latest-iw-coach">
+                  <strong>監督：</strong>
+                  {latestIwCoach}
+                </div>
+              )}
+
+              <div class="latest-iw-matches">
+                {latestIwMatches.map((match) => (
+                  <span class="latest-iw-match">
+                    ⚽ {match.dateLabel} vs{" "}
+                    {match.opponentHref ? (
+                      <a href={match.opponentHref}>{match.opponent}代表</a>
+                    ) : (
+                      `${match.opponent}代表`
+                    )}
+                    {match.venue && `（${match.venue}）`}
+                    {match.score && ` ${match.score}`}
+                  </span>
+                ))}
+              </div>
+            </div>
           )}
 
           {latestLineup && (
@@ -438,7 +533,7 @@ const description =
   {
     iwHistory.length > 0 && (
       <section class="iw-history" aria-labelledby="iw-history-heading">
-        <h2 id="iw-history-heading">⚽ 直近の代表活動</h2>
+        <h2 id="iw-history-heading">⚽ 過去の代表活動</h2>
 
         <div class="iw-history-groups">
           {Object.entries(iwHistoryByYear)
@@ -893,6 +988,20 @@ const description =
       content: "●";
       margin-right: 6px;
       color: #b31c2d;
+    }
+
+    .page-nt-country .latest-iw-meta .latest-iw-match a {
+      color: #0645ad !important;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt-country .latest-iw-meta .latest-iw-match a:visited {
+      color: #551a8b !important;
+    }
+
+    .page-nt-country .latest-iw-meta .latest-iw-match a:hover {
+      text-decoration-thickness: 2px;
     }
   </style>
 </BaseLayout>

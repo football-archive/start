@@ -109,6 +109,7 @@ export async function getStaticPaths() {
 
     const edition = cleanForPaths(row.edition);
     const countryName = cleanForPaths(row.country);
+
     const team = countryKeyByName.get(normalizeForPaths(countryName));
 
     if (!edition || !team) continue;
@@ -155,6 +156,27 @@ if (!country) {
 }
 
 const countryName = country.country_name_ja;
+const countryNameByKey = new Map(
+  countries.map((row) => [clean(row.country_key), clean(row.country_name_ja)]),
+);
+
+const countryKeyByName = new Map(
+  countries.map((row) => [
+    normalize(row.country_name_ja),
+    clean(row.country_key),
+  ]),
+);
+
+const iwTeamSetForEdition = new Set(
+  loadCallups()
+    .filter(
+      (row: any) =>
+        clean(row.competition).toUpperCase() === "IW" &&
+        clean(row.edition) === editionKey,
+    )
+    .map((row: any) => countryKeyByName.get(normalize(row.country)) ?? "")
+    .filter(Boolean),
+);
 
 const rows = loadCallups()
   .filter(
@@ -170,6 +192,35 @@ if (rows.length === 0) {
     `IW ${editionKey} / ${countryName} のcallupsデータが見つかりません`,
   );
 }
+
+const starRows = rows
+  .filter((row: any) => clean(row.is_star) === "1")
+  .slice(0, 3);
+
+const continent = clean((rows[0] as any)?.confederation);
+
+const sameContinentMap = new Map<string, { key: string; name: string }>();
+
+for (const row of loadCallups() as any[]) {
+  if (clean(row.confederation) !== continent) continue;
+
+  const name = clean(row.country);
+  if (!name || name === countryName) continue;
+
+  const key = countryKeyByName.get(normalize(name));
+  if (!key) continue;
+
+  if (!sameContinentMap.has(key)) {
+    sameContinentMap.set(key, {
+      key,
+      name: countryNameByKey.get(key) || name,
+    });
+  }
+}
+
+const sameContinentTeams = Array.from(sameContinentMap.values()).sort((a, b) =>
+  a.name.localeCompare(b.name, "ja"),
+);
 
 const rowHighlightClass = (row: any) => {
   const noteText = clean(
@@ -188,20 +239,49 @@ const rowHighlightClass = (row: any) => {
   return editionPattern.test(noteText) ? "row-highlight" : "";
 };
 
-const tournamentMeta = readCsv("nt_tournament_meta.csv");
+const iwActivityAll = readCsv("nt_iw_activity.csv");
 
-const iwMeta = tournamentMeta.find(
+const iwActivityRows = iwActivityAll.filter(
   (row) =>
-    clean(row.team_slug) === teamSlug &&
-    clean(row.competition).toUpperCase() === "IW" &&
-    clean(row.edition) === editionKey,
+    clean(row.team_slug) === teamSlug && clean(row.edition) === editionKey,
 );
 
-const coach = clean(iwMeta?.coach_ja);
-const activityMatches = clean(iwMeta?.comment_ja)
-  .split("|")
-  .map((item) => item.trim())
-  .filter(Boolean);
+const announcementDate = clean(iwActivityRows[0]?.announcement_date);
+const coach = clean(iwActivityRows[0]?.coach_ja);
+
+const activityMatches = iwActivityRows
+  .map((row) => {
+    const opponentKey = clean(row.opponent_key);
+
+    const opponentName = countryNameByKey.get(opponentKey) || opponentKey;
+
+    const opponentHref =
+      opponentKey &&
+      opponentKey !== teamSlug &&
+      iwTeamSetForEdition.has(opponentKey)
+        ? `/nt/${opponentKey}/iw/${editionKey}/`
+        : "";
+
+    const date = clean(row.date);
+    const dateMatch = date.match(/^\d{4}-(\d{1,2})-(\d{1,2})$/);
+
+    const dateLabel = dateMatch
+      ? `${Number(dateMatch[1])}/${Number(dateMatch[2])}`
+      : date;
+
+    return {
+      date,
+      dateLabel,
+      opponentKey,
+      opponentName,
+      opponentHref,
+      venueType: clean(row.venue_type).toUpperCase(),
+      score: clean(row.score),
+      note: clean(row.note),
+    };
+  })
+  .filter((row) => row.opponentKey)
+  .sort((a, b) => a.date.localeCompare(b.date));
 
 const latestSnapshot =
   rows
@@ -209,6 +289,68 @@ const latestSnapshot =
     .filter(Boolean)
     .sort()
     .at(-1) ?? "";
+
+const editionNoteTag = /^\d{6}$/.test(editionKey)
+  ? `${editionKey.slice(0, 4)}.${editionKey.slice(4, 6)}`
+  : "";
+
+const calledCount = editionNoteTag
+  ? rows.filter((row: any) =>
+      clean(row.notes ?? row.note ?? row.remarks ?? row.note_ja ?? "").includes(
+        editionNoteTag,
+      ),
+    ).length
+  : 0;
+
+const fifaRankRows = readCsv("fifa_rank.csv");
+
+const iwFifaRank = fifaRankRows
+  .filter(
+    (row) =>
+      clean(row.competition).toUpperCase() === "IW" &&
+      clean(row.year) === editionKey &&
+      clean(row.country_name_ja) === countryName,
+  )
+  .sort((a, b) => clean(b.rank_date).localeCompare(clean(a.rank_date)))[0];
+
+const iwFifaRankValue = clean(iwFifaRank?.fifa_rank);
+const iwFifaRankDate = clean(iwFifaRank?.rank_date);
+
+const iwFifaRankDateLabel = (() => {
+  const m = iwFifaRankDate.match(/^(\d{4})-(\d{1,2})/);
+  if (!m) return iwFifaRankDate;
+
+  return `${m[1]}.${String(Number(m[2])).padStart(2, "0")}`;
+})();
+
+const lineupRows = readCsv("nt_lineup_images.csv")
+  .filter(
+    (row) =>
+      clean(row.competition).toUpperCase() === "IW" &&
+      clean(row.year) === editionKey &&
+      clean(row.team_slug) === teamSlug,
+  )
+  .map((row) => ({
+    formation: clean(row.formation),
+    image: clean(row.image),
+  }))
+  .filter((row) => row.image);
+
+const iwLineup = lineupRows.find((row) => {
+  const imagePath = path.join(
+    process.cwd(),
+    "public",
+    "images",
+    "lineups",
+    row.image,
+  );
+
+  return fs.existsSync(imagePath);
+});
+
+const iwLineupImageSrc = iwLineup ? `/images/lineups/${iwLineup.image}` : "";
+
+const iwLineupFormation = iwLineup?.formation ?? "";
 
 const clubMaster = loadClubMaster();
 
@@ -271,12 +413,52 @@ const clubLabel = (clubName: string) => {
   return club?.club_display_ja || clubName;
 };
 
+// 選手ごとのW杯招集歴
+const playerKey = (row: any) =>
+  `${normalize(row.name_en || row.name_ja)}|${normalize(row.birth_date)}`;
+
+const wcAllForCountry = loadCallups().filter(
+  (row: any) =>
+    clean(row.competition).toUpperCase() === "WC" &&
+    clean(row.country) === countryName,
+);
+
+const wcEditionsByPlayer = new Map<string, string[]>();
+
+for (const row of wcAllForCountry) {
+  const key = playerKey(row);
+  const wcEdition = clean(row.edition);
+
+  if (!wcEdition) continue;
+
+  const editions = wcEditionsByPlayer.get(key) ?? [];
+
+  if (!editions.includes(wcEdition)) {
+    editions.push(wcEdition);
+  }
+
+  wcEditionsByPlayer.set(key, editions);
+}
+
+for (const [key, editions] of wcEditionsByPlayer) {
+  editions.sort((a, b) => Number(b) - Number(a));
+  wcEditionsByPlayer.set(key, editions);
+}
+
 const columns = buildNtColumns({
   isLatestView: true,
   showStats: false,
   clubHref,
   clubLabel,
-  tournamentLinks: () => [],
+  tournamentLinks: (row) => {
+    const key = playerKey(row);
+    const editions = wcEditionsByPlayer.get(key) ?? [];
+
+    return editions.map((wcEdition) => ({
+      label: wcEdition,
+      href: `/wc/${encodeURIComponent(wcEdition)}/team/${encodeURIComponent(countryName)}/`,
+    }));
+  },
 });
 
 const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー`;
@@ -308,21 +490,39 @@ const description =
     <p>
       {countryName}代表の{
         formatEdition(editionKey)
-      }代表活動について、招集メンバー・背番号・所属クラブなどを掲載しています。
+      }代表活動について、招集メンバー・背番号・所属クラブなどを掲載しています。<br
+      />
+      ※背番号は決まり次第更新します（直近のものを暫定で表示）
     </p>
   </div>
 
   {
     latestSnapshot && (
-      <div class="iw-updated">更新日：{formatSnapshotDate(latestSnapshot)}</div>
+      <div class="iw-updated">
+        更新日：<span>{formatSnapshotDate(latestSnapshot)}</span>
+      </div>
     )
   }
 
   <div class="iw-summary">
-    <span>
-      <strong>●代表活動（国際Aマッチ）期間：</strong>
-      {formatEdition(editionKey)}
-    </span>
+    {
+      announcementDate && (
+        <span>
+          <strong>●発表日：</strong>
+          {formatSnapshotDate(announcementDate)}
+        </span>
+      )
+    }
+
+    {
+      iwFifaRankValue && (
+        <span>
+          <strong>●FIFAランク：</strong>
+          {iwFifaRankValue}位
+          {iwFifaRankDateLabel && `（${iwFifaRankDateLabel}時点）`}
+        </span>
+      )
+    }
 
     {
       coach && (
@@ -336,6 +536,7 @@ const description =
     <span>
       <strong>●掲載人数：</strong>
       {rows.length}名
+      {calledCount > 0 && `（招集：${calledCount}名）`}
     </span>
   </div>
 
@@ -345,11 +546,120 @@ const description =
         <div class="iw-matches-title">📝 当期間の試合日程・結果</div>
 
         <div class="iw-match-list">
-          {activityMatches.map((item) => (
-            <div class="iw-match-item">⚽ {item}</div>
+          {activityMatches.map((match) => (
+            <div class="iw-match-item">
+              <span class="iw-match-date">⚽ {match.dateLabel}</span>　vs{" "}
+              {match.opponentHref ? (
+                <a href={match.opponentHref}>{match.opponentName}代表</a>
+              ) : (
+                <span>{match.opponentName}代表</span>
+              )}
+              {match.venueType === "H" && <span>（H）</span>}
+              {match.venueType === "A" && <span>（A）</span>}
+              {match.venueType === "N" && <span>（中立地）</span>}
+              {match.score && <span>　{match.score}</span>}
+              {match.note && <span>　{match.note}</span>}
+            </div>
           ))}
         </div>
       </div>
+    )
+  }
+
+  {
+    starRows.length > 0 && (
+      <section class="iw-star-block" aria-label="注目選手">
+        <h2 class="iw-star-title">⭐ 注目選手</h2>
+
+        <div class="iw-star-grid">
+          {starRows.map((row: any) => (
+            <div class="iw-star-card">
+              <div class="iw-star-name">
+                {clean(row.name_ja) || clean(row.name_en)}
+                {clean(row.position_primary) && (
+                  <span class="iw-star-pos">
+                    （{clean(row.position_primary)}）
+                  </span>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    iwLineupImageSrc && (
+      <section class="iw-lineup-section" aria-label="フォーメーション例">
+        <h2>👕 フォーメーション例</h2>
+
+        <button
+          type="button"
+          class="iw-lineup-card"
+          id="iw-lineup-open"
+          aria-haspopup="dialog"
+          aria-controls="iw-lineup-modal"
+        >
+          <div class="iw-lineup-thumb">
+            <img
+              src={iwLineupImageSrc}
+              alt={`${countryName}代表 ${formatEdition(editionKey)} フォーメーション例`}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
+
+          <div class="iw-lineup-copy">
+            <div class="iw-lineup-title">👉 フォーメーション例を見る</div>
+
+            {iwLineupFormation && (
+              <div class="iw-lineup-note">システム：{iwLineupFormation}</div>
+            )}
+
+            <div class="iw-lineup-subnote">
+              ※ 直近の試合・起用傾向をもとにした参考例です
+            </div>
+          </div>
+        </button>
+
+        <dialog
+          class="iw-lineup-modal"
+          id="iw-lineup-modal"
+          aria-label={`${countryName}代表 ${formatEdition(editionKey)} フォーメーション例`}
+        >
+          <div class="iw-lineup-modal-inner">
+            <button
+              type="button"
+              class="iw-lineup-close"
+              id="iw-lineup-close"
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+
+            <div class="iw-lineup-modal-head">
+              <div class="iw-lineup-modal-title">
+                {countryName}代表 {formatEdition(editionKey)} フォーメーション例
+                {iwLineupFormation ? `（${iwLineupFormation}）` : ""}
+              </div>
+
+              <div class="iw-lineup-modal-note">
+                ※ 直近の試合・起用傾向をもとにした参考例です
+              </div>
+            </div>
+
+            <div class="iw-lineup-modal-image">
+              <img
+                src={iwLineupImageSrc}
+                alt={`${countryName}代表 ${formatEdition(editionKey)} フォーメーション例`}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </div>
+        </dialog>
+      </section>
     )
   }
 
@@ -363,9 +673,23 @@ const description =
     <RosterView {rows} {columns} rowClass={rowHighlightClass} />
   </section>
 
+  {
+    sameContinentTeams.length > 0 && (
+      <section class="iw-related">
+        <h2>🔍 同じ大陸の代表チームを見る</h2>
+
+        <div class="iw-related-list">
+          {sameContinentTeams.map((team) => (
+            <a href={`/nt/${team.key}/`}>{team.name}代表</a>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
   <div class="iw-back">
     <a href={`/nt/${teamSlug}/`}>
-      ← {countryName}代表トップへ戻る
+      👈 {countryName}代表トップへ戻る
     </a>
   </div>
 
@@ -390,6 +714,11 @@ const description =
       margin: 8px 0 14px;
       text-align: right;
       font-size: 15px;
+    }
+
+    .page-nt-iw .iw-updated span {
+      color: #c62828;
+      font-weight: 600;
     }
 
     .page-nt-iw .iw-summary {
@@ -497,5 +826,313 @@ const description =
         margin-top: 3px;
       }
     }
+
+    .page-nt-iw .iw-related {
+      margin: 32px 0 20px;
+      padding-top: 16px;
+      border-top: 1px solid #d1d5db;
+    }
+
+    .page-nt-iw .iw-related h2 {
+      margin: 0 0 12px;
+      color: #8f1720;
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-related-list a,
+    .page-nt-iw .iw-back a {
+      color: #0645ad;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+      display: inline-block;
+      margin-right: 16px;
+    }
+
+    .page-nt-iw .iw-related-list a:visited,
+    .page-nt-iw .iw-back a:visited {
+      color: #551a8b;
+    }
+
+    .page-nt-iw .iw-related-list a:hover,
+    .page-nt-iw .iw-back a:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    .page-nt-iw .iw-lineup-section {
+      margin-top: 28px;
+    }
+
+    .page-nt-iw .iw-lineup-section h2 {
+      margin: 0 0 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #9ca3af;
+      color: #8f1720;
+      font-size: 20px;
+      font-weight: 500;
+    }
+
+    .page-nt-iw .iw-lineup-card {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border: 1px solid #d9dde3;
+      border-radius: 12px;
+      background: #fff;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .page-nt-iw .iw-lineup-card:hover {
+      background: #f8fafc;
+    }
+
+    .page-nt-iw .iw-lineup-thumb {
+      width: 140px;
+      aspect-ratio: 5 / 7;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      background: #f3f4f6;
+    }
+
+    .page-nt-iw .iw-lineup-thumb img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .page-nt-iw .iw-lineup-copy {
+      min-width: 0;
+    }
+
+    .page-nt-iw .iw-lineup-title {
+      color: var(--theme-link);
+      font-size: 17px;
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-lineup-note {
+      margin-top: 5px;
+      color: #475569;
+      font-size: 15px;
+    }
+
+    .page-nt-iw .iw-lineup-subnote {
+      margin-top: 5px;
+      color: #64748b;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .page-nt-iw .iw-lineup-modal {
+      width: min(92vw, 560px);
+      max-width: 560px;
+      border: 0;
+      border-radius: 16px;
+      padding: 0;
+      background: transparent;
+    }
+
+    .page-nt-iw .iw-lineup-modal::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .page-nt-iw .iw-lineup-modal-inner {
+      position: relative;
+      padding: 14px 14px 16px;
+      border-radius: 16px;
+      background: #fff;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.2);
+    }
+
+    .page-nt-iw .iw-lineup-close {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 34px;
+      height: 34px;
+      border: 1px solid #e6e6e6;
+      border-radius: 999px;
+      background: #fff;
+      font-size: 18px;
+      line-height: 1;
+      cursor: pointer;
+    }
+
+    .page-nt-iw .iw-lineup-modal-head {
+      padding-right: 42px;
+      margin-bottom: 10px;
+    }
+
+    .page-nt-iw .iw-lineup-modal-title {
+      color: #111;
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.35;
+    }
+
+    .page-nt-iw .iw-lineup-modal-note {
+      margin-top: 4px;
+      color: #666;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .page-nt-iw .iw-lineup-modal-image img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 640px) {
+      .page-nt-iw .iw-lineup-card {
+        grid-template-columns: 84px 1fr;
+        gap: 10px;
+        padding: 9px 10px;
+      }
+
+      .page-nt-iw .iw-lineup-thumb {
+        width: 84px;
+      }
+
+      .page-nt-iw .iw-lineup-title {
+        font-size: 14px;
+      }
+
+      .page-nt-iw .iw-lineup-note,
+      .page-nt-iw .iw-lineup-subnote {
+        font-size: 11px;
+      }
+
+      .page-nt-iw .iw-lineup-modal {
+        width: min(96vw, 520px);
+      }
+    }
+
+    .page-nt-iw .iw-match-item a {
+      color: #0645ad !important;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt-iw .iw-match-item a:visited {
+      color: #551a8b !important;
+    }
+
+    .page-nt-iw .iw-match-item a:hover {
+      text-decoration-thickness: 2px;
+    }
+
+    .page-nt-iw .iw-match-date {
+      color: var(--theme-color);
+      font-weight: 700;
+    }
+
+    .page-nt-iw .iw-star-block {
+      margin: 14px 0 18px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 45%, #ddd);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--theme-color) 26%, #ffffff);
+    }
+
+    .page-nt-iw .iw-star-title {
+      margin: 0 0 8px;
+      padding: 0;
+      border: 0;
+      font-size: 13px;
+      font-weight: 650;
+      color: inherit;
+    }
+
+    .page-nt-iw .iw-star-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .page-nt-iw .iw-star-card {
+      display: flex;
+      align-items: center;
+      padding: 8px 10px;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      border-radius: 10px;
+      background: #fff;
+    }
+
+    .page-nt-iw .iw-star-name {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.35;
+    }
+
+    .page-nt-iw .iw-star-pos {
+      margin-left: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      opacity: 0.7;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-iw .iw-star-grid {
+        grid-template-columns: 1fr;
+        gap: 6px;
+      }
+
+      .page-nt-iw .iw-star-card {
+        padding: 6px 8px;
+      }
+    }
   </style>
+
+  <script is:inline>
+    function initIwLineupModal() {
+      const openBtn = document.getElementById("iw-lineup-open");
+      const closeBtn = document.getElementById("iw-lineup-close");
+      const modal = document.getElementById("iw-lineup-modal");
+
+      if (!openBtn || !closeBtn || !modal) return;
+
+      openBtn.addEventListener("click", () => {
+        if (typeof modal.showModal === "function") {
+          modal.showModal();
+        }
+      });
+
+      closeBtn.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (typeof modal.close === "function") {
+          modal.close();
+        }
+      });
+
+      modal.addEventListener("click", (event) => {
+        const rect = modal.getBoundingClientRect();
+
+        const isInDialog =
+          rect.top <= event.clientY &&
+          event.clientY <= rect.top + rect.height &&
+          rect.left <= event.clientX &&
+          event.clientX <= rect.left + rect.width;
+
+        if (!isInDialog && typeof modal.close === "function") {
+          modal.close();
+        }
+      });
+    }
+
+    if (document.readyState === "loading") {
+      window.addEventListener("DOMContentLoaded", initIwLineupModal);
+    } else {
+      initIwLineupModal();
+    }
+  </script>
 </BaseLayout>
