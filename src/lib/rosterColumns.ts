@@ -166,7 +166,9 @@ const editionLinksHtml = (
   const prefix = links.length > max ? "… " : "";
 
   const body = sliced
-    .map((x) => `<a href="${x.href}">${toYY(x.label)}</a>`)
+    .map(
+      (x) => `<a class="tournament-link" href="${x.href}">${toYY(x.label)}</a>`,
+    )
     .join(" / ");
 
   return `<span title="${esc(labelsAll)}">${prefix}${body}</span>`;
