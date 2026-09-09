@@ -876,10 +876,10 @@ UCL-2026-27-LP-005,lille-vs-real-betis,UCL,2026-27,MD005,League Phase,,LP 第1�
 UCL-2026-27-LP-006,real-madrid-vs-inter,UCL,2026-27,MD006,League Phase,,LP 第1節,2026-09-08,レアル・マドリード,real-madrid,インテル・ミラノ,inter,,2,1,,,,,,2026/09/09
 UCL-2026-27-LP-007,barcelona-vs-feyenoord,UCL,2026-27,MD007,League Phase,,LP 第1節,2026-09-09,バルセロナ,barcelona,フェイエノールト,feyenoord,,5,1,,,,,,2026/09/10
 UCL-2026-27-LP-008,stuttgart-vs-viking,UCL,2026-27,MD008,League Phase,,LP 第1節,2026-09-09,VfBシュトゥットガルト,stuttgart,バイキングFK,viking,,3,1,,,,,,2026/09/10
-UCL-2026-27-LP-009,liverpool-vs-atletico-madrid,UCL,2026-27,MD009,League Phase,,LP 第1節,2026-09-09,リヴァプール,liverpool,アトレティコ・マドリード,atletico-madrid,,,,,,,,,
-UCL-2026-27-LP-010,paris-saint-germain-vs-slovan-bratislava,UCL,2026-27,MD010,League Phase,,LP 第1節,2026-09-09,パリ・サンジェルマン,paris-saint-germain,スロヴァン・ブラチスラヴァ,slovan-bratislava,,,,,,,,,
-UCL-2026-27-LP-011,sporting-vs-galatasaray,UCL,2026-27,MD011,League Phase,,LP 第1節,2026-09-09,スポルティングCP,sporting,ガラタサライSK,galatasaray,,,,,,,,,
-UCL-2026-27-LP-012,napoli-vs-arsenal,UCL,2026-27,MD012,League Phase,,LP 第1節,2026-09-09,SSCナポリ,napoli,アーセナル,arsenal,,,,,,,,,
+UCL-2026-27-LP-009,liverpool-vs-atletico-madrid,UCL,2026-27,MD009,League Phase,,LP 第1節,2026-09-09,リヴァプール,liverpool,アトレティコ・マドリード,atletico-madrid,,2,1,,,,,,2026/09/10
+UCL-2026-27-LP-010,paris-saint-germain-vs-slovan-bratislava,UCL,2026-27,MD010,League Phase,,LP 第1節,2026-09-09,パリ・サンジェルマン,paris-saint-germain,スロヴァン・ブラチスラヴァ,slovan-bratislava,,6,1,,,,,,2026/09/10
+UCL-2026-27-LP-011,sporting-vs-galatasaray,UCL,2026-27,MD011,League Phase,,LP 第1節,2026-09-09,スポルティングCP,sporting,ガラタサライSK,galatasaray,,3,1,,,,,,2026/09/10
+UCL-2026-27-LP-012,napoli-vs-arsenal,UCL,2026-27,MD012,League Phase,,LP 第1節,2026-09-09,SSCナポリ,napoli,アーセナル,arsenal,,0,1,,,,,,2026/09/10
 UCL-2026-27-LP-013,fenerbahce-vs-roma,UCL,2026-27,MD013,League Phase,,LP 第1節,2026-09-10,フェネルバフチェ,fenerbahce,ASローマ,roma,,,,,,,,,
 UCL-2026-27-LP-014,psv-vs-shakhtar-donetsk,UCL,2026-27,MD014,League Phase,,LP 第1節,2026-09-10,PSVアイントホーフェン,psv,FCシャフタール・ドネツク,shakhtar-donetsk,,,,,,,,,
 UCL-2026-27-LP-015,como-vs-rb-leipzig,UCL,2026-27,MD015,League Phase,,LP 第1節,2026-09-10,コモ1907,como,RBライプツィヒ,rb-leipzig,,,,,,,,,
