@@ -169,7 +169,9 @@ const decadePlayers = loadNtDecadePlayers()
   .filter((row) => row.decade && row.players.length > 0)
   .sort((a, b) => Number(b.decade) - Number(a.decade));
 
-const allCallups = readCsv("callups_site.csv").filter(
+const allCallupRows = readCsv("callups_site.csv");
+
+const allCallups = allCallupRows.filter(
   (row) => clean(row.country) === countryJa,
 );
 
@@ -265,11 +267,28 @@ const latestRosterHref = latestCallup
   ? getRosterHref(latestCompetition, latestEdition, countryJa, teamSlug)
   : "";
 
+const allCountries = readCsv("country_master.csv").map((row) => ({
+  country_key: clean(row.country_key),
+  country_name_ja: clean(row.country_name_ja),
+  country_name_en: clean(row.country_name_en),
+  continent: clean(row.continent),
+  confederation: clean(row.confederation),
+})) as CountryRow[];
+
+const publishedNtSlugs = new Set([
+  ...readCsv("nt_tournament_meta.csv")
+    .map((row) => clean(row.team_slug))
+    .filter(Boolean),
+
+  ...allCountries
+    .filter((item) =>
+      allCallupRows.some((row) => clean(row.country) === item.country_name_ja),
+    )
+    .map((item) => item.country_key),
+]);
+
 const countryNameByKey = new Map(
-  readCsv("country_master.csv").map((row) => [
-    clean(row.country_key),
-    clean(row.country_name_ja),
-  ]),
+  allCountries.map((row) => [row.country_key, row.country_name_ja]),
 );
 
 const latestIwActivityRows =
@@ -301,11 +320,23 @@ const latestIwMatches = latestIwActivityRows.map((match) => {
   return {
     ...match,
     opponent,
-    opponentHref: match.opponentKey ? `/nt/${match.opponentKey}/` : "",
+    opponentHref:
+      match.opponentKey && publishedNtSlugs.has(match.opponentKey)
+        ? `/nt/${match.opponentKey}/`
+        : "",
     dateLabel,
     venue,
   };
 });
+
+const sameContinentCountries = allCountries
+  .filter(
+    (item) =>
+      item.confederation === country.confederation &&
+      item.country_key !== teamSlug &&
+      publishedNtSlugs.has(item.country_key),
+  )
+  .sort((a, b) => a.country_name_ja.localeCompare(b.country_name_ja, "ja"));
 
 const rankRows = readCsv("fifa_rank.csv")
   .filter((row) => clean(row.country_name_ja) === countryJa)
@@ -611,6 +642,22 @@ const description =
       )
     }
   </section>
+
+  {
+    sameContinentCountries.length > 0 && (
+      <section class="same-continent-section">
+        <h2>🔍 同じ大陸の代表ページを見る</h2>
+
+        <div class="same-continent-pills">
+          {sameContinentCountries.map((item) => (
+            <a class="same-continent-pill" href={`/nt/${item.country_key}/`}>
+              {item.country_name_ja}代表
+            </a>
+          ))}
+        </div>
+      </section>
+    )
+  }
 
   <style is:global>
     .page-nt-country .country-page-title {
@@ -1002,6 +1049,43 @@ const description =
 
     .page-nt-country .latest-iw-meta .latest-iw-match a:hover {
       text-decoration-thickness: 2px;
+    }
+
+    .page-nt-country .same-continent-section {
+      margin-top: 24px;
+      padding-top: 12px;
+      border-top: 1px solid #ddd;
+    }
+
+    .page-nt-country .same-continent-section h2 {
+      margin: 0 0 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #666;
+    }
+
+    .page-nt-country .same-continent-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .page-nt-country .same-continent-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border: 1px solid #d6d6d6;
+      border-radius: 999px;
+      background: #fafafa;
+      color: #555;
+      font-size: 12px;
+      line-height: 1.4;
+      text-decoration: none;
+    }
+
+    .page-nt-country .same-continent-pill:hover {
+      background: #f1f1f1;
+      border-color: #bbb;
+      color: var(--theme-link);
     }
   </style>
 </BaseLayout>

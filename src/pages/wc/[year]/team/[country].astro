@@ -84,6 +84,11 @@ type NtMasterRow = {
   country_name_ja: string;
 };
 
+type CountryMasterRow = {
+  country_key: string;
+  country_name_ja: string;
+};
+
 type NtTournamentMetaRow = {
   competition: string;
   edition: string;
@@ -112,16 +117,37 @@ const ntMaster: NtMasterRow[] = readCsv("nt_master.csv").map((r: any) => ({
   country_name_ja: String(r.country_name_ja ?? "").trim(),
 }));
 
+const countryMaster: CountryMasterRow[] = readCsv("country_master.csv").map(
+  (r: any) => ({
+    country_key: String(r.country_key ?? "").trim(),
+    country_name_ja: String(r.country_name_ja ?? "").trim(),
+  }),
+);
+
 const normKey = (s: any) =>
   String(s ?? "")
     .trim()
     .replace(/　/g, " ")
     .replace(/\s+/g, " ");
 
-// teamSlug はこれで
+// teamSlug は既存用途のまま nt_master.csv から取得
 const teamSlug =
   ntMaster.find((r) => normKey(r.country_name_ja) === normKey(countryName))
     ?.team_slug ?? "";
+
+// 国別代表ハブへのリンクだけ country_master.csv を使う
+const ntHubCountryKey =
+  countryMaster.find(
+    (r) => normKey(r.country_name_ja) === normKey(countryName),
+  )?.country_key ?? "";
+
+const ntHubHref = ntHubCountryKey
+  ? `/nt/${ntHubCountryKey}/`
+  : "";
+
+const ntRowsForCountry = loadCallups().filter(
+  (r: any) => normKey(r.country ?? "") === normKey(countryName),
+);
 
 type NtLineupImageRow = {
   competition: string;
@@ -255,14 +281,60 @@ const previousTournamentHref =
     : "";
 
 // 更新日（その国×その年 の callups の最新スナップショット）
-const maxSnapshot = (() => {
+const currentEditionMaxSnapshot: string = (() => {
   let max = "";
+
   for (const r of rowsAll as any[]) {
-    const s = toYMD(String((r as any).snapshot_date ?? ""));
+    const s = toYMD(String(r.snapshot_date ?? ""));
     if (s && s > max) max = s;
   }
+
   return max;
 })();
+
+const latestNtSnapshot = (() => {
+  let latestRow: any = null;
+  let latestDate = "";
+
+  for (const r of ntRowsForCountry as any[]) {
+    const s = toYMD(String(r.snapshot_date ?? ""));
+
+    if (s && s > latestDate) {
+      latestDate = s;
+      latestRow = r;
+    }
+  }
+
+  return {
+    row: latestRow,
+    date: latestDate,
+  };
+})();
+
+const latestNtCompetition = String(
+  latestNtSnapshot.row?.competition ?? "",
+).toUpperCase();
+
+const latestNtEdition = String(latestNtSnapshot.row?.edition ?? "").trim();
+
+const latestNtLabel = (() => {
+  if (latestNtCompetition === "IW" && latestNtEdition.length === 6) {
+    return `${latestNtEdition.slice(0, 4)}年${Number(
+      latestNtEdition.slice(4, 6),
+    )}月`;
+  }
+
+  if (latestNtCompetition === "WC" && latestNtEdition) {
+    return `W杯${latestNtEdition}`;
+  }
+
+  return "";
+})();
+
+const hasNewerNtSnapshot =
+  latestNtSnapshot.date !== "" &&
+  currentEditionMaxSnapshot !== "" &&
+  latestNtSnapshot.date > currentEditionMaxSnapshot;
 
 // その国が出場したWCの年（callupsに存在する edition を列挙）
 // ※大会ページのグループ/結果が未投入でも、チームページは成立する
@@ -974,6 +1046,28 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         )
       }
 
+            {
+        ntHubHref && hasNewerNtSnapshot && (
+          <div class="nt-latest-guide">
+            <div class="nt-latest-guide-main">
+              <span class="nt-latest-guide-icon">📌</span>
+
+              <div class="nt-latest-guide-copy">
+                <strong>最新の{countryName}代表はこちら</strong>
+
+                <span>
+                  {latestNtLabel
+                    ? `${latestNtLabel}のメンバー・最新代表情報を掲載中`
+                    : "最新メンバー・招集履歴・国際大会情報を見る"}
+                </span>
+              </div>
+            </div>
+
+            <a href={ntHubHref}>最新の代表ページへ →</a>
+          </div>
+        )
+      }
+
       <div class="nt-meta-block">
         {heroMetaLine && <div class="nt-meta-row">{heroMetaLine}</div>}
 
@@ -1025,7 +1119,9 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         <div class="nt-updated-row">
           <div class="nt-updated">
             更新日：
-            <span class="updated-date">{toYMD(maxSnapshot) || "—"}</span>
+            <span class="updated-date">
+              {currentEditionMaxSnapshot || "—"}
+            </span>
           </div>
         </div>
       </div>
@@ -3236,6 +3332,72 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
     @media (max-width: 640px) {
       .page-wc .nt-meta-block .nt-meta-row {
         font-size: 14px;
+      }
+    }
+
+    .nt-latest-guide {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 0 16px;
+      padding: 10px 14px;
+      border: 1px solid rgba(179, 28, 45, 0.25);
+      border-left: 4px solid var(--theme-color);
+      border-radius: 8px;
+      background: rgba(179, 28, 45, 0.05);
+    }
+
+    .nt-latest-guide-main {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .nt-latest-guide-icon {
+      flex: 0 0 auto;
+      font-size: 18px;
+    }
+
+    .nt-latest-guide-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
+    }
+
+    .nt-latest-guide-copy strong {
+      color: var(--theme-color);
+      font-size: 15px;
+      line-height: 1.4;
+    }
+
+    .nt-latest-guide-copy span {
+      color: #64748b;
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
+    .nt-latest-guide > a {
+      flex: 0 0 auto;
+      color: var(--theme-link);
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 600px) {
+      .nt-latest-guide {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 7px;
+      }
+
+      .nt-latest-guide > a {
+        margin-left: 27px;
       }
     }
   </style>
