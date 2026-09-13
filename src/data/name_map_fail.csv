@@ -42,7 +42,7 @@ Abdülkerim Bardakcı|1994-09-07,no_ja,2026-02-19T15:25:45.857Z
 Abdulla Abdullaev|1997-09-01,no_ja,2026-03-16T12:24:40.110Z
 Abdullah Al-Salem|1992-12-19,notfound,2026-03-23T14:43:07.174Z
 Abdullah Yousef|2002-04-10,notfound,2026-03-21T15:53:16.030Z
-Abdullahi Nura|1997-08-17,no_ja,2026-04-14T17:04:12.223Z
+Abdullahi Nura|1997-08-17,api_error,2026-09-13T20:40:04.565Z
 Abdulrahman Al-Oboud|1995-06-01,notfound,2026-03-23T14:43:07.174Z
 Abdulrahman Al-Sanbi|2001-02-03,notfound,2026-03-23T14:43:07.171Z
 Abdurauf Buriev|2002-07-20,notfound,2026-03-16T12:24:40.110Z
@@ -218,7 +218,7 @@ Alen Sherri|1997-12-15,no_ja,2026-08-01T19:18:24.775Z
 Alessandro Alessandri|1979-08-30,no_ja,2026-04-18T17:58:45.470Z
 Alessandro Bettega|1987-05-05,no_ja,2026-04-18T15:33:25.892Z
 Alessandro Bianco|2002-10-01,no_ja,2026-04-12T16:01:19.882Z
-Alessandro Bordin|1998-08-01,no_ja,2026-04-14T17:04:12.223Z
+Alessandro Bordin|1998-08-01,api_error,2026-09-13T20:40:04.565Z
 Alessandro Budel|1981-02-25,no_ja,2026-04-18T15:43:19.240Z
 Alessandro Calligaris|2005-03-07,no_ja,2026-04-10T19:00:29.448Z
 Alessandro Cerbara|2001-03-03,notfound,2026-04-14T17:05:41.168Z
@@ -243,7 +243,7 @@ Alessandro Nunziante|2007-03-14,no_ja,2026-08-01T19:15:05.918Z
 Alessandro Parravicini|1984-05-17,notfound,2026-04-18T15:37:53.241Z
 Alessandro Pietrelli|2003-01-05,no_ja,2026-04-10T19:01:49.828Z
 Alessandro Riccio|2002-02-06,notfound,2026-04-10T19:02:40.076Z
-Alessandro Romano|2006-06-17,no_ja,2026-04-12T15:55:35.537Z
+Alessandro Romano|2006-06-17,ambiguous,2026-09-13T20:37:04.703Z
 Alessandro Rossi|1997-01-03,notfound,2026-04-14T17:05:41.168Z
 Alessandro Ruggeri|1990-11-16,no_ja,2026-04-18T15:37:23.687Z
 Alessandro Santopadre|1998-10-04,api_error,2026-04-14T16:37:31.698Z
@@ -259,10 +259,10 @@ Alessio Castro-Montes|1997-05-17,notfound,2026-08-16T18:59:00.554Z
 Alessio Furlanetto|2002-02-07,no_ja,2026-08-03T20:15:44.857Z
 Alessio Gionta|1997-04-01,notfound,2026-04-14T17:01:27.097Z
 Alessio Innocenti|1993-02-04,no_ja,2026-04-18T15:37:23.687Z
-Alessio Marcaccini|2008-10-01,notfound,2026-04-12T15:55:35.537Z
+Alessio Marcaccini|2008-10-01,notfound,2026-09-13T20:37:04.703Z
 Alessio Miceli|1999-08-31,notfound,2026-04-14T17:05:41.168Z
-Alessio Pagliarini|2000-01-09,notfound,2026-04-14T17:04:12.223Z
-Alessio Riccardi|2001-04-03,no_ja,2026-04-14T17:03:17.612Z
+Alessio Pagliarini|2000-01-09,notfound,2026-09-13T20:40:04.565Z
+Alessio Riccardi|2001-04-03,api_error,2026-09-13T20:37:04.703Z
 Álex Aguinaga|1969-07-09,notfound,2026-03-13T18:34:49.294Z
 Álex Alegría|1992-10-10,no_ja,2026-04-12T19:26:57.564Z
 Álex Arce|1995-06-16,api_error,2026-05-09T19:47:01.400Z
@@ -414,7 +414,7 @@ Amine Salama|2000-07-18,api_error,2026-04-12T16:57:56.420Z
 Amine Sbaï|2000-11-05,no_ja,2026-08-04T16:48:06.957Z
 Amine Souane|2001-09-17,no_ja,2026-03-19T19:00:00.672Z
 Amine Zouhzouh|2000-08-11,no_ja,2026-03-19T19:00:00.672Z
-Amir Feratovic|2002-06-08,no_ja,2026-04-12T16:00:12.822Z
+Amir Feratovic|2002-06-08,api_error,2026-09-13T20:37:04.703Z
 Amir Hadziahmetovic|1997-03-08,no_ja,2026-05-09T17:32:04.353Z
 Amir Richardson|2002-01-24,no_ja,2026-08-15T20:01:41.895Z
 Amir Sayoud|1990-09-30,notfound,2026-02-17T13:11:34.535Z
@@ -452,21 +452,21 @@ Andrea Bonanomi|2006-01-31,notfound,2026-04-10T19:03:56.681Z
 Andrea Bozzolan|2004-02-23,no_ja,2026-04-10T19:00:29.446Z
 Andrea Cagnano|1998-06-17,no_ja,2026-04-10T19:01:49.828Z
 Andrea Ceresoli|2003-03-25,notfound,2026-04-10T19:03:56.681Z
-Andrea Ciofi|1999-06-28,no_ja,2026-04-14T17:04:12.223Z
+Andrea Ciofi|1999-06-28,api_error,2026-09-13T20:40:04.565Z
 Andrea D'Amico|1981-03-16,notfound,2026-04-18T15:36:49.401Z
 Andrea De Paola|1990-10-02,no_ja,2026-04-18T15:32:56.439Z
 Andrea De Vito|1991-11-27,no_ja,2026-04-18T15:37:23.687Z
-Andrea Marcucci|1999-02-07,no_ja,2026-04-14T17:03:17.612Z
+Andrea Marcucci|1999-02-07,api_error,2026-09-13T20:40:04.565Z
 Andrea Mazzantini|1968-07-11,api_error,2026-04-18T16:20:45.042Z
 Andrea Mira|1995-01-17,notfound,2026-04-18T16:01:44.939Z
 Andrea Natali|2008-01-28,api_error,2026-08-21T18:31:40.290Z
 Andrea Oliveri|2003-01-14,no_ja,2026-04-10T19:03:56.681Z
 Andrea Palazzi|1996-02-24,no_ja,2026-04-18T16:00:17.827Z
-Andrea Paolelli|1997-07-31,no_ja,2026-04-14T17:03:17.612Z
+Andrea Paolelli|1997-07-31,no_ja,2026-09-13T20:40:04.565Z
 Andrea Pisani|1987-03-15,no_ja,2026-04-18T15:33:25.892Z
 Andrea Polizzano|1979-02-15,notfound,2026-04-18T17:58:45.469Z
 Andrea Rabito|1980-05-11,no_ja,2026-04-18T15:43:19.240Z
-Andrea Romagnoli|1998-07-29,no_ja,2026-04-14T17:03:17.612Z
+Andrea Romagnoli|1998-07-29,api_error,2026-09-13T20:37:04.703Z
 Andrea Romanò|1993-07-23,no_ja,2026-04-10T19:01:49.828Z
 Andrea Rossi|1986-11-07,no_ja,2026-04-18T15:33:25.892Z
 Andrea Schiavone|1993-02-25,no_ja,2026-04-18T15:32:56.439Z
@@ -800,7 +800,7 @@ Brian Barboza|2008-05-14,notfound,2026-09-07T14:35:57.120Z
 Brian Bayeye|2000-06-30,api_error,2026-09-11T21:44:02.987Z
 Brian Cipenga|1998-03-11,notfound,2026-09-11T21:44:02.987Z
 Brian McGovern|1980-04-28,no_ja,2026-04-18T16:00:59.479Z
-Brian Silva|2003-06-02,notfound,2026-04-12T15:56:02.340Z
+Brian Silva|2003-06-02,notfound,2026-09-13T20:37:04.703Z
 Brian White|1996-02-03,no_ja,2026-03-21T13:33:55.948Z
 Brice Negouai|2002-02-17,notfound,2026-04-12T16:06:25.401Z
 Bright Ede|2007-02-18,api_error,2026-08-21T18:35:01.072Z
@@ -828,7 +828,7 @@ Bryan Lasme|1998-11-14,api_error,2026-08-27T15:53:05.693Z
 Bryan Okoh|2003-05-16,no_ja,2026-08-15T20:36:00.864Z
 Bryan Ramírez|2000-08-11,no_ja,2026-03-24T14:29:09.994Z
 Brynjólfur Willumsson|2000-08-12,no_ja,2026-03-18T14:33:57.188Z
-Buba Sangaré|2007-08-06,no_ja,2026-08-01T19:15:05.918Z
+Buba Sangaré|2007-08-06,no_ja,2026-09-13T20:37:04.703Z
 Bujar Pllana|2001-10-29,no_ja,2026-03-26T15:06:20.131Z
 Cafú|1993-02-26,api_error,2026-08-28T17:24:05.351Z
 Cajetan Lenz|2006-06-16,api_error,2026-08-26T16:09:04.514Z
@@ -957,7 +957,7 @@ Christ Letono|2004-04-28,notfound,2026-04-12T17:01:39.884Z
 Christ-Owen Kouassi|2003-04-15,no_ja,2026-08-15T20:01:41.895Z
 Christian Biagetti|2004-03-10,notfound,2026-04-12T16:02:31.532Z
 Christian Capone|1999-04-28,no_ja,2026-04-14T17:02:23.188Z
-Christian D'Urso|1997-07-26,no_ja,2026-04-14T17:04:12.223Z
+Christian D'Urso|1997-07-26,api_error,2026-09-13T20:40:04.565Z
 Christian Dalle Mura|2002-02-02,no_ja,2026-04-12T16:02:31.532Z
 Christian Garofalo|2007-01-04,api_error,2026-08-19T17:59:43.131Z
 Christian Gómez|2000-05-18,notfound,2026-04-10T19:04:54.065Z
@@ -994,7 +994,7 @@ Ciprian Marica|1985-10-02,api_error,2026-04-14T16:32:44.170Z
 Ciro Palmieri|2000-02-01,no_ja,2026-04-14T17:01:27.097Z
 Claiton|1984-09-07,no_ja,2026-04-18T15:37:53.241Z
 Claudio Beauvue|1988-04-16,api_error,2026-09-02T17:13:43.099Z
-Claudio Cassano|2003-07-22,notfound,2026-04-12T16:00:12.820Z
+Claudio Cassano|2003-07-22,api_error,2026-09-13T20:37:04.703Z
 Claudio Morel Rodríguez|1978-02-02,api_error,2026-05-09T19:47:01.400Z
 Cláudio Ramos|1991-11-16,no_ja,2026-08-16T19:02:22.868Z
 Claudio Scarzanella|1986-03-12,no_ja,2026-04-18T15:36:49.401Z
@@ -1024,10 +1024,11 @@ Conor Henderson|1991-09-08,no_ja,2026-04-18T15:45:56.525Z
 Conor McAleny|1992-08-12,no_ja,2026-04-14T16:00:17.870Z
 Conor Noß|2001-01-01,api_error,2026-04-14T16:32:44.170Z
 Corentin Halucha|1995-06-03,api_error,2026-09-03T19:03:22.223Z
-Corentin Louakima|2003-02-28,no_ja,2026-04-12T15:56:02.340Z
+Corentin Louakima|2003-02-28,no_ja,2026-09-13T20:37:04.703Z
 Corrie Ndaba|1999-12-25,no_ja,2026-08-01T19:20:05.213Z
 Cosimo da Graça|2002-05-01,notfound,2026-04-10T19:02:40.076Z
 Costantino Favasuli|2004-04-26,api_error,2026-08-19T17:59:43.131Z
+Cote|1989-09-05,notfound,2026-09-13T20:42:03.618Z
 Couhaib Driouech|2002-04-17,no_ja,2026-04-09T17:00:29.453Z
 Courtney Meppen-Walter|1994-08-02,no_ja,2026-04-18T15:32:17.603Z
 Craig Holloway|1984-08-10,notfound,2026-04-18T16:00:59.479Z
@@ -1162,7 +1163,7 @@ Dario Smoje|1978-09-19,no_ja,2026-04-18T15:43:19.240Z
 Dario Torrico|2000-10-18,notfound,2026-02-19T15:34:45.925Z
 Dario Venitucci|1987-01-30,no_ja,2026-04-18T15:33:25.892Z
 Darío Verón|1979-07-26,api_error,2026-05-09T19:47:01.400Z
-Dario Vittorio Meadows|1999-01-28,notfound,2026-04-14T17:04:12.223Z
+Dario Vittorio Meadows|1999-01-28,api_error,2026-09-13T20:40:04.565Z
 Darius Olaru|1998-03-03,no_ja,2026-03-26T15:22:16.469Z
 Dariusz Stalmach|2005-12-08,no_ja,2026-08-27T15:51:03.915Z
 Darko Nejasmic|1999-01-25,no_ja,2026-08-15T20:28:59.423Z
@@ -1215,6 +1216,7 @@ David Wieser|2002-02-13,no_ja,2026-04-10T19:00:57.675Z
 David Zec|2000-01-05,no_ja,2026-02-19T15:32:50.590Z
 Davide Agazzi|1993-06-02,no_ja,2026-04-14T17:02:23.188Z
 Davide Ancelotti|1989-07-22,no_ja,2026-04-18T15:37:23.687Z
+Davide Astori|1987-01-07,api_error,2026-09-13T20:40:04.566Z
 Davide Bassi|1985-04-12,no_ja,2026-04-14T17:03:17.612Z
 Davide Bettella|2000-04-07,api_error,2026-04-14T16:37:31.698Z
 Davide Brivio|1988-03-17,api_error,2026-04-14T16:42:20.112Z
@@ -1247,6 +1249,7 @@ Dean Hammond|1983-03-07,no_ja,2026-04-13T15:43:46.562Z
 Deano Van Rooyen|1996-11-24,api_error,2026-09-09T15:14:00.208Z
 Deepak Tangri|1999-02-01,api_error,2026-09-09T14:48:02.287Z
 Dehmaine Tabibou|2005-04-17,no_ja,2026-08-16T18:59:00.556Z
+Deian Boldor|1995-02-03,no_ja,2026-09-13T20:42:03.618Z
 Deian Sorescu|1997-08-29,no_ja,2026-03-26T15:22:16.469Z
 Dejan Iliev|1995-02-25,no_ja,2026-08-15T20:41:25.374Z
 Deji Beyreuther|1999-09-06,no_ja,2026-04-14T16:01:49.548Z
@@ -1283,7 +1286,7 @@ Des Kunst|1999-10-12,api_error,2026-04-18T16:40:01.481Z
 Destiny Egharevba|2003-02-04,notfound,2026-04-12T16:02:31.533Z
 Devan Tanton|2004-01-03,no_ja,2026-04-13T16:01:28.526Z
 Deveron Fonville|2003-05-16,no_ja,2026-08-16T18:27:42.642Z
-Devid Eugene Bouah|2001-08-13,no_ja,2026-04-14T17:04:12.223Z
+Devid Eugene Bouah|2001-08-13,api_error,2026-09-13T20:40:04.565Z
 Devin Remie|2003-03-13,notfound,2026-04-18T15:45:56.525Z
 Devis Nossa|1985-02-07,no_ja,2026-04-18T16:17:11.301Z
 Dexter Lembikisa|2003-11-04,no_ja,2026-04-13T15:44:16.023Z
@@ -1324,7 +1327,7 @@ Dilshod Saitov|1999-02-02,no_ja,2026-03-16T12:24:40.110Z
 Dimitar Mitrovski|1999-01-28,no_ja,2026-03-26T16:10:59.800Z
 Dimitri Lavalée|1997-01-13,no_ja,2026-04-11T16:59:01.873Z
 Dimitri Oberlin|1997-09-27,no_ja,2026-04-10T18:59:41.190Z
-Dimitrios Keramitsis|2004-07-01,no_ja,2026-04-12T15:56:02.340Z
+Dimitrios Keramitsis|2004-07-01,api_error,2026-09-13T20:37:04.703Z
 Dimo Krastev|2003-02-10,no_ja,2026-04-12T16:02:31.533Z
 Diney Borges|1995-01-17,notfound,2026-03-25T15:20:04.415Z
 Dino Besirovic|1994-01-31,api_error,2026-05-09T17:32:04.353Z
@@ -1408,7 +1411,7 @@ Edoardo Iannoni|2001-04-11,no_ja,2026-08-04T16:37:44.111Z
 Edoardo Motta|2005-01-13,no_ja,2026-08-15T20:36:00.864Z
 Edoardo Pieragnolo|2003-01-03,no_ja,2026-08-04T16:37:44.111Z
 Edoardo Rezzi|1999-07-03,notfound,2026-04-14T17:05:41.168Z
-Edoardo Soleri|1997-10-19,no_ja,2026-04-14T17:04:12.223Z
+Edoardo Soleri|1997-10-19,no_ja,2026-09-13T20:40:04.565Z
 Edoardo Sottini|2002-08-18,notfound,2026-04-10T19:00:57.675Z
 Edoardo Vergani|2001-02-06,no_ja,2026-04-10T19:01:49.828Z
 Edouard Sombang|1998-05-29,notfound,2026-09-08T15:30:00.245Z
@@ -1456,7 +1459,7 @@ Elijah Campbell|2004-08-02,no_ja,2026-04-13T16:02:43.794Z
 Elijah Dijkstra|2006-08-05,no_ja,2026-08-15T20:39:59.231Z
 Elijah Dixon-Bonner|2001-01-01,api_error,2026-08-17T18:02:23.153Z
 Elikya Legros|2008-06-06,no_ja,2026-08-16T19:39:03.384Z
-Elio Capradossi|1996-03-11,no_ja,2026-04-14T17:03:17.612Z
+Elio Capradossi|1996-03-11,api_error,2026-09-13T20:37:04.703Z
 Elio De Silvestro|1993-03-10,no_ja,2026-04-18T15:32:56.439Z
 Eliot Bujupi|2006-07-03,no_ja,2026-04-14T16:08:26.308Z
 Eljon Toci|2003-01-09,notfound,2026-04-12T16:02:31.533Z
@@ -1479,10 +1482,10 @@ Emanuel Mammana|1996-02-10,api_error,2026-09-02T17:13:43.099Z
 Emanuele Barsotti|1979-03-05,notfound,2026-04-18T17:58:45.469Z
 Emanuele Ndoj|1996-11-20,api_error,2026-04-14T16:51:56.769Z
 Emanuele Orlandi|1988-02-04,no_ja,2026-04-18T15:37:23.687Z
-Emanuele Spinozzi|1998-07-23,no_ja,2026-04-14T17:04:12.223Z
+Emanuele Spinozzi|1998-07-23,api_error,2026-09-13T20:40:04.565Z
 Emanuele Suagher|1992-11-26,api_error,2026-04-14T16:37:31.699Z
 Emanuele Torrasi|1999-03-16,no_ja,2026-04-10T19:00:29.447Z
-Emanuele Zamarion|2000-08-04,no_ja,2026-04-14T17:04:12.223Z
+Emanuele Zamarion|2000-08-04,api_error,2026-09-13T20:40:04.565Z
 Emeka Eneli|1999-10-18,no_ja,2026-03-21T13:33:55.948Z
 Emerson|1994-08-03,notfound,2026-01-24T18:38:27.121Z
 Emersonn|2004-07-16,no_ja,2026-08-16T18:22:03.866Z
@@ -1557,7 +1560,7 @@ Erik Prekop|1997-10-08,no_ja,2026-03-26T15:52:45.208Z
 Ernest Muci|2001-03-19,no_ja,2026-03-26T15:06:20.130Z
 Ernestas Lysionok|2007-03-09,no_ja,2026-08-15T20:07:44.055Z
 Ernesto Torregrossa|1992-06-28,no_ja,2026-04-12T16:04:58.946Z
-Eros De Santis|1997-10-30,no_ja,2026-04-14T17:04:12.223Z
+Eros De Santis|1997-10-30,no_ja,2026-09-13T20:40:04.566Z
 Eros Favaretto|1986-09-29,notfound,2026-04-18T15:37:23.687Z
 Ertugrul Yigit|2009-01-08,no_ja,2026-08-26T16:08:05.842Z
 Ervin Zukanovic|1987-02-11,api_error,2026-04-14T16:42:20.112Z
@@ -1650,17 +1653,18 @@ Federico Croci|2010-07-01,api_error,2026-08-19T18:01:55.432Z
 Federico Gagliardini|1994-01-24,notfound,2026-04-18T15:32:56.439Z
 Federico Magro|2005-01-10,no_ja,2026-04-12T16:00:12.823Z
 Federico Motti|2004-03-06,notfound,2026-04-12T16:01:19.881Z
-Federico Nardin|2007-02-18,no_ja,2026-04-12T15:55:35.537Z
+Federico Nardin|2007-02-18,no_ja,2026-09-13T20:37:04.703Z
 Federico Ricci|1994-05-27,api_error,2026-04-14T16:51:56.769Z
 Federico Serra|2006-01-03,no_ja,2026-08-19T18:01:02.412Z
 Federico Steffanoni|2008-09-04,notfound,2026-04-10T19:03:56.681Z
+Federico Viviani|1992-03-24,api_error,2026-09-13T20:42:03.618Z
 Federico Zorzi|2004-03-06,notfound,2026-04-12T16:03:35.141Z
 Federico Zuccon|2003-04-01,no_ja,2026-04-10T19:03:56.681Z
 Fedor Kudryashov|1987-04-05,notfound,2026-03-11T19:45:23.543Z
 Felice Cavaliere|1981-01-23,no_ja,2026-04-18T15:43:19.240Z
 Felice D'Amico|2000-08-22,no_ja,2026-04-12T16:06:25.400Z
 Felipe Chávez|2007-04-10,no_ja,2026-08-15T20:32:22.737Z
-Felipe Estrella|2001-01-10,notfound,2026-04-14T17:03:17.612Z
+Felipe Estrella|2001-01-10,api_error,2026-09-13T20:37:04.703Z
 Felipe Lopes|1987-08-07,no_ja,2026-04-14T17:00:31.263Z
 Felipe Loyola|2000-11-09,no_ja,2026-08-16T19:42:24.603Z
 Felipe|1984-07-31,notfound,2026-04-18T16:00:08.139Z
@@ -1695,10 +1699,10 @@ Filip Zorvan|1996-04-07,no_ja,2026-02-19T15:27:38.372Z
 Filipe Bordon|2005-06-24,no_ja,2026-08-19T18:01:02.412Z
 Filipe Morais|1985-11-21,no_ja,2026-03-19T20:33:39.438Z
 Filipe Oliveira|1984-05-27,no_ja,2026-03-19T20:34:18.983Z
-Filippo Alessio|2004-12-24,no_ja,2026-04-12T15:56:02.340Z
-Filippo Berti|2003-01-31,notfound,2026-04-12T16:00:12.822Z
+Filippo Alessio|2004-12-24,api_error,2026-09-13T20:37:04.703Z
+Filippo Berti|2003-01-31,api_error,2026-09-13T20:37:04.703Z
 Filippo Distefano|2003-08-28,no_ja,2026-04-12T16:02:31.533Z
-Filippo Franchi|1998-01-14,no_ja,2026-04-14T17:04:12.223Z
+Filippo Franchi|1998-01-14,no_ja,2026-09-13T20:40:04.566Z
 Filippo Frison|2002-07-30,notfound,2026-04-12T16:02:31.533Z
 Filippo Mane|2005-03-08,no_ja,2026-08-03T14:56:22.841Z
 Filippo Melegoni|1999-02-18,api_error,2026-04-14T16:37:31.699Z
@@ -1707,7 +1711,7 @@ Filippo Penna|1995-03-24,no_ja,2026-04-18T15:32:56.439Z
 Filippo Perucchini|1991-10-06,no_ja,2026-04-18T15:37:23.687Z
 Filippo Reale|2006-02-24,no_ja,2026-08-18T15:44:31.828Z
 Filippo Rinaldi|2002-12-04,no_ja,2026-08-01T19:18:24.775Z
-Filippo Tripi|2002-01-06,no_ja,2026-04-12T15:56:02.340Z
+Filippo Tripi|2002-01-06,no_ja,2026-09-13T20:37:04.703Z
 Finley Munroe|2005-02-08,no_ja,2026-04-12T15:54:50.806Z
 Finn Azaz|2000-09-07,no_ja,2026-02-19T15:28:36.192Z
 Finn Porath|1997-02-23,api_error,2026-08-27T15:53:05.693Z
@@ -1756,17 +1760,18 @@ Francesco Antonucci|1999-06-20,api_error,2026-04-18T16:35:10.627Z
 Francesco Bilardo|1986-02-14,notfound,2026-04-18T16:17:11.301Z
 Francesco Bordi|1997-01-28,no_ja,2026-04-18T15:36:49.401Z
 Francesco Coppola|2005-04-11,no_ja,2026-08-15T20:01:41.896Z
-Francesco D'Alessio|2004-02-21,no_ja,2026-04-12T15:56:02.340Z
+Francesco D'Alessio|2004-02-21,api_error,2026-09-13T20:37:04.703Z
 Francesco Folino|2002-01-23,no_ja,2026-08-15T19:57:43.626Z
 Francesco Forte|1993-05-01,no_ja,2026-04-18T16:02:13.688Z
 Francesco Gioielli|2004-02-26,notfound,2026-04-10T19:02:40.078Z
 Francesco Mezzoni|2000-05-27,notfound,2026-04-10T19:03:04.212Z
 Francesco Migliardi|2003-03-19,notfound,2026-04-12T16:04:58.946Z
 Francesco Pezziardi|2000-09-14,notfound,2026-04-10T19:02:40.078Z
+Francesco Proietti Gaffi|1994-05-21,notfound,2026-09-13T20:42:03.618Z
 Francesco Raffaelli|2005-05-21,notfound,2026-04-12T16:03:11.575Z
 Francesco Rossi|1991-04-27,notfound,2026-08-04T16:37:44.110Z
 Francesco Scardina|1981-12-11,no_ja,2026-04-18T15:36:49.401Z
-Francesco Semeraro|2001-05-01,no_ja,2026-04-14T17:03:17.612Z
+Francesco Semeraro|2001-05-01,api_error,2026-09-13T20:40:04.565Z
 Francesco Teti|1979-08-08,notfound,2026-04-18T17:58:45.469Z
 Francis de Vries|1994-11-28,no_ja,2026-03-21T16:18:36.701Z
 Francis Durán|1988-04-28,notfound,2026-04-14T16:00:57.437Z
@@ -1824,8 +1829,9 @@ Gabriel|1992-09-27,notfound,2026-04-10T19:00:29.447Z
 Gabriel|1997-12-19,notfound,2026-09-03T18:57:45.010Z
 Gabriele Aldegani|1976-05-10,no_ja,2026-04-18T15:43:19.240Z
 Gabriele Artistico|2002-07-14,no_ja,2026-08-19T18:01:02.412Z
-Gabriele Baldi|2004-08-24,notfound,2026-04-12T15:56:02.340Z
+Gabriele Baldi|2004-08-24,api_error,2026-09-13T20:37:04.703Z
 Gabriele Corbo|2000-01-11,no_ja,2026-04-12T16:03:11.576Z
+Gabriele Marchegiani|1996-06-03,api_error,2026-09-13T20:40:04.566Z
 Gabriele Piccinini|2001-04-06,notfound,2026-08-15T20:11:20.436Z
 Gabriele Puccio|1989-08-03,no_ja,2026-04-18T16:16:29.412Z
 Gabriele Re Cecconi|2006-04-25,no_ja,2026-04-10T19:00:29.448Z
@@ -1888,7 +1894,7 @@ Ghaith Zaalouni|2002-05-06,notfound,2026-03-18T18:16:57.943Z
 Ghanam Mohamed|1997-03-12,no_ja,2026-03-22T08:31:37.302Z
 Ghaylen Chaalali|1994-02-28,notfound,2026-03-10T20:48:01.423Z
 Giacomo De Pieri|2006-12-29,no_ja,2026-04-10T19:00:57.675Z
-Giacomo Faticanti|2004-07-31,notfound,2026-04-12T15:56:02.340Z
+Giacomo Faticanti|2004-07-31,notfound,2026-09-13T20:37:04.703Z
 Giacomo Moretti|2003-01-07,notfound,2026-04-12T16:00:54.382Z
 Giacomo Olzer|2001-04-14,no_ja,2026-04-10T19:00:29.447Z
 Giacomo Parigi|1996-06-18,no_ja,2026-04-14T17:02:23.188Z
@@ -2181,7 +2187,7 @@ Iñigo Arguibide|2005-04-19,notfound,2026-08-04T16:34:03.046Z
 Íñigo Sainz-Maza|1998-06-16,api_error,2026-08-21T18:35:01.071Z
 Iñigo Vicente|1998-01-06,api_error,2026-08-21T18:35:01.071Z
 Insa Boye|2002-03-23,notfound,2026-03-21T13:32:44.350Z
-Ionuț Pop|1997-08-01,no_ja,2026-04-14T17:04:12.223Z
+Ionuț Pop|1997-08-01,no_ja,2026-09-13T20:40:04.566Z
 Iqraam Rayners|1995-12-19,no_ja,2026-09-09T15:14:00.208Z
 Ireneusz Jeleń|1981-04-09,api_error,2026-09-03T19:03:22.224Z
 Irfan Yadwad|2001-06-19,notfound,2026-09-09T14:49:00.664Z
@@ -2288,8 +2294,9 @@ Jacob Widell Zetterström|1998-07-11,no_ja,2026-02-19T14:37:48.680Z
 Jacob Wright|2005-09-21,no_ja,2026-08-17T18:02:23.153Z
 Jacobo Ortega|2006-05-29,no_ja,2026-08-20T19:32:02.516Z
 Jacopo Da Riva|2000-10-27,no_ja,2026-04-10T19:03:56.681Z
-Jacopo Del Bello|2004-09-25,notfound,2026-04-12T15:56:02.340Z
+Jacopo Del Bello|2004-09-25,api_error,2026-09-13T20:37:04.703Z
 Jacopo Dezi|1992-02-10,api_error,2026-04-14T16:37:31.698Z
+Jacopo Ferri|1995-04-05,no_ja,2026-09-13T20:40:04.566Z
 Jacopo Ravasi|1987-02-08,no_ja,2026-04-18T16:17:11.301Z
 Jacopo Ricco|2003-02-09,notfound,2026-04-12T16:02:31.533Z
 Jacopo Sassi|2003-07-24,notfound,2026-04-10T19:03:56.681Z
@@ -2359,7 +2366,7 @@ Jan Faberski|2006-04-22,api_error,2026-04-18T16:44:51.592Z
 Jan Gyamerah|1995-06-18,api_error,2026-08-27T15:55:27.165Z
 Jan Leszczyński|2007-04-12,ambiguous,2026-08-18T20:06:25.312Z
 Jan Mauersberger|1985-06-17,no_ja,2026-04-14T15:56:28.787Z
-Jan Oliveras|2004-07-07,no_ja,2026-04-12T15:55:35.538Z
+Jan Oliveras|2004-07-07,no_ja,2026-09-13T20:37:04.703Z
 Jan Olschowsky|2001-11-18,no_ja,2026-08-16T20:21:23.756Z
 Jan Plug|2005-04-02,no_ja,2026-08-16T19:02:22.867Z
 Jan Salas|2005-08-10,no_ja,2026-04-12T17:28:13.305Z
@@ -2499,7 +2506,7 @@ Joan Tincres|2006-06-17,no_ja,2026-04-11T16:55:56.322Z
 Joan Tincrès|2006-06-17,no_ja,2026-08-20T19:33:02.754Z
 João Afonso|2007-04-30,api_error,2026-08-21T18:31:40.290Z
 João Carvalho|2004-04-09,notfound,2026-03-21T13:32:09.602Z
-João Costa|2005-03-28,notfound,2026-04-12T15:55:35.537Z
+João Costa|2005-03-28,notfound,2026-09-13T20:37:04.703Z
 João Gomes|2001-02-12,notfound,2026-02-24T15:36:44.715Z
 João Muniz|2005-06-26,api_error,2026-04-10T19:26:41.432Z
 João Paulo|1998-05-26,no_ja,2026-03-25T15:20:04.415Z
@@ -2546,7 +2553,7 @@ Joel Soñora|1996-09-15,no_ja,2026-04-18T16:01:44.939Z
 Joel Untersee|1994-02-11,no_ja,2026-04-18T15:32:56.439Z
 Joel Valencia|1994-11-16,no_ja,2026-04-13T16:00:33.519Z
 Joël van den Berg|2007-02-11,no_ja,2026-04-09T16:51:28.885Z
-Joel Voelkerling Persson|2003-01-15,no_ja,2026-04-12T16:00:12.822Z
+Joel Voelkerling Persson|2003-01-15,api_error,2026-09-13T20:37:04.703Z
 Joep Geneste|2007-01-15,no_ja,2026-08-21T17:37:40.436Z
 Joeri de Kamps|1992-02-10,api_error,2026-04-18T16:52:08.152Z
 Joeri Heerkens|2006-05-08,notfound,2026-08-15T20:28:59.423Z
@@ -2609,7 +2616,7 @@ Jordan Brown|1996-11-10,no_ja,2026-04-13T15:43:04.441Z
 Jordan Ferri|1992-03-12,api_error,2026-09-02T17:09:44.176Z
 Jordan Fowler|1984-10-01,no_ja,2026-04-18T16:00:59.479Z
 Jordan Lefort|1993-08-09,no_ja,2026-08-16T18:59:00.556Z
-Jordan Majchrzak|2004-10-08,no_ja,2026-04-12T16:00:12.821Z
+Jordan Majchrzak|2004-10-08,api_error,2026-09-13T20:37:04.703Z
 Jordan Mendes|2004-03-07,notfound,2026-03-25T15:20:04.416Z
 Jordan Pedrocchi|1991-02-14,notfound,2026-04-18T15:37:23.687Z
 Jordan Semedo|2003-01-15,no_ja,2026-03-25T15:20:04.415Z
@@ -2749,6 +2756,7 @@ Júlio César|1978-11-18,notfound,2026-04-14T15:53:47.267Z
 Julio Daguer|2008-02-22,no_ja,2026-09-07T18:42:45.358Z
 Julio Díaz|2005-01-10,no_ja,2026-08-21T17:41:01.470Z
 Julio Manzur|1981-06-22,api_error,2026-05-09T19:49:05.091Z
+Júlio Sérgio|1978-11-08,api_error,2026-09-13T20:42:03.618Z
 Júlíus Magnússon|1998-06-28,no_ja,2026-03-18T14:33:57.187Z
 Juljan Shehu|1998-09-06,no_ja,2026-03-26T15:06:20.130Z
 Jun Choi|1999-04-17,no_ja,2026-03-10T16:25:11.959Z
@@ -2823,7 +2831,7 @@ Kaye Furo|2007-02-06,no_ja,2026-08-16T20:18:01.827Z
 Kayne Bonnevie|2001-07-22,no_ja,2026-09-02T17:09:44.176Z
 Kayode Bankole|2002-10-16,no_ja,2026-02-19T15:30:19.896Z
 Kazema Baso|2000-08-28,api_error,2026-09-11T21:44:02.987Z
-Keba Coly|1998-02-20,no_ja,2026-04-14T17:04:12.223Z
+Keba Coly|1998-02-20,no_ja,2026-09-13T20:40:04.565Z
 Keenan Appiah-Forson|2001-10-16,no_ja,2026-04-13T15:41:10.541Z
 Kees Sims|2003-03-27,no_ja,2026-03-21T16:18:36.701Z
 Kees Smit|2006-01-20,notfound,2026-02-05T14:36:16.338Z
@@ -2968,7 +2976,7 @@ Lallianzuala Chhangte|1997-08-06,api_error,2026-09-09T14:49:00.664Z
 Lalremtluanga F|2004-09-17,no_ja,2026-09-09T14:48:02.287Z
 Lamine Gueye|1998-03-13,no_ja,2026-08-15T20:25:00.189Z
 Lamine Sy|2002-08-10,no_ja,2026-08-15T20:25:00.189Z
-Lamine Tall|2001-12-05,notfound,2026-04-12T16:00:12.822Z
+Lamine Tall|2001-12-05,notfound,2026-09-13T20:37:04.703Z
 Lampros Choutos|1979-12-07,no_ja,2026-04-18T16:17:11.301Z
 Lanchi|2001-06-23,no_ja,2026-04-12T19:28:08.965Z
 Lander Emery|2003-03-29,notfound,2026-04-11T17:00:14.594Z
@@ -3095,7 +3103,7 @@ Lion Semic|2003-09-13,no_ja,2026-04-10T19:04:54.065Z
 Lionel Mpasi-Nzau|1994-08-01,no_ja,2026-08-20T19:33:02.753Z
 Lionel Voufack|2007-10-07,notfound,2026-04-14T16:07:43.213Z
 Lirijon Abdullahu|2008-04-06,notfound,2026-03-26T15:42:22.496Z
-Lirim Kastrati|1999-02-02,no_ja,2026-04-14T17:04:12.223Z
+Lirim Kastrati|1999-02-02,api_error,2026-09-13T20:40:04.565Z
 Lirim Qamili|1998-06-04,no_ja,2026-03-26T16:10:59.800Z
 Lisandro Magallán|1993-09-27,api_error,2026-04-18T16:44:51.593Z
 Lisandru Olmeta|2005-07-21,notfound,2026-09-03T18:57:45.006Z
@@ -3121,14 +3129,14 @@ Lorenzo Anghelè|2005-02-26,no_ja,2026-04-10T19:01:49.828Z
 Lorenzo Avogadri|2001-08-21,no_ja,2026-04-12T16:04:58.946Z
 Lorenzo Bernasconi|2003-11-16,no_ja,2026-08-04T16:37:44.110Z
 Lorenzo Chiti|2001-01-13,notfound,2026-04-12T16:02:31.534Z
-Lorenzo Crisanto|1998-04-20,no_ja,2026-04-14T17:03:17.612Z
-Lorenzo Di Livio|1997-01-11,no_ja,2026-04-14T17:04:12.223Z
+Lorenzo Crisanto|1998-04-20,api_error,2026-09-13T20:37:04.703Z
+Lorenzo Di Livio|1997-01-11,no_ja,2026-09-13T20:40:04.565Z
 Lorenzo Di Stefano|2002-09-19,notfound,2026-04-12T16:04:58.946Z
 Lorenzo Ebecilio|1991-09-24,api_error,2026-04-18T16:52:08.152Z
 Lorenzo Ferrari|1996-03-09,no_ja,2026-04-18T15:37:23.687Z
 Lorenzo Filippini|1995-07-28,no_ja,2026-04-14T17:05:41.168Z
 Lorenzo Gavioli|2000-01-07,no_ja,2026-04-10T19:01:49.828Z
-Lorenzo Grossi|1998-03-25,no_ja,2026-04-14T17:04:12.223Z
+Lorenzo Grossi|1998-03-25,no_ja,2026-09-13T20:40:04.566Z
 Lorenzo Migliorelli|1998-05-03,no_ja,2026-04-14T17:02:23.188Z
 Lorenzo Morandini|1978-06-20,notfound,2026-04-18T15:36:49.401Z
 Lorenzo Moretti|2002-02-26,no_ja,2026-04-10T19:00:57.675Z
@@ -3139,8 +3147,8 @@ Lorenzo Romani|2005-02-28,notfound,2026-04-12T16:01:19.882Z
 Lorenzo Rossetti|1980-07-01,no_ja,2026-04-18T15:43:19.240Z
 Lorenzo Russo|2005-04-19,notfound,2026-04-10T19:03:04.212Z
 Lorenzo Spurio|1999-04-12,notfound,2026-04-14T17:05:41.168Z
-Lorenzo Valeau|1999-03-05,no_ja,2026-04-14T17:03:17.612Z
-Lorenzo Vasco|1997-06-19,no_ja,2026-04-14T17:04:12.223Z
+Lorenzo Valeau|1999-03-05,no_ja,2026-09-13T20:40:04.565Z
+Lorenzo Vasco|1997-06-19,api_error,2026-09-13T20:40:04.566Z
 Lorenzo Venturino|2006-06-22,no_ja,2026-04-08T17:06:52.760Z
 Lorenzo Villa|2003-07-26,notfound,2026-04-12T16:03:35.141Z
 Loris Zonta|1997-05-22,no_ja,2026-04-10T19:01:49.828Z
@@ -3190,7 +3198,7 @@ Luca Kilian|1999-09-01,no_ja,2026-08-01T19:08:05.256Z
 Luca Lagnese|1987-06-09,notfound,2026-04-18T15:33:25.892Z
 Luca Mack|2000-05-25,no_ja,2026-04-14T16:23:04.643Z
 Luca Maniero|1995-06-12,no_ja,2026-04-18T16:00:17.827Z
-Luca Mazzitelli|1995-11-15,no_ja,2026-08-03T20:17:44.408Z
+Luca Mazzitelli|1995-11-15,api_error,2026-09-13T20:42:03.618Z
 Luca Mezzano|1977-08-01,api_error,2026-04-18T16:20:45.042Z
 Luca Moro|2001-01-25,no_ja,2026-08-01T19:18:24.775Z
 Luca Napolitano|2004-01-10,notfound,2026-04-12T16:00:12.823Z
@@ -3249,11 +3257,11 @@ Luciano|1975-12-03,notfound,2026-04-18T16:17:11.301Z
 Lucio Filomeno|1980-05-08,no_ja,2026-04-18T17:58:45.469Z
 Luck Zogbé|2005-03-24,no_ja,2026-08-16T18:22:03.866Z
 Ludovic Butelle|1983-04-03,api_error,2026-04-12T16:53:08.146Z
-Ludovico D'Orazio|2000-02-19,no_ja,2026-04-14T17:04:12.223Z
+Ludovico D'Orazio|2000-02-19,no_ja,2026-09-13T20:40:04.565Z
 Ludovico Gelmi|2001-05-02,no_ja,2026-04-10T19:03:56.681Z
 Lues Waya|2001-08-01,no_ja,2026-03-21T16:05:52.976Z
 Luigi Aquino|2002-02-01,notfound,2026-04-12T16:04:58.946Z
-Luigi Cherubini|2004-01-15,no_ja,2026-04-12T15:56:02.340Z
+Luigi Cherubini|2004-01-15,api_error,2026-09-13T20:37:04.703Z
 Luigi D'Avino|2005-12-08,notfound,2026-04-10T19:03:04.212Z
 Luigi D'Ignazio|1998-03-13,no_ja,2026-04-14T17:01:27.097Z
 Luigi Giandomenico|1978-09-01,no_ja,2026-04-18T15:36:49.401Z
@@ -3396,7 +3404,7 @@ Manuel Moretta|2006-01-15,no_ja,2026-04-12T16:00:54.382Z
 Manuel Sinato|1979-05-30,no_ja,2026-04-18T15:36:49.401Z
 Manuel Tena|1978-02-03,no_ja,2026-04-14T15:53:47.267Z
 Manvir Singh|1995-11-06,api_error,2026-09-09T14:49:00.664Z
-Mapou Yanga-Mbiwa|1989-05-15,api_error,2026-09-02T17:09:44.176Z
+Mapou Yanga-Mbiwa|1989-05-15,api_error,2026-09-13T20:40:04.566Z
 Marc Aguado|2000-02-22,no_ja,2026-07-25T16:02:06.126Z
 Marc Baró|1999-08-23,no_ja,2026-04-12T15:55:35.537Z
 Marc Bola|1997-12-09,no_ja,2026-08-16T20:21:23.757Z
@@ -3430,6 +3438,7 @@ Marco D'Alessandro|1991-02-17,api_error,2026-04-14T16:42:20.112Z
 Marco Duravia|1989-10-14,no_ja,2026-04-18T15:33:25.892Z
 Marco Ferrara|1994-05-05,no_ja,2026-04-18T16:02:13.688Z
 Marco Filippini|1988-09-19,no_ja,2026-04-18T16:16:29.412Z
+Marco Frediani|1994-03-13,notfound,2026-09-13T20:42:03.618Z
 Marco Frigerio|2001-07-16,no_ja,2026-04-10T19:00:29.446Z
 Marco Gabrielli|1982-03-25,notfound,2026-04-18T15:43:19.240Z
 Marco Libra|2008-03-21,no_ja,2026-09-04T18:51:45.792Z
@@ -3512,6 +3521,7 @@ Maroan Sannadi|2001-02-01,no_ja,2026-08-03T14:56:22.840Z
 Marouan Azarkan|2001-12-08,api_error,2026-04-18T16:35:10.627Z
 Marouane Louadni|1995-01-01,no_ja,2026-03-19T19:00:00.672Z
 Marouane Sahraoui|1996-01-09,no_ja,2026-02-17T13:11:34.536Z
+Marquinho|1986-07-03,api_error,2026-09-13T20:42:03.618Z
 Mart Ristl|1996-07-07,no_ja,2026-04-18T16:01:44.939Z
 Martial Godo|2003-03-14,api_error,2026-08-20T19:32:02.516Z
 Martial Tia|2006-11-20,api_error,2026-09-11T21:55:43.702Z
@@ -3550,6 +3560,7 @@ Massimiliano Marchio|1980-01-17,notfound,2026-04-18T15:36:49.401Z
 Massimiliano Zazzetta|1979-10-10,no_ja,2026-04-18T15:36:49.401Z
 Massimo Paganin|1970-07-19,api_error,2026-04-18T16:20:45.042Z
 Massimo Pessina|2007-12-25,no_ja,2026-08-19T18:02:12.293Z
+Massimo Sammartino|1995-09-08,no_ja,2026-09-13T20:40:04.566Z
 Massimo Tarantino|1971-05-20,api_error,2026-04-18T16:20:45.042Z
 Matai Akinmboni|2006-10-17,no_ja,2026-07-24T20:01:24.168Z
 Matej Maglica|1998-09-25,notfound,2026-04-14T16:08:53.561Z
@@ -3597,7 +3608,7 @@ Matías Fernández-Pardo|2005-02-03,no_ja,2026-04-09T16:46:22.236Z
 Matías Fonseca|2001-03-12,no_ja,2026-04-10T19:01:49.828Z
 Matías Galarza Fonda|2002-02-11,no_ja,2026-05-09T19:47:01.400Z
 Matías Moreno|2003-09-24,no_ja,2026-08-01T19:00:47.609Z
-Matías Nani|1998-03-26,no_ja,2026-04-14T17:03:17.612Z
+Matías Nani|1998-03-26,no_ja,2026-09-13T20:40:04.565Z
 Matías Pérez|2005-04-13,no_ja,2026-08-01T19:20:05.212Z
 Matias Rocchi|2002-10-23,notfound,2026-04-12T16:03:35.141Z
 Mats Heitmann|2006-02-11,api_error,2026-08-27T15:51:03.915Z
@@ -3606,10 +3617,11 @@ Mats Rots|2006-03-11,api_error,2026-08-26T16:09:04.514Z
 Matt Dibley-Dias|2003-10-29,notfound,2026-04-13T16:01:28.526Z
 Matt Freese|1998-09-02,no_ja,2026-03-21T13:33:55.947Z
 Matt Smith|2000-10-05,no_ja,2026-08-16T19:44:06.448Z
+Matteo Adamo|1996-07-29,notfound,2026-09-13T20:40:04.566Z
 Matteo Angeli|2002-12-30,no_ja,2026-04-12T16:03:11.575Z
 Matteo Bignetti|2004-05-06,no_ja,2026-04-11T16:55:56.322Z
 Matteo Bruscagin|1989-08-03,no_ja,2026-04-18T15:37:23.687Z
-Matteo Cardinali|2001-06-28,no_ja,2026-04-14T17:03:17.612Z
+Matteo Cardinali|2001-06-28,api_error,2026-09-13T20:37:04.703Z
 Matteo Cincilla|1994-10-24,no_ja,2026-04-18T16:01:44.939Z
 Matteo Cocchi|2007-02-01,no_ja,2026-04-10T19:00:29.448Z
 Matteo Colombi|1994-06-13,no_ja,2026-04-18T16:01:44.939Z
@@ -3618,7 +3630,7 @@ Matteo Dams|2004-03-09,no_ja,2026-04-18T17:59:50.352Z
 Matteo de Brienne|2002-05-22,no_ja,2026-03-19T18:11:23.124Z
 Matteo Deinite|1983-04-23,no_ja,2026-04-18T15:43:19.240Z
 Matteo Duțu|2005-11-23,no_ja,2026-04-12T16:00:12.823Z
-Matteo Falasca|2004-04-27,notfound,2026-04-12T15:56:02.340Z
+Matteo Falasca|2004-04-27,notfound,2026-09-13T20:37:04.703Z
 Matteo Gasperoni|1998-09-11,notfound,2026-04-14T17:03:17.612Z
 Matteo Gerbaudo|1995-05-10,no_ja,2026-04-18T15:32:56.439Z
 Matteo Giordano|1984-10-23,no_ja,2026-04-18T15:37:53.241Z
@@ -3632,8 +3644,9 @@ Matteo Motta|2005-02-10,notfound,2026-04-10T19:00:29.448Z
 Matteo Palma|2008-03-13,no_ja,2026-08-15T19:57:43.626Z
 Matteo Pelatti|1978-03-17,no_ja,2026-04-18T15:43:19.240Z
 Matteo Pérez Vinlöf|2005-12-18,no_ja,2026-04-10T18:58:47.690Z
-Matteo Plaia|2006-03-29,notfound,2026-04-12T15:55:35.537Z
+Matteo Plaia|2006-03-29,notfound,2026-09-13T20:37:04.703Z
 Matteo Raspa|2001-08-21,notfound,2026-04-12T16:04:58.947Z
+Matteo Ricci|1994-05-27,api_error,2026-09-13T20:42:03.618Z
 Matteo Rover|1999-02-20,no_ja,2026-04-10T19:01:49.828Z
 Matteo Salvi|1999-03-20,no_ja,2026-04-14T17:02:23.188Z
 Matteo Soncin|2001-03-28,no_ja,2026-04-10T19:00:29.447Z
@@ -3798,6 +3811,7 @@ Michele Cerofolini|1999-01-04,no_ja,2026-04-12T16:02:31.533Z
 Michele Collocolo|1999-11-08,no_ja,2026-08-15T20:17:42.101Z
 Michele Ferri|1981-05-29,notfound,2026-04-18T15:43:19.240Z
 Michele Piccolo|1985-09-01,no_ja,2026-04-18T15:37:53.241Z
+Michele Somma|1995-03-16,api_error,2026-09-13T20:40:04.566Z
 Mick Schmetgens|2007-09-09,no_ja,2026-08-01T19:04:25.296Z
 Mickael Partodikromo|1996-02-02,no_ja,2026-03-21T16:05:52.976Z
 Mickael Ulile|1997-07-16,no_ja,2026-03-21T16:05:52.975Z
@@ -3816,6 +3830,7 @@ Miguel Rubio|1998-03-11,notfound,2026-01-24T18:11:27.031Z
 Miguel Sierra|2004-07-14,api_error,2026-08-21T18:35:01.071Z
 Miguelito|2001-01-12,notfound,2026-04-12T19:26:57.563Z
 Miguelito|2004-04-25,notfound,2026-02-19T15:34:45.925Z
+Mihai Bălașa|1995-01-14,api_error,2026-09-13T20:42:03.618Z
 Mihai Popescu|1993-05-07,no_ja,2026-03-26T15:22:16.468Z
 Mihály Kata|2002-04-13,no_ja,2026-02-19T15:33:47.621Z
 Mika Baur|2004-07-09,no_ja,2026-04-11T16:57:13.855Z
@@ -3943,7 +3958,7 @@ Moritz Bauer|1992-01-25,api_error,2026-04-18T16:30:20.486Z
 Moritz Jenz|1999-04-30,no_ja,2026-08-01T20:19:02.715Z
 Moritz Nicolas|1997-10-21,no_ja,2026-08-03T20:12:01.802Z
 Mortadha Ben Ouanes|1994-07-02,no_ja,2026-02-17T13:12:26.991Z
-Mory Bamba|2002-06-01,notfound,2026-04-12T16:00:12.822Z
+Mory Bamba|2002-06-01,api_error,2026-09-13T20:37:04.703Z
 Mory Gbane|2000-12-25,no_ja,2026-03-20T07:25:05.568Z
 Moses Makasi|1995-09-22,no_ja,2026-04-13T15:41:10.541Z
 Mostafa Fathi|1994-05-12,notfound,2026-03-22T08:31:37.302Z
@@ -3962,7 +3977,7 @@ Moussa Mané|2003-11-19,notfound,2026-04-10T19:03:04.212Z
 Moussa Souare|1998-07-01,no_ja,2026-04-10T19:01:49.828Z
 Moussa Sylla|1999-11-25,api_error,2026-08-27T15:53:05.693Z
 Moustapha Mbow|2000-03-08,no_ja,2026-08-16T18:25:44.609Z
-Moustapha Seck|1996-02-23,no_ja,2026-04-14T17:03:17.612Z
+Moustapha Seck|1996-02-23,no_ja,2026-09-13T20:40:04.565Z
 Moutaz Neffati|2004-09-04,no_ja,2026-02-17T13:12:26.991Z
 Mubarak Shanan Hamza|2004-02-20,notfound,2026-03-21T15:53:16.030Z
 Muhammad Uvais|1998-07-31,no_ja,2026-09-09T14:48:02.287Z
@@ -4116,6 +4131,7 @@ Nicolas Raskin|2001-02-23,no_ja,2026-02-19T14:11:14.241Z
 Nicolas Schmid|1997-02-22,no_ja,2026-02-19T13:07:22.714Z
 Nicolas Seguin|1990-03-06,api_error,2026-09-02T17:13:43.099Z
 Nicolas Sessa|1996-03-23,no_ja,2026-04-18T16:01:44.938Z
+Nicolás Spolli|1983-02-20,api_error,2026-09-13T20:40:04.566Z
 Nicolas Trabucchi|2007-08-17,no_ja,2026-08-01T19:18:24.775Z
 Nicolás Valentini|2001-04-06,no_ja,2026-08-15T20:17:42.101Z
 Nícolas|1988-04-12,api_error,2026-08-17T17:59:03.550Z
@@ -4329,6 +4345,7 @@ Paco Montañés|1986-10-08,no_ja,2026-04-14T15:54:46.354Z
 Pacôme Zouzoua|1997-04-30,no_ja,2026-03-20T07:25:05.569Z
 Panos Katseris|2001-07-05,no_ja,2026-08-04T16:51:43.481Z
 Pantelis Hatzidiakos|1997-01-18,api_error,2026-04-18T16:40:01.481Z
+Paolo Frascatore|1992-01-04,no_ja,2026-09-13T20:42:03.618Z
 Paolo Sciortino|2003-11-05,notfound,2026-04-12T16:06:25.401Z
 Paolo Tornaghi|1988-06-21,no_ja,2026-04-18T16:02:13.688Z
 Paolo Vernazza|1979-11-01,no_ja,2026-04-18T16:00:59.479Z
@@ -4425,6 +4442,7 @@ Pepe Mora|1981-06-11,notfound,2026-04-14T15:54:46.354Z
 Pepê|1997-02-24,api_error,2026-08-21T18:31:40.290Z
 Pepín Machín|1996-08-14,api_error,2026-04-14T16:51:56.769Z
 Pere García|2002-03-22,notfound,2026-04-12T17:28:13.305Z
+Petar Golubovic|1994-07-13,api_error,2026-09-13T20:42:03.618Z
 Petar Sliskovic|1991-02-21,no_ja,2026-04-11T16:59:50.157Z
 Peter Amoran|2004-05-22,notfound,2026-04-12T16:01:19.881Z
 Peter Federico|2002-07-25,notfound,2026-04-10T18:58:22.773Z
@@ -4484,7 +4502,7 @@ Rabby Nzingoula|2005-11-25,no_ja,2026-08-15T20:21:20.812Z
 Rachid Ghanimi|2001-04-25,no_ja,2026-03-19T19:00:00.672Z
 Radek Vítek|2003-10-24,api_error,2026-08-17T18:04:22.097Z
 Radinio Balker|1998-09-03,no_ja,2026-02-19T15:34:45.925Z
-Radoslaw Zelezny|2006-09-06,no_ja,2026-08-03T15:01:53.818Z
+Radoslaw Zelezny|2006-09-06,no_ja,2026-09-13T20:37:04.703Z
 Raed Chikhaoui|2004-06-09,notfound,2026-03-18T18:16:57.943Z
 Rafa Núñez|2002-01-25,api_error,2026-08-21T18:35:01.071Z
 Rafa Obrador|2004-02-24,notfound,2026-08-16T19:02:22.868Z
@@ -4534,7 +4552,7 @@ Rati Aleksidze|1978-08-03,no_ja,2026-03-19T20:34:18.984Z
 Raúl Fernández|1988-03-13,notfound,2026-08-15T19:57:43.625Z
 Raul Florucz|2001-06-10,no_ja,2026-02-19T13:07:22.715Z
 Raúl García|2000-11-03,notfound,2026-01-24T18:12:31.656Z
-Raul Morichelli|2002-07-25,no_ja,2026-04-12T16:00:12.822Z
+Raul Morichelli|2002-07-25,no_ja,2026-09-13T20:37:04.703Z
 Raul Opruț|1998-01-04,no_ja,2026-03-26T15:22:16.468Z
 Raul Paula|2004-01-25,no_ja,2026-04-14T16:08:53.560Z
 Raúl Rangel|2000-02-25,no_ja,2026-03-20T16:48:31.991Z
@@ -4587,7 +4605,7 @@ Renske Adipi|1999-08-01,notfound,2026-02-19T15:35:12.846Z
 Reshat Ramadani|2003-06-30,no_ja,2026-03-26T16:10:59.800Z
 Rey Volpato|1986-08-27,no_ja,2026-04-18T15:36:49.401Z
 Reyniel Perdomo|2001-04-28,no_ja,2026-03-23T14:41:28.983Z
-Rezan Corlu|1997-08-07,no_ja,2026-04-14T17:04:12.223Z
+Rezan Corlu|1997-08-07,api_error,2026-09-13T20:40:04.565Z
 Reziq Bani Hani|2002-01-28,notfound,2026-03-23T14:43:50.766Z
 Rhys Bennett|2003-10-30,api_error,2026-08-17T18:04:22.097Z
 Rhys Evans|1982-01-27,no_ja,2026-03-19T20:34:18.984Z
@@ -4605,10 +4623,10 @@ Riccardo Bocalon|1989-03-03,no_ja,2026-04-18T16:01:44.939Z
 Riccardo Boscolo Chio|2002-07-06,no_ja,2026-04-10T19:01:49.827Z
 Riccardo Braschi|2006-08-24,api_error,2026-08-04T16:41:23.223Z
 Riccardo Capellini|2000-03-01,no_ja,2026-04-10T19:02:40.076Z
-Riccardo Cappa|1999-04-29,notfound,2026-04-14T17:04:12.223Z
+Riccardo Cappa|1999-04-29,notfound,2026-09-13T20:40:04.565Z
 Riccardo Caraglia|1989-01-22,no_ja,2026-04-18T15:37:23.687Z
-Riccardo Cargnelutti|1999-02-08,notfound,2026-04-14T17:03:17.612Z
-Riccardo Ciervo|2002-04-01,notfound,2026-04-12T16:00:12.822Z
+Riccardo Cargnelutti|1999-02-08,notfound,2026-09-13T20:40:04.565Z
+Riccardo Ciervo|2002-04-01,no_ja,2026-09-13T20:37:04.703Z
 Riccardo Cocuzza|1993-01-27,no_ja,2026-04-18T16:16:29.412Z
 Riccardo Fissore|1980-02-18,no_ja,2026-04-18T16:17:37.777Z
 Riccardo Forte|1999-05-17,no_ja,2026-04-10T19:00:29.447Z
@@ -4616,7 +4634,7 @@ Riccardo Gatti|1997-03-30,no_ja,2026-04-14T17:01:27.097Z
 Riccardo Maniero|1987-11-26,no_ja,2026-04-18T15:36:49.401Z
 Riccardo Marchizza|1998-03-26,api_error,2026-04-14T16:51:56.769Z
 Riccardo Melgrati|1994-06-17,no_ja,2026-04-18T16:02:13.688Z
-Riccardo Pagano|2004-11-28,notfound,2026-04-12T15:56:02.340Z
+Riccardo Pagano|2004-11-28,notfound,2026-09-13T20:37:04.703Z
 Riccardo Ramazzotti|1979-08-07,no_ja,2026-04-18T17:58:45.469Z
 Riccardo Stivanello|2004-04-24,notfound,2026-04-12T16:03:11.575Z
 Riccardo Tonin|2001-01-30,notfound,2026-04-10T19:00:29.447Z
@@ -4752,7 +4770,7 @@ Rubén Martínez|1984-06-22,notfound,2026-04-14T15:53:47.267Z
 Ruben Müller|2005-08-24,api_error,2026-08-27T15:58:06.756Z
 Rubén Peña|1991-07-18,notfound,2026-04-12T19:28:08.965Z
 Rúben Pina|2000-01-20,no_ja,2026-03-25T15:20:04.416Z
-Ruben Providence|2001-07-07,no_ja,2026-03-25T15:36:51.817Z
+Ruben Providence|2001-07-07,no_ja,2026-09-13T20:37:04.703Z
 Rubén Quintanilla|2002-04-03,no_ja,2026-04-12T19:26:57.562Z
 Rubén Sánchez|2001-02-04,notfound,2026-01-24T18:11:27.031Z
 Rubio|1976-05-17,notfound,2026-04-14T15:53:47.267Z
@@ -4827,7 +4845,7 @@ Salvatore Ferraro|1983-06-09,notfound,2026-04-18T16:17:37.777Z
 Salvatore Molina|1992-01-01,no_ja,2026-04-14T17:03:17.612Z
 Salvatore Papa|1982-02-12,notfound,2026-04-18T15:36:49.401Z
 Salvatore Papa|1990-04-27,no_ja,2026-04-18T15:36:49.401Z
-Salvatore Pezzella|2000-03-11,no_ja,2026-04-14T17:04:12.223Z
+Salvatore Pezzella|2000-03-11,api_error,2026-09-13T20:40:04.565Z
 Sam Amissah|2007-03-07,notfound,2026-04-13T16:01:28.526Z
 Sam Chambers|2007-08-18,no_ja,2026-04-18T15:32:17.603Z
 Sam de Grand|2004-10-05,api_error,2026-08-21T18:31:40.290Z
@@ -4920,6 +4938,7 @@ Sebastian Carlsén|1991-01-09,no_ja,2026-04-18T16:02:13.688Z
 Sebastián Herrera|1995-01-23,no_ja,2026-03-26T16:10:59.800Z
 Sebastian Klaas|1998-06-30,api_error,2026-08-27T15:58:06.756Z
 Sebastian Kneißl|1983-01-13,no_ja,2026-03-19T20:34:18.984Z
+Sebastian Mladen|1991-12-11,api_error,2026-09-13T20:42:03.618Z
 Sebastian Otoa|2004-05-13,no_ja,2026-08-04T16:41:23.222Z
 Sebastian Revan|2003-07-14,no_ja,2026-04-12T15:54:50.805Z
 Sebastián Ribas|1988-03-11,no_ja,2026-04-18T16:17:11.301Z
@@ -5005,7 +5024,7 @@ Silas Ostrzinski|2003-11-19,no_ja,2026-08-15T19:57:43.626Z
 Silas|1998-10-06,notfound,2026-01-24T18:20:13.285Z
 Silko Thomas|2004-06-25,notfound,2026-04-13T15:43:04.441Z
 Silvinho Esajas|2002-07-08,no_ja,2026-02-19T15:34:45.925Z
-Silvio Anocic|1997-09-10,notfound,2026-04-14T17:04:12.223Z
+Silvio Anocic|1997-09-10,api_error,2026-09-13T20:40:04.565Z
 Silvio Proto|1983-05-23,api_error,2026-04-14T16:51:56.769Z
 Sílvio|1987-09-28,api_error,2026-04-13T16:00:03.798Z
 Sima Suso|2005-05-28,api_error,2026-08-26T16:11:00.119Z
@@ -5018,6 +5037,7 @@ Simon Simoni|2004-07-14,no_ja,2026-03-26T15:06:20.130Z
 Simon Spari|2002-06-16,no_ja,2026-08-03T20:15:44.856Z
 Simon Terodde|1988-03-02,api_error,2026-04-18T16:00:08.139Z
 Simon Walde|2005-01-04,notfound,2026-04-14T17:00:31.264Z
+Simone Battaglia|1995-03-18,api_error,2026-09-13T20:42:03.618Z
 Simone Benedetti|1992-04-03,no_ja,2026-04-18T16:00:17.827Z
 Simone Bentivoglio|1985-05-29,no_ja,2026-04-18T15:36:49.401Z
 Simone Bonomi|1980-11-08,no_ja,2026-04-18T15:43:19.240Z
@@ -5026,7 +5046,7 @@ Simone Calvano|1993-07-11,no_ja,2026-04-18T15:37:23.687Z
 Simone Canestrelli|2000-09-11,no_ja,2026-08-15T20:11:20.435Z
 Simone Dell'Agnello|1992-04-12,notfound,2026-04-18T16:02:13.688Z
 Simone Esposito|1990-05-24,no_ja,2026-04-18T15:33:25.892Z
-Simone Farelli|1983-02-19,no_ja,2026-04-12T16:00:12.822Z
+Simone Farelli|1983-02-19,api_error,2026-09-13T20:37:04.703Z
 Simone Fautario|1987-02-12,no_ja,2026-04-18T16:16:29.412Z
 Simone Giovanni Brunelli|1983-06-30,notfound,2026-04-18T15:37:53.241Z
 Simone Mattia|1996-01-19,no_ja,2026-04-18T16:00:08.139Z
@@ -5092,10 +5112,10 @@ Stefan Parkes|2004-03-28,notfound,2026-04-13T16:01:28.526Z
 Stefan Schimmer|1994-04-28,no_ja,2026-08-03T15:01:53.817Z
 Stefan Smarkalev|2007-05-14,no_ja,2026-08-15T20:07:44.055Z
 Stefano Beltrame|1993-02-08,no_ja,2026-04-10T19:02:40.078Z
-Stefano Ciavattini|1998-03-30,notfound,2026-04-14T17:04:12.223Z
+Stefano Ciavattini|1998-03-30,api_error,2026-09-13T20:40:04.565Z
 Stefano Dalla Riva|1995-04-01,notfound,2026-04-18T16:00:17.827Z
 Stefano Gori|1996-03-09,no_ja,2026-04-18T15:37:23.687Z
-Stefano Greco|1999-02-21,no_ja,2026-04-14T17:03:17.612Z
+Stefano Greco|1999-02-21,api_error,2026-09-13T20:37:04.703Z
 Stefano Lombardi|1976-07-28,no_ja,2026-04-18T16:20:45.041Z
 Stefano Marchetti|1998-04-22,no_ja,2026-04-14T17:01:27.097Z
 Stefano Marino|2004-03-12,api_error,2026-08-27T15:58:06.756Z
@@ -5316,6 +5336,8 @@ Tomas Ladra|1997-04-24,no_ja,2026-02-19T15:27:38.372Z
 Tomás Pérez|2005-08-26,no_ja,2026-08-15T20:32:22.737Z
 Tomas Rigo|2002-07-03,no_ja,2026-03-26T15:52:45.207Z
 Tomás Rodríguez|1999-03-09,no_ja,2026-03-23T14:41:28.983Z
+Tomas Švedkauskas|1994-06-22,api_error,2026-09-13T20:42:03.618Z
+Tomas Vestenicky|1996-04-06,api_error,2026-09-13T20:42:03.618Z
 Tommaso Bertini|2004-01-13,notfound,2026-04-10T19:03:56.681Z
 Tommaso Brignoli|1999-12-23,no_ja,2026-04-10T19:01:49.828Z
 Tommaso Corazza|2004-06-29,no_ja,2026-04-12T16:02:31.534Z
@@ -5324,7 +5346,7 @@ Tommaso Del Lungo|2003-11-21,no_ja,2026-04-10T19:03:56.679Z
 Tommaso Fumagalli|2000-02-20,no_ja,2026-08-19T17:59:05.216Z
 Tommaso Guercio|2005-06-01,notfound,2026-04-10T19:00:57.675Z
 Tommaso Mancini|2004-07-23,no_ja,2026-04-10T19:02:40.076Z
-Tommaso Milanese|2002-07-31,no_ja,2026-04-12T16:00:12.822Z
+Tommaso Milanese|2002-07-31,no_ja,2026-09-13T20:37:04.703Z
 Tommaso Ravaglioli|2006-02-20,notfound,2026-04-12T16:03:11.575Z
 Tommaso Rubino|2006-11-10,no_ja,2026-04-12T16:02:31.531Z
 Tommaso Tentoni|1997-06-10,no_ja,2026-04-14T17:02:23.188Z
@@ -5467,6 +5489,7 @@ Vito Redavid|1981-02-07,notfound,2026-04-18T15:36:49.401Z
 Vito van Crooij|1996-01-29,api_error,2026-08-21T18:31:40.288Z
 Vittorio Agostinelli|2002-02-21,notfound,2026-04-12T16:02:31.533Z
 Vittorio Ferrero|1991-02-25,notfound,2026-04-18T15:32:56.439Z
+Vlad Marin|1995-05-15,api_error,2026-09-13T20:42:03.618Z
 Vladan Kovacevic|1998-04-11,api_error,2026-04-10T19:21:52.595Z
 Vladimer Mamuchashvili|1997-08-29,notfound,2026-02-19T15:31:56.392Z
 Vladimir Nazarov|2002-06-08,no_ja,2026-03-16T12:24:40.110Z
@@ -5499,6 +5522,7 @@ Wendell|1993-07-20,notfound,2026-04-10T19:05:19.674Z
 Wes Foderingham|1991-01-14,no_ja,2026-04-13T15:40:27.867Z
 Wesley Adeh|2007-01-08,no_ja,2026-08-01T19:04:25.296Z
 Wesley Okoduwa|2008-05-12,no_ja,2026-04-13T15:43:46.562Z
+Wesley Yamnaine|1993-07-07,notfound,2026-09-13T20:42:03.618Z
 Wesley|2003-09-06,notfound,2026-02-24T17:57:33.230Z
 Wesley|2005-03-05,notfound,2026-04-14T15:51:32.312Z
 Weslley Patati|2003-10-01,no_ja,2026-08-16T20:21:23.757Z
@@ -5512,7 +5536,7 @@ Will Murdock|2007-05-26,notfound,2026-08-17T18:04:22.097Z
 Will Norris|1993-08-12,no_ja,2026-04-13T15:47:40.113Z
 Will Randall|1997-05-02,no_ja,2026-04-13T16:01:28.524Z
 Willer Ditta|1998-01-23,notfound,2026-03-21T13:32:29.400Z
-William Bianda|2000-04-30,no_ja,2026-04-12T15:56:02.340Z
+William Bianda|2000-04-30,no_ja,2026-09-13T20:37:04.703Z
 William Gomes|2006-03-15,no_ja,2026-08-16T19:02:22.868Z
 William Mikelbrencis|2004-02-25,notfound,2026-01-24T18:15:59.133Z
 William Nava|1984-08-16,notfound,2026-04-18T15:43:19.239Z

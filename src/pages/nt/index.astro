@@ -145,12 +145,43 @@ const currentIwEdition =
     .filter((edition) => /^\d{6}$/.test(edition))
     .sort((a, b) => Number(b) - Number(a))[0] ?? "";
 
+// --------------------
+// IW メンバー正式発表日
+// nt_iw_activity.csv の announcement_date を参照
+// --------------------
+const iwActivityRows = parseCsv(
+  fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "nt_iw_activity.csv"),
+    "utf-8",
+  ),
+);
+
+const announcementDateByTeamSlug = new Map<string, string>();
+
+for (const row of iwActivityRows as any[]) {
+  const edition = String(row.edition ?? "").trim();
+  if (edition !== currentIwEdition) continue;
+
+  const teamSlug = String(row.team_slug ?? "").trim();
+  const announcementDate = String(row.announcement_date ?? "").trim();
+
+  if (!teamSlug || !announcementDate) continue;
+
+  // 同じ国は試合数ぶん複数行あるため、発表日は1件に集約
+  const current = announcementDateByTeamSlug.get(teamSlug) ?? "";
+
+  if (!current || dateKey(announcementDate) > dateKey(current)) {
+    announcementDateByTeamSlug.set(teamSlug, announcementDate);
+  }
+}
+
 const currentIwCountriesMap = new Map<
   string,
   {
     country: string;
     countryKey: string;
     snapshotDate: string;
+    announcementDate: string;
     href: string;
   }
 >();
@@ -172,13 +203,29 @@ for (const row of iwRows) {
       country,
       countryKey,
       snapshotDate,
+      announcementDate: announcementDateByTeamSlug.get(countryKey) ?? "",
       href: `/nt/${countryKey}/iw/${currentIwEdition}/`,
     });
   }
 }
 
 const currentIwCountries = Array.from(currentIwCountriesMap.values()).sort(
-  (a, b) => a.country.localeCompare(b.country, "ja"),
+  (a, b) => {
+    const aDate = dateKey(a.announcementDate);
+    const bDate = dateKey(b.announcementDate);
+
+    // 発表日ありを優先し、古い順
+    if (aDate && bDate && aDate !== bDate) {
+      return aDate.localeCompare(bDate);
+    }
+
+    // 片方だけ発表日ありなら、ある方を先へ
+    if (aDate && !bDate) return -1;
+    if (!aDate && bDate) return 1;
+
+    // 同日または両方未入力なら国名順
+    return a.country.localeCompare(b.country, "ja");
+  },
 );
 
 const currentIwLabel = /^\d{6}$/.test(currentIwEdition)
@@ -297,7 +344,7 @@ const countrySections = [...countriesByConfederation.entries()]
     currentIwCountries.length > 0 && (
       <div class="iw-current-summary">
         <div class="iw-current-summary-title">
-          🔥 {currentIwLabel} 代表ウィーク｜メンバー発表済
+          🔥 {currentIwLabel} 代表ウィーク（国際親善試合 / アフリカネイションズカップ2027予選 / UEFAネーションズリーグ26-27）｜メンバー発表済
         </div>
 
         <div class="iw-current-summary-countries">
