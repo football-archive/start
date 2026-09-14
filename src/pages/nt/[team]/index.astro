@@ -469,8 +469,10 @@ const description =
       latestRank && (
         <span>
           <strong>🌍 FIFAランク：</strong>
-          {clean(latestRank.fifa_rank)}位 （
-          {formatYearMonth(latestRank.rank_date)}時点）
+          <a class="fifa-rank-link" href={`/nt/fifa-ranking/#${teamSlug}`}>
+            {clean(latestRank.fifa_rank)}位
+          </a>
+          （{formatYearMonth(latestRank.rank_date)}時点）
         </span>
       )
     }
@@ -1086,6 +1088,16 @@ const description =
       background: #f1f1f1;
       border-color: #bbb;
       color: var(--theme-link);
+    }
+
+    .page-nt-country .fifa-rank-link {
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-nt-country .fifa-rank-link:hover {
+      opacity: 0.75;
     }
   </style>
 </BaseLayout>

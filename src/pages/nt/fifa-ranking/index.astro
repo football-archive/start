@@ -1,0 +1,316 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { parseCsv } from "../../../lib/csvSimple";
+
+import fs from "node:fs";
+import path from "node:path";
+
+const title = "FIFAランキング一覧｜男子サッカー各国代表";
+const description =
+  "男子サッカー各国代表の最新FIFAランキングを一覧で掲載。順位から各国代表ページへ移動できます。";
+
+const fifaRankPath = path.join(process.cwd(), "src", "data", "fifa_rank.csv");
+
+const countryMasterPath = path.join(
+  process.cwd(),
+  "src",
+  "data",
+  "country_master.csv",
+);
+
+const fifaRows = parseCsv(fs.readFileSync(fifaRankPath, "utf-8"));
+
+const countryMasterRows = parseCsv(fs.readFileSync(countryMasterPath, "utf-8"));
+
+const countryMetaByName = new Map(
+  countryMasterRows
+    .map((row: any) => {
+      const name = String(row.country_name_ja ?? "").trim();
+      const key = String(row.country_key ?? "").trim();
+      const confederation = String(row.confederation ?? "").trim();
+
+      return [
+        name,
+        {
+          key,
+          confederation,
+        },
+      ] as const;
+    })
+    .filter(([name]) => name),
+);
+
+const confederationLabel: Record<string, string> = {
+  AFC: "アジア",
+  UEFA: "ヨーロッパ",
+  CONMEBOL: "南米",
+  CONCACAF: "北中米・カリブ",
+  CAF: "アフリカ",
+  OFC: "オセアニア",
+};
+
+const normalizeDateKey = (value: unknown) => {
+  const s = String(value ?? "").trim();
+
+  const m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/);
+
+  if (!m) return "";
+
+  return `${m[1]}${String(Number(m[2])).padStart(2, "0")}${String(
+    Number(m[3]),
+  ).padStart(2, "0")}`;
+};
+
+const rankDates = Array.from(
+  new Set(
+    (fifaRows as any[])
+      .map((row) => String(row.rank_date ?? "").trim())
+      .filter(Boolean),
+  ),
+).sort((a, b) => normalizeDateKey(b).localeCompare(normalizeDateKey(a)));
+
+const latestRankDate = rankDates[0] ?? "";
+const previousRankDate = rankDates[1] ?? "";
+
+const previousRankByCountry = new Map<string, number>();
+
+for (const row of fifaRows as any[]) {
+  if (String(row.rank_date ?? "").trim() !== previousRankDate) continue;
+
+  const country = String(row.country_name_ja ?? "").trim();
+  const rank = Number(row.fifa_rank ?? 0);
+
+  if (country && rank > 0) {
+    previousRankByCountry.set(country, rank);
+  }
+}
+
+const latestRows = (fifaRows as any[])
+  .filter((row) => String(row.rank_date ?? "").trim() === latestRankDate)
+  .map((row) => {
+    const country = String(row.country_name_ja ?? "").trim();
+    const rank = Number(row.fifa_rank ?? 0);
+    const meta = countryMetaByName.get(country);
+    const previousRank = previousRankByCountry.get(country) ?? null;
+
+    const rankDiff = previousRank !== null ? previousRank - rank : null;
+
+    return {
+      country,
+      rank,
+      countryKey: meta?.key ?? "",
+      confederation: meta?.confederation ?? "",
+      confederationLabel: confederationLabel[meta?.confederation ?? ""] ?? "",
+      previousRank,
+      rankDiff,
+      href: meta?.key ? `/nt/${meta.key}/` : "",
+    };
+  })
+  .filter((row) => row.country && row.rank > 0)
+  .sort((a, b) => a.rank - b.rank);
+
+const latestRankDateLabel = latestRankDate
+  ? latestRankDate.replace(
+      /^(\d{4})-(\d{1,2})-(\d{1,2})$/,
+      (_, y, m, d) => `${y}年${Number(m)}月${Number(d)}日`,
+    )
+  : "";
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-nt page-fifa-ranking"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "各国代表一覧", href: "/nt/" },
+    { label: "FIFAランキング一覧" },
+  ]}
+  heading="FIFAランキング一覧"
+>
+  <h1>FIFAランキング一覧｜男子サッカー各国代表</h1>
+
+  <p class="ranking-lead">
+    男子サッカー各国代表の最新FIFAランキングを一覧で掲載しています。
+    世界順位・大陸別の所属を確認でき、国名から各国代表の最新メンバー・招集履歴ページへ移動できます。
+  </p>
+
+  {
+    latestRankDateLabel && (
+      <p class="rank-date">
+        ● 最新FIFAランキング：
+        <strong>{latestRankDateLabel}</strong>
+      </p>
+    )
+  }
+
+  <div class="ranking-table-wrap">
+    <table class="ranking-table">
+      <thead>
+        <tr>
+          <th>順位</th>
+          <th>国・地域</th>
+          <th>大陸</th>
+          <th>前回順位</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        {
+          latestRows.map((item) => (
+            <tr id={item.countryKey}>
+              <td class="rank-cell">{item.rank}</td>
+
+              <td>
+                {item.href ? (
+                  <a href={item.href}>{item.country}代表</a>
+                ) : (
+                  <span>{item.country}代表</span>
+                )}
+              </td>
+
+              <td>{item.confederationLabel}</td>
+
+              <td class="previous-rank-cell">
+                {item.previousRank === null ? (
+                  "—"
+                ) : (
+                  <>
+                    {item.previousRank}
+                    <span
+                      class:list={[
+                        "rank-change",
+                        {
+                          "is-up": item.rankDiff !== null && item.rankDiff > 0,
+                          "is-down":
+                            item.rankDiff !== null && item.rankDiff < 0,
+                          "is-same": item.rankDiff === 0,
+                        },
+                      ]}
+                    >
+                      （
+                      {item.rankDiff === null
+                        ? "—"
+                        : item.rankDiff > 0
+                          ? `↑${item.rankDiff}`
+                          : item.rankDiff < 0
+                            ? `↓${Math.abs(item.rankDiff)}`
+                            : "→"}
+                      ）
+                    </span>
+                  </>
+                )}
+              </td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <style is:global>
+    .page-fifa-ranking .rank-date {
+      margin: 4px 0 18px;
+      color: #666;
+      font-size: 14px;
+      text-align: left;
+    }
+
+    .page-fifa-ranking .rank-date strong {
+      color: var(--theme-color);
+      font-weight: 700;
+    }
+
+    .page-fifa-ranking .ranking-table-wrap {
+      overflow-x: visible;
+    }
+
+    .page-fifa-ranking .ranking-table {
+      width: 100%;
+      max-width: 720px;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: #fff;
+    }
+
+    .page-fifa-ranking .ranking-table th,
+    .page-fifa-ranking .ranking-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 15px;
+    }
+
+    .page-fifa-ranking .ranking-table th {
+      background: #fff1f2;
+      color: var(--theme-color);
+      font-weight: 800;
+    }
+
+    .page-fifa-ranking .rank-cell {
+      width: 80px;
+      font-weight: 800;
+    }
+
+    .page-fifa-ranking .ranking-table a {
+      color: var(--theme-color);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-fifa-ranking .ranking-lead {
+      margin: 4px 0 10px;
+      max-width: 850px;
+      color: #666;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .page-fifa-ranking .rank-change {
+      font-weight: 700;
+    }
+
+    .page-fifa-ranking .previous-rank-cell {
+      white-space: nowrap;
+    }
+
+    .page-fifa-ranking .rank-change {
+      margin-left: 2px;
+      font-weight: 700;
+    }
+
+    .page-fifa-ranking .rank-change.is-up {
+      color: #2e7d32;
+    }
+
+    .page-fifa-ranking .rank-change.is-same {
+      color: #b8860b;
+    }
+
+    .page-fifa-ranking .rank-change.is-down {
+      color: #c62828;
+    }
+
+    .page-fifa-ranking .ranking-table thead th {
+      position: sticky;
+      top: 68px;
+      z-index: 5;
+      background: #f7ecee;
+    }
+
+    @media (max-width: 560px) {
+      .page-fifa-ranking .ranking-table th,
+      .page-fifa-ranking .ranking-table td {
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+
+      .page-fifa-ranking .rank-cell {
+        width: 42px;
+      }
+    }
+  </style>
+</BaseLayout>

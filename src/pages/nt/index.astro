@@ -119,6 +119,26 @@ const countryKeyByName = new Map(
     .filter(([name, key]) => name && key),
 );
 
+const fifaRankRows = parseCsv(
+  fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "fifa_rank.csv"),
+    "utf-8",
+  ),
+);
+
+const latestFifaRankDateRaw =
+  (fifaRankRows as any[])
+    .map((row) => String(row.rank_date ?? "").trim())
+    .filter(Boolean)
+    .sort((a, b) => dateKey(b).localeCompare(dateKey(a)))[0] ?? "";
+
+const latestFifaRankDateLabel = latestFifaRankDateRaw
+  ? latestFifaRankDateRaw.replace(
+      /^(\d{4})[/-](\d{1,2})[/-](\d{1,2})$/,
+      (_, y, m, d) => `${y}年${Number(m)}月${Number(d)}日`,
+    )
+  : "";
+
 const rows = loadCallups();
 const latestUpdateDateRaw =
   (rows as any[])
@@ -340,18 +360,27 @@ const countrySections = [...countriesByConfederation.entries()]
     )
   }
 
+  <div class="nt-ranking-nav">
+    <a href="/nt/fifa-ranking/" class="nt-ranking-button">
+      🌐 FIFAランキング一覧
+      {latestFifaRankDateLabel && <span>（{latestFifaRankDateLabel} 時点）</span>}
+    </a>
+  </div>
+
   {
     currentIwCountries.length > 0 && (
       <div class="iw-current-summary">
         <div class="iw-current-summary-title">
-          🔥 {currentIwLabel} 代表ウィーク（国際親善試合 / アフリカネイションズカップ2027予選 / UEFAネーションズリーグ26-27）｜メンバー発表済
+          🔥 {currentIwLabel} 代表ウィーク（国際親善試合 /
+          アフリカネイションズカップ2027予選 /
+          UEFAネーションズリーグ26-27）｜メンバー発表済
         </div>
 
         <div class="iw-current-summary-countries">
           {currentIwCountries.map((item, idx) => (
             <>
               {idx > 0 ? "・" : ""}
-              <a href={item.href}>{item.country}代表</a>
+              <a href={item.href}>👕{item.country}代表</a>
             </>
           ))}
         </div>
@@ -802,6 +831,47 @@ const countrySections = [...countriesByConfederation.entries()]
     .page-nt-portal .nt-update-date span {
       color: #c62828;
       font-weight: 600;
+    }
+
+    .page-nt-portal .nt-ranking-nav {
+      margin: 0 0 14px;
+    }
+
+    .page-nt-portal .nt-ranking-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 13px;
+      border: 1px solid #fecaca;
+      border-radius: 9px;
+      background: #fff5f5;
+      color: #8b1a1a;
+      text-decoration: none;
+      transition: 0.1s ease;
+    }
+
+    .page-nt-portal .nt-ranking-button {
+      font-size: 15px;
+      font-weight: 800;
+    }
+
+    .page-nt-portal .nt-ranking-button span {
+      color: #8a6b6b;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .page-nt-portal .nt-ranking-button:hover {
+      border-color: #d98b8b;
+      background: #fff;
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-portal .nt-ranking-button {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 2px;
+      }
     }
   </style>
 </BaseLayout>
