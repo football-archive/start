@@ -10,7 +10,10 @@ import { loadClubMaster } from "../../../../../lib/clubMaster";
 import { loadLeagueMaster } from "../../../../../lib/leagueMaster";
 
 import { loadCallups } from "../../../../../lib/callups";
-import { buildRepLabelFromCallups } from "../../../../../lib/repCandidate";
+import {
+  buildRepLabelFromCallups,
+  buildNtLabelFromCallups,
+} from "../../../../../lib/repCandidate";
 
 import RosterView from "../../../../../components/RosterView.astro";
 
@@ -121,6 +124,19 @@ const countryMaster: CountryMasterRow[] = readCsv("country_master.csv").map(
     confederation: String(r.confederation ?? "").trim(),
   }),
 );
+
+const ntCountryHref = (countryNameJa: string) => {
+  const name = String(countryNameJa ?? "").trim();
+  if (!name) return "";
+
+  const hit = countryMaster.find(
+    (r) => r.country_name_ja === name,
+  );
+
+  return hit?.country_key
+    ? `/nt/${encodeURIComponent(hit.country_key)}/`
+    : "";
+};
 
 type ClubLineupImageRow = {
   season: string;
@@ -640,10 +656,15 @@ const heading = season
 // ===== 代表（候補）表示：WC2026の最新スナップショットだけを参照 =====
 const callups = loadCallups();
 const {
-  repLabel,
   repLinks,
-  maxSnapshot: repMaxSnapshot,
 } = buildRepLabelFromCallups(callups, { competition: "WC", edition: 2026 });
+
+const {
+  ntLabel,
+  maxSnapshot: ntMaxSnapshot,
+} = buildNtLabelFromCallups(callups, {
+  season: initialSeason,
+});
 
 const repHistoryLinks = buildRepHistoryLinksFromCallups(callups, {
   competition: "WC",
@@ -656,14 +677,16 @@ for (const p of seasonPacks) {
   columnsBySeason[p.season] = {
     summer: buildClubColumns({
       isLatestView: p.isLatestViewSummer,
-      repLabel,
+      repLabel: ntLabel,
+      repHref: ntCountryHref,
       repLinks,
       repHistoryLinks,
       showStats: false,
     }),
     winter: buildClubColumns({
       isLatestView: p.isLatestViewWinter,
-      repLabel,
+      repLabel: ntLabel,
+      repHref: ntCountryHref,
       repLinks,
       repHistoryLinks,
       showStats: p.hasWinter && hasGoalStats(p.rosterWinter),
@@ -692,7 +715,7 @@ const leaguePills = leagueMaster
 
 // 検索テキスト共通
 const searchTextFn = (r: any) =>
-  `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
+  `${r.name_ja ?? ""} ${r.name_en ?? ""} ${ntLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
 
 // 備考欄の new / out に応じて選手行を色分け
 const clubRosterRowClass = (r: any) => {
@@ -1011,9 +1034,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       </span>
       <span class="meta-sep">／</span>
       <span class="meta-item">
-        代表更新：<span class="updated-date"
-          >{toYMD(repMaxSnapshot) || "—"}</span
-        >
+        代表更新：<span class="updated-date">{toYMD(ntMaxSnapshot) || "—"}</span>
       </span>
     </div>
   </div>

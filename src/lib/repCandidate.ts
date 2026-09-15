@@ -20,6 +20,71 @@ const normDate = (s?: string) => {
 const keyOf = (name_en?: string, birth_date?: string) =>
   `${(name_en ?? "").trim()}|${normDate(birth_date)}`;
 
+// "2025-26" → 2026
+// "2026-27" → 2027
+export const clubSeasonEndYear = (season?: string) => {
+  const s = String(season ?? "").trim();
+  const m = s.match(/^(\d{4})-(\d{2})$/);
+
+  if (!m) return 0;
+
+  const startYear = Number(m[1]);
+  return startYear + 1;
+};
+
+// callup の edition から活動年を取得
+// IW 202609 → 2026
+// WC 1998   → 1998
+const callupYear = (edition?: string | number) => {
+  const s = String(edition ?? "").trim();
+  const m = s.match(/^(\d{4})/);
+
+  return m ? Number(m[1]) : 0;
+};
+
+export function buildNtLabelFromCallups(
+  callups: CallupRow[],
+  opts: { season: string },
+) {
+  const endYear = clubSeasonEndYear(opts.season);
+
+  // 選手 -> 国名
+  const countryByKey = new Map<string, string>();
+
+  let maxSnapshot = "";
+
+  for (const r of callups) {
+    const year = callupYear(r.edition);
+
+    // 年が取れない / クラブシーズンより未来なら対象外
+    if (!year || !endYear || year > endYear) continue;
+
+    const snap = normDate(String(r.snapshot_date ?? ""));
+    if (snap && snap > maxSnapshot) {
+      maxSnapshot = snap;
+    }
+
+    const k = keyOf(r.name_en, r.birth_date);
+    if (k.startsWith("|")) continue;
+
+    const country = String(r.country ?? "").trim();
+    if (!country) continue;
+
+    if (!countryByKey.has(k)) {
+      countryByKey.set(k, country);
+    }
+  }
+
+  const ntLabel = (row: { name_en?: string; birth_date?: string }) => {
+    return countryByKey.get(keyOf(row.name_en, row.birth_date)) ?? "";
+  };
+
+  return {
+    ntLabel,
+    maxSnapshot,
+  };
+}
+
 // callups_site.csv の行（必要な列だけ）
 export type CallupRow = {
   competition?: string; // "WC"

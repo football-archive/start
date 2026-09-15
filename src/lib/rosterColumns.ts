@@ -107,6 +107,7 @@ const rep2Html = (
   team: string,
   links: { label: string; href: string }[],
   pastLinks?: { label: string; href: string }[],
+  teamHref?: string,
 ) => {
   const t = (team ?? "").trim();
   const hasAnyLinks = (links?.length ?? 0) > 0 || (pastLinks?.length ?? 0) > 0;
@@ -147,7 +148,15 @@ const rep2Html = (
     .join("");
 
   return `<div class="rep2">
-    ${t ? `<div class="rep2-team">${esc(t)}代表</div>` : ``}
+    ${
+      t
+        ? `<div class="rep2-team">${
+            teamHref
+              ? `<a href="${esc(teamHref)}">${esc(t)}代表</a>`
+              : `${esc(t)}代表`
+          }</div>`
+        : ``
+    }
     ${linkHtml ? `<div class="rep2-links">${linkHtml}</div>` : ``}
   </div>`;
 };
@@ -256,6 +265,9 @@ const mobileStatsLineHtml = (row: NtRow) => {
 type BuildClubColumnsArgs = {
   isLatestView: boolean;
   repLabel: (row: { name_en?: string; birth_date?: string }) => string;
+
+  repHref?: (countryName: string) => string;
+
   repLinks: (row: {
     name_en?: string;
     birth_date?: string;
@@ -271,12 +283,14 @@ type BuildClubColumnsArgs = {
 const clubNameMobileHtml = ({
   row,
   repLabel,
+  repHref,
   repLinks,
   repHistoryLinks,
   showStats = false,
 }: {
   row: ClubRow;
   repLabel: (row: { name_en?: string; birth_date?: string }) => string;
+  repHref?: (countryName: string) => string;
   repLinks: (row: {
     name_en?: string;
     birth_date?: string;
@@ -309,10 +323,13 @@ const clubNameMobileHtml = ({
   `;
 
   // 2段目：代表情報
+  const team = repLabel(row);
+
   const repHtml = rep2Html(
-    repLabel(row),
+    team,
     repLinks(row),
     repHistoryLinks?.(row) ?? [],
+    repHref?.(team) ?? "",
   );
 
   const line2 = mobileLinkMetaLineHtml([repHtml || ""]);
@@ -356,6 +373,7 @@ const clubNameMobileHtml = ({
 export const buildClubColumns = ({
   isLatestView,
   repLabel,
+  repHref,
   repLinks,
   repHistoryLinks,
   tournamentLinks,
@@ -382,6 +400,7 @@ export const buildClubColumns = ({
         clubNameMobileHtml({
           row: r,
           repLabel,
+          repHref,
           repLinks,
           repHistoryLinks,
           showStats,
@@ -410,8 +429,16 @@ export const buildClubColumns = ({
       header: "代表",
       html: true,
       align: "center",
-      render: (r) =>
-        rep2Html(repLabel(r), repLinks(r), repHistoryLinks?.(r) ?? []),
+      render: (r) => {
+        const team = repLabel(r);
+
+        return rep2Html(
+          team,
+          repLinks(r),
+          repHistoryLinks?.(r) ?? [],
+          repHref?.(team) ?? "",
+        );
+      },
     },
 
     {
