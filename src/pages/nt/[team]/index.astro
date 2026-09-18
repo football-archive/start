@@ -509,23 +509,45 @@ const description =
         </h2>
 
         <div class="latest-content">
-          {latestCallup && (
-            <a class="roster-link" href={latestRosterHref}>
-              {latestCompetition === "IW"
-                ? `👉 ${latestEdition.slice(0, 4)}年${Number(latestEdition.slice(4, 6))}月 代表ウィーク（国際親善試合 / アフリカネーションズカップ / UEFAネーションズリーグ） 招集メンバー`
-                : `👉 メンバー一覧（${formatYearMonth(latestSnapshot)}）`}
-            </a>
+          {latestCallup && latestCompetition !== "IW" && (
+            <div class="latest-standard-block">
+              <div class="latest-roster-context">
+                {latestCompetition}
+                {latestEdition}
+              </div>
+
+              <div class="latest-iw-roster-row latest-standard-roster-row">
+                <div class="latest-iw-roster-date">
+                  {Number(toDateKey(latestSnapshot).slice(5, 7))}月
+                </div>
+
+                <div class="latest-iw-roster-count">
+                  掲載：
+                  {callupGroups.get(`${latestCompetition}:${latestEdition}`)
+                    ?.length ?? 0}
+                  名
+                </div>
+
+                <div class="latest-iw-roster-coach">
+                  {(() => {
+                    const latestMeta = editionMap.get(
+                      `${latestCompetition}:${latestEdition}`,
+                    );
+                    return latestMeta?.coach ? (
+                      <>監督：{latestMeta.coach}</>
+                    ) : null;
+                  })()}
+                </div>
+
+                <div class="latest-iw-roster-link">
+                  <a href={latestRosterHref}>👉 メンバー一覧へ</a>
+                </div>
+              </div>
+            </div>
           )}
 
           {latestCompetition === "IW" && latestIwMatches.length > 0 && (
             <div class="latest-iw-meta">
-              {latestIwCoach && (
-                <div class="latest-iw-coach">
-                  <strong>監督：</strong>
-                  {latestIwCoach}
-                </div>
-              )}
-
               <div class="latest-iw-matches">
                 {latestIwMatches.map((match) => (
                   <span class="latest-iw-match">
@@ -540,23 +562,28 @@ const description =
                   </span>
                 ))}
               </div>
-            </div>
-          )}
 
-          {latestLineup && (
-            <a class="lineup-card" href={latestLineupHref}>
-              <img
-                src={`/images/lineups/${latestLineup.image}`}
-                alt={`${countryJa}代表 ${latestLineup.edition} ${latestLineup.formation} フォーメーション`}
-                loading="lazy"
-              />
-              <div class="lineup-copy">
-                <span>👉 フォーメーション例を見る</span>
-                {latestLineup.formation && (
-                  <small>システム：{latestLineup.formation}</small>
-                )}
-              </div>
-            </a>
+              {latestCallup && (
+                <div class="latest-iw-roster-row">
+                  <div class="latest-iw-roster-date">
+                    {Number(latestEdition.slice(4, 6))}月
+                  </div>
+
+                  <div class="latest-iw-roster-count">
+                    掲載：{callupGroups.get(`IW:${latestEdition}`)?.length ?? 0}
+                    名
+                  </div>
+
+                  <div class="latest-iw-roster-coach">
+                    {latestIwCoach && <>監督：{latestIwCoach}</>}
+                  </div>
+
+                  <div class="latest-iw-roster-link">
+                    <a href={latestRosterHref}>👉 メンバー一覧へ</a>
+                  </div>
+                </div>
+              )}
+            </div>
           )}
         </div>
       </section>
@@ -724,6 +751,11 @@ const description =
       gap: 12px;
     }
 
+    .page-nt-country .latest-standard-block {
+      display: grid;
+      gap: 4px;
+    }
+
     .page-nt-country .roster-link {
       display: block;
       padding: 12px 15px;
@@ -744,6 +776,17 @@ const description =
     .page-nt-country .roster-link span {
       color: #64748b;
       font-weight: inherit;
+    }
+
+    .page-nt-country .latest-roster-context {
+      margin: 0;
+      color: #8f1720;
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .page-nt-country .latest-standard-roster-row {
+      margin-top: 0;
     }
 
     .page-nt-country .lineup-card {
@@ -1051,6 +1094,62 @@ const description =
 
     .page-nt-country .latest-iw-meta .latest-iw-match a:hover {
       text-decoration-thickness: 2px;
+    }
+
+    .page-nt-country .latest-iw-roster-row {
+      display: grid;
+      grid-template-columns: 120px minmax(120px, 1fr) minmax(170px, 1.4fr) 150px;
+      align-items: center;
+      gap: 12px;
+      min-height: 48px;
+      margin-top: 12px;
+      padding: 8px 10px;
+      border-top: 1px solid #c7ccd4;
+      border-bottom: 1px solid #d9dde3;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+
+    .page-nt-country .latest-iw-roster-coach {
+      color: #334155;
+    }
+
+    .page-nt-country .latest-iw-roster-date {
+      color: #172033;
+    }
+
+    .page-nt-country .latest-iw-roster-count {
+      color: #475569;
+    }
+
+    .page-nt-country .latest-iw-roster-link {
+      text-align: right;
+    }
+
+    .page-nt-country .latest-iw-roster-link a {
+      color: var(--theme-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 520px) {
+      .page-nt-country .latest-iw-roster-row {
+        grid-template-columns: 1fr auto;
+        gap: 5px 12px;
+        font-size: 15px;
+      }
+
+      .page-nt-country .latest-iw-roster-date,
+      .page-nt-country .latest-iw-roster-count,
+      .page-nt-country .latest-iw-roster-coach {
+        grid-column: 1;
+      }
+
+      .page-nt-country .latest-iw-roster-link {
+        grid-column: 2;
+        grid-row: 1 / 4;
+        align-self: center;
+      }
     }
 
     .page-nt-country .same-continent-section {
