@@ -570,6 +570,12 @@ const description =
     )
   }
 
+  <div class="iw-portal-link">
+    <a href={`/nt/${teamSlug}/`}>
+      👉 {countryName}代表 ポータルページへ
+    </a>
+  </div>
+
   {
     starRows.length > 0 && (
       <section class="iw-star-block" aria-label="注目選手">
@@ -693,7 +699,7 @@ const description =
 
   <div class="iw-back">
     <a href={`/nt/${teamSlug}/`}>
-      👈 {countryName}代表トップへ戻る
+      👈 {countryName}代表 ポータルページへ
     </a>
   </div>
 
@@ -754,6 +760,24 @@ const description =
       font-size: 22px;
       font-weight: 500;
       line-height: 1.4;
+    }
+
+    .page-nt-iw .iw-portal-link {
+      margin: 10px 0 16px;
+    }
+
+    .page-nt-iw .iw-portal-link a {
+      color: #0645ad;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-nt-iw .iw-portal-link a:visited {
+      color: #551a8b;
+    }
+
+    .page-nt-iw .iw-portal-link a:hover {
+      text-decoration-thickness: 2px;
     }
 
     .page-nt-iw .iw-back {

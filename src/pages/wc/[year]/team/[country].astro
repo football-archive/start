@@ -137,13 +137,10 @@ const teamSlug =
 
 // 国別代表ハブへのリンクだけ country_master.csv を使う
 const ntHubCountryKey =
-  countryMaster.find(
-    (r) => normKey(r.country_name_ja) === normKey(countryName),
-  )?.country_key ?? "";
+  countryMaster.find((r) => normKey(r.country_name_ja) === normKey(countryName))
+    ?.country_key ?? "";
 
-const ntHubHref = ntHubCountryKey
-  ? `/nt/${ntHubCountryKey}/`
-  : "";
+const ntHubHref = ntHubCountryKey ? `/nt/${ntHubCountryKey}/` : "";
 
 const ntRowsForCountry = loadCallups().filter(
   (r: any) => normKey(r.country ?? "") === normKey(countryName),
@@ -1046,7 +1043,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
         )
       }
 
-            {
+      {
         ntHubHref && hasNewerNtSnapshot && (
           <div class="nt-latest-guide">
             <div class="nt-latest-guide-main">
@@ -1127,7 +1124,7 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       </div>
 
       <p class="nt-roster-jump">
-        <a href="#roster">👕 {countryName}代表メンバー一覧を見る</a>
+        <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
       </p>
       {
         hasNtLineupImage && (
@@ -1432,8 +1429,17 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       )
     }
 
+    {
+      ntHubHref && (
+        <div class="nt-related-block">
+          <div class="nt-tournament-link">
+            <a href={ntHubHref}>👉 {countryName}代表 ポータルページへ</a>
+          </div>
+        </div>
+      )
+    }
+
     <div class="nt-related-block">
-      <div class="nt-related-label">🔎 大会全体を見る</div>
       <div class="nt-tournament-link">
         <a href={tournamentHref}>👉 {tournamentText} ポータルページへ</a>
       </div>
@@ -3335,18 +3341,18 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
     }
 
-.nt-latest-guide {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  margin: 12px 0 16px;
-  padding: 10px 14px;
-  border: 1px solid rgba(179, 28, 45, 0.25);
-  border-left: 4px solid var(--theme-color);
-  border-radius: 8px;
-  background: #fff1a8;
-}
+    .nt-latest-guide {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 12px 0 16px;
+      padding: 10px 14px;
+      border: 1px solid rgba(179, 28, 45, 0.25);
+      border-left: 4px solid var(--theme-color);
+      border-radius: 8px;
+      background: #fff1a8;
+    }
 
     .nt-latest-guide-main {
       display: flex;

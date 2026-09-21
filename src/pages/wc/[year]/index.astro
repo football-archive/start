@@ -1278,7 +1278,7 @@ const pageDesc = isCurrentEdition
   {
     wcEditionPills.length > 1 && (
       <div class="edition-switch">
-        <p class="edition-switch-head">👉 大会を切り替える</p>
+        <p class="edition-switch-head">🔍 大会を切り替える</p>
         <div class="pills">
           {wcEditionPills.map((item) =>
             item.isActive ? (
@@ -1295,6 +1295,7 @@ const pageDesc = isCurrentEdition
   }
 
   {
+    /*　WC開催中のみ
     isCurrentEdition && featuredCountriesVisible.length > 0 && (
       <div class="featured-line">
         <div class="filter-label">👉 注目国</div>
@@ -1316,7 +1317,9 @@ const pageDesc = isCurrentEdition
         </div>
       </div>
     )
+      */
   }
+
 
   {
     isCurrentEdition && (
@@ -1356,7 +1359,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">👉 大陸</div>
+        <div class="filter-label">🔍 大陸</div>
         <div class="pills" id="teams-conf-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-conf="">
             <span class="dot" aria-hidden="true"></span>全大陸
@@ -1407,7 +1410,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">👉 グループ</div>
+        <div class="filter-label">🔍 グループ</div>
         <div class="pills" id="teams-group-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-group="">
             <span class="dot" aria-hidden="true"></span>全
@@ -1428,7 +1431,7 @@ const pageDesc = isCurrentEdition
       </div>
 
       <div class="filter-line">
-        <div class="filter-label">👉 状態</div>
+        <div class="filter-label">🔍 状態</div>
         <div class="pills" id="teams-status-pills">
           <a class="pill clear" href={`${topHref}#teams`} data-teams-status="">
             <span class="dot" aria-hidden="true"></span>全部
