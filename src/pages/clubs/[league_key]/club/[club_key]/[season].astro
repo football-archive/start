@@ -655,7 +655,7 @@ const heading = season
 
 // ===== 代表（候補）表示：WC2026の最新スナップショットだけを参照 =====
 const callups = loadCallups();
-const { 
+const {
   repLinks,
 } = buildRepLabelFromCallups(callups, { competition: "WC", edition: 2026 });
 
@@ -1195,7 +1195,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
   <p class="club-roster-jump">
     <a href={clubTopPath}>
-      🔎 {clubLabel} ポータルページを見る
+      👉 {clubLabel} ポータルページを見る
     </a>
   </p>
 
@@ -1203,7 +1203,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   hasLeagueStandingSeason(initialSeason) && (
     <p class="club-roster-jump">
       <a href={leagueSeasonPath(initialSeason)}>
-        🔎 {leagueLabel}
+        👉 {leagueLabel}
         {seasonShort(initialSeason)}順位表へ
       </a>
     </p>
@@ -1212,7 +1212,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 
   <p class="club-roster-jump">
     <a href={leagueTopPath}>
-      🔎 {leagueLabel}トップへ
+      👉 {leagueLabel}トップへ
     </a>
   </p>
 
