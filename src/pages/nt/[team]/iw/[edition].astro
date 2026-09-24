@@ -445,9 +445,18 @@ for (const [key, editions] of wcEditionsByPlayer) {
   wcEditionsByPlayer.set(key, editions);
 }
 
+const showIwStats = rows.some((row: any) => {
+  return (
+    clean(row.apps) !== "" ||
+    clean(row.starts) !== "" ||
+    clean(row.goals) !== "" ||
+    clean(row.assists) !== ""
+  );
+});
+
 const columns = buildNtColumns({
   isLatestView: true,
-  showStats: false,
+  showStats: showIwStats,
   clubHref,
   clubLabel,
   tournamentLinks: (row) => {
@@ -764,6 +773,94 @@ const description =
       font-size: 22px;
       font-weight: 500;
       line-height: 1.4;
+    }
+
+    /* ===== IW代表ページ：大会成績表示 ===== */
+
+    .stat-sub {
+      font-size: 11px;
+      line-height: 1.2;
+    }
+
+    /* PCでは名前セル内の成績を隠す */
+    .mob-stat-line {
+      display: none;
+    }
+
+    /* モバイルでは名前セル内に成績を表示 */
+    @media (max-width: 768px) {
+      .mob-stat-line {
+        display: block;
+        margin-top: 2px;
+        font-size: 11px;
+        line-height: 1.35;
+        font-weight: 700;
+        color: var(--meta-color, #7a2e2e);
+      }
+    }
+
+    /* ===== IW代表ページ：所属クラブ列の横幅抑制 ===== */
+
+    .page-nt-iw .club-cell {
+      display: inline-block;
+      max-width: 150px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    .page-nt-iw .club-cell a {
+      color: #2e7d32;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* ===== IW代表ページ：備考列 ===== */
+
+    .page-nt-iw .note-cell {
+      display: inline-block;
+      max-width: 90px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
+      line-height: 1.35;
+    }
+
+    /* ===== IW代表ページ：W杯招集歴 ===== */
+
+    @media (min-width: 769px) {
+      .page-nt-iw .roster-table th:nth-child(6),
+      .page-nt-iw .roster-table td:nth-child(6) {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+
+      .page-nt-iw .roster-table td:nth-child(6) a {
+        display: inline-block;
+        margin: 0 2px;
+        white-space: nowrap;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .page-nt-iw .roster-table th:nth-child(11),
+      .page-nt-iw .roster-table td:nth-child(11),
+      .page-nt-iw .roster-table th:nth-child(12),
+      .page-nt-iw .roster-table td:nth-child(12),
+      .page-nt-iw .roster-table th:nth-child(13),
+      .page-nt-iw .roster-table td:nth-child(13) {
+        display: none !important;
+        width: 0 !important;
+        min-width: 0 !important;
+        max-width: 0 !important;
+        padding: 0 !important;
+        border: 0 !important;
+      }
     }
 
     .page-nt-iw .iw-portal-link {
