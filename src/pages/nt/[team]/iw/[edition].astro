@@ -570,8 +570,8 @@ const description =
               {match.venueType === "H" && <span>（H）</span>}
               {match.venueType === "A" && <span>（A）</span>}
               {match.venueType === "N" && <span>（中立地）</span>}
-              {match.score && <span>　{match.score}</span>}
               {match.note && <span>　{match.note}</span>}
+              {match.score && <span class="iw-match-score">{match.score}</span>}
             </div>
           ))}
         </div>
@@ -1238,6 +1238,12 @@ const description =
       .page-nt-iw .iw-star-card {
         padding: 6px 8px;
       }
+    }
+
+    .page-nt-iw .iw-match-score {
+      margin-left: 8px;
+      color: #c62828;
+      font-weight: 700;
     }
   </style>
 
