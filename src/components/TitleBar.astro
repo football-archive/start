@@ -30,6 +30,15 @@ const resolvedSiteTitle = siteTitle ?? title ?? "";
       <a class="titlebar__site" href={homeHref}>{resolvedSiteTitle}</a>
       {pageTitle && <div class="titlebar__page">{pageTitle}</div>}
     </div>
+
+    <nav class="titlebar__main-nav" aria-label="主要カテゴリ">
+      <a class="titlebar__main-link titlebar__main-link--nt" href="/nt/">
+        🌍 代表一覧から探す
+      </a>
+      <a class="titlebar__main-link titlebar__main-link--clubs" href="/clubs/">
+        👕 クラブ一覧から探す
+      </a>
+    </nav>
   </div>
 </header>
 
@@ -98,12 +107,74 @@ const resolvedSiteTitle = siteTitle ?? title ?? "";
     line-height: 1.25;
   }
 
+  /* =========================
+   WFA メインカテゴリ導線
+========================= */
+
+  .titlebar__main-nav {
+    position: absolute;
+    top: 50%;
+    right: var(--container-pad);
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .titlebar__main-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 9px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 800;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+    transition:
+      transform 0.08s ease,
+      filter 0.08s ease;
+  }
+
+  .titlebar__main-link:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.08);
+  }
+
+  .titlebar__main-link--nt {
+    background: var(--color-nt);
+    color: #fff;
+    border: 1px solid color-mix(in srgb, var(--color-nt) 75%, #fff);
+  }
+
+  .titlebar__main-link--clubs {
+    background: var(--color-club);
+    color: #fff;
+    border: 1px solid color-mix(in srgb, var(--color-club) 75%, #fff);
+  }
+
   @media (max-width: 520px) {
     .titlebar__site {
       font-size: 20px;
     }
+
     .titlebar__page {
       font-size: 13px;
+    }
+
+    .titlebar__main-nav {
+      position: static;
+      transform: none;
+      margin-top: 8px;
+      width: 100%;
+      gap: 8px;
+    }
+
+    .titlebar__main-link {
+      flex: 1 1 0;
+      padding: 7px 6px;
+      font-size: 12px;
     }
   }
 </style>
