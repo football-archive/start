@@ -470,13 +470,13 @@ const columns = buildNtColumns({
   },
 });
 
-const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー`;
+const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー・背番号一覧`;
 
-const title = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー｜代表ウィーク`;
+const title = `${countryName}代表 招集メンバー・背番号一覧｜${formatEdition(editionKey)}`;
 
 const description =
-  `${countryName}代表の${formatEdition(editionKey)}代表ウィーク招集メンバー一覧。` +
-  `背番号、ポジション、所属クラブ、監督、当期間の試合日程・結果などを掲載しています。`;
+  `${countryName}代表の${formatEdition(editionKey)}招集メンバー・背番号一覧。` +
+  `ポジション、所属クラブ、監督、当期間の試合日程・結果などを掲載しています。`;
 ---
 
 <BaseLayout
@@ -489,7 +489,7 @@ const description =
     { label: "トップ", href: "/" },
     { label: "各国代表一覧・国際大会ポータル", href: "/nt/" },
     { label: `${countryName}代表`, href: `/nt/${teamSlug}/` },
-    { label: `${formatEdition(editionKey)} 招集メンバー` },
+    { label: `${formatEdition(editionKey)} 招集メンバー・背番号一覧` },
   ]}
   heading={heading}
 >
@@ -499,7 +499,7 @@ const description =
     <p>
       {countryName}代表の{
         formatEdition(editionKey)
-      }代表活動について、招集メンバー・背番号・所属クラブなどを掲載しています。<br
+      }招集メンバー・背番号一覧です。所属クラブ、ポジション、監督、試合日程・結果なども掲載しています。<br
       />
       ※背番号は決まり次第更新します（直近のものを暫定で表示）
     </p>
