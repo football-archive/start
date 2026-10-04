@@ -17,8 +17,8 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,india,2026-08-31,カリド・ジャミル,2026-10-03,brazil,H,0-4,
 202609,india,2026-08-31,カリド・ジャミル,2026-10-06,uruguay,H,,
 202609,south-africa,2026-09-04,ピッツォ・モシマネ,2026-09-26,guinea,H,2-1,アフリカネイションズカップ予選
-202609,south-africa,2026-09-04,ピッツォ・モシマネ,2026-09-30,eritrea,A,,アフリカネイションズカップ予選
-202609,south-africa,2026-09-04,ピッツォ・モシマネ,2026-10-04,egypt,A,,アフリカネイションズカップ予選
+202609,south-africa,2026-09-04,ピッツォ・モシマネ,2026-09-30,eritrea,A,5-0,アフリカネイションズカップ予選
+202609,south-africa,2026-09-04,ピッツォ・モシマネ,2026-10-04,egypt,A,,
 202609,brazil,2026-09-09,カルロ・アンチェロッティ,2026-09-25,australia,A,1-1,
 202609,brazil,2026-09-09,カルロ・アンチェロッティ,2026-09-29,australia,A,4-2,
 202609,brazil,2026-09-09,カルロ・アンチェロッティ,2026-10-03,india,A,4-0,
@@ -28,7 +28,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,dr-congo,2026-09-11,セバスティアン・ドゥザブル,2026-10-05,uganda,N,,アフリカネイションズカップ予選
 202609,mali,2026-09-10,アントニー・ダ・シルバ,2026-09-25,cape-verde,H,3-1,アフリカネイションズカップ予選
 202609,mali,2026-09-10,アントニー・ダ・シルバ,2026-09-29,liberia,A,1-0,アフリカネイションズカップ予選
-202609,mali,2026-09-10,アントニー・ダ・シルバ,2026-10-03,tunisia,A,,アフリカネイションズカップ予選
+202609,mali,2026-09-10,アントニー・ダ・シルバ,2026-10-03,tunisia,A,,
 202609,thailand,2026-09-14,アンソニー・ハドソン,2026-09-26,pakistan,A,,
 202609,thailand,2026-09-14,アンソニー・ハドソン,2026-09-29,vietnam,H,,
 202609,thailand,2026-09-14,アンソニー・ハドソン,2026-10-02,philippines,H,,
@@ -41,7 +41,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,wales,2026-09-15,クレイグ・ベラミー,2026-09-24,portugal,A,0-1,UEFAネーションズリーグA
 202609,wales,2026-09-15,クレイグ・ベラミー,2026-09-27,denmark,A,0-2,UEFAネーションズリーグA
 202609,wales,2026-09-15,クレイグ・ベラミー,2026-10-01,norway,H,2-1,UEFAネーションズリーグA
-202609,wales,2026-09-15,クレイグ・ベラミー,2026-10-04,denmark,H,,UEFAネーションズリーグA
+202609,wales,2026-09-15,クレイグ・ベラミー,2026-10-04,denmark,H,0-1,UEFAネーションズリーグA
 202609,hungary,2026-09-15,マルコ・ロッシ,2026-09-25,ukraine,H,0-1,UEFAネーションズリーグB
 202609,hungary,2026-09-15,マルコ・ロッシ,2026-09-28,northern-ireland,A,0-0,UEFAネーションズリーグB
 202609,hungary,2026-09-15,マルコ・ロッシ,2026-10-02,georgia,H,1-0,UEFAネーションズリーグB
@@ -57,15 +57,15 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,norway,2026-09-15,ストーレ・ソルバッケン,2026-09-24,denmark,H,3-2,UEFAネーションズリーグA
 202609,norway,2026-09-15,ストーレ・ソルバッケン,2026-09-27,portugal,H,1-2,UEFAネーションズリーグA
 202609,norway,2026-09-15,ストーレ・ソルバッケン,2026-10-01,wales,A,1-2,UEFAネーションズリーグA
-202609,norway,2026-09-15,ストーレ・ソルバッケン,2026-10-04,portugal,A,,UEFAネーションズリーグA
+202609,norway,2026-09-15,ストーレ・ソルバッケン,2026-10-04,portugal,A,1-2,UEFAネーションズリーグA
 202609,denmark,2026-09-15,ブライアン・リーマー,2026-09-24,norway,A,2-3,UEFAネーションズリーグA
 202609,denmark,2026-09-15,ブライアン・リーマー,2026-09-27,wales,H,2-0,UEFAネーションズリーグA
 202609,denmark,2026-09-15,ブライアン・リーマー,2026-10-01,portugal,H,2-4,UEFAネーションズリーグA
-202609,denmark,2026-09-15,ブライアン・リーマー,2026-10-04,wales,A,,UEFAネーションズリーグA
+202609,denmark,2026-09-15,ブライアン・リーマー,2026-10-04,wales,A,1-0,UEFAネーションズリーグA
 202609,austria,2026-09-14,ラルフ・ラングニック,2026-09-24,israel,H,3-1,UEFAネーションズリーグB
 202609,austria,2026-09-14,ラルフ・ラングニック,2026-09-27,kosovo,H,3-1,UEFAネーションズリーグB
 202609,austria,2026-09-14,ラルフ・ラングニック,2026-10-01,ireland,A,2-2,UEFAネーションズリーグB
-202609,austria,2026-09-14,ラルフ・ラングニック,2026-10-04,kosovo,A,,UEFAネーションズリーグB
+202609,austria,2026-09-14,ラルフ・ラングニック,2026-10-04,kosovo,A,1-1,UEFAネーションズリーグB
 202609,south-korea,2026-09-14,ロベルト・モレノ,2026-09-24,ecuador,H,3-0,
 202609,south-korea,2026-09-14,ロベルト・モレノ,2026-09-28,uruguay,H,1-4,
 202609,south-korea,2026-09-14,ロベルト・モレノ,2026-10-02,venezuela,H,0-0,
@@ -79,7 +79,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,guinea,2026-09-16,パウロ・ドゥアルテ,2026-09-26,south-africa,A,1-2,アフリカネイションズカップ予選
 202609,guinea,2026-09-16,パウロ・ドゥアルテ,2026-10-01,kenya,H,1-0,アフリカネイションズカップ予選
 202609,argentina,2026-09-15,リオネル・スカローニ,2026-09-30,bolivia,H,4-0,
-202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-03,burkina-faso,H,,
+202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-03,burkina-faso,H,7-0,
 202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-06,benin,H,,
 202609,cote-divoire,2026-09-16,エルヴェ・ルナール,2026-09-24,ghana,H,2-0,アフリカネイションズカップ予選
 202609,cote-divoire,2026-09-16,エルヴェ・ルナール,2026-09-29,somalia,A,2-0,アフリカネイションズカップ予選
@@ -94,7 +94,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,germany,2026-09-17,ユルゲン・クロップ,2026-09-24,netherlands,A,1-1,UEFAネーションズリーグA
 202609,germany,2026-09-17,ユルゲン・クロップ,2026-09-27,greece,H,0-1,UEFAネーションズリーグA
 202609,germany,2026-09-17,ユルゲン・クロップ,2026-10-01,serbia,H,2-0,UEFAネーションズリーグA
-202609,germany,2026-09-17,ユルゲン・クロップ,2026-10-04,greece,A,,UEFAネーションズリーグA
+202609,germany,2026-09-17,ユルゲン・クロップ,2026-10-04,greece,A,0-0,UEFAネーションズリーグA
 202609,usa,2026-09-17,マウリシオ・ポチェッティーノ,2026-09-26,peru,H,,
 202609,usa,2026-09-17,マウリシオ・ポチェッティーノ,2026-09-29,chile,H,,
 202609,usa,2026-09-17,マウリシオ・ポチェッティーノ,2026-10-03,mexico,H,,
@@ -135,7 +135,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,portugal,2026-09-18,ジョルジェ・ジェズス,2026-09-24,wales,H,1-0,UEFAネーションズリーグA
 202609,portugal,2026-09-18,ジョルジェ・ジェズス,2026-09-27,norway,A,2-1,UEFAネーションズリーグA
 202609,portugal,2026-09-18,ジョルジェ・ジェズス,2026-10-01,denmark,A,4-2,UEFAネーションズリーグA
-202609,portugal,2026-09-18,ジョルジェ・ジェズス,2026-10-04,norway,H,,UEFAネーションズリーグA
+202609,portugal,2026-09-18,ジョルジェ・ジェズス,2026-10-04,norway,H,2-1,UEFAネーションズリーグA
 202609,mexico,2026-09-17,ラファエル・マルケス,2026-09-26,colombia,H,,
 202609,mexico,2026-09-17,ラファエル・マルケス,2026-09-29,peru,H,,
 202609,mexico,2026-09-17,ラファエル・マルケス,2026-10-03,usa,A,,
@@ -147,7 +147,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,netherlands,2026-09-18,シャビ・エルナンデス,2026-09-24,germany,H,1-1,UEFAネーションズリーグA
 202609,netherlands,2026-09-18,シャビ・エルナンデス,2026-09-27,serbia,A,2-1,UEFAネーションズリーグA
 202609,netherlands,2026-09-18,シャビ・エルナンデス,2026-10-01,greece,A,2-2,UEFAネーションズリーグA
-202609,netherlands,2026-09-18,シャビ・エルナンデス,2026-10-04,serbia,H,,UEFAネーションズリーグA
+202609,netherlands,2026-09-18,シャビ・エルナンデス,2026-10-04,serbia,H,2-1,UEFAネーションズリーグA
 202609,colombia,2026-09-17,ネストル・ロレンソ,2026-09-26,mexico,H,,
 202609,colombia,2026-09-17,ネストル・ロレンソ,2026-10-02,paraguay,H,,
 202609,colombia,2026-09-17,ネストル・ロレンソ,2026-10-06,peru,H,,
@@ -203,7 +203,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,serbia,2026-09-18,ヴェリコ・パウノヴィッチ,2026-09-24,greece,H,1-2,UEFAネーションズリーグA
 202609,serbia,2026-09-18,ヴェリコ・パウノヴィッチ,2026-09-27,netherlands,H,1-2,UEFAネーションズリーグA
 202609,serbia,2026-09-18,ヴェリコ・パウノヴィッチ,2026-10-01,germany,A,0-2,UEFAネーションズリーグA
-202609,serbia,2026-09-18,ヴェリコ・パウノヴィッチ,2026-10-04,netherlands,A,,UEFAネーションズリーグA
+202609,serbia,2026-09-18,ヴェリコ・パウノヴィッチ,2026-10-04,netherlands,A,1-2,UEFAネーションズリーグA
 202609,peru,2026-09-17,マノ・メネゼス,2026-09-26,usa,A,,
 202609,peru,2026-09-17,マノ・メネゼス,2026-09-29,mexico,A,,
 202609,peru,2026-09-17,マノ・メネゼス,2026-10-03,canada,A,,
@@ -211,11 +211,11 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,israel,2026-09-17,ラン・ベン・シモン,2026-09-24,austria,A,1-3,UEFAネーションズリーグB
 202609,israel,2026-09-17,ラン・ベン・シモン,2026-09-27,ireland,H,0-3,UEFAネーションズリーグB
 202609,israel,2026-09-17,ラン・ベン・シモン,2026-10-01,kosovo,H,0-0,UEFAネーションズリーグB
-202609,israel,2026-09-17,ラン・ベン・シモン,2026-10-04,ireland,A,,UEFAネーションズリーグB
+202609,israel,2026-09-17,ラン・ベン・シモン,2026-10-04,ireland,A,1-1,UEFAネーションズリーグB
 202609,kosovo,2026-09-18,フランコ・フォーダ,2026-09-24,ireland,H,1-0,UEFAネーションズリーグB
 202609,kosovo,2026-09-18,フランコ・フォーダ,2026-09-27,austria,A,1-3,UEFAネーションズリーグB
 202609,kosovo,2026-09-18,フランコ・フォーダ,2026-10-01,israel,A,0-0,UEFAネーションズリーグB
-202609,kosovo,2026-09-18,フランコ・フォーダ,2026-10-04,austria,H,,UEFAネーションズリーグB
+202609,kosovo,2026-09-18,フランコ・フォーダ,2026-10-04,austria,H,1-1,UEFAネーションズリーグB
 202609,tunisia,2026-09-18,モイーヌ・シャーバニ,2026-09-24,uganda,H,1-1,アフリカネイションズカップ予選
 202609,tunisia,2026-09-18,モイーヌ・シャーバニ,2026-09-28,botswana,H,2-2,アフリカネイションズカップ予選
 202609,cape-verde,2026-09-18,ウンベルト・ベッテンクール,2026-09-25,mali,A,1-3,アフリカネイションズカップ予選
@@ -223,7 +223,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,ireland,2026-09-17,ヘイミル・ハルグリムソン,2026-09-24,kosovo,A,0-1,UEFAネーションズリーグB
 202609,ireland,2026-09-17,ヘイミル・ハルグリムソン,2026-09-27,israel,A,3-0,UEFAネーションズリーグB
 202609,ireland,2026-09-17,ヘイミル・ハルグリムソン,2026-10-01,austria,H,2-2,UEFAネーションズリーグB
-202609,ireland,2026-09-17,ヘイミル・ハルグリムソン,2026-10-04,israel,H,,UEFAネーションズリーグB
+202609,ireland,2026-09-17,ヘイミル・ハルグリムソン,2026-10-04,israel,H,1-1,UEFAネーションズリーグB
 202609,iraq,2026-09-16,グラハム・アーノルド,2026-09-23,oman,N,,
 202609,iraq,2026-09-16,グラハム・アーノルド,2026-09-26,kuwait,N,,
 202609,iraq,2026-09-16,グラハム・アーノルド,2026-09-29,saudi-arabia,A,,
@@ -247,7 +247,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,greece,2026-09-20,イヴァン・ヨヴァノヴィッチ,2026-09-24,serbia,A,2-1,UEFAネーションズリーグA
 202609,greece,2026-09-20,イヴァン・ヨヴァノヴィッチ,2026-09-27,germany,A,1-0,UEFAネーションズリーグA
 202609,greece,2026-09-20,イヴァン・ヨヴァノヴィッチ,2026-10-01,netherlands,H,2-2,UEFAネーションズリーグA
-202609,greece,2026-09-20,イヴァン・ヨヴァノヴィッチ,2026-10-04,germany,H,,UEFAネーションズリーグA
+202609,greece,2026-09-20,イヴァン・ヨヴァノヴィッチ,2026-10-04,germany,H,0-0,UEFAネーションズリーグA
 202609,uzbekistan,2026-09-20,ファビオ・カンナバーロ,2026-09-24,iran,H,,
 202609,uzbekistan,2026-09-20,ファビオ・カンナバーロ,2026-10-01,syria,H,,
 202609,uzbekistan,2026-09-20,ファビオ・カンナバーロ,2026-10-06,south-korea,A,,

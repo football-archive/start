@@ -363,11 +363,15 @@ const countrySections = [...countriesByConfederation.entries()]
   <div class="nt-ranking-nav">
     <a href="/nt/fifa-ranking/" class="nt-ranking-button">
       🌐 FIFAランキング一覧
-      {latestFifaRankDateLabel && <span>（{latestFifaRankDateLabel} 時点）</span>}
+      {
+        latestFifaRankDateLabel && (
+          <span>（{latestFifaRankDateLabel} 時点）</span>
+        )
+      }
     </a>
   </div>
 
-  {
+  {/*
     currentIwCountries.length > 0 && (
       <div class="iw-current-summary">
         <div class="iw-current-summary-title">
@@ -386,7 +390,7 @@ const countrySections = [...countriesByConfederation.entries()]
         </div>
       </div>
     )
-  }
+  */}
 
   <section
     class="portal-section countries-section"
@@ -401,6 +405,23 @@ const countrySections = [...countriesByConfederation.entries()]
       </div>
       <p class="section-note">上段：代表国ポータルへ／下段：最新掲載メンバー</p>
     </div>
+
+    <nav class="confederation-jump-nav" aria-label="大陸別代表一覧">
+      <span class="confederation-jump-label">🔍 各大陸へジャンプ</span>
+
+      <div class="confederation-jump-pills">
+        {
+          countrySections.map((section) => (
+            <a
+              class="confederation-jump-pill"
+              href={`#conf-${section.confederation}`}
+            >
+              {section.label}
+            </a>
+          ))
+        }
+      </div>
+    </nav>
 
     {
       countrySections.map((section) => (
@@ -677,6 +698,53 @@ const countrySections = [...countriesByConfederation.entries()]
       color: var(--theme-link);
       font-size: 14px;
       font-weight: 900;
+    }
+
+    ..page-nt-portal .confederation-jump-nav {
+      margin: 0 0 18px;
+    }
+
+    .page-nt-portal .confederation-jump-label {
+      display: block;
+      margin-bottom: 7px;
+      color: #666;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .page-nt-portal .confederation-jump-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-nt-portal .confederation-jump-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 13px;
+      border: 1px solid var(--theme-soft-border);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--theme-color);
+      font-size: 14px;
+      font-weight: 700;
+      line-height: 1.2;
+      text-decoration: none;
+      transition:
+        background 0.15s ease,
+        border-color 0.15s ease,
+        transform 0.15s ease;
+    }
+
+    .page-nt-portal .confederation-jump-pill:hover {
+      border-color: var(--theme-color);
+      background: var(--theme-soft-bg);
+      transform: translateY(-1px);
+    }
+
+    .page-nt-portal .confederation-section h3 {
+      scroll-margin-top: 90px;
     }
 
     .page-nt-portal .confederation-section {
