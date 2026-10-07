@@ -271,9 +271,8 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
       <table class="seasonTable">
         <thead>
           <tr>
-            <th>シーズン</th>
-            {hasLeagueRank && <th>国内リーグ</th>}
-            {hasCoach && <th>歴代監督</th>}
+            <th class="col-season">シーズン・順位</th>
+            {hasCoach && <th class="col-coach">歴代監督</th>}
             {hasCup && <th>国内カップ</th>}
             {hasUefa && <th>欧州カップ戦</th>}
             {hasNote && <th>メモ</th>}
@@ -322,6 +321,18 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                   <td class="seasonCell">
                     <span>{season}</span>
 
+                    {hasLeagueRank && (
+                      <div class="season-rank">
+                        {meta?.rank_ja && seasonHubHref ? (
+                          <a class="rankLink" href={seasonHubHref}>
+                            {meta.rank_ja}
+                          </a>
+                        ) : (
+                          meta?.rank_ja || "—"
+                        )}
+                      </div>
+                    )}
+
                     {hasUclMode && (
                       <a
                         class="ucl-mobile-badge"
@@ -333,20 +344,8 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                     )}
                   </td>
 
-                  {hasLeagueRank && (
-                    <td>
-                      {meta?.rank_ja && seasonHubHref ? (
-                        <a class="rankLink" href={seasonHubHref}>
-                          {meta.rank_ja}
-                        </a>
-                      ) : (
-                        meta?.rank_ja || "—"
-                      )}
-                    </td>
-                  )}
-
                   {hasCoach && (
-                    <td>
+                    <td class="coachCell">
                       {splitLines(meta?.coach_ja ?? "").length > 0
                         ? splitLines(meta?.coach_ja ?? "").map((c) => (
                             <div>{c}</div>
@@ -585,6 +584,10 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
         white-space: nowrap;
       }
 
+      .ucl-mobile-badge {
+        display: none;
+      }
+
       @media (max-width: 760px) {
         .infoBox {
           grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -615,35 +618,44 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
           width: 68px;
         }
 
-        .seasonTable th:nth-child(3),
-        .seasonTable td:nth-child(3) {
-          min-width: 140px;
-        }
-
         .seasonTable th:last-child,
         .seasonTable td:last-child {
           display: none;
         }
 
-        .seasonTable th:nth-child(2),
-        .seasonTable td:nth-child(2) {
-          min-width: 58px;
-          width: 58px;
+        .ucl-mobile-badge {
+          display: block;
+          width: fit-content;
+          margin-top: 4px;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: #1e3a8a;
+          color: #fff;
+          font-size: 11px;
+          font-weight: 800;
+          line-height: 1.3;
+          text-decoration: none;
         }
       }
 
-      .seasonTable th:nth-child(2),
-      .seasonTable td:nth-child(2) {
-        min-width: 64px;
-        width: 64px;
+      .col-season,
+      .seasonCell {
+        min-width: 84px;
+        width: 84px;
         white-space: nowrap;
       }
 
-      .seasonTable th:nth-child(3),
-      .seasonTable td:nth-child(3) {
-        min-width: 150px;
+      .col-coach,
+      .coachCell {
+        min-width: 135px;
         white-space: normal;
         line-height: 1.45;
+      }
+
+      .season-rank {
+        margin-top: 3px;
+        line-height: 1.3;
+        font-weight: 700;
       }
 
       .seasonTable th:last-child,
@@ -701,45 +713,6 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
 
       .uefa-mode-link:hover {
         opacity: 0.82;
-      }
-
-      .ucl-mobile-badge {
-        display: none;
-      }
-
-      .ucl-mobile-badge {
-        display: block;
-        width: fit-content;
-        margin-top: 4px;
-        padding: 2px 6px;
-        border-radius: 4px;
-        background: #1e3a8a;
-        color: #fff;
-        font-size: 11px;
-        font-weight: 800;
-        line-height: 1.3;
-        text-decoration: none;
-
-        .decadePlayers {
-          padding: 11px 12px;
-        }
-
-        .decadePlayers h2 {
-          font-size: 16px;
-        }
-
-        .decadePlayerRow {
-          gap: 8px;
-          font-size: 13px;
-        }
-
-        .decadeLabel {
-          flex-basis: 60px;
-        }
-
-        .playerSeparator {
-          margin: 0 3px;
-        }
       }
 
       .decadePlayerName::before {

@@ -105,6 +105,34 @@ const latestUpdate = latestUpdateRaw ? formatDateJP(latestUpdateRaw) : "";
                     {row.statusLabel && row.status !== "completed" && (
                       <small class="status-label">{row.statusLabel}</small>
                     )}
+
+                    {!row.isCancelled && (
+                      <div class="mobile-winner-detail">
+                        <div class="mobile-winner-meta">
+                          {row.position && <span>{row.position}</span>}
+
+                          {row.position && row.nationality && (
+                            <span class="mobile-meta-separator">｜</span>
+                          )}
+
+                          {row.nationality && <span>{row.nationality}</span>}
+                        </div>
+
+                        {row.clubs.length > 0 && (
+                          <div class="mobile-winner-clubs">
+                            {row.clubs.map((club) =>
+                              club.href ? (
+                                <a class="club-link" href={club.href}>
+                                  {club.name}
+                                </a>
+                              ) : (
+                                <span>{club.name}</span>
+                              ),
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </td>
 
                   <td class="position-cell">{row.position || "－"}</td>
@@ -356,6 +384,10 @@ const latestUpdate = latestUpdateRaw ? formatDateJP(latestUpdateRaw) : "";
       font-size: 15px;
     }
 
+    .mobile-winner-detail {
+      display: none;
+    }
+
     @media (max-width: 700px) {
       h1 {
         margin-top: 16px;
@@ -386,9 +418,75 @@ const latestUpdate = latestUpdateRaw ? formatDateJP(latestUpdateRaw) : "";
         text-align: left;
       }
 
+      .table-scroll {
+        overflow-x: visible;
+      }
+
       .award-table {
-        min-width: 700px;
+        width: 100%;
+        min-width: 0;
+        table-layout: fixed;
         font-size: 14px;
+      }
+
+      .award-table th,
+      .award-table td {
+        padding: 10px 8px;
+      }
+
+      .award-table th {
+        font-size: 12px;
+      }
+
+      /* モバイルは「年｜受賞者情報」の2列 */
+      .award-table .col-year,
+      .award-table .year-cell {
+        width: 72px;
+      }
+
+      .award-table .col-position,
+      .award-table .position-cell,
+      .award-table .col-nationality,
+      .award-table .nationality-cell,
+      .award-table .col-club,
+      .award-table .club-cell {
+        display: none;
+      }
+
+      .award-table .col-player {
+        min-width: 0;
+        width: auto;
+      }
+
+      .mobile-winner-detail {
+        display: block;
+        margin-top: 4px;
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .mobile-winner-meta {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 0 4px;
+        color: #777;
+      }
+
+      .mobile-meta-separator {
+        color: #bbb;
+      }
+
+      .mobile-winner-clubs {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 2px;
+        margin-top: 2px;
+      }
+
+      .mobile-winner-clubs .club-link {
+        font-weight: 700;
       }
 
       .award-table th,
