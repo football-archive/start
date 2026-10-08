@@ -80,7 +80,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,guinea,2026-09-16,パウロ・ドゥアルテ,2026-10-01,kenya,H,1-0,アフリカネイションズカップ予選
 202609,argentina,2026-09-15,リオネル・スカローニ,2026-09-30,bolivia,H,4-0,
 202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-03,burkina-faso,H,7-0,
-202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-06,benin,H,,メッシ引退試合
+202609,argentina,2026-09-15,リオネル・スカローニ,2026-10-06,benin,H,3-0,メッシ引退試合
 202609,cote-divoire,2026-09-16,エルヴェ・ルナール,2026-09-24,ghana,H,2-0,アフリカネイションズカップ予選
 202609,cote-divoire,2026-09-16,エルヴェ・ルナール,2026-09-29,somalia,A,2-0,アフリカネイションズカップ予選
 202609,cote-divoire,2026-09-16,エルヴェ・ルナール,2026-10-03,cameroon,H,,
@@ -158,8 +158,8 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,australia,2026-09-18,トニー・ポポヴィッチ,2026-09-25,brazil,H,1-1,
 202609,australia,2026-09-18,トニー・ポポヴィッチ,2026-09-29,brazil,H,2-4,
 202609,panama,2026-09-17,トーマス・クリスチャンセン,2026-09-25,india,A,1-1,
-202609,panama,2026-09-17,トーマス・クリスチャンセン,2026-10-01,new-zealand,H,,キリンカップサッカー
-202609,panama,2026-09-17,トーマス・クリスチャンセン,2026-10-05,試合なし（敗退）,H,,キリンカップサッカー
+202609,panama,2026-09-17,トーマス・クリスチャンセン,2026-10-01,new-zealand,H,1-1(3-5),キリンカップサッカー
+202609,panama,2026-09-17,トーマス・クリスチャンセン,2026-10-05,,H,,キリンカップサッカー
 202609,georgia,2026-09-17,ウィリー・サニョル,2026-09-25,northern-ireland,H,0-1,UEFAネーションズリーグB
 202609,georgia,2026-09-17,ウィリー・サニョル,2026-09-28,ukraine,H,0-0,UEFAネーションズリーグB
 202609,georgia,2026-09-17,ウィリー・サニョル,2026-10-02,hungary,A,0-1,UEFAネーションズリーグB
@@ -239,7 +239,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202609,north-macedonia,2026-09-16,ゴツェ・セドロスキ,2026-09-29,slovenia,A,0-2,UEFAネーションズリーグB
 202609,north-macedonia,2026-09-16,ゴツェ・セドロスキ,2026-10-03,scotland,H,0-2,UEFAネーションズリーグB
 202609,north-macedonia,2026-09-16,ゴツェ・セドロスキ,2026-10-06,switzerland,A,0-3,UEFAネーションズリーグB
-202609,russia,2026-09-15,ヴァレリー・カルピン,2026-09-29,iran,H,,親善試合
+202609,russia,2026-09-15,ヴァレリー・カルピン,2026-09-29,iran,H,2-0,親善試合
 202609,russia,2026-09-15,ヴァレリー・カルピン,2026-10-03,namibia,H,,親善試合
 202609,russia,2026-09-15,ヴァレリー・カルピン,2026-10-06,nigeria,H,,親善試合
 202609,bolivia,2026-09-18,オスカル・ビジェガス,2026-09-27,paraguay,N,0-2,
