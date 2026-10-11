@@ -754,7 +754,7 @@ const heading =
     padding: 6px 10px;
     font-size: 12px;
   }
-  }
+
 
   .ucl-club-title {
     margin: 4px 0 8px;
@@ -1240,4 +1240,73 @@ const heading =
   padding: 5px 10px;
   border-radius: 4px;
 }
+
+
+
+/* CL試合結果：モバイル専用 */
+@media (max-width: 640px) {
+  .match-results-table {
+    width: 500px;
+    min-width: 500px;
+    table-layout: fixed;
+  }
+
+  /* 日時 */
+  .match-results-table th:nth-child(1),
+  .match-results-table td:nth-child(1) {
+    width: 88px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  /* Stage */
+  .match-results-table th:nth-child(2),
+  .match-results-table td:nth-child(2) {
+    width: 58px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  /* 対戦カード */
+  .match-results-table th:nth-child(3),
+  .match-results-table td:nth-child(3) {
+    width: 234px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .match-results-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+
+/* モバイル：成績は選手名セル内に集約 */
+
+/* CL選手一覧：モバイル専用 */
+@media (max-width: 768px) {
+
+  /* 4列目以降をすべて非表示 */
+  :global(.page-ucl .roster-table th:nth-child(n+4)),
+  :global(.page-ucl .roster-table td:nth-child(n+4)) {
+    display: none !important;
+  }
+
+  /* 選手名セル内のCL成績を表示 */
+  :global(.page-ucl .roster-table .mob-stat-line) {
+    display: block !important;
+    margin-top: 5px;
+    padding-top: 4px;
+    border-top: 1px dashed #ddd;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #333;
+    white-space: normal;
+  }
+}
+
+
+
+
 </style>

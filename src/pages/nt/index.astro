@@ -317,7 +317,12 @@ for (const meta of latestMetaByCountry.values()) {
   countriesByConfederation.get(conf)!.push({
     ...meta,
     count: latestCountByCountry.get(meta.country) ?? 0,
-    snapshotLabel: monthLabel(meta.snapshot_date),
+
+    snapshotLabel:
+      meta.competition === "IW" && /^\d{6}$/.test(meta.edition)
+        ? `${meta.edition.slice(0, 4)}.${meta.edition.slice(4, 6)}`
+        : monthLabel(meta.snapshot_date),
+
     snapshotHref,
     portalHref: countryKey ? `/nt/${countryKey}/` : "",
   });
@@ -371,7 +376,8 @@ const countrySections = [...countriesByConfederation.entries()]
     </a>
   </div>
 
-  {/*
+  {
+    /*
     currentIwCountries.length > 0 && (
       <div class="iw-current-summary">
         <div class="iw-current-summary-title">
@@ -390,7 +396,8 @@ const countrySections = [...countriesByConfederation.entries()]
         </div>
       </div>
     )
-  */}
+  */
+  }
 
   <section
     class="portal-section countries-section"

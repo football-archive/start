@@ -252,6 +252,65 @@ const editions = Array.from(editionMap.values())
     );
   });
 
+/* ===== 国ハブ：代表活動・大会の統合履歴 ===== */
+
+const activityHistory = Array.from(editionMap.values())
+  .map((item) => {
+    const competition = normalizeCompetition(item.competition);
+    const edition = item.edition;
+    const key = `${competition}:${edition}`;
+    const rows = callupGroups.get(key) ?? [];
+
+    // 同じ competition × edition の最新スナップショットを採用
+    const latestSnapshotKey =
+      rows
+        .map((row) => toDateKey(row.snapshot_date))
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? "";
+
+    const latestSnapshotRows = rows.filter(
+      (row) => toDateKey(row.snapshot_date) === latestSnapshotKey,
+    );
+
+    // 同一スナップショット内で最新の日付を採用
+    const snapshot =
+      rows
+        .map((row) => toDateKey(row.snapshot_date))
+        .filter(Boolean)
+        .sort()
+        .at(-1) ?? "";
+
+    const isIw = competition === "IW";
+
+    // 大会メタのみ存在する場合は開催年を暫定的なソートキーに
+    const fallbackDate = /^\d{4}$/.test(edition) ? `${edition}-01-01` : "";
+
+    const iwMeta = isIw
+      ? iwActivityAll.find((row) => row.edition === edition)
+      : undefined;
+
+    return {
+      competition,
+      edition,
+      isIw,
+      snapshot,
+      sortDate: snapshot || fallbackDate,
+      label: isIw ? "代表活動" : getCompetitionInfo(competition).name,
+      coach: item.coach || iwMeta?.coach || "",
+      result: item.result,
+      rosterCount: latestSnapshotRows.length,
+      hasRoster: item.hasRoster,
+      href: getRosterHref(competition, edition, countryJa, teamSlug),
+    };
+  })
+  .sort((a, b) => {
+    const dateOrder = b.sortDate.localeCompare(a.sortDate);
+    if (dateOrder !== 0) return dateOrder;
+
+    return b.edition.localeCompare(a.edition);
+  });
+
 const latestCallup = allCallups
   .slice()
   .sort((a, b) =>
@@ -451,13 +510,13 @@ const description =
 >
   <h1 class="country-page-title">{heading}</h1>
 
-  <div class="lead">
-    <p>
-      {
-        countryJa
-      }代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。
-    </p>※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
-  </div>
+
+<div class="lead">
+  {countryJa}代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。
+  <br />
+  ※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
+</div>
+
 
   <div class="updated-date">
     {latestSnapshot && <>更新日：{latestSnapshot}</>}
@@ -501,176 +560,60 @@ const description =
   }
 
   {
-    (latestCallup || latestLineup) && (
-      <section class="latest-section" aria-labelledby="latest-heading">
-        <h2 id="latest-heading">
-          ⚽ {latestCompetition === "IW" ? "最新の代表活動" : "最新の掲載状況"}
-          {latestPublishedDate && <span>（{latestPublishedDate}）</span>}
-        </h2>
+    activityHistory.length > 0 && (
+      <section class="activity-history-test">
+        <h2>⚽ 代表活動・歴代大会一覧</h2>
 
-        <div class="latest-content">
-          {latestCallup && latestCompetition !== "IW" && (
-            <div class="latest-standard-block">
-              <div class="latest-roster-context">
-                {latestCompetition}
-                {latestEdition}
-              </div>
-
-              <div class="latest-iw-roster-row latest-standard-roster-row">
-                <div class="latest-iw-roster-date">
-                  {Number(toDateKey(latestSnapshot).slice(5, 7))}月
-                </div>
-
-                <div class="latest-iw-roster-count">
-                  掲載：
-                  {callupGroups.get(`${latestCompetition}:${latestEdition}`)
-                    ?.length ?? 0}
-                  名
-                </div>
-
-                <div class="latest-iw-roster-coach">
-                  {(() => {
-                    const latestMeta = editionMap.get(
-                      `${latestCompetition}:${latestEdition}`,
-                    );
-                    return latestMeta?.coach ? (
-                      <>監督：{latestMeta.coach}</>
-                    ) : null;
-                  })()}
-                </div>
-
-                <div class="latest-iw-roster-link">
-                  <a href={latestRosterHref}>👉 メンバー一覧へ</a>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {latestCompetition === "IW" && latestIwMatches.length > 0 && (
-            <div class="latest-iw-meta">
-              <div class="latest-iw-matches">
-                {latestIwMatches.map((match) => (
-                  <span class="latest-iw-match">
-                    ⚽ {match.dateLabel} vs{" "}
-                    {match.opponentHref ? (
-                      <a href={match.opponentHref}>{match.opponent}代表</a>
-                    ) : (
-                      `${match.opponent}代表`
-                    )}
-                    {match.venue && `（${match.venue}）`}
-                    {match.score && ` ${match.score}`}
+        <div class="activity-history-list">
+          {activityHistory.map((item) => (
+            <div
+              class:list={[
+                "activity-history-row",
+                { "is-tournament": !item.isIw },
+              ]}
+            >
+              <div class="activity-history-date">
+                {!item.isIw && item.competition === "WC" ? (
+                  <a
+                    href={`/wc/${item.edition}/`}
+                    class="activity-history-year-link"
+                    title={`ワールドカップ ${item.edition} 大会ポータル`}
+                  >
+                    {item.edition}
+                  </a>
+                ) : (
+                  <span>
+                    {item.isIw && /^\d{6}$/.test(item.edition)
+                      ? `${item.edition.slice(0, 4)}.${item.edition.slice(4, 6)}`
+                      : item.edition}
                   </span>
-                ))}
+                )}
               </div>
 
-              {latestCallup && (
-                <div class="latest-iw-roster-row">
-                  <div class="latest-iw-roster-date">
-                    {Number(latestEdition.slice(4, 6))}月
-                  </div>
+              <div class="activity-history-name">
+                <span class="activity-history-label">
+                  {!item.isIw && "🏆 "}
+                  {item.label}
+                </span>
 
-                  <div class="latest-iw-roster-count">
-                    掲載：{callupGroups.get(`IW:${latestEdition}`)?.length ?? 0}
-                    名
-                  </div>
+                {item.hasRoster && <small>掲載：{item.rosterCount}名</small>}
+              </div>
 
-                  <div class="latest-iw-roster-coach">
-                    {latestIwCoach && <>監督：{latestIwCoach}</>}
-                  </div>
+              <div class="activity-history-details">
+                {item.result && <span>成績：{item.result}</span>}
+                {item.coach && <span>監督：{item.coach}</span>}
+              </div>
 
-                  <div class="latest-iw-roster-link">
-                    <a href={latestRosterHref}>👉 メンバー一覧へ</a>
-                  </div>
-                </div>
-              )}
+              <div class="activity-history-link">
+                {item.hasRoster && <a href={item.href}>👉メンバー一覧へ →</a>}
+              </div>
             </div>
-          )}
+          ))}
         </div>
       </section>
     )
   }
 
-  {
-    iwHistory.length > 0 && (
-      <section class="iw-history" aria-labelledby="iw-history-heading">
-        <h2 id="iw-history-heading">⚽ 過去の代表活動</h2>
-
-        <div class="iw-history-groups">
-          {Object.entries(iwHistoryByYear)
-            .sort(([yearA], [yearB]) => Number(yearB) - Number(yearA))
-            .map(([year, items]) => (
-              <div class="iw-history-group">
-                <div class="iw-history-group-year">{year}</div>
-
-                <div class="iw-history-list">
-                  {items.map((item) => (
-                    <div class="iw-history-row">
-                      <div class="iw-history-date">
-                        <span>{Number(item.month)}月</span>
-                      </div>
-
-                      <div class="iw-history-count">
-                        掲載：{item.rosterCount}名
-                      </div>
-
-                      <div class="iw-history-coach">
-                        {item.coach && <span>監督：{item.coach}</span>}
-                      </div>
-
-                      <div class="iw-history-link">
-                        <a href={item.href}>👉 メンバー一覧へ</a>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-        </div>
-      </section>
-    )
-  }
-
-  <section class="history" aria-labelledby="history-heading">
-    <h2 id="history-heading">⚽ 歴代大会成績・監督・メンバー一覧</h2>
-
-    {
-      editions.length > 0 ? (
-        <div class="history-list">
-          {editions.map((item) => {
-            const info = getCompetitionInfo(item.competition);
-            const href = getRosterHref(
-              item.competition,
-              item.edition,
-              countryJa,
-            );
-
-            return (
-              <div class="history-row">
-                <div class="history-tournament">
-                  <span class="history-year">{item.edition}</span>
-                  <span>{info.short}</span>
-                </div>
-
-                <div class="history-result">
-                  {item.result ? `成績：${item.result}` : ""}
-                </div>
-
-                <div class="history-coach">
-                  {item.coach ? `監督：${item.coach}` : ""}
-                </div>
-
-                <div class="history-link">
-                  {item.hasRoster && <a href={href}>👉 メンバー一覧へ</a>}
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : (
-        <p class="empty-message">順次追加予定です。</p>
-      )
-    }
-  </section>
 
   {
     sameContinentCountries.length > 0 && (
@@ -1196,6 +1139,119 @@ const description =
     }
 
     .page-nt-country .fifa-rank-link:hover {
+      opacity: 0.75;
+    }
+
+    /* ===== 代表活動・大会 統合履歴 ===== */
+
+    .page-nt-country .activity-history-list {
+      border-top: 1px solid #c7ccd4;
+    }
+
+    .page-nt-country .activity-history-row {
+      display: grid;
+      grid-template-columns: 100px minmax(160px, 1.2fr) minmax(160px, 1fr) 150px;
+      gap: 12px;
+      align-items: center;
+      padding: 12px 10px;
+      border-bottom: 1px solid #d9dde3;
+      font-size: 14px;
+    }
+
+    .page-nt-country .activity-history-row:nth-child(even) {
+      background: #f8fafc;
+    }
+
+    .page-nt-country .activity-history-row.is-tournament {
+      background: #fff8ed;
+      border-left: 3px solid #d6a54b;
+    }
+
+    .page-nt-country .activity-history-date {
+      font-weight: 700;
+      color: #475569;
+    }
+
+    .page-nt-country .activity-history-name {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .page-nt-country .activity-history-label {
+      font-weight: 600;
+    }
+
+    .page-nt-country .is-tournament .activity-history-label {
+      color: #8f1720;
+      font-weight: 800;
+    }
+
+    .page-nt-country .activity-history-name small {
+      color: #64748b;
+      font-size: 12px;
+    }
+
+    .page-nt-country .activity-history-details {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      color: #475569;
+    }
+
+    .page-nt-country .activity-history-link {
+      text-align: right;
+    }
+
+    .page-nt-country .activity-history-link a {
+      color: var(--theme-link);
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 760px) {
+      .page-nt-country .activity-history-row {
+        grid-template-columns: 85px minmax(0, 1fr);
+        gap: 5px 10px;
+        padding: 10px 8px;
+      }
+
+      .page-nt-country .activity-history-date {
+        grid-column: 1;
+        grid-row: 1;
+      }
+
+      .page-nt-country .activity-history-name {
+        grid-column: 2;
+        grid-row: 1;
+      }
+
+      .page-nt-country .activity-history-details {
+        grid-column: 2;
+        grid-row: 2;
+        font-size: 12px;
+      }
+
+      .page-nt-country .activity-history-link {
+        grid-column: 2;
+        grid-row: 3;
+        text-align: left;
+        font-size: 12px;
+      }
+    }
+
+    /* 国ハブ統合履歴：リンク色 */
+
+    .page-nt-country .activity-history-year-link,
+    .page-nt-country .activity-history-link a {
+      color: var(--theme-color, #a71930);
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .page-nt-country .activity-history-year-link:hover,
+    .page-nt-country .activity-history-link a:hover {
       opacity: 0.75;
     }
   </style>
