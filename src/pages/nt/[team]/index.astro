@@ -252,6 +252,14 @@ const editions = Array.from(editionMap.values())
     );
   });
 
+// WC大会ポータルが生成されるedition一覧
+const publishedWcEditions = new Set(
+  allCallupRows
+    .filter((row) => normalizeCompetition(row.competition) === "WC")
+    .map((row) => clean(row.edition))
+    .filter(Boolean)
+);
+
 /* ===== 国ハブ：代表活動・大会の統合履歴 ===== */
 
 const activityHistory = Array.from(editionMap.values())
@@ -510,13 +518,13 @@ const description =
 >
   <h1 class="country-page-title">{heading}</h1>
 
-
-<div class="lead">
-  {countryJa}代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。
-  <br />
-  ※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
-</div>
-
+  <div class="lead">
+    {
+      countryJa
+    }代表について、当サイトに掲載している最新メンバーと国際大会の招集履歴をまとめています。
+    <br />
+    ※過去の大会データなど未掲載のものについては、順次追加・更新していきます。
+  </div>
 
   <div class="updated-date">
     {latestSnapshot && <>更新日：{latestSnapshot}</>}
@@ -573,7 +581,9 @@ const description =
               ]}
             >
               <div class="activity-history-date">
-                {!item.isIw && item.competition === "WC" ? (
+                {!item.isIw &&
+                item.competition === "WC" &&
+                publishedWcEditions.has(item.edition) ? (
                   <a
                     href={`/wc/${item.edition}/`}
                     class="activity-history-year-link"
@@ -613,7 +623,6 @@ const description =
       </section>
     )
   }
-
 
   {
     sameContinentCountries.length > 0 && (
