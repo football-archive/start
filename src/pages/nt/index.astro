@@ -10,7 +10,7 @@ const heading = "サッカー各国代表一覧";
 const title = "サッカー各国代表一覧｜最新メンバー・背番号・国際大会";
 
 const description =
-  "世界各国のサッカー代表チームを大陸別に掲載。各国代表の最新メンバー・背番号・フォーメーション・招集履歴、ワールドカップなど国際大会の情報をまとめています。";
+  "世界各国のサッカー代表チーム一覧。最新メンバー・背番号・所属クラブ・招集履歴を大陸別に掲載。FIFAワールドカップ、AFCアジアカップなどの国際大会情報もまとめています。";
 
 const competitionCards = [
   {
@@ -23,9 +23,9 @@ const competitionCards = [
   {
     code: "AFC",
     name: "AFCアジアカップ",
-    meta: "2027大会を追加予定",
-    href: "",
-    status: "準備中",
+    meta: "2027大会｜出場国・日程・結果・順位表",
+    href: "/afc/2027/",
+    status: "公開中",
   },
   {
     code: "EURO",
@@ -947,6 +947,34 @@ const countrySections = [...countriesByConfederation.entries()]
         flex-direction: column;
         gap: 2px;
       }
+    }
+
+    /* AFCアジアカップ：紫テーマ */
+    .page-nt-portal .competition-card:has(.competition-code:first-child) {
+      /* 共通カードのデザインは維持 */
+    }
+
+    .page-nt-portal .competition-card:has(.competition-code) {
+      /* 他大会には影響させない */
+    }
+
+    .page-nt-portal .competition-card[href^="/afc/"] {
+      border-color: #d9c5ed;
+      background: #faf7ff;
+    }
+
+    .page-nt-portal .competition-card[href^="/afc/"] .competition-code {
+      background: #eee4fa;
+      color: #7046a6;
+    }
+
+    .page-nt-portal .competition-card[href^="/afc/"] .competition-status {
+      color: #7046a6;
+    }
+
+    .page-nt-portal a.competition-card[href^="/afc/"]:hover {
+      border-color: #7046a6;
+      background: #f3ebfc;
     }
   </style>
 </BaseLayout>
