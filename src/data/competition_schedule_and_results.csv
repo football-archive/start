@@ -1012,3 +1012,54 @@ UCL-2026-27-LP-141,slavia-praha-vs-aston-villa,UCL,2026-27,MD141,League Phase,,L
 UCL-2026-27-LP-142,napoli-vs-viking,UCL,2026-27,MD142,League Phase,,LP 第8節,2027-01-27,SSCナポリ,napoli,バイキングFK,viking,,,,,,,,,
 UCL-2026-27-LP-143,villarreal-vs-manchester-united,UCL,2026-27,MD143,League Phase,,LP 第8節,2027-01-27,ビジャレアルCF,villarreal,マンチェスター・ユナイテッド,manchester-united,,,,,,,,,
 UCL-2026-27-LP-144,slovan-bratislava-vs-inter,UCL,2026-27,MD144,League Phase,,LP 第8節,2027-01-27,スロヴァン・ブラチスラヴァ,slovan-bratislava,インテル・ミラノ,inter,,,,,,,,,
+AFC-2027-01,afc-2027-match-01,AFC,2027,MD001,Group-Phase,A,第1節,2027-01-07,サウジアラビア,サウジアラビア,パレスチナ,パレスチナ,King Fahd Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-02,afc-2027-match-02,AFC,2027,MD002,Group-Phase,A,第1節,2027-01-08,クウェート,クウェート,オマーン,オマーン,King Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-03,afc-2027-match-03,AFC,2027,MD003,Group-Phase,B,第1節,2027-01-08,バーレーン,バーレーン,北朝鮮,北朝鮮,Imam Mohammed Ibn Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-04,afc-2027-match-04,AFC,2027,MD004,Group-Phase,B,第1節,2027-01-08,ウズベキスタン,ウズベキスタン,ヨルダン,ヨルダン,King Abdullah Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-05,afc-2027-match-05,AFC,2027,MD005,Group-Phase,C,第1節,2027-01-09,シリア,シリア,キルギス,キルギス,King Fahd Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-06,afc-2027-match-06,AFC,2027,MD006,Group-Phase,C,第1節,2027-01-09,イラン,イラン,中国,中国,Kingdom Arena,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-07,afc-2027-match-07,AFC,2027,MD007,Group-Phase,D,第1節,2027-01-09,オーストラリア,オーストラリア,シンガポール,シンガポール,Al Khobar Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-08,afc-2027-match-08,AFC,2027,MD008,Group-Phase,D,第1節,2027-01-10,タジキスタン,タジキスタン,イラク,イラク,Al Shabab Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-09,afc-2027-match-09,AFC,2027,MD009,Group-Phase,E,第1節,2027-01-10,韓国,韓国,イエメン,イエメン,King Abdullah Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-10,afc-2027-match-10,AFC,2027,MD010,Group-Phase,E,第1節,2027-01-10,アラブ首長国連邦,アラブ首長国連邦,ベトナム,ベトナム,King Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-11,afc-2027-match-11,AFC,2027,MD011,Group-Phase,F,第1節,2027-01-11,カタール,カタール,タイ,タイ,Imam Mohammed Ibn Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-12,afc-2027-match-12,AFC,2027,MD012,Group-Phase,F,第1節,2027-01-11,日本,日本,インドネシア,インドネシア,Prince Abdullah Al Faisal Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-13,afc-2027-match-13,AFC,2027,MD013,Group-Phase,A,第2節,2027-01-12,オマーン,オマーン,サウジアラビア,サウジアラビア,King Fahd Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-14,afc-2027-match-14,AFC,2027,MD014,Group-Phase,B,第2節,2027-01-13,北朝鮮,北朝鮮,ウズベキスタン,ウズベキスタン,Kingdom Arena,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-15,afc-2027-match-15,AFC,2027,MD015,Group-Phase,A,第2節,2027-01-12,パレスチナ,パレスチナ,クウェート,クウェート,Al Khobar Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-16,afc-2027-match-16,AFC,2027,MD016,Group-Phase,C,第2節,2027-01-13,キルギス,キルギス,イラン,イラン,Al Shabab Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-17,afc-2027-match-17,AFC,2027,MD017,Group-Phase,B,第2節,2027-01-13,ヨルダン,ヨルダン,バーレーン,バーレーン,King Abdullah Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-18,afc-2027-match-18,AFC,2027,MD018,Group-Phase,D,第2節,2027-01-14,イラク,イラク,オーストラリア,オーストラリア,King Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-19,afc-2027-match-19,AFC,2027,MD019,Group-Phase,D,第2節,2027-01-14,シンガポール,シンガポール,タジキスタン,タジキスタン,Imam Mohammed Ibn Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-20,afc-2027-match-20,AFC,2027,MD020,Group-Phase,C,第2節,2027-01-14,中国,中国,シリア,シリア,Prince Abdullah Al Faisal Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-21,afc-2027-match-21,AFC,2027,MD021,Group-Phase,E,第2節,2027-01-15,イエメン,イエメン,アラブ首長国連邦,アラブ首長国連邦,King Fahd Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-22,afc-2027-match-22,AFC,2027,MD022,Group-Phase,E,第2節,2027-01-15,ベトナム,ベトナム,韓国,韓国,Kingdom Arena,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-23,afc-2027-match-23,AFC,2027,MD023,Group-Phase,F,第2節,2027-01-16,タイ,タイ,日本,日本,Al Shabab Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-24,afc-2027-match-24,AFC,2027,MD024,Group-Phase,F,第2節,2027-01-16,インドネシア,インドネシア,カタール,カタール,Al Khobar Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-25,afc-2027-match-25,AFC,2027,MD025,Group-Phase,A,第3節,2027-01-17,オマーン,オマーン,パレスチナ,パレスチナ,King Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-26,afc-2027-match-26,AFC,2027,MD026,Group-Phase,B,第3節,2027-01-18,北朝鮮,北朝鮮,ヨルダン,ヨルダン,Imam Mohammed Ibn Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-27,afc-2027-match-27,AFC,2027,MD027,Group-Phase,A,第3節,2027-01-17,サウジアラビア,サウジアラビア,クウェート,クウェート,King Abdullah Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-28,afc-2027-match-28,AFC,2027,MD028,Group-Phase,B,第3節,2027-01-18,ウズベキスタン,ウズベキスタン,バーレーン,バーレーン,Prince Abdullah Al Faisal Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-29,afc-2027-match-29,AFC,2027,MD029,Group-Phase,C,第3節,2027-01-18,イラン,イラン,シリア,シリア,King Fahd Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-30,afc-2027-match-30,AFC,2027,MD030,Group-Phase,C,第3節,2027-01-18,キルギス,キルギス,中国,中国,Kingdom Arena,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-31,afc-2027-match-31,AFC,2027,MD031,Group-Phase,D,第3節,2027-01-19,オーストラリア,オーストラリア,タジキスタン,タジキスタン,Al Shabab Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-32,afc-2027-match-32,AFC,2027,MD032,Group-Phase,D,第3節,2027-01-19,イラク,イラク,シンガポール,シンガポール,Al Khobar Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-33,afc-2027-match-33,AFC,2027,MD033,Group-Phase,E,第3節,2027-01-20,韓国,韓国,アラブ首長国連邦,アラブ首長国連邦,King Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-34,afc-2027-match-34,AFC,2027,MD034,Group-Phase,F,第3節,2027-01-20,日本,日本,カタール,カタール,Imam Mohammed Ibn Saud University Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-35,afc-2027-match-35,AFC,2027,MD035,Group-Phase,F,第3節,2027-01-20,タイ,タイ,インドネシア,インドネシア,King Abdullah Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-36,afc-2027-match-36,AFC,2027,MD036,Group-Phase,E,第3節,2027-01-20,ベトナム,ベトナム,イエメン,イエメン,Prince Abdullah Al Faisal Sports City Stadium,,,,,,,日付はサウジアラビア現地日付。時刻未掲載のため日付のみ。Wikipedia抽選後対戦表・AFC公式2026年2月版会場表を照合。,2026/10/15
+AFC-2027-37,afc-2027-match-37,AFC,2027,MD037,Round16,,,2027-01-22,グループA2位,,グループC2位,,Kingdom Arena,,,,,,,AFC公式2026年2月版日程表：2A vs 2C。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-38,afc-2027-match-38,AFC,2027,MD038,Round16,,,2027-01-22,グループB1位,,グループACD3位の進出国,,Al Shabab Stadium,,,,,,,AFC公式2026年2月版日程表：1B vs 3ACD。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-39,afc-2027-match-39,AFC,2027,MD039,Round16,,,2027-01-23,グループD1位,,グループBEF3位の進出国,,Imam Mohammed Ibn Saud University Stadium,,,,,,,AFC公式2026年2月版日程表：1D vs 3BEF。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-40,afc-2027-match-40,AFC,2027,MD040,Round16,,,2027-01-23,グループA1位,,グループCDE3位の進出国,,Al Khobar Stadium,,,,,,,AFC公式2026年2月版日程表：1A vs 3CDE。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-41,afc-2027-match-41,AFC,2027,MD041,Round16,,,2027-01-24,グループF1位,,グループE2位,,King Fahd Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：1F vs 2E。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-42,afc-2027-match-42,AFC,2027,MD042,Round16,,,2027-01-24,グループB2位,,グループF2位,,Prince Abdullah Al Faisal Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：2B vs 2F。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-43,afc-2027-match-43,AFC,2027,MD043,Round16,,,2027-01-25,グループE1位,,グループD2位,,King Saud University Stadium,,,,,,,AFC公式2026年2月版日程表：1E vs 2D。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-44,afc-2027-match-44,AFC,2027,MD044,Round16,,,2027-01-25,グループC1位,,グループABF3位の進出国,,King Abdullah Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：1C vs 3ABF。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-45,afc-2027-match-45,AFC,2027,MD045,Quarter-Final,,,2027-01-28,第37試合勝者,,第39試合勝者,,Kingdom Arena,,,,,,,AFC公式2026年2月版日程表：W37 vs W39。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-46,afc-2027-match-46,AFC,2027,MD046,Quarter-Final,,,2027-01-28,第38試合勝者,,第41試合勝者,,King Abdullah Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：W38 vs W41。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-47,afc-2027-match-47,AFC,2027,MD047,Quarter-Final,,,2027-01-29,第44試合勝者,,第43試合勝者,,King Fahd Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：W44 vs W43。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-48,afc-2027-match-48,AFC,2027,MD048,Quarter-Final,,,2027-01-29,第40試合勝者,,第42試合勝者,,Al Khobar Stadium,,,,,,,AFC公式2026年2月版日程表：W40 vs W42。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-49,afc-2027-match-49,AFC,2027,MD049,Semi-Final,,,2027-02-01,第45試合勝者,,第46試合勝者,,Al Khobar Stadium,,,,,,,AFC公式2026年2月版日程表：W45 vs W46。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-50,afc-2027-match-50,AFC,2027,MD050,Semi-Final,,,2027-02-02,第47試合勝者,,第48試合勝者,,King Abdullah Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：W47 vs W48。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15
+AFC-2027-51,afc-2027-match-51,AFC,2027,MD051,Final,,,2027-02-05,第49試合勝者,,第50試合勝者,,King Fahd Sports City Stadium,,,,,,,AFC公式2026年2月版日程表：W49 vs W50。進出国未確定。現地日付のみ、時刻未入力。,2026/10/15

@@ -133,109 +133,109 @@
 <path d="M 1380 549 H 1352.5 V 549 H 1325" fill="none" stroke="#222222" stroke-width="3"/>
 <rect x="40" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="40" y1="234" x2="320" y2="234" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="52" y="202">ブラジル</text>
+<text class="team" x="52" y="202" style="font-size:29px">ブラジル</text>
 <text class="rank" x="53" y="231">A組1位</text>
 <text class="score" x="308" y="205" text-anchor="end">1 PK3</text>
-<text class="team" x="52" y="266">チリ</text>
+<text class="team" x="52" y="266" style="font-size:29px">チリ</text>
 <text class="rank" x="53" y="295">B組2位</text>
 <text class="score" x="308" y="269" text-anchor="end">1 PK2</text>
 <rect x="40" y="380" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="40" y1="444" x2="320" y2="444" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="52" y="412">コロンビア</text>
+<text class="team" x="52" y="412" style="font-size:29px">コロンビア</text>
 <text class="rank" x="53" y="441">C組1位</text>
 <text class="score" x="308" y="415" text-anchor="end">2</text>
-<text class="team" x="52" y="476">ウルグアイ</text>
+<text class="team" x="52" y="476" style="font-size:29px">ウルグアイ</text>
 <text class="rank" x="53" y="505">D組2位</text>
 <text class="score" x="308" y="479" text-anchor="end">0</text>
 <rect x="375" y="275" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="375" y1="339" x2="655" y2="339" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="387" y="307">ブラジル</text>
+<text class="team" x="387" y="307" style="font-size:29px">ブラジル</text>
 <text class="score" x="643" y="310" text-anchor="end">2</text>
-<text class="team" x="387" y="371">コロンビア</text>
+<text class="team" x="387" y="371" style="font-size:29px">コロンビア</text>
 <text class="score" x="643" y="374" text-anchor="end">1</text>
 <rect x="40" y="590" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="40" y1="654" x2="320" y2="654" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="52" y="622">フランス</text>
+<text class="team" x="52" y="622" style="font-size:29px">フランス</text>
 <text class="rank" x="53" y="651">E組1位</text>
 <text class="score" x="308" y="625" text-anchor="end">2</text>
-<text class="team" x="52" y="686">ナイジェリア</text>
+<text class="team" x="52" y="686" style="font-size:29px">ナイジェリア</text>
 <text class="rank" x="53" y="715">F組2位</text>
 <text class="score" x="308" y="689" text-anchor="end">0</text>
 <rect x="40" y="800" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="40" y1="864" x2="320" y2="864" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="52" y="832">ドイツ</text>
+<text class="team" x="52" y="832" style="font-size:29px">ドイツ</text>
 <text class="rank" x="53" y="861">G組1位</text>
 <text class="score" x="308" y="835" text-anchor="end">2</text>
-<text class="team" x="52" y="896">アルジェリア</text>
+<text class="team" x="52" y="896" style="font-size:29px">アルジェリア</text>
 <text class="rank" x="53" y="925">H組2位</text>
 <text class="score" x="308" y="899" text-anchor="end">1</text>
 <rect x="375" y="695" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="375" y1="759" x2="655" y2="759" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="387" y="727">フランス</text>
+<text class="team" x="387" y="727" style="font-size:29px">フランス</text>
 <text class="score" x="643" y="730" text-anchor="end">0</text>
-<text class="team" x="387" y="791">ドイツ</text>
+<text class="team" x="387" y="791" style="font-size:29px">ドイツ</text>
 <text class="score" x="643" y="794" text-anchor="end">1</text>
 <rect x="710" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="710" y1="549" x2="990" y2="549" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="722" y="517">ブラジル</text>
+<text class="team" x="722" y="517" style="font-size:29px">ブラジル</text>
 <text class="score" x="978" y="520" text-anchor="end">1</text>
-<text class="team" x="722" y="581">ドイツ</text>
+<text class="team" x="722" y="581" style="font-size:29px">ドイツ</text>
 <text class="score" x="978" y="584" text-anchor="end">7</text>
 <rect x="2050" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="2050" y1="234" x2="2330" y2="234" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="2062" y="202">オランダ</text>
+<text class="team" x="2062" y="202" style="font-size:29px">オランダ</text>
 <text class="rank" x="2063" y="231">B組1位</text>
 <text class="score" x="2318" y="205" text-anchor="end">2</text>
-<text class="team" x="2062" y="266">メキシコ</text>
+<text class="team" x="2062" y="266" style="font-size:29px">メキシコ</text>
 <text class="rank" x="2063" y="295">A組2位</text>
 <text class="score" x="2318" y="269" text-anchor="end">1</text>
 <rect x="2050" y="380" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="2050" y1="444" x2="2330" y2="444" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="2062" y="412">コスタリカ</text>
+<text class="team" x="2062" y="412" style="font-size:29px">コスタリカ</text>
 <text class="rank" x="2063" y="441">D組1位</text>
 <text class="score" x="2318" y="415" text-anchor="end">1 PK5</text>
-<text class="team" x="2062" y="476">ギリシャ</text>
+<text class="team" x="2062" y="476" style="font-size:29px">ギリシャ</text>
 <text class="rank" x="2063" y="505">C組2位</text>
 <text class="score" x="2318" y="479" text-anchor="end">1 PK3</text>
 <rect x="1715" y="275" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="1715" y1="339" x2="1995" y2="339" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="1727" y="307">オランダ</text>
+<text class="team" x="1727" y="307" style="font-size:29px">オランダ</text>
 <text class="score" x="1983" y="310" text-anchor="end">0 PK4</text>
-<text class="team" x="1727" y="371">コスタリカ</text>
+<text class="team" x="1727" y="371" style="font-size:29px">コスタリカ</text>
 <text class="score" x="1983" y="374" text-anchor="end">0 PK3</text>
 <rect x="2050" y="590" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="2050" y1="654" x2="2330" y2="654" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="2062" y="622">アルゼンチン</text>
+<text class="team" x="2062" y="622" style="font-size:29px">アルゼンチン</text>
 <text class="rank" x="2063" y="651">F組1位</text>
 <text class="score" x="2318" y="625" text-anchor="end">1</text>
-<text class="team" x="2062" y="686">スイス</text>
+<text class="team" x="2062" y="686" style="font-size:29px">スイス</text>
 <text class="rank" x="2063" y="715">E組2位</text>
 <text class="score" x="2318" y="689" text-anchor="end">0</text>
 <rect x="2050" y="800" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="2050" y1="864" x2="2330" y2="864" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="2062" y="832">ベルギー</text>
+<text class="team" x="2062" y="832" style="font-size:29px">ベルギー</text>
 <text class="rank" x="2063" y="861">H組1位</text>
 <text class="score" x="2318" y="835" text-anchor="end">2</text>
-<text class="team" x="2062" y="896">アメリカ</text>
+<text class="team" x="2062" y="896" style="font-size:29px">アメリカ</text>
 <text class="rank" x="2063" y="925">G組2位</text>
 <text class="score" x="2318" y="899" text-anchor="end">1</text>
 <rect x="1715" y="695" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="1715" y1="759" x2="1995" y2="759" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="1727" y="727">アルゼンチン</text>
+<text class="team" x="1727" y="727" style="font-size:29px">アルゼンチン</text>
 <text class="score" x="1983" y="730" text-anchor="end">1</text>
-<text class="team" x="1727" y="791">ベルギー</text>
+<text class="team" x="1727" y="791" style="font-size:29px">ベルギー</text>
 <text class="score" x="1983" y="794" text-anchor="end">0</text>
 <rect x="1380" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
 <line x1="1380" y1="549" x2="1660" y2="549" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="1392" y="517">オランダ</text>
+<text class="team" x="1392" y="517" style="font-size:29px">オランダ</text>
 <text class="score" x="1648" y="520" text-anchor="end">0 PK2</text>
-<text class="team" x="1392" y="581">アルゼンチン</text>
+<text class="team" x="1392" y="581" style="font-size:29px">アルゼンチン</text>
 <text class="score" x="1648" y="584" text-anchor="end">0 PK4</text>
 <rect x="1045" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#7a1830" stroke-width="3"/>
 <line x1="1045" y1="549" x2="1325" y2="549" stroke="#e6e1e3" stroke-width="2"/>
-<text class="team" x="1057" y="517">ドイツ</text>
+<text class="team" x="1057" y="517" style="font-size:29px">ドイツ</text>
 <text class="score" x="1313" y="520" text-anchor="end">1</text>
-<text class="team" x="1057" y="581">アルゼンチン</text>
+<text class="team" x="1057" y="581" style="font-size:29px">アルゼンチン</text>
 <text class="score" x="1313" y="584" text-anchor="end">0</text>
 <text class="champ" x="1185" y="460" text-anchor="middle">優勝</text>
 <text class="champ" x="1185" y="658" text-anchor="middle">ドイツ</text>

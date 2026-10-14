@@ -1,0 +1,226 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2370" height="998" viewBox="0 0 2370 998" role="img" aria-labelledby="title desc">
+<title id="title">2027 AFCアジアカップ 決勝トーナメント</title>
+<desc id="desc">試合データから自動生成した決勝トーナメント表</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#7046a6}
+    .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: #7046a6;}
+.rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
+.score{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#7046a6}
+    .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+  </style>
+<text class="title" x="1185" y="64" text-anchor="middle">2027 AFCアジアカップ　決勝トーナメント</text>
+<rect
+      x="40"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="180"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >ベスト16</text>
+<rect
+      x="2050"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="2190"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >ベスト16</text>
+<rect
+      x="375"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="515"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="1715"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="1855"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="710"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="850"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="1380"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="1520"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="1045"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="1185"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >決勝</text>
+<path d="M 655 339 H 682.5 V 549 H 710" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 320 234 H 347.5 V 339 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 320 444 H 347.5 V 339 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 655 759 H 682.5 V 549 H 710" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 320 654 H 347.5 V 759 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 320 864 H 347.5 V 759 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1715 339 H 1687.5 V 549 H 1660" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2050 234 H 2022.5 V 339 H 1995" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2050 444 H 2022.5 V 339 H 1995" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1715 759 H 1687.5 V 549 H 1660" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2050 654 H 2022.5 V 759 H 1995" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 2050 864 H 2022.5 V 759 H 1995" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 990 549 H 1017.5 V 549 H 1045" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1380 549 H 1352.5 V 549 H 1325" fill="none" stroke="#222222" stroke-width="3"/>
+<rect x="40" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="234" x2="320" y2="234" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="202" style="font-size:29px">グループA2位</text>
+<text class="score" x="308" y="205" text-anchor="end"></text>
+<text class="team" x="52" y="266" style="font-size:29px">グループC2位</text>
+<text class="score" x="308" y="269" text-anchor="end"></text>
+<rect x="40" y="380" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="444" x2="320" y2="444" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="412" style="font-size:29px">グループD1位</text>
+<text class="score" x="308" y="415" text-anchor="end"></text>
+<text class="team" x="52" y="476" style="font-size:21px">グループBEF3位の進出国</text>
+<text class="score" x="308" y="479" text-anchor="end"></text>
+<rect x="375" y="275" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="375" y1="339" x2="655" y2="339" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="387" y="307" style="font-size:29px">第37試合勝者</text>
+<text class="score" x="643" y="310" text-anchor="end"></text>
+<text class="team" x="387" y="371" style="font-size:29px">第39試合勝者</text>
+<text class="score" x="643" y="374" text-anchor="end"></text>
+<rect x="40" y="590" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="654" x2="320" y2="654" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="622" style="font-size:29px">グループB1位</text>
+<text class="score" x="308" y="625" text-anchor="end"></text>
+<text class="team" x="52" y="686" style="font-size:21px">グループACD3位の進出国</text>
+<text class="score" x="308" y="689" text-anchor="end"></text>
+<rect x="40" y="800" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="864" x2="320" y2="864" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="832" style="font-size:29px">グループF1位</text>
+<text class="score" x="308" y="835" text-anchor="end"></text>
+<text class="team" x="52" y="896" style="font-size:29px">グループE2位</text>
+<text class="score" x="308" y="899" text-anchor="end"></text>
+<rect x="375" y="695" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="375" y1="759" x2="655" y2="759" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="387" y="727" style="font-size:29px">第38試合勝者</text>
+<text class="score" x="643" y="730" text-anchor="end"></text>
+<text class="team" x="387" y="791" style="font-size:29px">第41試合勝者</text>
+<text class="score" x="643" y="794" text-anchor="end"></text>
+<rect x="710" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="710" y1="549" x2="990" y2="549" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="722" y="517" style="font-size:29px">第45試合勝者</text>
+<text class="score" x="978" y="520" text-anchor="end"></text>
+<text class="team" x="722" y="581" style="font-size:29px">第46試合勝者</text>
+<text class="score" x="978" y="584" text-anchor="end"></text>
+<rect x="2050" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2050" y1="234" x2="2330" y2="234" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2062" y="202" style="font-size:29px">グループC1位</text>
+<text class="score" x="2318" y="205" text-anchor="end"></text>
+<text class="team" x="2062" y="266" style="font-size:21px">グループABF3位の進出国</text>
+<text class="score" x="2318" y="269" text-anchor="end"></text>
+<rect x="2050" y="380" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2050" y1="444" x2="2330" y2="444" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2062" y="412" style="font-size:29px">グループE1位</text>
+<text class="score" x="2318" y="415" text-anchor="end"></text>
+<text class="team" x="2062" y="476" style="font-size:29px">グループD2位</text>
+<text class="score" x="2318" y="479" text-anchor="end"></text>
+<rect x="1715" y="275" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1715" y1="339" x2="1995" y2="339" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1727" y="307" style="font-size:29px">第44試合勝者</text>
+<text class="score" x="1983" y="310" text-anchor="end"></text>
+<text class="team" x="1727" y="371" style="font-size:29px">第43試合勝者</text>
+<text class="score" x="1983" y="374" text-anchor="end"></text>
+<rect x="2050" y="590" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2050" y1="654" x2="2330" y2="654" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2062" y="622" style="font-size:29px">グループA1位</text>
+<text class="score" x="2318" y="625" text-anchor="end"></text>
+<text class="team" x="2062" y="686" style="font-size:21px">グループCDE3位の進出国</text>
+<text class="score" x="2318" y="689" text-anchor="end"></text>
+<rect x="2050" y="800" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="2050" y1="864" x2="2330" y2="864" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="2062" y="832" style="font-size:29px">グループB2位</text>
+<text class="score" x="2318" y="835" text-anchor="end"></text>
+<text class="team" x="2062" y="896" style="font-size:29px">グループF2位</text>
+<text class="score" x="2318" y="899" text-anchor="end"></text>
+<rect x="1715" y="695" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1715" y1="759" x2="1995" y2="759" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1727" y="727" style="font-size:29px">第40試合勝者</text>
+<text class="score" x="1983" y="730" text-anchor="end"></text>
+<text class="team" x="1727" y="791" style="font-size:29px">第42試合勝者</text>
+<text class="score" x="1983" y="794" text-anchor="end"></text>
+<rect x="1380" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1380" y1="549" x2="1660" y2="549" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1392" y="517" style="font-size:29px">第47試合勝者</text>
+<text class="score" x="1648" y="520" text-anchor="end"></text>
+<text class="team" x="1392" y="581" style="font-size:29px">第48試合勝者</text>
+<text class="score" x="1648" y="584" text-anchor="end"></text>
+<rect x="1045" y="485" width="280" height="128" rx="5" fill="#fff" stroke="#7046a6" stroke-width="3"/>
+<line x1="1045" y1="549" x2="1325" y2="549" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1057" y="517" style="font-size:29px">第49試合勝者</text>
+<text class="score" x="1313" y="520" text-anchor="end"></text>
+<text class="team" x="1057" y="581" style="font-size:29px">第50試合勝者</text>
+<text class="score" x="1313" y="584" text-anchor="end"></text>
+<text class="champ" x="1185" y="460" text-anchor="middle">優勝</text>
+<text class="champ" x="1185" y="658" text-anchor="middle"></text>
+</svg>

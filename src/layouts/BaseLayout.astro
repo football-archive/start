@@ -193,29 +193,33 @@ const isProd = import.meta.env.PROD;
         --color-japan: #1f4fa3; /* 日本：SAMURAI BLUE */
         --color-club: #2f855a; /* クラブ：仮グリーン（試験） */
         --color-awards: #c9a227; /* 表彰：金 */
-        --color-euro: #6b7280; /* EURO：グレー仮置き */
+        /* 大陸選手権 */
+        --color-continental: #7046a6;
+        --color-afc: var(--color-continental);
+        --color-euro: var(--color-continental);
 
         /* ★ default theme（未指定時の基準） */
-        --theme-color: var(--color-euro);
+        --theme-color: var(--color-wc);
 
         --color-club-accent: #2f855a; /* クラブ強調用（試験） */
 
-        /* ===== Derived tokens ===== */
-        --theme-link: var(--theme-color);
-        --theme-soft-bg: color-mix(in srgb, var(--theme-color) 64%, #ffffff);
-        --theme-soft-border: color-mix(
-          in srgb,
-          var(--theme-color) 82%,
-          var(--border)
-        );
       }
 
-      body {
-        --theme-table-head-bg: color-mix(
-          in srgb,
-          var(--theme-color) 38%,
-          #ffffff
-        );
+body {
+  /* ===== Derived tokens ===== */
+  --theme-link: var(--theme-color);
+  --theme-soft-bg: color-mix(in srgb, var(--theme-color) 64%, #ffffff);
+  --theme-soft-border: color-mix(
+    in srgb,
+    var(--theme-color) 82%,
+    var(--border)
+  );
+
+  --theme-table-head-bg: color-mix(
+    in srgb,
+    var(--theme-color) 38%,
+    #ffffff
+  );
         --theme-table-head-border: color-mix(
           in srgb,
           var(--theme-color) 55%,
@@ -249,6 +253,9 @@ const isProd = import.meta.env.PROD;
       }
       body.page-euro {
         --theme-color: var(--color-euro);
+      }
+      body.page-afc {
+        --theme-color: var(--color-afc);
       }
 
       /* ===== Theme switch by scope (home cards etc.) ===== */

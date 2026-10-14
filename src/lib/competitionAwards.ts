@@ -15,7 +15,7 @@ export type CompetitionAwardRow = {
 
 const norm = (v: unknown) => String(v ?? "").trim();
 
-export function loadCompetitionAwards(): AwardRow[] {
+export function loadCompetitionAwards(): CompetitionAwardRow[] {
   const csv = readFileSync("src/data/competition_awards.csv", "utf-8");
   const rows = parseCsv(csv) as any[];
   return rows.map((r) => ({
@@ -23,7 +23,7 @@ export function loadCompetitionAwards(): AwardRow[] {
     edition: norm(r.edition),
     award_key: norm(r.award_key),
     award_name: norm(r.award_name),
-    rank: norm(r.rank),
+    sort: Number(norm(r.sort)) || 9999,
     player: norm(r.player),
     team: norm(r.team),
     note: norm(r.note),

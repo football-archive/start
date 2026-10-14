@@ -7,6 +7,10 @@ const SCHEDULE_PATH = path.resolve(
   "src/data/competition_schedule_and_results.csv",
 );
 const GROUPS_PATH = path.resolve(ROOT, "src/data/tournament_groups_master.csv");
+const CONNECTIONS_PATH = path.resolve(
+  ROOT,
+  "src/data/tournament_bracket_connections.csv",
+);
 const OUTPUT_DIR = path.resolve(ROOT, "public/images/brackets");
 
 const TARGETS = [
@@ -17,6 +21,7 @@ const TARGETS = [
   { competition: "WC", edition: "2010" },
   { competition: "WC", edition: "2006" },
   { competition: "WC", edition: "2002" },
+  { competition: "AFC", edition: "2027" },
 ];
 
 const COLORS = {
@@ -182,7 +187,17 @@ function flattenLeaves(node) {
   return node.children.flatMap(flattenLeaves);
 }
 
-function renderBracket({ competition, edition, matches, groupRows }) {
+function renderBracket({
+  competition,
+  edition,
+  matches,
+  groupRows,
+  connections = [],
+}) {
+  const themeColor =
+    competition === "AFC" && edition === "2027" ? "#7046a6" : COLORS.theme;
+  const tournamentName =
+    competition === "AFC" ? "AFCアジアカップ" : "FIFAワールドカップ";
   const knockout = matches
     .map((m) => ({ ...m, _stage: normStage(m.stage) }))
     .filter((m) => m._stage);
@@ -212,17 +227,55 @@ function renderBracket({ competition, edition, matches, groupRows }) {
 
   function buildActiveTree(match, index) {
     const node = { match, children: [] };
+
     if (index <= 0) return node;
+
     const prevStage = activeOrder[index - 1];
     const candidates = matchesByStage.get(prevStage) ?? [];
+
+    // AFC2027：試合IDによる接続
+    if (competition === "AFC" && edition === "2027") {
+      const connection = connections.find(
+        (r) =>
+          r.competition === competition &&
+          r.edition === edition &&
+          r.match_id === match["match-id"],
+      );
+
+      if (!connection) {
+        throw new Error(
+          `${competition} ${edition}: ${match["match-id"]} の接続情報がありません。`,
+        );
+      }
+
+      for (const sourceId of [connection.home_from, connection.away_from]) {
+        const prior = candidates.find((m) => m["match-id"] === sourceId);
+
+        if (!prior) {
+          throw new Error(
+            `${competition} ${edition}: 接続元 ${sourceId} が見つかりません。`,
+          );
+        }
+
+        node.children.push(buildActiveTree(prior, index - 1));
+      }
+
+      return node;
+    }
+
+    // 既存WC：勝者の国名から逆引き
     for (const team of [match.home, match.away]) {
       const prior = candidates.find((m) => winner(m) === team);
-      if (!prior)
+
+      if (!prior) {
         throw new Error(
           `${competition} ${edition}: ${prevStage}で${team}の勝ち上がり元が見つかりません。`,
         );
+      }
+
       node.children.push(buildActiveTree(prior, index - 1));
     }
+
     return node;
   }
 
@@ -308,23 +361,23 @@ function renderBracket({ competition, edition, matches, groupRows }) {
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">`,
   );
   parts.push(
-    `<title id="title">${esc(edition)} FIFAワールドカップ 決勝トーナメント</title>`,
+    `<title id="title">${esc(edition)} ${esc(tournamentName)} 決勝トーナメント</title>`,
   );
   parts.push(
     `<desc id="desc">試合データから自動生成した決勝トーナメント表</desc>`,
   );
   parts.push(`<rect width="100%" height="100%" fill="${COLORS.background}"/>`);
   parts.push(`<style>
-    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${themeColor}}
     .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
-.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: ${COLORS.theme};}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: ${themeColor};}
 .rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
 .score{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;}
-    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${themeColor}}
     .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
   </style>`);
 
-  const title = `${edition} FIFAワールドカップ　決勝トーナメント`;
+  const title = `${edition} ${tournamentName}　決勝トーナメント`;
   parts.push(
     `<text class="title" x="${width / 2}" y="64" text-anchor="middle">${esc(title)}</text>`,
   );
@@ -337,7 +390,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       width="${cardW}"
       height="${headerH}"
       rx="4"
-      fill="${COLORS.theme}"
+      fill="${themeColor}"
     />`,
     );
 
@@ -395,7 +448,7 @@ function renderBracket({ competition, edition, matches, groupRows }) {
     const topY = y - cardH / 2;
     const isFinal = m._stage === "F";
     parts.push(
-      `<rect x="${x}" y="${topY}" width="${cardW}" height="${cardH}" rx="5" fill="#fff" stroke="${isFinal ? COLORS.theme : COLORS.line}" stroke-width="${isFinal ? 3 : 2}"/>`,
+      `<rect x="${x}" y="${topY}" width="${cardW}" height="${cardH}" rx="5" fill="#fff" stroke="${isFinal ? themeColor : COLORS.line}" stroke-width="${isFinal ? 3 : 2}"/>`,
     );
     parts.push(
       `<line x1="${x}" y1="${y}" x2="${x + cardW}" y2="${y}" stroke="${COLORS.separator}" stroke-width="2"/>`,
@@ -407,8 +460,13 @@ function renderBracket({ competition, edition, matches, groupRows }) {
       { team: m.away, score: scoreFor(m, "away"), rowTop: y },
     ];
     for (const row of rows) {
+      const teamName = String(row.team ?? "");
+
+      const fontSize =
+        teamName.length >= 15 ? 17 : teamName.length >= 11 ? 21 : 29;
+
       parts.push(
-        `<text class="team" x="${x + 12}" y="${row.rowTop + 32}">${esc(row.team)}</text>`,
+        `<text class="team" x="${x + 12}" y="${row.rowTop + 32}" style="font-size:${fontSize}px">${esc(teamName)}</text>`,
       );
       if (showRank && groupRank.has(row.team)) {
         parts.push(
@@ -429,7 +487,8 @@ function renderBracket({ competition, edition, matches, groupRows }) {
   drawAll(root.children[1]);
   drawCard(root);
 
-  const champion = winner(finalMatch);
+  const champion =
+    competition === "AFC" && edition === "2027" ? "" : winner(finalMatch);
   parts.push(
     `<text class="champ" x="${centerX + cardW / 2}" y="${finalY - cardH / 2 - 25}" text-anchor="middle">優勝</text>`,
   );
@@ -540,6 +599,10 @@ function main() {
   const groups = parseCsv(fs.readFileSync(GROUPS_PATH, "utf8"));
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
 
+  const connections = fs.existsSync(CONNECTIONS_PATH)
+    ? parseCsv(fs.readFileSync(CONNECTIONS_PATH, "utf8"))
+    : [];
+
   for (const target of TARGETS) {
     const matches = schedule.filter(
       (r) =>
@@ -552,7 +615,12 @@ function main() {
         r.edition === target.edition &&
         r.stage === "group",
     );
-    const svg = renderBracket({ ...target, matches, groupRows });
+    const svg = renderBracket({
+      ...target,
+      matches,
+      groupRows,
+      connections,
+    });
     const filename = `${target.competition.toLowerCase()}-${target.edition}.svg`;
     const outputPath = path.join(OUTPUT_DIR, filename);
     fs.writeFileSync(outputPath, svg, "utf8");

@@ -24,6 +24,8 @@ import {
 
 import { getAwards } from "../../../lib/competitionAwards";
 
+import { loadCallups } from "../../../lib/callups";
+
 // --------------------
 // getStaticPaths：callups に存在する edition を自動列挙
 // --------------------
@@ -324,7 +326,25 @@ const normalizeAwardMatchText = (value: unknown) =>
     .replace(/　/g, " ")
     .replace(/\s+/g, " ");
 const makeAwardCallupKey = (player: unknown) => normalizeAwardMatchText(player);
+// AFCの当該大会に登録された代表メンバー
+const afcCallups = (loadCallups() as any[]).filter(
+  (r) =>
+    String(r.competition ?? "").trim() === "AFC" &&
+    String(r.edition ?? "").trim() === String(year),
+);
+
 const callupByAwardKey = new Map<string, any>();
+
+for (const r of afcCallups) {
+  const key = makeAwardCallupKey(r.name_ja);
+  if (!key) continue;
+
+  callupByAwardKey.set(key, r);
+}
+
+const hasAwardStats = afcCallups.some(
+  (r) => String(r.apps ?? "").trim() !== "",
+);
 
 for (const r of filtered as any[]) {
   const playerName = r.name_ja; // 実際の選手名列を使用
@@ -341,10 +361,6 @@ const awardRows = awardRowsRaw.map((award) => {
     ...award,
     callup,
   };
-});
-const hasAwardStats = filtered.some((r: any) => {
-  const appearances = String(r.apps ?? "").trim();
-  return appearances !== "";
 });
 
 const wcEditionCandidates = [

@@ -1,0 +1,1275 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import { loadGroups, getGroupsList } from "../../../lib/tournamentGroups";
+import MatchScheduleTable from "../../../components/MatchScheduleTable.astro";
+import {
+  loadCompetitionSchedule,
+  filterMatches,
+  mdNum,
+} from "../../../lib/competitionSchedule";
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "../../../lib/csvSimple";
+import {
+  getGoalRanking,
+  getAssistRanking,
+  getEventTeamCount,
+  addRank,
+} from "../../../lib/matchEvents";
+import { getAwards } from "../../../lib/competitionAwards";
+import { loadCallups } from "../../../lib/callups";
+import { fmtJP } from "../../../lib/updates";
+import { toYMD } from "../../../lib/rosterFormat";
+
+export function getStaticPaths() {
+  return [{ params: { year: "2027" } }];
+}
+
+const year = Astro.params.year;
+const editions = [{ year: "2027", label: "2027" }];
+const matches = filterMatches(
+  loadCompetitionSchedule(),
+  "AFC",
+  String(year),
+).sort((a, b) => mdNum(a.md) - mdNum(b.md));
+const groupRows = loadGroups("AFC", year);
+const groups = getGroupsList(groupRows);
+
+// WCと同じグループ別データ構造
+const groupSets: Record<
+  string,
+  {
+    name: string;
+    is_placeholder: boolean;
+  }[]
+> = {};
+
+const standingsByGroup = new Map<string, any[]>();
+
+for (const r of groupRows as any[]) {
+  const g = String(r.group ?? "").trim();
+  if (!g) continue;
+
+  const name = String(r.country_name_ja || r.country_key || "").trim();
+
+  if (!groupSets[g]) groupSets[g] = [];
+
+  if (name) {
+    groupSets[g].push({
+      name,
+      is_placeholder: String(r.is_placeholder ?? "0") === "1",
+    });
+  }
+
+  if (!standingsByGroup.has(g)) {
+    standingsByGroup.set(g, []);
+  }
+  standingsByGroup.get(g)!.push(r);
+}
+
+// WCと同じ順位・スロット順
+for (const list of standingsByGroup.values()) {
+  list.sort((a, b) => {
+    const ra = Number(a.rank ?? 0);
+    const rb = Number(b.rank ?? 0);
+    if (ra && rb) return ra - rb;
+    return Number(a.slot ?? 999) - Number(b.slot ?? 999);
+  });
+}
+
+const teams = groupRows
+  .filter((r: any) => String(r.is_placeholder ?? "0") !== "1")
+  .map((r: any) => ({
+    name: String(r.country_name_ja ?? "").trim(),
+    key: String(r.country_key ?? "").trim(),
+    route: String(r.route_param || r.country_key || "").trim(),
+    group: String(r.group ?? "").trim(),
+    slot: Number(r.slot ?? 999),
+  }))
+  .filter((t) => t.name && t.route)
+  .sort((a, b) => a.group.localeCompare(b.group) || a.slot - b.slot);
+
+const readCsv = (fileName: string) =>
+  parseCsv(
+    fs.readFileSync(path.join(process.cwd(), "src", "data", fileName), "utf-8"),
+  ) as Record<string, string>[];
+
+const countryMaster = readCsv("country_master.csv");
+
+const metaSlugs = new Set(
+  readCsv("nt_tournament_meta.csv")
+    .map((r) => String(r.team_slug ?? "").trim())
+    .filter(Boolean),
+);
+
+const callupCountries = new Set(
+  readCsv("callups_site.csv")
+    .map((r) => String(r.country ?? "").trim())
+    .filter(Boolean),
+);
+
+const ntSlugByCountryName = new Map(
+  countryMaster
+    .filter(
+      (r) =>
+        metaSlugs.has(String(r.country_key ?? "").trim()) ||
+        callupCountries.has(String(r.country_name_ja ?? "").trim()),
+    )
+    .map((r) => [
+      String(r.country_name_ja ?? "").trim(),
+      String(r.country_key ?? "").trim(),
+    ]),
+);
+
+// AFCアジアカップの得点・アシストランキング
+// AFCアジアカップの得点・アシストランキング
+const goalRanking = addRank(getGoalRanking("AFC", String(year)), "goals");
+
+const assistRanking = addRank(getAssistRanking("AFC", String(year)), "assists");
+
+const eventTeamCount = getEventTeamCount("AFC", String(year));
+const awardRowsRaw = getAwards("AFC", String(year));
+
+const normalizeAwardMatchText = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+
+const makeAwardCallupKey = (player: unknown) => normalizeAwardMatchText(player);
+
+// AFCの当該大会に登録された代表メンバー
+const afcCallups = (loadCallups() as any[]).filter(
+  (r) =>
+    String(r.competition ?? "").trim() === "AFC" &&
+    String(r.edition ?? "").trim() === String(year),
+);
+
+// AFC当該大会の代表メンバー最終更新日（WC準拠）
+const latestCallupSnapshotRaw = afcCallups.reduce((max: string, r: any) => {
+  const s = toYMD(String(r.snapshot_date ?? ""));
+  if (!s) return max;
+  return !max || s > max ? s : max;
+}, "");
+
+const latestCallupSnapshot = latestCallupSnapshotRaw
+  ? fmtJP(latestCallupSnapshotRaw)
+  : "";
+
+// ===== AFC 最終メンバー発表国（WC準拠） =====
+const finalizedCountrySet = new Set(
+  afcCallups
+    .filter((r: any) => {
+      const text = [r.note, r.notes, r.memo, r.status, r.comment, r.remarks]
+        .map((v) => String(v ?? ""))
+        .join(" ");
+
+      return text.includes("最終メンバー");
+    })
+    .map((r: any) => String(r.country ?? "").trim())
+    .filter(Boolean),
+);
+
+const finalizedCountries = Array.from(finalizedCountrySet).sort((a, b) =>
+  a.localeCompare(b, "ja"),
+);
+
+const callupByAwardKey = new Map<string, any>();
+
+for (const r of afcCallups) {
+  const key = makeAwardCallupKey(r.name_ja);
+  if (!key) continue;
+
+  callupByAwardKey.set(key, r);
+}
+
+const hasAwardStats = afcCallups.some(
+  (r) => String(r.apps ?? "").trim() !== "",
+);
+
+const awardRows = awardRowsRaw.map((award) => {
+  const callup = callupByAwardKey.get(makeAwardCallupKey(award.player)) ?? null;
+
+  return {
+    ...award,
+    callup,
+  };
+});
+
+const v = (x: unknown) => String(x ?? "").trim() || "-";
+---
+
+<BaseLayout
+  title={`AFCアジアカップ${year}`}
+  description={`AFCアジアカップ${year}の出場国・グループ・試合日程・結果`}
+  bodyClass="page-afc"
+>
+  <main>
+    <h1>AFCアジアカップ{year} 大会ポータルページ</h1>
+
+    <p class="afc-lead">
+      AFCアジアカップ{year}の出場国一覧と各国代表の情報を掲載。
+      🔥この1ページで大会全体を俯瞰することができます。
+    </p>
+
+    <p class="quick-title">
+      出場24か国・試合日程・グループ勝敗表・決勝トーナメント表をまとめて確認できます。
+      {
+        latestCallupSnapshot ? (
+          <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
+        ) : null
+      }
+    </p>
+
+    {
+      finalizedCountries.length > 0 && (
+        <p class="afc-final-summary">
+          🔥 最終メンバー発表済：
+          {finalizedCountries.map((country, idx) => {
+            const ntSlug = ntSlugByCountryName.get(country);
+
+            return (
+              <>
+                {idx > 0 ? "・" : ""}
+                {ntSlug ? (
+                  <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>{country}</a>
+                ) : (
+                  <span>{country}</span>
+                )}
+              </>
+            );
+          })}
+        </p>
+      )
+    }
+
+    <div class="afc-page-nav">
+      <p class="quick-title">⚽ このページで確認できる内容</p>
+      <nav class="afc-page-nav-links" aria-label="ページ内ナビゲーション">
+        <a href="#schedule">日程・結果</a>
+        <a href="#knockout">決勝トーナメント表</a>
+        <a href="#groups">グループ勝敗表</a>
+        <a href="#teams">出場国一覧</a>
+        <a href="#rankings">得点ランキング</a>
+        <a href="#awards">大会表彰</a>
+      </nav>
+    </div>
+
+    <p class="quick-title">🔍 大会を切り替える</p>
+    <nav class="afc-editions" aria-label="AFCアジアカップ開催年">
+      {
+        editions.map((edition) => (
+          <a
+            href={`/afc/${edition.year}/`}
+            class:list={[
+              "afc-edition-pill",
+              { "is-active": String(year) === edition.year },
+            ]}
+            aria-current={String(year) === edition.year ? "page" : undefined}
+          >
+            {edition.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <section id="teams" class="afc-teams">
+      <h2>⚽ AFCアジアカップ{year} 出場国一覧</h2>
+      <p>出場24か国をグループ別に確認できます。</p>
+
+      <div class="afc-filterbar">
+        <div class="afc-filter-row">
+          <input
+            id="afc-team-search"
+            type="search"
+            placeholder="国名で検索"
+            aria-label="出場国を検索"
+          />
+          <span>表示：<b id="afc-team-count">{teams.length}</b>か国</span>
+        </div>
+
+        <div class="afc-group-filter">
+          <span class="afc-filter-label">🔍 グループ</span>
+
+          <div class="afc-pills" id="afc-group-pills">
+            <button type="button" class="afc-pill is-active" data-group="">
+              全
+            </button>
+            {
+              groups.map((g) => (
+                <button type="button" class="afc-pill" data-group={g}>
+                  {g}
+                </button>
+              ))
+            }
+          </div>
+        </div>
+      </div>
+
+      <div class="afc-team-grid">
+        {
+          teams.map((team) => {
+            const ntSlug = ntSlugByCountryName.get(team.name);
+            const hasNtPage = Boolean(ntSlug);
+
+            const content = (
+              <>
+                <strong>{team.name}</strong>
+                <span class="afc-team-meta">
+                  <span class="afc-team-badge">grp {team.group}</span>
+                  {finalizedCountrySet.has(team.name) && (
+                    <span class="afc-team-badge is-final">最終</span>
+                  )}
+                </span>
+              </>
+            );
+
+            return hasNtPage ? (
+              <a
+                class="afc-team-card"
+                href={`/nt/${encodeURIComponent(ntSlug!)}/`}
+                data-afc-team
+                data-name={team.name}
+                data-group={team.group}
+              >
+                {content}
+              </a>
+            ) : (
+              <div
+                class="afc-team-card is-disabled"
+                data-afc-team
+                data-name={team.name}
+                data-group={team.group}
+              >
+                {content}
+              </div>
+            );
+          })
+        }
+      </div>
+
+      <p id="afc-teams-empty" hidden>該当する国がありません。</p>
+    </section>
+
+    <script is:inline>
+      (() => {
+        const root = document.querySelector("#teams");
+        if (!root) return;
+
+        const search = root.querySelector("#afc-team-search");
+        const buttons = [...root.querySelectorAll(".afc-pill")];
+        const cards = [...root.querySelectorAll("[data-afc-team]")];
+        const count = root.querySelector("#afc-team-count");
+        const empty = root.querySelector("#afc-teams-empty");
+
+        let group = new URLSearchParams(location.search).get("group") || "";
+
+        function render() {
+          const query = (search.value || "").trim().toLowerCase();
+          let visible = 0;
+
+          for (const card of cards) {
+            const matchesGroup = !group || card.dataset.group === group;
+            const matchesName = (card.dataset.name || "")
+              .toLowerCase()
+              .includes(query);
+
+            const show = matchesGroup && matchesName;
+            card.hidden = !show;
+            if (show) visible++;
+          }
+
+          count.textContent = String(visible);
+          empty.hidden = visible !== 0;
+
+          for (const button of buttons) {
+            const active = button.dataset.group === group;
+            button.classList.toggle("is-active", active);
+            button.setAttribute("aria-pressed", String(active));
+          }
+        }
+
+        search.addEventListener("input", render);
+
+        for (const button of buttons) {
+          button.addEventListener("click", () => {
+            group = button.dataset.group || "";
+            const url = new URL(location.href);
+
+            if (group) url.searchParams.set("group", group);
+            else url.searchParams.delete("group");
+
+            history.replaceState(
+              null,
+              "",
+              url.pathname + url.search + "#teams",
+            );
+            render();
+          });
+        }
+
+        window.addEventListener("popstate", () => {
+          group = new URLSearchParams(location.search).get("group") || "";
+          render();
+        });
+
+        render();
+      })();
+    </script>
+
+    <section id="schedule" style="margin: 18px 0;">
+      <h2>⚽ AFCアジアカップ{year} 日程・試合結果</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        AFCアジアカップ{year}の全試合の日程・結果を掲載しています。
+        試合時刻は発表後に更新します。
+      </p>
+
+      <MatchScheduleTable
+        matches={matches}
+        heading={`AFC${year} 日程・結果`}
+        showMatchLinks={false}
+      />
+    </section>
+
+    <section id="groups" style="margin: 18px 0;">
+      <h2>⚽ AFCアジアカップ{year} グループ勝敗表</h2>
+
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        AFCアジアカップ{year}の各グループ参加国と勝敗表を掲載しています。
+      </p>
+
+      <div class="group-grid">
+        {
+          groups.map((g) => (
+            <div class="group-card">
+              <h3>Group {g}</h3>
+
+              <ul>
+                {(groupSets[g] || []).map((it) => (
+                  <li>
+                    {it.is_placeholder ? (
+                      <span class="placeholder">{it.name}</span>
+                    ) : ntSlugByCountryName.has(it.name) ? (
+                      <a
+                        href={`/nt/${encodeURIComponent(ntSlugByCountryName.get(it.name)!)}/`}
+                      >
+                        {it.name}
+                      </a>
+                    ) : (
+                      <span>{it.name}</span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+
+              {(() => {
+                const s = standingsByGroup.get(g) || [];
+                if (s.length === 0) return null;
+
+                return (
+                  <div class="group-standings-wrap">
+                    <table
+                      class="mini-standings"
+                      aria-label={`Group ${g} standings`}
+                    >
+                      <thead>
+                        <tr>
+                          <th>国</th>
+                          <th>試</th>
+                          <th>勝</th>
+                          <th>分</th>
+                          <th>負</th>
+                          <th>得</th>
+                          <th>失</th>
+                          <th>差</th>
+                          <th>点</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {s.map((r) => (
+                          <tr>
+                            <td>
+                              {String(r.is_placeholder ?? "0") === "1" ? (
+                                <span class="placeholder">
+                                  {r.country_name_ja}
+                                </span>
+                              ) : ntSlugByCountryName.has(
+                                  String(r.country_name_ja ?? "").trim(),
+                                ) ? (
+                                <a
+                                  href={`/nt/${encodeURIComponent(
+                                    ntSlugByCountryName.get(
+                                      String(r.country_name_ja ?? "").trim(),
+                                    )!,
+                                  )}/`}
+                                >
+                                  {r.country_name_ja}
+                                </a>
+                              ) : (
+                                <span>{r.country_name_ja}</span>
+                              )}
+                            </td>
+                            <td>{v(r.played)}</td>
+                            <td>{v(r.w)}</td>
+                            <td>{v(r.d)}</td>
+                            <td>{v(r.l)}</td>
+                            <td>{v(r.gf)}</td>
+                            <td>{v(r.ga)}</td>
+                            <td>{v(r.gd)}</td>
+                            <td>
+                              <b>{v(r.pts)}</b>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })()}
+            </div>
+          ))
+        }
+      </div>
+    </section>
+
+    <section id="knockout" class="afc-knockout">
+      <h2>🏆 AFCアジアカップ{year} 決勝トーナメント</h2>
+
+      <p class="quick-title">
+        ベスト16から決勝までの組み合わせ・勝ち上がりを掲載しています。
+      </p>
+
+      <div class="afc-bracket-wrap">
+        <img
+          src={`/images/brackets/afc-${year}.svg`}
+          alt={`AFCアジアカップ${year} 決勝トーナメント表`}
+          loading="lazy"
+        />
+      </div>
+
+      <p class="afc-bracket-open">
+        <a
+          href={`/images/brackets/afc-${year}.svg`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          トーナメント表を大きく表示する →
+        </a>
+      </p>
+    </section>
+
+    <section id="rankings" class="afc-ranking">
+      <h2>⚽ AFCアジアカップ{year} 得点・アシストランキング</h2>
+
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        AFCアジアカップ{
+          year
+        }の得点・アシストを試合結果から随時更新していきます。
+      </p>
+
+      <div class="afc-ranking-grid">
+        <div class="afc-rank-card">
+          <h3>🥇 得点ランキング</h3>
+
+          {
+            goalRanking.length === 0 ? (
+              <p class="rank-muted">大会前、またはデータ準備中です。</p>
+            ) : (
+              <table
+                class="afc-ranking-table"
+                aria-label={`AFC${year} goal ranking`}
+              >
+                <thead>
+                  <tr>
+                    <th>順位</th>
+                    <th>選手</th>
+                    <th>国</th>
+                    <th>得点</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {goalRanking.slice(0, 200).map((r) => {
+                    const ntSlug = ntSlugByCountryName.get(r.team);
+
+                    return (
+                      <tr>
+                        <td>
+                          <b>{r.rank}</b>
+                        </td>
+                        <td>{r.player}</td>
+                        <td>
+                          {ntSlug ? (
+                            <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
+                              {r.team}
+                            </a>
+                          ) : (
+                            <span>{r.team}</span>
+                          )}
+                        </td>
+                        <td>
+                          <b>{r.goals}</b>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )
+          }
+        </div>
+
+        <div class="afc-rank-card">
+          <h3>🎯 アシストランキング</h3>
+
+          {
+            assistRanking.length === 0 ? (
+              <p class="rank-muted">大会前、またはデータ準備中です。</p>
+            ) : (
+              <table
+                class="afc-ranking-table"
+                aria-label={`AFC${year} assist ranking`}
+              >
+                <thead>
+                  <tr>
+                    <th>順位</th>
+                    <th>選手</th>
+                    <th>国</th>
+                    <th>アシスト</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {assistRanking.slice(0, 200).map((r) => {
+                    const ntSlug = ntSlugByCountryName.get(r.team);
+
+                    return (
+                      <tr>
+                        <td>
+                          <b>{r.rank}</b>
+                        </td>
+                        <td>{r.player}</td>
+                        <td>
+                          {ntSlug ? (
+                            <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
+                              {r.team}
+                            </a>
+                          ) : (
+                            <span>{r.team}</span>
+                          )}
+                        </td>
+                        <td>
+                          <b>{r.assists}</b>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="awards" class="afc-awards" style="margin: 18px 0;">
+      <h2>⚽ AFCアジアカップ{year} 表彰</h2>
+
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        AFCアジアカップ{
+          year
+        }の個人賞・ベストイレブンなど各表彰を掲載しています。
+      </p>
+
+      {
+        awardRows.length === 0 ? (
+          <p class="rank-muted">発表され次第、更新します。</p>
+        ) : (
+          <div class="awards-table-wrap">
+            <table
+              class="awards-table"
+              aria-label={`AFCアジアカップ${year} 大会表彰`}
+            >
+              <thead>
+                <tr>
+                  <th>賞</th>
+                  <th>選手</th>
+                  <th>国</th>
+
+                  {hasAwardStats && (
+                    <>
+                      <th class="num">出場</th>
+                      <th class="num">G</th>
+                      <th class="num">A</th>
+                    </>
+                  )}
+                </tr>
+              </thead>
+
+              <tbody>
+                {awardRows.map((r) => {
+                  const callup = r.callup;
+                  const ntSlug = ntSlugByCountryName.get(r.team);
+
+                  return (
+                    <tr>
+                      <td>
+                        <b>{r.award_name}</b>
+                        {r.note ? (
+                          <span class="award-note">{r.note}</span>
+                        ) : null}
+                      </td>
+
+                      <td>
+                        <b>{r.player}</b>
+                        {callup?.position_primary ? (
+                          <span class="award-pos">
+                            （{callup.position_primary}）
+                          </span>
+                        ) : null}
+                      </td>
+
+                      <td>
+                        {ntSlug ? (
+                          <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
+                            {r.team}
+                          </a>
+                        ) : (
+                          <span>{r.team}</span>
+                        )}
+                      </td>
+
+                      {hasAwardStats && (
+                        <>
+                          <td class="num">
+                            {callup
+                              ? `${callup.apps}${
+                                  String(callup.starts ?? "").trim()
+                                    ? `（先発${callup.starts}）`
+                                    : ""
+                                }`
+                              : "－"}
+                          </td>
+                          <td class="num">
+                            {String(callup?.goals ?? "").trim() || "－"}
+                          </td>
+                          <td class="num">
+                            {String(callup?.assists ?? "").trim() || "－"}
+                          </td>
+                        </>
+                      )}
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )
+      }
+    </section>
+  </main>
+
+  <style is:global>
+    .page-afc {
+      --theme-link: var(--color-afc, #7046a6);
+    }
+
+    .page-afc .group-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+      gap: 12px;
+      margin: 10px 0 18px;
+    }
+
+    .page-afc .group-card {
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+      padding: 12px;
+    }
+
+    .page-afc .group-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: var(--theme-link);
+    }
+
+    .page-afc .group-card ul {
+      margin: 0;
+      padding-left: 18px;
+      line-height: 1.7;
+    }
+
+    .page-afc .group-card .placeholder {
+      color: #666;
+    }
+
+    .page-afc .mini-standings {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+
+    .page-afc .mini-standings th,
+    .page-afc .mini-standings td {
+      border-top: 1px solid var(--border, #e6e6e6);
+      padding: 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-afc .mini-standings th:first-child,
+    .page-afc .mini-standings td:first-child {
+      text-align: left;
+    }
+
+    .page-afc .mini-standings thead th {
+      color: var(--theme-link);
+      font-weight: 800;
+    }
+
+    .page-afc .group-standings-wrap {
+      overflow-x: auto;
+    }
+
+    .page-afc .afc-teams {
+      margin: 22px 0 28px;
+    }
+
+    .page-afc .afc-filterbar {
+      margin: 12px 0;
+    }
+
+    .page-afc .afc-filter-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .page-afc #afc-team-search {
+      width: min(420px, 100%);
+      padding: 8px 10px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 12px;
+      font-size: 14px;
+    }
+
+    .page-afc .afc-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .page-afc .afc-pill {
+      padding: 6px 13px;
+      border: 1px solid #d8c9e9;
+      border-radius: 999px;
+      background: #fff;
+      color: var(--color-afc);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .page-afc .afc-pill.is-active {
+      background: var(--color-afc);
+      color: #fff;
+    }
+
+    .page-afc .afc-team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(165px, 1fr));
+      gap: 6px;
+    }
+
+    .page-afc .afc-team-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 9px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 10px;
+      color: #111;
+      text-decoration: none;
+      background: #fff;
+    }
+
+    .page-afc .afc-team-card:hover {
+      background: #f4effa;
+      border-color: var(--color-afc);
+    }
+
+    .page-afc a.afc-team-card strong {
+      color: var(--color-afc);
+    }
+
+    .page-afc a.afc-team-card:hover strong {
+      text-decoration: underline;
+    }
+
+    .page-afc .afc-team-badge {
+      flex-shrink: 0;
+      padding: 2px 5px;
+      border-radius: 5px;
+      background: #f0e8f8;
+      color: var(--color-afc);
+      font-size: 11px;
+    }
+
+    .page-afc .afc-team-card[hidden],
+    .page-afc #afc-teams-empty[hidden] {
+      display: none;
+    }
+
+    .page-afc .afc-knockout {
+      margin: 24px 0;
+    }
+
+    .page-afc .afc-bracket-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .page-afc .afc-bracket-wrap img {
+      display: block;
+      width: 100%;
+      min-width: 1000px;
+      height: auto;
+    }
+
+    .page-afc .afc-bracket-open {
+      margin: 8px 0 0;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    .page-afc .afc-bracket-open a {
+      color: var(--color-afc);
+    }
+
+    .page-afc .afc-editions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 12px 0 22px;
+    }
+
+    .page-afc .afc-edition-pill {
+      display: inline-block;
+      padding: 6px 14px;
+      border: 1px solid var(--color-afc);
+      border-radius: 999px;
+      color: var(--color-afc);
+      background: #fff;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .page-afc .afc-edition-pill.is-active {
+      background: var(--color-afc);
+      color: #fff;
+    }
+
+    .page-afc .afc-lead {
+      margin: 8px 0;
+      line-height: 1.7;
+    }
+
+    .page-afc .afc-page-nav {
+      margin: 16px 0;
+    }
+
+    .page-afc .afc-page-nav-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-afc .afc-page-nav-links a {
+      display: inline-block;
+      padding: 6px 12px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 999px;
+      background: #fff;
+      color: var(--color-afc);
+      font-size: 13px;
+      text-decoration: none;
+    }
+
+    .page-afc .afc-page-nav-links a:hover {
+      background: #f4effa;
+      border-color: var(--color-afc);
+    }
+
+    .page-afc .afc-group-filter {
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .page-afc .afc-filter-label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--theme-link);
+      white-space: nowrap;
+    }
+
+    .page-afc .afc-group-filter .afc-pills {
+      margin-bottom: 0;
+    }
+
+    .page-afc .afc-team-card.is-disabled {
+      background: #f5f5f5;
+      border-color: #e9e9e9;
+      color: #222;
+      cursor: default;
+      opacity: 1;
+    }
+
+    .page-afc .afc-team-card.is-disabled .afc-team-badge {
+      background: #ebebeb;
+      color: #999;
+    }
+
+    .page-afc .afc-team-card.is-disabled:hover {
+      background: #f5f5f5;
+      border-color: #e9e9e9;
+    }
+
+    .page-afc .afc-final-summary {
+      margin: 10px 0;
+      padding: 10px 12px;
+      border-left: 3px solid var(--color-afc);
+      background: #f7f2fc;
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .page-afc .afc-final-summary a {
+      color: var(--color-afc);
+      font-weight: 700;
+    }
+
+    .page-afc .afc-ranking {
+      margin: 24px 0;
+    }
+
+    .page-afc .afc-ranking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .page-afc .afc-ranking-grid h3 {
+      font-size: 16px;
+      color: var(--color-afc);
+    }
+
+    .page-afc .afc-ranking-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-afc .afc-ranking-table th,
+    .page-afc .afc-ranking-table td {
+      padding: 8px;
+      border-bottom: 1px solid var(--border, #e6e6e6);
+      text-align: left;
+    }
+
+    .page-afc .afc-ranking-table th {
+      background: #f4effa;
+      color: var(--color-afc);
+    }
+
+    @media (max-width: 700px) {
+      .page-afc .afc-ranking-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .page-afc .afc-awards {
+      margin: 24px 0 32px;
+    }
+
+    .page-afc .afc-awards-wrap {
+      overflow-x: auto;
+      margin-top: 12px;
+    }
+
+    .page-afc .afc-awards-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-afc .afc-awards-table th,
+    .page-afc .afc-awards-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border, #e6e6e6);
+      text-align: left;
+    }
+
+    .page-afc .afc-awards-table th {
+      background: #f4effa;
+      color: var(--color-afc);
+      font-weight: 800;
+    }
+
+    .page-afc .afc-awards-table td:first-child {
+      font-weight: 700;
+    }
+
+    .page-afc .afc-rank-card {
+      min-width: 0;
+      padding: 14px;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 12px;
+      background: #fff;
+    }
+
+    .page-afc .afc-rank-card h3 {
+      margin: 0 0 12px;
+      font-size: 16px;
+      color: var(--color-afc);
+    }
+
+    .page-afc .afc-rank-card .rank-muted {
+      margin: 8px 0;
+      color: #777;
+      font-size: 13px;
+    }
+
+    .page-afc .afc-ranking-table td:first-child {
+      font-weight: 700;
+    }
+
+    .page-afc .afc-ranking-table th:last-child,
+    .page-afc .afc-ranking-table td:last-child {
+      text-align: right;
+    }
+
+    .page-afc .afc-ranking-table a {
+      color: var(--color-afc);
+    }
+
+    /* ===== AFC 大会表彰（WC準拠） ===== */
+
+    .page-afc .awards-table-wrap {
+      overflow-x: auto;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-afc .awards-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-afc .awards-table th,
+    .page-afc .awards-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid var(--border, #e6e6e6);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .page-afc .awards-table thead th {
+      background: #f8fafc;
+      color: var(--color-afc);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .page-afc .awards-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .page-afc .awards-table .num {
+      width: 42px;
+      min-width: 42px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-afc .award-note {
+      display: block;
+      margin-top: 2px;
+      color: #666;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .page-afc .award-pos {
+      margin-left: 2px;
+      color: #666;
+      font-size: 12px;
+      font-weight: 400;
+      white-space: nowrap;
+    }
+
+    @media (max-width: 560px) {
+      .page-afc .awards-table {
+        font-size: 12px;
+      }
+
+      .page-afc .awards-table th,
+      .page-afc .awards-table td {
+        padding: 8px 6px;
+      }
+
+      .page-afc .awards-table th:nth-child(2),
+      .page-afc .awards-table td:nth-child(2) {
+        max-width: 9em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .page-afc .awards-table th:nth-child(3),
+      .page-afc .awards-table td:nth-child(3) {
+        max-width: 6em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .page-afc .awards-table .num {
+        width: 30px;
+        min-width: 30px;
+      }
+    }
+
+    .page-afc .update-date {
+      color: #c62828;
+      font-weight: 600;
+    }
+
+    .page-afc .afc-team-meta {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+      gap: 4px;
+    }
+
+    .page-afc .afc-team-badge.is-final {
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 1px solid #fecaca;
+      font-weight: 700;
+    }
+  </style>
+</BaseLayout>
