@@ -172,10 +172,11 @@ const thClass = (c: any) =>
     font-weight: 600;
   }
 
-  /* ===== デフォルト（PC）は補助行を隠す ===== */
+  /* PCではモバイル用の補助情報を隠す */
   :global(.namecell-mobile .mob-meta-line),
   :global(.namecell-mobile .sub),
-  :global(.namecell-mobile .sub2) {
+  :global(.namecell-mobile .sub2),
+  :global(.namecell-mobile .mob-stat-line) {
     display: none !important;
   }
 
@@ -253,7 +254,8 @@ const thClass = (c: any) =>
     /* ===== モバイルだけ補助行を出す ===== */
     :global(.namecell-mobile .mob-meta-line),
     :global(.namecell-mobile .sub),
-    :global(.namecell-mobile .sub2) {
+    :global(.namecell-mobile .sub2),
+    :global(.namecell-mobile .mob-stat-line) {
       display: block !important;
     }
   }

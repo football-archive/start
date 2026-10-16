@@ -21,12 +21,16 @@ import { loadCallups } from "../../../lib/callups";
 import { fmtJP } from "../../../lib/updates";
 import { toYMD } from "../../../lib/rosterFormat";
 
+const editions = [
+  { year: "2027", label: "2027" },
+  { year: "2023", label: "2023" },
+];
+
 export function getStaticPaths() {
-  return [{ params: { year: "2027" } }];
+  return [{ params: { year: "2027" } }, { params: { year: "2023" } }];
 }
 
 const year = Astro.params.year;
-const editions = [{ year: "2027", label: "2027" }];
 const matches = filterMatches(
   loadCompetitionSchedule(),
   "AFC",
@@ -145,6 +149,24 @@ const afcCallups = (loadCallups() as any[]).filter(
     String(r.edition ?? "").trim() === String(year),
 );
 
+// 当該AFC大会の選手一覧ページが存在する国
+const afcRosterCountries = new Set(
+  afcCallups.map((r) => String(r.country ?? "").trim()).filter(Boolean),
+);
+
+// AFC大会ページ優先 → 国ハブへフォールバック
+const getCountryHref = (country: string): string | null => {
+  const name = String(country ?? "").trim();
+
+  if (afcRosterCountries.has(name)) {
+    return `/afc/${year}/team/${encodeURIComponent(name)}/`;
+  }
+
+  const ntSlug = ntSlugByCountryName.get(name);
+
+  return ntSlug ? `/nt/${encodeURIComponent(ntSlug)}/` : null;
+};
+
 // AFC当該大会の代表メンバー最終更新日（WC準拠）
 const latestCallupSnapshotRaw = afcCallups.reduce((max: string, r: any) => {
   const s = toYMD(String(r.snapshot_date ?? ""));
@@ -223,23 +245,19 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
 
     {
       finalizedCountries.length > 0 && (
-        <p class="afc-final-summary">
-          🔥 最終メンバー発表済：
+        <div class="afc-final-summary">
+          <strong>📢 最終メンバー掲載国：</strong>{" "}
           {finalizedCountries.map((country, idx) => {
-            const ntSlug = ntSlugByCountryName.get(country);
+            const href = getCountryHref(country);
 
             return (
               <>
                 {idx > 0 ? "・" : ""}
-                {ntSlug ? (
-                  <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>{country}</a>
-                ) : (
-                  <span>{country}</span>
-                )}
+                {href ? <a href={href}>{country}</a> : <span>{country}</span>}
               </>
             );
           })}
-        </p>
+        </div>
       )
     }
 
@@ -309,8 +327,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
       <div class="afc-team-grid">
         {
           teams.map((team) => {
-            const ntSlug = ntSlugByCountryName.get(team.name);
-            const hasNtPage = Boolean(ntSlug);
+            const href = getCountryHref(team.name);
 
             const content = (
               <>
@@ -324,10 +341,10 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
               </>
             );
 
-            return hasNtPage ? (
+            return href ? (
               <a
                 class="afc-team-card"
-                href={`/nt/${encodeURIComponent(ntSlug!)}/`}
+                href={href}
                 data-afc-team
                 data-name={team.name}
                 data-group={team.group}
@@ -449,12 +466,8 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                   <li>
                     {it.is_placeholder ? (
                       <span class="placeholder">{it.name}</span>
-                    ) : ntSlugByCountryName.has(it.name) ? (
-                      <a
-                        href={`/nt/${encodeURIComponent(ntSlugByCountryName.get(it.name)!)}/`}
-                      >
-                        {it.name}
-                      </a>
+                    ) : getCountryHref(it.name) ? (
+                      <a href={getCountryHref(it.name)!}>{it.name}</a>
                     ) : (
                       <span>{it.name}</span>
                     )}
@@ -493,15 +506,15 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                                 <span class="placeholder">
                                   {r.country_name_ja}
                                 </span>
-                              ) : ntSlugByCountryName.has(
+                              ) : getCountryHref(
                                   String(r.country_name_ja ?? "").trim(),
                                 ) ? (
                                 <a
-                                  href={`/nt/${encodeURIComponent(
-                                    ntSlugByCountryName.get(
+                                  href={
+                                    getCountryHref(
                                       String(r.country_name_ja ?? "").trim(),
-                                    )!,
-                                  )}/`}
+                                    )!
+                                  }
                                 >
                                   {r.country_name_ja}
                                 </a>
@@ -589,7 +602,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                 </thead>
                 <tbody>
                   {goalRanking.slice(0, 200).map((r) => {
-                    const ntSlug = ntSlugByCountryName.get(r.team);
+                    const countryHref = getCountryHref(r.team);
 
                     return (
                       <tr>
@@ -598,10 +611,8 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                         </td>
                         <td>{r.player}</td>
                         <td>
-                          {ntSlug ? (
-                            <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
-                              {r.team}
-                            </a>
+                          {countryHref ? (
+                            <a href={countryHref}>{r.team}</a>
                           ) : (
                             <span>{r.team}</span>
                           )}
@@ -639,7 +650,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                 </thead>
                 <tbody>
                   {assistRanking.slice(0, 200).map((r) => {
-                    const ntSlug = ntSlugByCountryName.get(r.team);
+                    const countryHref = getCountryHref(r.team);
 
                     return (
                       <tr>
@@ -648,10 +659,8 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                         </td>
                         <td>{r.player}</td>
                         <td>
-                          {ntSlug ? (
-                            <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
-                              {r.team}
-                            </a>
+                          {countryHref ? (
+                            <a href={countryHref}>{r.team}</a>
                           ) : (
                             <span>{r.team}</span>
                           )}
@@ -707,7 +716,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
               <tbody>
                 {awardRows.map((r) => {
                   const callup = r.callup;
-                  const ntSlug = ntSlugByCountryName.get(r.team);
+                  const countryHref = getCountryHref(r.team);
 
                   return (
                     <tr>
@@ -728,10 +737,8 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                       </td>
 
                       <td>
-                        {ntSlug ? (
-                          <a href={`/nt/${encodeURIComponent(ntSlug)}/`}>
-                            {r.team}
-                          </a>
+                        {countryHref ? (
+                          <a href={countryHref}>{r.team}</a>
                         ) : (
                           <span>{r.team}</span>
                         )}

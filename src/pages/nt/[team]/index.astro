@@ -98,6 +98,10 @@ function getRosterHref(
     return `/wc/${edition}/team/${teamPath}/`;
   }
 
+  if (code === "AFC") {
+    return `/afc/${edition}/team/${teamPath}/`;
+  }
+
   if (code === "IW") {
     return `/nt/${countrySlug}/iw/${edition}/`;
   }
@@ -256,6 +260,14 @@ const editions = Array.from(editionMap.values())
 const publishedWcEditions = new Set(
   allCallupRows
     .filter((row) => normalizeCompetition(row.competition) === "WC")
+    .map((row) => clean(row.edition))
+    .filter(Boolean),
+);
+
+// AFC大会ポータルが存在するedition一覧（WCと同じ判定）
+const publishedAfcEditions = new Set(
+  allCallupRows
+    .filter((row) => normalizeCompetition(row.competition) === "AFC")
     .map((row) => clean(row.edition))
     .filter(Boolean)
 );
@@ -578,16 +590,20 @@ const description =
               class:list={[
                 "activity-history-row",
                 { "is-tournament": !item.isIw },
+                { "is-afc": item.competition === "AFC" },
+                { "is-iw": item.isIw },
               ]}
             >
               <div class="activity-history-date">
                 {!item.isIw &&
-                item.competition === "WC" &&
-                publishedWcEditions.has(item.edition) ? (
+                ((item.competition === "WC" &&
+                  publishedWcEditions.has(item.edition)) ||
+                  (item.competition === "AFC" &&
+                    publishedAfcEditions.has(item.edition))) ? (
                   <a
-                    href={`/wc/${item.edition}/`}
+                    href={`/${getCompetitionInfo(item.competition).segment}/${item.edition}/`}
                     class="activity-history-year-link"
-                    title={`ワールドカップ ${item.edition} 大会ポータル`}
+                    title={`${item.label} ${item.edition} 大会ポータル`}
                   >
                     {item.edition}
                   </a>
@@ -1262,6 +1278,25 @@ const description =
     .page-nt-country .activity-history-year-link:hover,
     .page-nt-country .activity-history-link a:hover {
       opacity: 0.75;
+    }
+
+    /* AFC大会行：紫テーマ */
+    .page-nt-country .activity-history-row.is-afc {
+      background: #f7f2fc;
+      border-left: 3px solid #7046a6;
+    }
+
+    .page-nt-country .activity-history-row.is-afc .activity-history-label,
+    .page-nt-country .activity-history-row.is-afc .activity-history-year-link,
+    .page-nt-country .activity-history-row.is-afc .activity-history-link a {
+      color: #7046a6;
+    }
+
+    /* IW行：色による識別を廃止 */
+    .page-nt-country .activity-history-row.is-iw,
+    .page-nt-country .activity-history-row.is-iw:nth-child(even) {
+      background: transparent;
+      border-left: 0;
     }
   </style>
 </BaseLayout>

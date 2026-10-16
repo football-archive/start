@@ -22,6 +22,7 @@ const TARGETS = [
   { competition: "WC", edition: "2006" },
   { competition: "WC", edition: "2002" },
   { competition: "AFC", edition: "2027" },
+  { competition: "AFC", edition: "2023" },
 ];
 
 const COLORS = {
@@ -194,8 +195,7 @@ function renderBracket({
   groupRows,
   connections = [],
 }) {
-  const themeColor =
-    competition === "AFC" && edition === "2027" ? "#7046a6" : COLORS.theme;
+  const themeColor = competition === "AFC" ? "#7046a6" : COLORS.theme;
   const tournamentName =
     competition === "AFC" ? "AFCアジアカップ" : "FIFAワールドカップ";
   const knockout = matches

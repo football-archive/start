@@ -1,0 +1,776 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import RosterView from "../../../../components/RosterView.astro";
+import { loadCallups, sortForRoster } from "../../../../lib/callups";
+import { buildNtColumns } from "../../../../lib/rosterColumns";
+import { applyTournamentGA } from "../../../../lib/tournamentPlayerStats";
+import { loadClubMaster } from "../../../../lib/clubMaster";
+import { loadClubSquads } from "../../../../lib/clubSquads";
+import { loadGroups } from "../../../../lib/tournamentGroups";
+import { clubUrl, teamUrl } from "../../../../lib/urls";
+import { parseCsv } from "../../../../lib/csvSimple";
+import fs from "node:fs";
+import path from "node:path";
+import { calcAge, toYMD } from "../../../../lib/rosterFormat";
+
+const norm = (value: unknown) =>
+  String(value ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+const allCallups = loadCallups();
+
+export function getStaticPaths() {
+  // Astro isolates getStaticPaths: define helpers within its scope.
+  const norm = (value: unknown) =>
+    String(value ?? "")
+      .trim()
+      .replace(/　/g, " ")
+      .replace(/\s+/g, " ");
+  const seen = new Set<string>();
+  return loadCallups()
+    .filter((r) => String(r.competition ?? "").toUpperCase() === "AFC")
+    .filter((r) => {
+      const key = `${r.edition}|||${norm(r.country)}`;
+      if (!r.edition || !norm(r.country) || seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    })
+    .map((r) => ({
+      params: { year: String(r.edition), country: norm(r.country) },
+    }));
+}
+
+const year = String(Astro.params.year ?? "").trim();
+const countryName = norm(Astro.params.country);
+const rowsAll = allCallups.filter(
+  (r) =>
+    String(r.competition ?? "").toUpperCase() === "AFC" &&
+    String(r.edition ?? "").trim() === year &&
+    norm(r.country) === countryName,
+);
+
+// 当該大会・当該国の最終snapshotを年齢基準日にする
+const editionMaxSnapshot =
+  rowsAll
+    .map((r) => toYMD(String(r.snapshot_date ?? "")))
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? "";
+
+// 過去大会では「最終メンバー」を正として表示。その他のTM候補はCSV内に保持する。
+// 最終メンバー以外も含めて掲載
+const finalRows = rowsAll.filter((r) =>
+  String(r.notes ?? "").includes("最終メンバー"),
+);
+
+const rosterSource = rowsAll;
+const finalMemberCount = finalRows.length;
+const rows = applyTournamentGA(
+  [...rosterSource].sort(sortForRoster),
+  "AFC",
+  year,
+  countryName,
+);
+// AFC：最終メンバーをハイライト
+const rowHighlightClass = (r: any) =>
+  String(r.notes ?? "").includes("最終メンバー") ? "row-highlight" : "";
+const showTournamentStats =
+  year === "2023" ||
+  rows.some((r) =>
+    [r.apps, r.starts, r.goals, r.assists].some(
+      (v) => String(v ?? "").trim() !== "",
+    ),
+  );
+
+const readCsv = (name: string) => {
+  const file = path.join(process.cwd(), "src", "data", name);
+  return parseCsv(fs.readFileSync(file, "utf-8"));
+};
+const ntMaster = readCsv("nt_master.csv");
+const countryMaster = readCsv("country_master.csv");
+const metaAll = readCsv("nt_tournament_meta.csv");
+const teamSlug = String(
+  ntMaster.find((r: any) => norm(r.country_name_ja) === countryName)
+    ?.team_slug ?? "",
+).trim();
+const countryKey = String(
+  countryMaster.find((r: any) => norm(r.country_name_ja) === countryName)
+    ?.country_key ?? "",
+).trim();
+const ntHubHref = countryKey ? `/nt/${encodeURIComponent(countryKey)}/` : "";
+const meta = metaAll.find(
+  (r: any) =>
+    String(r.competition ?? "").toUpperCase() === "AFC" &&
+    String(r.edition ?? "").trim() === year &&
+    String(r.team_slug ?? "").trim() === teamSlug,
+);
+const coach = String(meta?.coach_ja ?? "").trim();
+const result = String(meta?.result_ja ?? "").trim();
+const host = String(meta?.host_ja ?? "").trim();
+
+// アジアカップ2023は2024年1～2月開催。クラブは2023-24夏時点を優先。
+// 他大会も1～2月開催なら、edition翌年のシーズン夏を優先する。
+const season = `${year}-${String(Number(year) + 1).slice(-2)}`;
+const clubMaster = loadClubMaster();
+const clubSquads = loadClubSquads();
+const squadKeySet = new Set(
+  clubSquads.map(
+    (r) => `${r.season}|||${r.window}|||${r.league_key}|||${r.club_key}`,
+  ),
+);
+const normalizeClub = (s: unknown) => norm(s).toLowerCase();
+const resolveClub = (name: string) => {
+  const key = normalizeClub(name);
+  if (!key) return null;
+  return (
+    clubMaster.find((c) =>
+      [
+        c.club_display_ja,
+        c.club_display_en,
+        ...String(c.aliases ?? "").split(/[|,、/]/),
+      ].some((alias) => normalizeClub(alias) === key),
+    ) ?? null
+  );
+};
+const clubLabel = (name: string) => resolveClub(name)?.club_display_ja || name;
+const clubHref = (name: string) => {
+  const club = resolveClub(name);
+  if (!club) return "";
+  const hasSeason = ["summer", "winter"].some((win) =>
+    squadKeySet.has(
+      `${season}|||${win}|||${club.league_key}|||${club.club_key}`,
+    ),
+  );
+  if (!hasSeason) return "";
+  return clubUrl({
+    leagueKey: club.league_key,
+    clubKey: club.club_key,
+    season: season as any,
+  });
+};
+
+const editionsByPlayer = new Map<
+  string,
+  { competition: string; edition: string }[]
+>();
+
+const playerKey = (r: any) =>
+  `${normalizeClub(r.name_en || r.name_ja)}|${norm(r.birth_date)}`;
+
+for (const r of allCallups) {
+  const competition = String(r.competition ?? "").toUpperCase();
+  if (!["WC", "AFC"].includes(competition)) continue;
+  if (norm(r.country) !== countryName) continue;
+
+  const key = playerKey(r);
+  const edition = String(r.edition ?? "").trim();
+  if (!edition) continue;
+
+  const list = editionsByPlayer.get(key) ?? [];
+
+  if (
+    !list.some((x) => x.competition === competition && x.edition === edition)
+  ) {
+    list.push({ competition, edition });
+  }
+
+  editionsByPlayer.set(key, list);
+}
+
+const columns = buildNtColumns({
+  isLatestView: true,
+  showStats: showTournamentStats,
+  clubHref,
+  clubLabel,
+  groupTournamentHistory: true,
+
+  tournamentLinks: (r) =>
+    (editionsByPlayer.get(playerKey(r)) ?? [])
+      .sort((a, b) => Number(b.edition) - Number(a.edition))
+      .map(({ competition, edition }) => ({
+        label: `${competition}${edition}`,
+        href: `/${competition.toLowerCase()}/${edition}/team/${encodeURIComponent(countryName)}/`,
+      })),
+});
+
+const ageColumn = columns.find((c) => c.key === "age");
+
+if (ageColumn) {
+  ageColumn.render = (r) =>
+    editionMaxSnapshot ? calcAge(r.birth_date, editionMaxSnapshot) : "";
+}
+
+const editionColumn = columns.find((c) => c.key === "editions");
+if (editionColumn) editionColumn.header = "招集歴";
+
+const appsColumn = columns.find((c) => c.key === "apps");
+if (appsColumn) {
+  const originalRender = appsColumn.render;
+  appsColumn.render = (r, i) =>
+    Number(r.apps ?? 0) === 0 ? "" : originalRender(r, i);
+}
+
+const starRows = rows
+  .filter((r) => String(r.is_star ?? "").trim() === "1")
+  .slice(0, 3);
+const otherEditions = [
+  ...new Set(
+    allCallups
+      .filter(
+        (r) =>
+          String(r.competition ?? "").toUpperCase() === "AFC" &&
+          norm(r.country) === countryName,
+      )
+      .map((r) => String(r.edition)),
+  ),
+].sort((a, b) => Number(b) - Number(a));
+// AFC match results: reuse the WC source CSV, but never link to unimplemented match pages.
+type MatchRow = {
+  id: string;
+  slug: string;
+  stage: string;
+  group: string;
+  datetime: string;
+  home: string;
+  away: string;
+  homeScore: string;
+  awayScore: string;
+  homePk: string;
+  awayPk: string;
+};
+const matchRows: MatchRow[] = readCsv("competition_schedule_and_results.csv")
+  .filter((r: any) => String(r.competition ?? "").toUpperCase() === "AFC")
+  .filter((r: any) => String(r.edition ?? "").trim() === year)
+  .filter(
+    (r: any) => norm(r.home) === countryName || norm(r.away) === countryName,
+  )
+  .map((r: any) => ({
+    id: String(r["match-id"] ?? "").trim(),
+    slug: String(r.slug ?? "").trim(),
+    stage: String(r.stage ?? "").trim(),
+    group: String(r.group ?? "").trim(),
+    datetime: String(r["datetime-local"] ?? "").trim(),
+    home: norm(r.home),
+    away: norm(r.away),
+    homeScore: String(r.home_score ?? "").trim(),
+    awayScore: String(r.away_score ?? "").trim(),
+    homePk: String(r.home_score_pk ?? "").trim(),
+    awayPk: String(r.away_score_pk ?? "").trim(),
+  }))
+  .sort(
+    (a, b) => a.datetime.localeCompare(b.datetime) || a.id.localeCompare(b.id),
+  );
+
+const stageLabel = (m: MatchRow) => {
+  if (["Group", "Group-Phase"].includes(m.stage))
+    return m.group ? `GL ${m.group}` : "GL";
+  const labels: Record<string, string> = {
+    Round16: "R16",
+    "Round-16": "R16",
+    "Round-of-16": "R16",
+    "Quarter-Final": "QF",
+    "Quarter-Finals": "QF",
+    "Semi-Final": "SF",
+    "Semi-Finals": "SF",
+    Final: "決勝",
+    "Third-Place": "3位決定戦",
+  };
+  return labels[m.stage] ?? m.stage;
+};
+const hasScore = (s: string) => s !== "" && Number.isFinite(Number(s));
+const scoreLabel = (m: MatchRow) => {
+  if (!hasScore(m.homeScore) || !hasScore(m.awayScore)) return "試合前";
+  const score = `${Number(m.homeScore)}-${Number(m.awayScore)}`;
+  return hasScore(m.homePk) && hasScore(m.awayPk)
+    ? `${score}（PK ${Number(m.homePk)}-${Number(m.awayPk)}）`
+    : score;
+};
+const resultLabel = (m: MatchRow) => {
+  if (!hasScore(m.homeScore) || !hasScore(m.awayScore)) return "—";
+  const isHome = m.home === countryName;
+  const gf = Number(isHome ? m.homeScore : m.awayScore);
+  const ga = Number(isHome ? m.awayScore : m.homeScore);
+  if (hasScore(m.homePk) && hasScore(m.awayPk)) {
+    const pkf = Number(isHome ? m.homePk : m.awayPk);
+    const pka = Number(isHome ? m.awayPk : m.homePk);
+    return pkf > pka ? "○" : pkf < pka ? "●" : "△";
+  }
+  return gf > ga ? "○" : gf < ga ? "●" : "△";
+};
+const afcCallupCountrySet = new Set(
+  allCallups
+    .filter(
+      (r) =>
+        String(r.competition ?? "").toUpperCase() === "AFC" &&
+        String(r.edition ?? "").trim() === year,
+    )
+    .map((r) => norm(r.country)),
+);
+const opponentHref = (name: string) =>
+  name !== countryName && afcCallupCountrySet.has(name)
+    ? `/afc/${encodeURIComponent(year)}/team/${encodeURIComponent(name)}/`
+    : "";
+
+// WC版と同じ関連国導線。大会グループCSVを唯一の根拠にする。
+const groupRows = loadGroups("AFC", year, "group");
+const ownGroup =
+  groupRows.find(
+    (g) =>
+      norm(g.country_name_ja) === countryName ||
+      norm(g.route_param) === countryName,
+  )?.group ?? "";
+const groupLetters = [
+  ...new Set(
+    groupRows.map((g) => String(g.group ?? "").trim()).filter(Boolean),
+  ),
+].sort((a, b) => a.localeCompare(b, "en"));
+const sameGroup = groupRows
+  .filter((g) => String(g.group ?? "").trim() === ownGroup)
+  .map((g) => ({
+    name: norm(g.country_name_ja || g.route_param),
+    route: norm(g.route_param || g.country_name_ja),
+    placeholder: String(g.is_placeholder ?? "") === "1",
+  }))
+  .filter((g) => g.name && g.name !== countryName);
+const relatedTeamHref = (name: string) =>
+  afcCallupCountrySet.has(name)
+    ? `/afc/${encodeURIComponent(year)}/team/${encodeURIComponent(name)}/`
+    : "";
+
+const title = `${countryName}代表 AFCアジアカップ${year} メンバー・背番号一覧｜所属クラブ・大会成績｜海外サッカーDB`;
+const description = `${countryName}代表のAFCアジアカップ${year}メンバー・背番号・ポジション・当時の所属クラブ・大会成績を一覧で掲載。`;
+const topHref = `/afc/${year}/`;
+---
+
+<BaseLayout
+  {title}
+  {description}
+  bodyClass="page-wc"
+  bodyStyle="margin:0; font-family: system-ui;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: `AFC${year}`, href: topHref },
+    { label: countryName },
+  ]}
+  heading={`${countryName}代表 AFCアジアカップ${year}メンバー一覧`}
+>
+  <main class="afc-team-page">
+    <h1>{countryName}代表 AFCアジアカップ{year} メンバー一覧</h1>
+    <p class="afc-team-intro">
+      背番号・ポジション・当時の所属クラブ・代表デビュー・大会成績を一覧で確認できます。
+    </p>
+    <div class="afc-team-meta">
+      {result && <span>🏆 {result}</span>}
+      {coach && <span>🎬 {coach}</span>}
+      {host && <span>📍 {host}</span>}
+      <span
+        >👥 掲載{rows.length}名
+        {finalMemberCount > 0 && `（招集${finalMemberCount}名）`}</span
+      >
+    </div>
+    <p class="afc-team-jump">
+      <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
+    </p>
+    {
+      starRows.length > 0 && (
+        <section class="afc-team-stars" aria-label="注目選手">
+          <h2>🔥 今大会の主力・注目選手</h2>
+          <div class="afc-team-star-grid">
+            {starRows.map((r) => (
+              <div class="afc-team-star">
+                <strong>{r.name_ja || r.name_en}</strong>
+                <span>
+                  {r.position_primary} ／{" "}
+                  {clubLabel(String(r.current_club ?? ""))}
+                </span>
+              </div>
+            ))}
+          </div>
+        </section>
+      )
+    }
+    {
+      matchRows.length > 0 && (
+        <section class="afc-team-matches" aria-label="今大会の試合結果">
+          <h2>📅 今大会の試合結果</h2>
+          <div class="afc-match-scroll">
+            <table class="afc-match-table">
+              <thead>
+                <tr>
+                  <>
+                    <th>日時</th>
+                    <th>Stage</th>
+                    <th>試合</th>
+                    <th>スコア</th>
+                    <th>結果</th>
+                  </>
+                </tr>
+              </thead>
+              <tbody>
+                {matchRows.map((m) => (
+                  <tr>
+                    <td>{m.datetime}</td>
+                    <td>{stageLabel(m)}</td>
+                    <td>
+                      {opponentHref(m.home) ? (
+                        <a href={opponentHref(m.home)}>{m.home}</a>
+                      ) : (
+                        m.home
+                      )}
+                      <span class="afc-match-vs"> vs </span>
+                      {opponentHref(m.away) ? (
+                        <a href={opponentHref(m.away)}>{m.away}</a>
+                      ) : (
+                        m.away
+                      )}
+                    </td>
+                    <td>{scoreLabel(m)}</td>
+                    <td>{resultLabel(m)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <p class="afc-match-note">
+            ※
+            日時は大会データに記録された現地時間。試合詳細ページは未実装のためリンクしていません。
+          </p>
+        </section>
+      )
+    }
+    <div class="afc-team-related" aria-label="関連国・大会への導線">
+      {
+        ownGroup && (
+          <section class="afc-team-related-section">
+            <h2>🔎 {countryName}と同じグループの国を見る</h2>
+            <div class="afc-team-pills">
+              <a
+                class="afc-team-pill"
+                href={`${topHref}?group=${encodeURIComponent(ownGroup)}#teams`}
+              >
+                🔠 グループ {ownGroup}
+              </a>
+              {sameGroup.map((g) =>
+                relatedTeamHref(g.route) && !g.placeholder ? (
+                  <a class="afc-team-pill" href={relatedTeamHref(g.route)}>
+                    {g.name}
+                  </a>
+                ) : (
+                  <span class="afc-team-pill is-muted">{g.name}</span>
+                ),
+              )}
+            </div>
+          </section>
+        )
+      }
+      {
+        groupLetters.length > 0 && (
+          <section class="afc-team-related-section">
+            <h2>🔎 グループを切り替える</h2>
+            <div class="afc-team-pills">
+              {groupLetters.map((g) => (
+                <a
+                  class={`afc-team-pill ${g === ownGroup ? "is-active" : ""}`}
+                  href={`${topHref}?group=${encodeURIComponent(g)}#teams`}
+                >
+                  {g}
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+      {
+        otherEditions.length > 1 && (
+          <section class="afc-team-related-section">
+            <h2>🔎 {countryName}の出場大会を切り替える</h2>
+            <div class="afc-team-pills">
+              {otherEditions.map((ed) => (
+                <a
+                  class={`afc-team-pill ${ed === year ? "is-active" : ""}`}
+                  href={teamUrl({
+                    tournament: "afc",
+                    year: ed as any,
+                    country: countryName,
+                  })}
+                >
+                  {ed}
+                </a>
+              ))}
+            </div>
+          </section>
+        )
+      }
+    </div>
+    <nav class="afc-team-links" aria-label="関連ページ">
+      <a href={topHref}>← AFC{year}大会ポータル</a>
+      {ntHubHref && <a href={ntHubHref}>{countryName}代表ポータル →</a>}
+    </nav>
+    <section id="roster" aria-label={`${countryName}代表メンバー一覧`}>
+      <h2>👕 代表メンバー・背番号一覧</h2>
+      <RosterView {rows} {columns} rowClass={rowHighlightClass} />
+    </section>
+    <p class="afc-team-footnote">
+      ※ 当時の所属クラブを掲載。出場・先発の空欄は未確認を表します。
+    </p>
+  </main>
+  <style is:global>
+    .afc-team-matches {
+      margin: 12px 0 20px;
+      padding: 10px 12px;
+      border: 1px solid #e5d8dd;
+      border-radius: 12px;
+      background: #fff;
+    }
+    .afc-team-matches h2,
+    .afc-team-stars h2 {
+      color: var(--theme-color, #8b364c);
+    }
+    .afc-team-jump {
+      margin: 14px 0 20px;
+      font-weight: 600;
+    }
+    .afc-team-related {
+      border-top: 1px solid #e5e7eb;
+      border-bottom: 1px solid #e5e7eb;
+      padding: 18px 0 8px;
+      margin: 12px 0 18px;
+    }
+    .afc-team-related-section {
+      margin-bottom: 18px;
+    }
+    .afc-team-related-section h2 {
+      font-size: 14px;
+      margin: 0 0 8px;
+    }
+    .afc-team-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+    .afc-team-pill {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 12px;
+      border: 1px solid #d5dce5;
+      border-radius: 999px;
+      color: inherit;
+      text-decoration: none;
+      font-size: 12px;
+      background: #fff;
+    }
+    .afc-team-pill.is-active {
+      border-color: var(--theme-color, #8b364c);
+      font-weight: 700;
+    }
+    .afc-team-pill.is-muted {
+      color: #9299a5;
+      background: #f7f7f8;
+    }
+
+    .afc-match-scroll {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .afc-match-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .afc-match-table th,
+    .afc-match-table td {
+      padding: 9px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: center;
+      white-space: nowrap;
+    }
+    .afc-match-table th {
+      background: #f8f8f8;
+    }
+    .afc-match-vs {
+      padding: 0 6px;
+      color: #666;
+    }
+    .afc-match-note {
+      color: #687080;
+      font-size: 12px;
+      margin: 8px 0 0;
+    }
+    .afc-team-page {
+      max-width: 1180px;
+      margin: 0 auto;
+      padding: 16px 14px 32px;
+    }
+    .afc-team-page h1 {
+      font-size: clamp(21px, 3vw, 27px);
+      margin: 4px 0 12px;
+    }
+    .afc-team-page h2 {
+      font-size: 18px;
+      margin: 0 0 12px;
+    }
+    .afc-team-intro {
+      margin: 0 0 16px;
+      line-height: 1.7;
+    }
+    .afc-team-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 20px;
+      margin: 0 0 20px;
+      padding: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+    .afc-team-stars {
+      margin: 0 0 20px;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+    }
+    .afc-team-star-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+    }
+    .afc-team-star {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .afc-team-star span {
+      font-size: 12px;
+      color: #596171;
+    }
+    .afc-team-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 24px;
+    }
+    .afc-team-links a {
+      display: inline-block;
+      padding: 7px 12px;
+      border: 1px solid #d5dce5;
+      border-radius: 999px;
+      text-decoration: none;
+    }
+    .afc-team-footnote {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #687080;
+    }
+    @media (max-width: 680px) {
+      .afc-team-star-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* AFC選手一覧：ヘッダー */
+    .afc-team-page .roster-table thead th,
+    .afc-team-page .roster-table thead th:first-child,
+    .afc-team-page .roster-table thead th:nth-child(2) {
+      background: #7046a6 !important;
+      color: #fff !important;
+    }
+
+    /* WC準拠：所属クラブの表示幅 */
+    .afc-team-page .club-cell {
+      display: inline-block;
+      max-width: 150px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+
+    /* クラブリンクはクラブ用の緑 */
+    .afc-team-page .club-cell a,
+    .afc-team-page .club-link {
+      color: #2e7d32;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    /* 招集歴の列幅はWC版に合わせる */
+    @media (min-width: 769px) {
+      .afc-team-page .roster-table th:nth-child(6),
+      .afc-team-page .roster-table td:nth-child(6) {
+        width: 120px;
+        min-width: 120px;
+        max-width: 120px;
+        white-space: normal;
+        line-height: 1.35;
+      }
+
+      .afc-team-page .roster-table td:nth-child(6) a {
+        display: inline-block;
+        margin: 0 2px;
+        white-space: nowrap;
+      }
+    }
+
+    /* 大会別招集歴 */
+    .afc-team-page .tournament-history-grouped {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      text-align: left;
+    }
+
+    .afc-team-page .tournament-history-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      white-space: nowrap;
+    }
+
+    .afc-team-page .tournament-history-label {
+      display: inline-block;
+      min-width: 30px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
+    .afc-team-page
+      .tournament-history-line:has(.tournament-history-label)
+      .tournament-history-years {
+      font-size: 12px;
+    }
+
+    .afc-team-page
+      .tournament-history-line:nth-child(2)
+      .tournament-history-label {
+      color: #7046a6;
+    }
+
+    /* AFC：出場試合数を少しコンパクトに */
+    .afc-team-page .stat-apps {
+      font-size: 14px;
+    }
+
+    .afc-team-page .stat-apps .stat-sub {
+      font-size: 12px;
+    }
+
+    /* AFC：最終メンバーの背景を紫で統一 */
+    .afc-team-page .roster-table tbody tr.row-highlight td,
+    .afc-team-page .roster-table tbody tr.row-highlight td:first-child,
+    .afc-team-page .roster-table tbody tr.row-highlight td:nth-child(2) {
+      background: #f3edfa !important;
+    }
+
+    /* WC由来の左端ラインをAFC色に変更 */
+    .afc-team-page .roster-table tbody tr.row-highlight td:first-child {
+      border-left: 3px solid #7046a6 !important;
+    }
+  </style>
+</BaseLayout>

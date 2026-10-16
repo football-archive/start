@@ -183,6 +183,38 @@ const editionLinksHtml = (
   return `<span title="${esc(labelsAll)}">${prefix}${body}</span>`;
 };
 
+// WC・AFCを大会別に2段表示
+const groupedEditionLinksHtml = (links: { label: string; href: string }[]) => {
+  if (!links?.length) return "";
+
+  const renderGroup = (competition: "WC" | "AFC") => {
+    const items = links
+      .filter((x) => new RegExp(`^${competition}\\d{4}$`).test(x.label))
+      .sort((a, b) => Number(b.label.slice(-4)) - Number(a.label.slice(-4)));
+
+    if (!items.length) return "";
+
+    const years = items
+      .map(
+        (x) =>
+          `<a class="tournament-link" href="${esc(x.href)}">${esc(
+            x.label.slice(-2),
+          )}</a>`,
+      )
+      .join(" / ");
+
+    return `<div class="tournament-history-line">
+      <span class="tournament-history-label">${competition}</span>
+      <span class="tournament-history-years">${years}</span>
+    </div>`;
+  };
+
+  return `<div class="tournament-history-grouped">
+    ${renderGroup("WC")}
+    ${renderGroup("AFC")}
+  </div>`;
+};
+
 function toYY(edition: string) {
   const y = String(edition ?? "").trim();
   if (!/^\d{4}$/.test(y)) return y; // 念のため
@@ -509,6 +541,7 @@ type BuildNtColumnsArgs = {
 
   // ★追加：その選手が招集された大会（edition）リンクを返す（例：WC 2014/2018/2022…）
   tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
+  groupTournamentHistory?: boolean;
 };
 
 const ntNameMobileHtml = ({
@@ -517,12 +550,14 @@ const ntNameMobileHtml = ({
   clubHref,
   tournamentLinks,
   showStats = false,
+  groupTournamentHistory = false,
 }: {
   row: NtRow;
   clubLabel?: (clubName: string) => string;
   clubHref?: (clubName: string) => string;
   tournamentLinks?: (r: NtRow) => { label: string; href: string }[];
   showStats?: boolean;
+  groupTournamentHistory?: boolean;
 }) => {
   const ja = String(row.name_ja ?? "").trim();
   const en = String(row.name_en ?? "").trim();
@@ -573,14 +608,18 @@ const ntNameMobileHtml = ({
 
   // 4段目：代表履歴（デビュー + 招集歴）
   const debut = toYM(row.national_debut);
-  const editions = editionLinksHtml(tournamentLinks?.(row) ?? []);
+  const editionLinks = tournamentLinks?.(row) ?? [];
+
+  const editions = groupTournamentHistory
+    ? groupedEditionLinksHtml(editionLinks)
+    : editionLinksHtml(editionLinks);
 
   const debutText = debut
     ? `<span class="mob-label-debut">代表デビュー：</span>${esc(debut)}`
     : "";
 
   const editionsText = editions
-    ? `<span class="mob-label-debut">招集歴：${editions}`
+    ? `<span class="mob-label-debut">招集歴：</span>${editions}`
     : "";
 
   const line4 = mobileLinkMetaLineHtml([debutText, editionsText]);
@@ -605,8 +644,9 @@ export const buildNtColumns = ({
   isLatestView,
   showStats = false,
   clubHref,
-  clubLabel, // ★追加
-  tournamentLinks, // ★追加
+  clubLabel,
+  tournamentLinks,
+  groupTournamentHistory = false,
 }: BuildNtColumnsArgs): Column<NtRow>[] => {
   // ※ 代表側はあなたの現状運用に合わせて必要な列だけにしてOK
   return [
@@ -633,6 +673,7 @@ export const buildNtColumns = ({
           clubHref,
           tournamentLinks,
           showStats,
+          groupTournamentHistory,
         }),
     },
     {
@@ -661,10 +702,15 @@ export const buildNtColumns = ({
     },
     {
       key: "editions",
-      header: "W杯招集歴",
+      header: "招集歴",
       align: "center",
       html: true,
-      render: (r) => editionLinksHtml(tournamentLinks?.(r) ?? []),
+      render: (r) => {
+        const links = tournamentLinks?.(r) ?? [];
+        return groupTournamentHistory
+          ? groupedEditionLinksHtml(links)
+          : editionLinksHtml(links);
+      },
     },
 
     {

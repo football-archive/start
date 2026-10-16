@@ -8,6 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { loadCallups, sortForRoster } from "../../../../lib/callups";
+import { applyTournamentGA } from "../../../../lib/tournamentPlayerStats";
 import { buildNtColumns } from "../../../../lib/rosterColumns";
 import { loadClubMaster } from "../../../../lib/clubMaster";
 
@@ -550,7 +551,12 @@ const statusSuffix = (() => {
   return "";
 })();
 
-const rows = rowsAll.sort(sortForRoster);
+const rows = applyTournamentGA(
+  [...rowsAll].sort(sortForRoster),
+  "WC",
+  String(year),
+  countryName,
+);
 
 const highlightTokens = [
   "2026.03",
@@ -770,7 +776,8 @@ const clubLabel = (clubName: string) => {
   return c?.club_display_ja || clubName;
 };
 
-const showTournamentStats = competition === "WC" && String(year) === "2026";
+const showTournamentStats =
+  competition === "WC" && ["2022","2026"].includes(String(year));
 
 const columns = buildNtColumns({
   isLatestView: true,
