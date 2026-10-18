@@ -60,9 +60,10 @@ const editionMaxSnapshot =
 
 // 過去大会では「最終メンバー」を正として表示。その他のTM候補はCSV内に保持する。
 // 最終メンバー以外も含めて掲載
-const finalRows = rowsAll.filter((r) =>
-  String(r.notes ?? "").includes("最終メンバー"),
-);
+const finalRows = rowsAll.filter((r) => {
+  const notes = String(r.notes ?? "");
+  return notes.includes("最終メンバー") && !notes.includes("辞退");
+});
 
 const rosterSource = rowsAll;
 const finalMemberCount = finalRows.length;
@@ -363,6 +364,16 @@ const topHref = `/afc/${year}/`;
     <p class="afc-team-intro">
       背番号・ポジション・当時の所属クラブ・代表デビュー・大会成績を一覧で確認できます。
     </p>
+
+    {
+      editionMaxSnapshot && (
+        <p class="afc-team-updated">
+          更新日：
+          <time datetime={editionMaxSnapshot}>{editionMaxSnapshot}</time>
+        </p>
+      )
+    }
+
     <div class="afc-team-meta">
       {result && <span>🏆 {result}</span>}
       {coach && <span>🎬 {coach}</span>}
@@ -466,7 +477,7 @@ const topHref = `/afc/${year}/`;
       {
         groupLetters.length > 0 && (
           <section class="afc-team-related-section">
-            <h2>🔎 グループを切り替える</h2>
+            <h2>🔎 他のグループを見る</h2>
             <div class="afc-team-pills">
               {groupLetters.map((g) => (
                 <a
@@ -531,15 +542,15 @@ const topHref = `/afc/${year}/`;
     .afc-team-related {
       border-top: 1px solid #e5e7eb;
       border-bottom: 1px solid #e5e7eb;
-      padding: 18px 0 8px;
-      margin: 12px 0 18px;
+      padding: 10px 0 4px;
+      margin: 8px 0 12px;
     }
     .afc-team-related-section {
-      margin-bottom: 18px;
+      margin-bottom: 10px;
     }
     .afc-team-related-section h2 {
       font-size: 14px;
-      margin: 0 0 8px;
+      margin: 0 0 6px;
     }
     .afc-team-pills {
       display: flex;
@@ -549,13 +560,14 @@ const topHref = `/afc/${year}/`;
     .afc-team-pill {
       display: inline-flex;
       align-items: center;
-      min-height: 28px;
-      padding: 5px 12px;
+      min-height: 26px;
+      padding: 3px 10px;
       border: 1px solid #d5dce5;
       border-radius: 999px;
       color: inherit;
       text-decoration: none;
       font-size: 12px;
+      line-height: 1.2;
       background: #fff;
     }
     .afc-team-pill.is-active {
@@ -650,7 +662,7 @@ const topHref = `/afc/${year}/`;
       display: flex;
       flex-wrap: wrap;
       gap: 8px;
-      margin: 0 0 24px;
+      margin: 0 0 12px;
     }
     .afc-team-links a {
       display: inline-block;
@@ -778,6 +790,19 @@ const topHref = `/afc/${year}/`;
       white-space: normal;
       overflow-wrap: anywhere;
       line-height: 1.4;
+    }
+
+    /* AFC代表ページ：更新日 */
+    .afc-team-page .afc-team-updated {
+      margin: 0 0 12px;
+      text-align: right;
+      font-size: 16px;
+      color: #666;
+    }
+
+    .afc-team-page .afc-team-updated time {
+      color: #d32f2f;
+      font-weight: 600;
     }
   </style>
 </BaseLayout>
