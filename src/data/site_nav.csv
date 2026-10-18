@@ -7,6 +7,7 @@ href,level,sort_order,id,visible,label,parent_id
 /afc/2027/,2,13,afc,true,⚽ AFCアジアカップ,nt
 /afc/2027/,3,14,afc2027,true,→ AFCアジアカップ2027,afc
 /afc/2023/,3,15,afc2023,true,→ AFCアジアカップ2023,afc
+/afc/2019/,3,16,afc2019,true,→ AFCアジアカップ2019,afc
 /wc/2026/,2,20,wc,true,⚽ FIFAワールドカップ,nt
 /wc/2026/,3,21,wc2026,true,→ 2026 北中米,wc
 /wc/2026/#teams,4,22,wc2026-teams,false,→ 出場国一覧,wc2026

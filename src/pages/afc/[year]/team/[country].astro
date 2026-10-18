@@ -76,7 +76,7 @@ const rows = applyTournamentGA(
 const rowHighlightClass = (r: any) =>
   String(r.notes ?? "").includes("最終メンバー") ? "row-highlight" : "";
 const showTournamentStats =
-  year === "2023" ||
+  ["2019", "2023"].includes(year) ||
   rows.some((r) =>
     [r.apps, r.starts, r.goals, r.assists].some(
       (v) => String(v ?? "").trim() !== "",
@@ -111,7 +111,9 @@ const host = String(meta?.host_ja ?? "").trim();
 
 // アジアカップ2023は2024年1～2月開催。クラブは2023-24夏時点を優先。
 // 他大会も1～2月開催なら、edition翌年のシーズン夏を優先する。
-const season = `${year}-${String(Number(year) + 1).slice(-2)}`;
+// AFC2023のみ2024年開催。それ以外は1月開催を基準に前シーズンへ
+const seasonStartYear = Number(year) - (year === "2023" ? 0 : 1);
+const season = `${seasonStartYear}-${String(seasonStartYear + 1).slice(-2)}`;
 const clubMaster = loadClubMaster();
 const clubSquads = loadClubSquads();
 const squadKeySet = new Set(
@@ -346,7 +348,7 @@ const topHref = `/afc/${year}/`;
 <BaseLayout
   {title}
   {description}
-  bodyClass="page-wc"
+  bodyClass="page-afc"
   bodyStyle="margin:0; font-family: system-ui;"
   showPageHeader={true}
   crumbs={[
@@ -364,7 +366,6 @@ const topHref = `/afc/${year}/`;
     <div class="afc-team-meta">
       {result && <span>🏆 {result}</span>}
       {coach && <span>🎬 {coach}</span>}
-      {host && <span>📍 {host}</span>}
       <span
         >👥 掲載{rows.length}名
         {finalMemberCount > 0 && `（招集${finalMemberCount}名）`}</span
@@ -433,10 +434,7 @@ const topHref = `/afc/${year}/`;
               </tbody>
             </table>
           </div>
-          <p class="afc-match-note">
-            ※
-            日時は大会データに記録された現地時間。試合詳細ページは未実装のためリンクしていません。
-          </p>
+          <p class="afc-match-note" />
         </section>
       )
     }
@@ -512,9 +510,7 @@ const topHref = `/afc/${year}/`;
       <h2>👕 代表メンバー・背番号一覧</h2>
       <RosterView {rows} {columns} rowClass={rowHighlightClass} />
     </section>
-    <p class="afc-team-footnote">
-      ※ 当時の所属クラブを掲載。出場・先発の空欄は未確認を表します。
-    </p>
+    <p class="afc-team-footnote"></p>
   </main>
   <style is:global>
     .afc-team-matches {
@@ -526,7 +522,7 @@ const topHref = `/afc/${year}/`;
     }
     .afc-team-matches h2,
     .afc-team-stars h2 {
-      color: var(--theme-color, #8b364c);
+      color: var(--theme-color);
     }
     .afc-team-jump {
       margin: 14px 0 20px;
@@ -563,7 +559,7 @@ const topHref = `/afc/${year}/`;
       background: #fff;
     }
     .afc-team-pill.is-active {
-      border-color: var(--theme-color, #8b364c);
+      border-color: var(--theme-color);
       font-weight: 700;
     }
     .afc-team-pill.is-muted {
@@ -628,8 +624,9 @@ const topHref = `/afc/${year}/`;
     .afc-team-stars {
       margin: 0 0 20px;
       padding: 10px 12px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 35%, white);
       border-radius: 12px;
+      background: color-mix(in srgb, var(--theme-color) 22%, white);
     }
     .afc-team-star-grid {
       display: grid;
@@ -641,9 +638,9 @@ const topHref = `/afc/${year}/`;
       flex-direction: column;
       gap: 5px;
       padding: 10px;
-      border: 1px solid #e5e7eb;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 12%, white);
       border-radius: 8px;
-      background: #fff;
+      background: rgba(255, 255, 255, 0.75);
     }
     .afc-team-star span {
       font-size: 12px;
@@ -677,7 +674,7 @@ const topHref = `/afc/${year}/`;
     .afc-team-page .roster-table thead th,
     .afc-team-page .roster-table thead th:first-child,
     .afc-team-page .roster-table thead th:nth-child(2) {
-      background: #7046a6 !important;
+      background: var(--theme-color) !important;
       color: #fff !important;
     }
 
@@ -703,9 +700,9 @@ const topHref = `/afc/${year}/`;
     @media (min-width: 769px) {
       .afc-team-page .roster-table th:nth-child(6),
       .afc-team-page .roster-table td:nth-child(6) {
-        width: 120px;
-        min-width: 120px;
-        max-width: 120px;
+        width: 160px;
+        min-width: 160px;
+        max-width: 160px;
         white-space: normal;
         line-height: 1.35;
       }
@@ -749,7 +746,7 @@ const topHref = `/afc/${year}/`;
     .afc-team-page
       .tournament-history-line:nth-child(2)
       .tournament-history-label {
-      color: #7046a6;
+      color: var(--theme-color);
     }
 
     /* AFC：出場試合数を少しコンパクトに */
@@ -770,7 +767,17 @@ const topHref = `/afc/${year}/`;
 
     /* WC由来の左端ラインをAFC色に変更 */
     .afc-team-page .roster-table tbody tr.row-highlight td:first-child {
-      border-left: 3px solid #7046a6 !important;
+      border-left: 3px solid var(--theme-color) !important;
+    }
+
+    .afc-team-page .roster-table th:nth-child(10),
+    .afc-team-page .roster-table td:nth-child(10) {
+      width: 105px;
+      min-width: 105px;
+      max-width: 105px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.4;
     }
   </style>
 </BaseLayout>

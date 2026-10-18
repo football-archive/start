@@ -14,8 +14,8 @@ type StatsCoverage = {
 // match_events の整備が完了した大会だけ登録する
 const COVERAGE: Record<string, StatsCoverage> = {
   "AFC:2023": { goals: true, assists: true },
+  "AFC:2019": { goals: true, assists: true },
   "WC:2026": { goals: true, assists: true },
-  "WC:2022": { goals: true, assists: true },
 };
 
 const norm = (value: unknown) =>

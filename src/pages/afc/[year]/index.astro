@@ -24,10 +24,15 @@ import { toYMD } from "../../../lib/rosterFormat";
 const editions = [
   { year: "2027", label: "2027" },
   { year: "2023", label: "2023" },
+  { year: "2019", label: "2019" },
 ];
 
 export function getStaticPaths() {
-  return [{ params: { year: "2027" } }, { params: { year: "2023" } }];
+  return [
+    { params: { year: "2027" } },
+    { params: { year: "2023" } },
+    { params: { year: "2019" } },
+  ];
 }
 
 const year = Astro.params.year;
@@ -196,25 +201,41 @@ const finalizedCountries = Array.from(finalizedCountrySet).sort((a, b) =>
   a.localeCompare(b, "ja"),
 );
 
+const makeAwardKey = (team: unknown, player: unknown) =>
+  `${normalizeAwardMatchText(team)}|||${normalizeAwardMatchText(player)}`;
+
 const callupByAwardKey = new Map<string, any>();
 
 for (const r of afcCallups) {
-  const key = makeAwardCallupKey(r.name_ja);
-  if (!key) continue;
-
-  callupByAwardKey.set(key, r);
+  const key = makeAwardKey(r.country, r.name_ja);
+  if (normalizeAwardMatchText(r.name_ja)) {
+    callupByAwardKey.set(key, r);
+  }
 }
 
-const hasAwardStats = afcCallups.some(
-  (r) => String(r.apps ?? "").trim() !== "",
-);
+const goalByAwardKey = new Map<string, number>();
+for (const r of goalRanking) {
+  goalByAwardKey.set(makeAwardKey(r.team, r.player), Number(r.goals));
+}
+
+const assistByAwardKey = new Map<string, number>();
+for (const r of assistRanking) {
+  assistByAwardKey.set(makeAwardKey(r.team, r.player), Number(r.assists));
+}
+
+const hasAwardStats =
+  afcCallups.some((r) => String(r.apps ?? "").trim() !== "") ||
+  goalRanking.length > 0 ||
+  assistRanking.length > 0;
 
 const awardRows = awardRowsRaw.map((award) => {
-  const callup = callupByAwardKey.get(makeAwardCallupKey(award.player)) ?? null;
+  const key = makeAwardKey(award.team, award.player);
 
   return {
     ...award,
-    callup,
+    callup: callupByAwardKey.get(key) ?? null,
+    goals: goalByAwardKey.get(key),
+    assists: assistByAwardKey.get(key),
   };
 });
 
@@ -747,7 +768,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                       {hasAwardStats && (
                         <>
                           <td class="num">
-                            {callup
+                            {String(callup?.apps ?? "").trim()
                               ? `${callup.apps}${
                                   String(callup.starts ?? "").trim()
                                     ? `（先発${callup.starts}）`
@@ -755,12 +776,8 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
                                 }`
                               : "－"}
                           </td>
-                          <td class="num">
-                            {String(callup?.goals ?? "").trim() || "－"}
-                          </td>
-                          <td class="num">
-                            {String(callup?.assists ?? "").trim() || "－"}
-                          </td>
+                          <td class="num">{r.goals ?? "－"}</td>
+                          <td class="num">{r.assists ?? "－"}</td>
                         </>
                       )}
                     </tr>
