@@ -25,6 +25,7 @@ const TARGETS = [
   { competition: "AFC", edition: "2023" },
   { competition: "AFC", edition: "2019" },
   { competition: "AFC", edition: "2015" },
+  { competition: "AFC", edition: "2011" },
 ];
 
 const COLORS = {

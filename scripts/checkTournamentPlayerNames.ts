@@ -2,8 +2,8 @@ import fs from "node:fs";
 import path from "node:path";
 import Papa from "papaparse";
 
-const competition = "WC";
-const edition = "2026";
+const competition = "AFC";
+const edition = "2011";
 
 type EventRow = {
   competition: string;

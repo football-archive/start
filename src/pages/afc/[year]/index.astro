@@ -26,6 +26,7 @@ const editions = [
   { year: "2023", label: "2023" },
   { year: "2019", label: "2019" },
   { year: "2015", label: "2015" },
+  { year: "2011", label: "2011" },
 ];
 
 export function getStaticPaths() {
@@ -34,6 +35,7 @@ export function getStaticPaths() {
     { params: { year: "2023" } },
     { params: { year: "2019" } },
     { params: { year: "2015" } },
+    { params: { year: "2011" } },
   ];
 }
 
@@ -246,7 +248,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
 
 <BaseLayout
   title={`AFCアジアカップ${year} 出場国・代表メンバー一覧・日程・グループ`}
-  description={`AFCアジアカップ${year}の出場24か国、各国代表メンバー・背番号、グループ組み合わせ、試合日程・結果、順位表、決勝トーナメント表を掲載。`}
+  description={`AFCアジアカップ${year}の出場国、各国代表メンバー・背番号、グループ組み合わせ、試合日程・結果、順位表、決勝トーナメント表を掲載。`}
   bodyClass="page-afc"
 >
   <main>
@@ -258,7 +260,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
     </p>
 
     <p class="quick-title">
-      出場24か国・試合日程・グループ勝敗表・決勝トーナメント表をまとめて確認できます。
+      出場国・試合日程・グループ勝敗表・決勝トーナメント表をまとめて確認できます。
       {
         latestCallupSnapshot ? (
           <span class="update-date">｜最終更新：{latestCallupSnapshot}</span>
@@ -316,7 +318,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
 
     <section id="teams" class="afc-teams">
       <h2>⚽ AFCアジアカップ{year} 出場国一覧</h2>
-      <p>出場24か国をグループ別に確認できます。</p>
+      <p>出場国をグループ別に確認できます。</p>
 
       <div class="afc-filterbar">
         <div class="afc-filter-row">

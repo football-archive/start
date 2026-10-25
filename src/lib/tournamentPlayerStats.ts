@@ -16,6 +16,7 @@ const COVERAGE: Record<string, StatsCoverage> = {
   "AFC:2023": { goals: true, assists: true },
   "AFC:2019": { goals: true, assists: true },
   "AFC:2015": { goals: true, assists: true },
+  "AFC:2011": { goals: true, assists: true },
   "WC:2026": { goals: true, assists: true },
 };
 

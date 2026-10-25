@@ -2,8 +2,8 @@ import { loadCallups } from "../src/lib/callups";
 import { checkTournamentGAMatching } from "../src/lib/tournamentPlayerStats";
 import { getGoalRanking, getAssistRanking } from "../src/lib/matchEvents";
 
-const competition = "WC";
-const edition = "2026";
+const competition = "AFC";
+const edition = "2011";
 
 const rows = loadCallups().filter(
   (r) =>
