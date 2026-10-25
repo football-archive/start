@@ -2,7 +2,7 @@ import { loadCallups } from "../src/lib/callups";
 import { getGoalRanking, getAssistRanking } from "../src/lib/matchEvents";
 
 const competition = "AFC";
-const edition = "2011";
+const edition = "2004";
 
 const norm = (value: unknown) =>
   String(value ?? "")

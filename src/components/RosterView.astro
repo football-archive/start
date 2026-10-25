@@ -8,6 +8,7 @@ export type Column<T> = {
   render: (row: T, index: number) => any;
   show?: boolean;
   html?: boolean;
+  mobileHidden?: boolean; // 追加
 };
 
 type Props<T> = {
@@ -63,7 +64,12 @@ const searchText =
 const visibleColumns = columns.filter((c) => c.show ?? true);
 
 const thClass = (c: any) =>
-  c.align === "center" ? "center" : c.align === "right" ? "right" : "";
+  [
+    c.align === "center" ? "center" : c.align === "right" ? "right" : "",
+    c.mobileHidden ? "mobile-hidden" : "",
+  ]
+    .filter(Boolean)
+    .join(" ");
 ---
 
 <RosterTable
@@ -310,8 +316,9 @@ const thClass = (c: any) =>
       margin-left: 4px;
       white-space: nowrap;
     }
-    .roster-table th:nth-child(10),
-    .roster-table td:nth-child(10) {
+    /* モバイルでは4列目以降をすべて非表示 */
+    .roster-table th:nth-child(n + 4),
+    .roster-table td:nth-child(n + 4) {
       display: none !important;
       width: 0 !important;
       min-width: 0 !important;
@@ -362,6 +369,12 @@ const thClass = (c: any) =>
       max-width: 108px;
       word-break: keep-all;
       overflow-wrap: normal;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .roster-table :global(.mobile-hidden) {
+      display: none !important;
     }
   }
 </style>

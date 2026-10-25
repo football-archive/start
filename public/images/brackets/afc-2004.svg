@@ -1,0 +1,203 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1700" height="920" viewBox="0 0 1700 920" role="img" aria-labelledby="title desc">
+<title id="title">2004 AFCアジアカップ 決勝トーナメント</title>
+<desc id="desc">試合データから自動生成した決勝トーナメント表</desc>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<style>
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#7046a6}
+    .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: #7046a6;}
+.rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
+.score{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#7046a6}
+    .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
+  </style>
+<text class="title" x="850" y="64" text-anchor="middle">2004 AFCアジアカップ　決勝トーナメント</text>
+<rect
+      x="40"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="180"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="1380"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="1520"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準々決勝</text>
+<rect
+      x="375"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="515"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="1045"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="1185"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >準決勝</text>
+<rect
+      x="710"
+      y="84"
+      width="280"
+      height="54"
+      rx="4"
+      fill="#7046a6"
+    />
+<text
+      class="round"
+      x="850"
+      y="111"
+      text-anchor="middle"
+      dominant-baseline="middle"
+    >決勝</text>
+<path d="M 320 234 H 347.5 V 328 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 320 422 H 347.5 V 328 H 375" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1380 234 H 1352.5 V 328 H 1325" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1380 422 H 1352.5 V 328 H 1325" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 655 328 H 682.5 V 328 H 710" fill="none" stroke="#222222" stroke-width="3"/>
+<path d="M 1045 328 H 1017.5 V 328 H 990" fill="none" stroke="#222222" stroke-width="3"/>
+<rect x="40" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="234" x2="320" y2="234" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="202" style="font-size:29px">中国</text>
+<text class="rank" x="53" y="231">A組1位</text>
+<text class="score" x="308" y="205" text-anchor="end">3</text>
+<text class="team" x="52" y="266" style="font-size:29px">イラク</text>
+<text class="rank" x="53" y="295">C組2位</text>
+<text class="score" x="308" y="269" text-anchor="end">0</text>
+<rect x="40" y="358" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="40" y1="422" x2="320" y2="422" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="52" y="390" style="font-size:29px">韓国</text>
+<text class="rank" x="53" y="419">B組1位</text>
+<text class="score" x="308" y="393" text-anchor="end">3</text>
+<text class="team" x="52" y="454" style="font-size:29px">イラン</text>
+<text class="rank" x="53" y="483">D組2位</text>
+<text class="score" x="308" y="457" text-anchor="end">4</text>
+<rect x="375" y="264" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="375" y1="328" x2="655" y2="328" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="387" y="296" style="font-size:29px">中国</text>
+<text class="score" x="643" y="299" text-anchor="end">1 PK4</text>
+<text class="team" x="387" y="360" style="font-size:29px">イラン</text>
+<text class="score" x="643" y="363" text-anchor="end">1 PK3</text>
+<rect x="1380" y="170" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1380" y1="234" x2="1660" y2="234" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1392" y="202" style="font-size:29px">ウズベキスタン</text>
+<text class="rank" x="1393" y="231">C組1位</text>
+<text class="score" x="1648" y="205" text-anchor="end">2 PK3</text>
+<text class="team" x="1392" y="266" style="font-size:29px">バーレーン</text>
+<text class="rank" x="1393" y="295">A組2位</text>
+<text class="score" x="1648" y="269" text-anchor="end">2 PK4</text>
+<rect x="1380" y="358" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1380" y1="422" x2="1660" y2="422" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1392" y="390" style="font-size:29px">日本</text>
+<text class="rank" x="1393" y="419">D組1位</text>
+<text class="score" x="1648" y="393" text-anchor="end">1 PK4</text>
+<text class="team" x="1392" y="454" style="font-size:29px">ヨルダン</text>
+<text class="rank" x="1393" y="483">B組2位</text>
+<text class="score" x="1648" y="457" text-anchor="end">1 PK3</text>
+<rect x="1045" y="264" width="280" height="128" rx="5" fill="#fff" stroke="#222222" stroke-width="2"/>
+<line x1="1045" y1="328" x2="1325" y2="328" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="1057" y="296" style="font-size:29px">バーレーン</text>
+<text class="score" x="1313" y="299" text-anchor="end">3</text>
+<text class="team" x="1057" y="360" style="font-size:29px">日本</text>
+<text class="score" x="1313" y="363" text-anchor="end">4</text>
+<rect x="710" y="264" width="280" height="128" rx="5" fill="#fff" stroke="#7046a6" stroke-width="3"/>
+<line x1="710" y1="328" x2="990" y2="328" stroke="#e6e1e3" stroke-width="2"/>
+<text class="team" x="722" y="296" style="font-size:29px">中国</text>
+<text class="score" x="978" y="299" text-anchor="end">1</text>
+<text class="team" x="722" y="360" style="font-size:29px">日本</text>
+<text class="score" x="978" y="363" text-anchor="end">3</text>
+<text class="champ" x="850" y="239" text-anchor="middle">優勝</text>
+<text class="champ" x="850" y="437" text-anchor="middle">日本</text>
+<rect
+    x="710"
+    y="489"
+    width="280"
+    height="54"
+    rx="4"
+    fill="#7a1830"
+  />
+<text
+    class="third-title"
+    x="850"
+    y="516"
+    text-anchor="middle"
+    dominant-baseline="middle"
+  >3位決定戦</text>
+<rect
+      x="710"
+      y="553"
+      width="280"
+      height="128"
+      rx="5"
+      fill="#fff"
+      stroke="#222222"
+      stroke-width="2"
+    />
+<line
+      x1="710"
+      y1="617"
+      x2="990"
+      y2="617"
+      stroke="#e6e1e3"
+      stroke-width="2"
+    />
+<text
+      class="team"
+      x="722"
+      y="588"
+    >イラン</text>
+<text
+      class="score"
+      x="978"
+      y="590"
+      text-anchor="end"
+    >4</text>
+<text
+      class="team"
+      x="722"
+      y="652"
+    >バーレーン</text>
+<text
+      class="score"
+      x="978"
+      y="654"
+      text-anchor="end"
+    >2</text>
+</svg>

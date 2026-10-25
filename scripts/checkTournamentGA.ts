@@ -3,7 +3,7 @@ import { checkTournamentGAMatching } from "../src/lib/tournamentPlayerStats";
 import { getGoalRanking, getAssistRanking } from "../src/lib/matchEvents";
 
 const competition = "AFC";
-const edition = "2011";
+const edition = "2004";
 
 const rows = loadCallups().filter(
   (r) =>

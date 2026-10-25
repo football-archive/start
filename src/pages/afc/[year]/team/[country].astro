@@ -77,7 +77,7 @@ const rows = applyTournamentGA(
 const rowHighlightClass = (r: any) =>
   String(r.notes ?? "").includes("最終メンバー") ? "row-highlight" : "";
 const showTournamentStats =
-  ["2011", "2015", "2019", "2023"].includes(year) ||
+  ["2000", "2004", "2007", "2011", "2015", "2019", "2023"].includes(year) ||
   rows.some((r) =>
     [r.apps, r.starts, r.goals, r.assists].some(
       (v) => String(v ?? "").trim() !== "",

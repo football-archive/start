@@ -3,7 +3,7 @@ import path from "node:path";
 import Papa from "papaparse";
 
 const competition = "AFC";
-const edition = "2011";
+const edition = "2004";
 
 type ScheduleRow = {
   "match-id": string;
