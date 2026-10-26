@@ -21,6 +21,7 @@ const COVERAGE: Record<string, StatsCoverage> = {
   "AFC:2004": { goals: true, assists: true },
   "AFC:2000": { goals: true, assists: true },
   "WC:2026": { goals: true, assists: true },
+  "WC:2022": { goals: true, assists: true },
 };
 
 const norm = (value: unknown) =>

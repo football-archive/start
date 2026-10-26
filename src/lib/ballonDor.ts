@@ -557,7 +557,22 @@ export function buildBallonDorYearPage(year: string): BallonDorYearPage | null {
   const edition = editions.find((row) => row.year === year);
   const yearRankings = rankings
     .filter((row) => row.year === year)
-    .sort((a, b) => a._csvOrder - b._csvOrder);
+    .sort((a, b) => {
+      const rankA = Number(a.rank);
+      const rankB = Number(b.rank);
+
+      const validA = a.rank !== "" && Number.isFinite(rankA) && rankA > 0;
+      const validB = b.rank !== "" && Number.isFinite(rankB) && rankB > 0;
+
+      if (validA && validB) {
+        return rankA - rankB || a._csvOrder - b._csvOrder;
+      }
+
+      if (validA) return -1;
+      if (validB) return 1;
+
+      return a._csvOrder - b._csvOrder;
+    });
 
   if (!edition && !yearRankings.length) return null;
 
