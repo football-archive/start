@@ -777,7 +777,12 @@ const clubLabel = (clubName: string) => {
 };
 
 const showTournamentStats =
-  competition === "WC" && ["2026"].includes(String(year));
+  ["2018", "2022", "2026"].includes(String(year)) ||
+  rows.some((r) =>
+    [r.apps, r.starts, r.goals, r.assists].some(
+      (v) => String(v ?? "").trim() !== "",
+    ),
+  );
 
 const columns = buildNtColumns({
   isLatestView: true,

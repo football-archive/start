@@ -305,13 +305,18 @@ const calledCount = editionNoteTag
 const fifaRankRows = readCsv("fifa_rank.csv");
 
 const iwFifaRank = fifaRankRows
-  .filter(
-    (row) =>
-      clean(row.competition).toUpperCase() === "IW" &&
-      clean(row.year) === editionKey &&
-      clean(row.country_name_ja) === countryName,
-  )
-  .sort((a, b) => clean(b.rank_date).localeCompare(clean(a.rank_date)))[0];
+  .filter((row) => {
+    if (clean(row.competition).toUpperCase() !== "IW") return false;
+    if (clean(row.country_name_ja) !== countryName) return false;
+
+    const rankDate = clean(row.rank_date);
+    const rankMonth = rankDate.slice(0, 7).replace("-", "");
+
+    return /^\d{6}$/.test(rankMonth) && rankMonth <= editionKey;
+  })
+  .sort((a, b) =>
+    clean(b.rank_date).localeCompare(clean(a.rank_date))
+  )[0];
 
 const iwFifaRankValue = clean(iwFifaRank?.fifa_rank);
 const iwFifaRankDate = clean(iwFifaRank?.rank_date);

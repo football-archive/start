@@ -1,6 +1,7 @@
 import { getGoalRanking, getAssistRanking } from "./matchEvents";
 
 type GARow = {
+  name_en?: string;
   name_ja?: string;
   goals?: string;
   assists?: string;
@@ -22,87 +23,38 @@ const COVERAGE: Record<string, StatsCoverage> = {
   "AFC:2000": { goals: true, assists: true },
   "WC:2026": { goals: true, assists: true },
   "WC:2022": { goals: true, assists: true },
+  "WC:2018": { goals: true, assists: true },
 };
 
 const norm = (value: unknown) =>
   String(value ?? "")
     .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
     .replace(/　/g, " ")
-    .replace(/\s+/g, " ");
+    .replace(/\s+/g, " ")
+    .toLowerCase();
 
-export function applyTournamentGA<T extends GARow>(
-  rows: T[],
-  competition: string,
-  edition: string,
-  team: string,
-): T[] {
-  const key = `${competition.toUpperCase()}:${edition}`;
-  const coverage = COVERAGE[key];
+// 英字名・日本語名の両方から照合用インデックスを作成
+// 同じ選手のname_en/name_jaが同じ文字列でも重複扱いしない
+function buildPlayerIndex<T extends GARow>(rows: T[]) {
+  const index = new Map<string, Set<number>>();
 
-  if (!coverage?.goals && !coverage?.assists) {
-    return rows;
-  }
+  rows.forEach((row, i) => {
+    const names = new Set([norm(row.name_en), norm(row.name_ja)]);
 
-  // 代表メンバー未登録の国は処理しない
-  if (rows.length === 0) {
-    return rows;
-  }
+    for (const name of names) {
+      if (!name) continue;
 
-  // イベント側とメンバー側の選手名を照合
-  const issues = checkTournamentGAMatching(
-    rows,
-    competition,
-    edition,
-    team,
-  ).filter(
-    (issue) =>
-      (issue.stat === "G" && coverage.goals) ||
-      (issue.stat === "A" && coverage.assists),
-  );
+      if (!index.has(name)) {
+        index.set(name, new Set<number>());
+      }
 
-  // 未照合があれば安全のため元データを維持
-  if (issues.length > 0) {
-    console.warn(
-      `[TournamentGA] ${key} ${team}: ` +
-        `${issues.length}件の未照合があります。` +
-        `GAはcallupの値を維持します。`,
-    );
-
-    for (const issue of issues) {
-      console.warn(
-        `  ${issue.stat} ${issue.player} ` + `(${issue.count}) ${issue.reason}`,
-      );
+      index.get(name)!.add(i);
     }
-
-    return rows;
-  }
-
-  const goals = new Map<string, number>();
-  const assists = new Map<string, number>();
-
-  if (coverage.goals) {
-    for (const r of getGoalRanking(competition, edition)) {
-      if (norm(r.team) !== norm(team)) continue;
-      goals.set(norm(r.player), r.goals);
-    }
-  }
-
-  if (coverage.assists) {
-    for (const r of getAssistRanking(competition, edition)) {
-      if (norm(r.team) !== norm(team)) continue;
-      assists.set(norm(r.player), r.assists);
-    }
-  }
-
-  return rows.map((row) => {
-    const name = norm(row.name_ja);
-
-    return {
-      ...row,
-      goals: coverage.goals ? String(goals.get(name) ?? 0) : row.goals,
-      assists: coverage.assists ? String(assists.get(name) ?? 0) : row.assists,
-    };
   });
+
+  return index;
 }
 
 export type TournamentGAIssue = {
@@ -120,18 +72,10 @@ export function checkTournamentGAMatching<T extends GARow>(
   team: string,
 ): TournamentGAIssue[] {
   const issues: TournamentGAIssue[] = [];
-
-  const names = new Map<string, number>();
-
-  for (const row of rows) {
-    const name = norm(row.name_ja);
-    if (!name) continue;
-
-    names.set(name, (names.get(name) ?? 0) + 1);
-  }
+  const index = buildPlayerIndex(rows);
 
   const check = (player: string, count: number, stat: "G" | "A") => {
-    const matches = names.get(norm(player)) ?? 0;
+    const matches = index.get(norm(player))?.size ?? 0;
 
     if (matches === 1) return;
 
@@ -155,4 +99,82 @@ export function checkTournamentGAMatching<T extends GARow>(
   }
 
   return issues;
+}
+
+export function applyTournamentGA<T extends GARow>(
+  rows: T[],
+  competition: string,
+  edition: string,
+  team: string,
+): T[] {
+  const key = `${competition.toUpperCase()}:${edition}`;
+  const coverage = COVERAGE[key];
+
+  if (!coverage?.goals && !coverage?.assists) {
+    return rows;
+  }
+
+  if (rows.length === 0) {
+    return rows;
+  }
+
+  const issues = checkTournamentGAMatching(
+    rows,
+    competition,
+    edition,
+    team,
+  ).filter(
+    (issue) =>
+      (issue.stat === "G" && coverage.goals) ||
+      (issue.stat === "A" && coverage.assists),
+  );
+
+  // 未照合があれば従来どおり元データを維持
+  if (issues.length > 0) {
+    console.warn(
+      `[TournamentGA] ${key} ${team}: ` +
+        `${issues.length}件の未照合があります。` +
+        `GAはcallupの値を維持します。`,
+    );
+
+    for (const issue of issues) {
+      console.warn(
+        `  ${issue.stat} ${issue.player} ` + `(${issue.count}) ${issue.reason}`,
+      );
+    }
+
+    return rows;
+  }
+
+  const index = buildPlayerIndex(rows);
+  const goals = new Map<number, number>();
+  const assists = new Map<number, number>();
+
+  if (coverage.goals) {
+    for (const r of getGoalRanking(competition, edition)) {
+      if (norm(r.team) !== norm(team)) continue;
+
+      const playerIndex = [...(index.get(norm(r.player)) ?? [])][0];
+      if (playerIndex === undefined) continue;
+
+      goals.set(playerIndex, r.goals);
+    }
+  }
+
+  if (coverage.assists) {
+    for (const r of getAssistRanking(competition, edition)) {
+      if (norm(r.team) !== norm(team)) continue;
+
+      const playerIndex = [...(index.get(norm(r.player)) ?? [])][0];
+      if (playerIndex === undefined) continue;
+
+      assists.set(playerIndex, r.assists);
+    }
+  }
+
+  return rows.map((row, i) => ({
+    ...row,
+    goals: coverage.goals ? String(goals.get(i) ?? 0) : row.goals,
+    assists: coverage.assists ? String(assists.get(i) ?? 0) : row.assists,
+  }));
 }
