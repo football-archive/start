@@ -260,6 +260,17 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
   <main>
     <h1>AFCアジアカップ{year} 大会ポータルページ</h1>
 
+    {
+      year === "2027" && (
+        <p class="afc-postponement">
+          【開催日程変更】AFCアジアカップ2027は、当初予定されていた
+          2027年1月7日〜2月5日から延期され、
+          <strong>2027年12月23日〜2028年1月21日</strong>
+          に開催日程が変更されました。
+        </p>
+      )
+    }
+
     <p class="afc-lead">
       AFCアジアカップ{year}の出場国一覧と各国代表の情報を掲載。
       🔥この1ページで大会全体を俯瞰することができます。
@@ -1304,6 +1315,19 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
       color: #b91c1c;
       border: 1px solid #fecaca;
       font-weight: 700;
+    }
+
+
+    .page-afc .afc-postponement {
+      margin: 8px 0 14px;
+      color: #c62828;
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.8;
+    }
+
+    .page-afc .afc-postponement strong {
+      font-weight: 800;
     }
   </style>
 </BaseLayout>
