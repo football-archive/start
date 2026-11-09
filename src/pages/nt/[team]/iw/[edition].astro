@@ -475,9 +475,25 @@ const columns = buildNtColumns({
   },
 });
 
+const latestIwEdition = loadCallups()
+  .filter(
+    (row) =>
+      clean(row.competition).toUpperCase() === "IW" &&
+      clean(row.country) === countryName,
+  )
+  .reduce(
+    (latest, row) =>
+      clean(row.edition) > latest ? clean(row.edition) : latest,
+    "",
+  );
+
+const isLatestIw = editionKey === latestIwEdition;
+
 const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー・背番号一覧`;
 
-const title = `${countryName}代表 招集メンバー・背番号一覧｜${formatEdition(editionKey)}`;
+const title = isLatestIw
+  ? `${countryName}代表 最新招集メンバー・背番号一覧｜${formatEdition(editionKey)}`
+  : `${countryName}代表 招集メンバー・背番号一覧｜${formatEdition(editionKey)}`;
 
 const description =
   `${countryName}代表の${formatEdition(editionKey)}招集メンバー・背番号一覧。` +
