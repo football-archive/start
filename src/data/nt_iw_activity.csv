@@ -417,8 +417,8 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202611,georgia,2026-11-06,ラマズ・スヴァナゼ,2026-11-17,ukraine,A,,UEFAネーションズリーグB
 202611,germany,2026-11-05,ユルゲン・クロップ,2026-11-13,serbia,A,,UEFAネーションズリーグA
 202611,germany,2026-11-05,ユルゲン・クロップ,2026-11-16,netherlands,H,,UEFAネーションズリーグA
-202611,spain,2026-11-06,ルイス・デ・ラ・フエンテ,2026-11-12,チェコ,A,,UEFAネーションズリーグA／レトナー・スタジアム（プラハ）
-202611,spain,2026-11-06,ルイス・デ・ラ・フエンテ,2026-11-15,イングランド,H,,UEFAネーションズリーグA／メトロポリターノ（マドリード）
+202611,spain,2026-11-06,ルイス・デ・ラ・フエンテ,2026-11-12,czechia,A,,UEFAネーションズリーグA／レトナー・スタジアム（プラハ）
+202611,spain,2026-11-06,ルイス・デ・ラ・フエンテ,2026-11-15,england,H,,UEFAネーションズリーグA／メトロポリターノ（マドリード）
 202611,dr-congo,2026-11-06,セバスティアン・デサブル,2026-11-12,sierra-leone,H,,AFCON2027予選／スタッド・デ・マルティール（キンシャサ）
 202611,dr-congo,2026-11-06,セバスティアン・デサブル,2026-11-17,sierra-leone,N,,AFCON2027予選／スタッド・ラルビ・ザウリ（カサブランカ）
 202611,kenya,2026-11-06,ベニー・マッカーシー,2026-11-13,south-africa,A,,AFCON 2027予選／Orlando Stadium
@@ -452,7 +452,7 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202611,albania,2026-11-06,ロランド・マラン,2026-11-12,finland,H,,UEFAネーションズリーグC
 202611,albania,2026-11-06,ロランド・マラン,2026-11-15,belarus,A,,UEFAネーションズリーグC
 202611,romania,2026-11-07,ゲオルゲ・ハジ,2026-11-14,poland,H,,UEFAネーションズリーグB
-202611,romania,2026-11-07,ゲオルゲ・ハジ,2026-11-17,bosnia-herzegovina,A,,UEFAネーションズリーグB
+202611,romania,2026-11-07,ゲオルゲ・ハジ,2026-11-17,bosnia-and-herzegovina,A,,UEFAネーションズリーグB
 202611,tunisia,2026-11-07,ムイーヌ・シャアバニ,2026-11-13,libya,H,,AFCON2027予選
 202611,tunisia,2026-11-07,ムイーヌ・シャアバニ,2026-11-17,libya,A,,AFCON2027予選
 202611,bolivia,2026-11-08,オスカル・ビジェガス,2026-11-13,peru,A,,
