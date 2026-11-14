@@ -357,24 +357,23 @@ const playerKey = (r: any) =>
   `${normalize(r.name_en || r.name_ja)}|${normalize(r.birth_date)}`;
 
 const all = loadCallups();
-const wcAllForCountry = all.filter(
-  (r) =>
-    String(r.competition ?? "").trim() === "WC" &&
-    String(r.country ?? "").trim() === countryName,
-);
-
-const editionsByPlayer = new Map<string, string[]>();
-for (const r of wcAllForCountry) {
+const editionsByPlayer = new Map<
+  string,
+  { competition: string; edition: string }[]
+>();
+for (const r of all) {
+  const competition = String(r.competition ?? "")
+    .trim()
+    .toUpperCase();
+  if (!["WC", "AFC"].includes(competition)) continue;
+  if (normKey(r.country ?? "") !== normKey(countryName)) continue;
   const k = playerKey(r);
   const ed = String(r.edition ?? "").trim();
-  if (!ed) continue;
+  if (!/^\d{4}$/.test(ed)) continue;
   const arr = editionsByPlayer.get(k) ?? [];
-  if (!arr.includes(ed)) arr.push(ed);
-  editionsByPlayer.set(k, arr);
-}
-// 表示は降順に（数字として比較）
-for (const [k, arr] of editionsByPlayer) {
-  arr.sort((a, b) => Number(b) - Number(a));
+  if (!arr.some((x) => x.competition === competition && x.edition === ed)) {
+    arr.push({ competition, edition: ed });
+  }
   editionsByPlayer.set(k, arr);
 }
 const groups = loadGroups("WC", String(year), "group");
@@ -790,12 +789,12 @@ const columns = buildNtColumns({
   clubHref,
   clubLabel, // ← ★追加
 
+  groupTournamentHistory: true,
   tournamentLinks: (r) => {
-    const k = `${normalize(r.name_en || r.name_ja)}|${normalize(r.birth_date)}`;
-    const editions = editionsByPlayer.get(k) ?? [];
-    return editions.map((ed) => ({
-      label: ed,
-      href: `/wc/${encodeURIComponent(ed)}/team/${encodeURIComponent(countryName)}/`,
+    const k = playerKey(r);
+    return (editionsByPlayer.get(k) ?? []).map(({ competition, edition }) => ({
+      label: `${competition}${edition}`,
+      href: `/${competition.toLowerCase()}/${edition}/team/${encodeURIComponent(countryName)}/`,
     }));
   },
 });
@@ -3353,6 +3352,25 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
       }
     }
 
+    .page-wc .tournament-history-grouped {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      text-align: left;
+    }
+    .page-wc .tournament-history-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      white-space: nowrap;
+    }
+    .page-wc .tournament-history-label {
+      min-width: 30px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
     .nt-latest-guide {
       display: flex;
       align-items: center;
@@ -3416,6 +3434,35 @@ const heading = `${countryName}代表 ${compLabel}${year}メンバー一覧`;
 
       .nt-latest-guide > a {
         margin-left: 27px;
+      }
+    }
+
+    /* WC：招集歴セルを左寄せ */
+    .page-wc .roster-table td:has(.tournament-history-grouped) {
+      text-align: left;
+    }
+
+    .page-wc .tournament-history-grouped {
+      align-items: flex-start;
+      width: 100%;
+    }
+
+    /* WC：所属クラブを少しコンパクトに */
+    .page-wc .club-cell {
+      max-width: 130px;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      line-height: 1.35;
+    }
+
+    /* WC：招集歴の表示幅を確保 */
+    @media (min-width: 769px) {
+      .page-wc .roster-table th:nth-child(6),
+      .page-wc .roster-table td:nth-child(6) {
+        width: 150px;
+        min-width: 150px;
+        max-width: 150px;
+        white-space: normal;
       }
     }
   </style>

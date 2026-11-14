@@ -557,27 +557,7 @@ const description =
     }
   </div>
 
-  {
-    decadePlayers.length > 0 && (
-      <section class="nt-decade-players">
-        <h2>⚽ {countryJa}代表｜年代別 主力選手</h2>
 
-        <div class="nt-decade-list">
-          {decadePlayers.map((row) => (
-            <div class="nt-decade-row">
-              <div class="nt-decade-label">{row.decade}年代</div>
-
-              <div class="nt-decade-names">
-                {row.players.map((player) => (
-                  <span class="nt-decade-player">{player}</span>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-    )
-  }
 
   {
     activityHistory.length > 0 && (
@@ -632,6 +612,28 @@ const description =
 
               <div class="activity-history-link">
                 {item.hasRoster && <a href={item.href}>👉メンバー一覧へ →</a>}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+    {
+    decadePlayers.length > 0 && (
+      <section class="nt-decade-players">
+        <h2>⚽ {countryJa}代表｜年代別 主力選手</h2>
+
+        <div class="nt-decade-list">
+          {decadePlayers.map((row) => (
+            <div class="nt-decade-row">
+              <div class="nt-decade-label">{row.decade}年代</div>
+
+              <div class="nt-decade-names">
+                {row.players.map((player) => (
+                  <span class="nt-decade-player">{player}</span>
+                ))}
               </div>
             </div>
           ))}

@@ -106,6 +106,43 @@ const meta = metaAll.find(
     String(r.edition ?? "").trim() === year &&
     String(r.team_slug ?? "").trim() === teamSlug,
 );
+// 代表カテゴリ共通：大会当時より新しいスナップショットがあれば国別ハブへ誘導
+const latestCountrySnapshot =
+  allCallups
+    .filter((r) => norm(r.country) === countryName)
+    .map((r) => toYMD(String(r.snapshot_date ?? "")))
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? "";
+const hasNewerSnapshot =
+  !!latestCountrySnapshot &&
+  !!editionMaxSnapshot &&
+  latestCountrySnapshot > editionMaxSnapshot;
+
+// 既存の nt_lineup_images.csv に AFC の画像が登録されている場合のみ表示
+const afcLineup = readCsv("nt_lineup_images.csv").find(
+  (r) =>
+    String(r.competition ?? "")
+      .trim()
+      .toUpperCase() === "AFC" &&
+    String(r.year ?? "").trim() === year &&
+    String(r.team_slug ?? "").trim() === teamSlug &&
+    String(r.image ?? "").trim() !== "" &&
+    fs.existsSync(
+      path.join(
+        process.cwd(),
+        "public",
+        "images",
+        "lineups",
+        String(r.image).trim(),
+      ),
+    ),
+);
+const afcLineupSrc = afcLineup
+  ? `/images/lineups/${String(afcLineup.image).trim()}`
+  : "";
+const afcLineupFormation = String(afcLineup?.formation ?? "").trim();
+
 const coach = String(meta?.coach_ja ?? "").trim();
 const result = String(meta?.result_ja ?? "").trim();
 const host = String(meta?.host_ja ?? "").trim();
@@ -374,6 +411,14 @@ const topHref = `/afc/${year}/`;
       )
     }
 
+    {
+      hasNewerSnapshot && ntHubHref && (
+        <div class="afc-latest-guide">
+          📌 最新の{countryName}代表はこちら：
+          <a href={ntHubHref}>最新メンバー・招集履歴を見る →</a>
+        </div>
+      )
+    }
     <div class="afc-team-meta">
       {result && <span>🏆 {result}</span>}
       {coach && <span>🎬 {coach}</span>}
@@ -382,6 +427,52 @@ const topHref = `/afc/${year}/`;
         {finalMemberCount > 0 && `（招集${finalMemberCount}名）`}</span
       >
     </div>
+    {
+      afcLineupSrc && (
+        <section class="afc-lineup-section" aria-label="フォーメーション例">
+          <h2>👕 フォーメーション例</h2>
+          <button
+            type="button"
+            class="afc-lineup-card"
+            id="afc-lineup-open"
+            aria-haspopup="dialog"
+            aria-controls="afc-lineup-modal"
+          >
+            <img
+              src={afcLineupSrc}
+              alt={`${countryName}代表 AFC${year} フォーメーション例`}
+              loading="lazy"
+            />
+            <span>
+              👉 フォーメーション例を見る
+              {afcLineupFormation && `（${afcLineupFormation}）`}
+            </span>
+          </button>
+          <dialog
+            id="afc-lineup-modal"
+            class="afc-lineup-modal"
+            aria-label="フォーメーション例"
+          >
+            <button
+              type="button"
+              id="afc-lineup-close"
+              class="afc-lineup-close"
+              aria-label="閉じる"
+            >
+              ×
+            </button>
+            <p>
+              {countryName}代表 AFC{year} フォーメーション例
+              {afcLineupFormation && `（${afcLineupFormation}）`}
+            </p>
+            <img
+              src={afcLineupSrc}
+              alt={`${countryName}代表 AFC${year} フォーメーション例`}
+            />
+          </dialog>
+        </section>
+      )
+    }
     <p class="afc-team-jump">
       <a href="#roster">👉 {countryName}代表メンバー一覧を見る</a>
     </p>
@@ -523,7 +614,71 @@ const topHref = `/afc/${year}/`;
     </section>
     <p class="afc-team-footnote"></p>
   </main>
+  <script is:inline>
+    const afcOpen = document.getElementById("afc-lineup-open");
+    const afcModal = document.getElementById("afc-lineup-modal");
+    const afcClose = document.getElementById("afc-lineup-close");
+    afcOpen?.addEventListener("click", () => afcModal?.showModal());
+    afcClose?.addEventListener("click", () => afcModal?.close());
+    afcModal?.addEventListener("click", (event) => {
+      if (event.target === afcModal) afcModal.close();
+    });
+  </script>
   <style is:global>
+    .afc-latest-guide {
+      margin: 14px 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(179, 28, 45, 0.25);
+      border-left: 4px solid var(--theme-color);
+      border-radius: 10px;
+      background: #fff1a8;
+    }
+    .afc-latest-guide a {
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .afc-lineup-section {
+      margin: 16px 0;
+    }
+    .afc-lineup-card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      text-align: left;
+      font-weight: 700;
+    }
+    .afc-lineup-card img {
+      width: 130px;
+      max-width: 38%;
+      border-radius: 6px;
+    }
+    .afc-lineup-modal {
+      max-width: min(92vw, 800px);
+      max-height: 90vh;
+      border: 0;
+      border-radius: 12px;
+      padding: 18px;
+    }
+    .afc-lineup-modal::backdrop {
+      background: rgba(0, 0, 0, 0.7);
+    }
+    .afc-lineup-modal img {
+      display: block;
+      max-width: 100%;
+      max-height: 75vh;
+      object-fit: contain;
+    }
+    .afc-lineup-close {
+      float: right;
+      cursor: pointer;
+      font-size: 24px;
+    }
     .afc-team-matches {
       margin: 12px 0 20px;
       padding: 10px 12px;

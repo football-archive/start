@@ -314,9 +314,7 @@ const iwFifaRank = fifaRankRows
 
     return /^\d{6}$/.test(rankMonth) && rankMonth <= editionKey;
   })
-  .sort((a, b) =>
-    clean(b.rank_date).localeCompare(clean(a.rank_date))
-  )[0];
+  .sort((a, b) => clean(b.rank_date).localeCompare(clean(a.rank_date)))[0];
 
 const iwFifaRankValue = clean(iwFifaRank?.fifa_rank);
 const iwFifaRankDate = clean(iwFifaRank?.rank_date);
@@ -418,36 +416,27 @@ const clubLabel = (clubName: string) => {
   return club?.club_display_ja || clubName;
 };
 
-// 選手ごとのW杯招集歴
+// 選手ごとのWC・AFC招集歴（IW自身は大会招集歴に含めない）
 const playerKey = (row: any) =>
   `${normalize(row.name_en || row.name_ja)}|${normalize(row.birth_date)}`;
-
-const wcAllForCountry = loadCallups().filter(
-  (row: any) =>
-    clean(row.competition).toUpperCase() === "WC" &&
-    clean(row.country) === countryName,
-);
-
-const wcEditionsByPlayer = new Map<string, string[]>();
-
-for (const row of wcAllForCountry) {
+const editionsByPlayer = new Map<
+  string,
+  { competition: string; edition: string }[]
+>();
+for (const row of loadCallups()) {
+  const competition = clean(row.competition).toUpperCase();
+  if (!["WC", "AFC"].includes(competition)) continue;
+  if (normalize(row.country) !== normalize(countryName)) continue;
+  const edition = clean(row.edition);
+  if (!/^\d{4}$/.test(edition)) continue;
   const key = playerKey(row);
-  const wcEdition = clean(row.edition);
-
-  if (!wcEdition) continue;
-
-  const editions = wcEditionsByPlayer.get(key) ?? [];
-
-  if (!editions.includes(wcEdition)) {
-    editions.push(wcEdition);
+  const list = editionsByPlayer.get(key) ?? [];
+  if (
+    !list.some((x) => x.competition === competition && x.edition === edition)
+  ) {
+    list.push({ competition, edition });
   }
-
-  wcEditionsByPlayer.set(key, editions);
-}
-
-for (const [key, editions] of wcEditionsByPlayer) {
-  editions.sort((a, b) => Number(b) - Number(a));
-  wcEditionsByPlayer.set(key, editions);
+  editionsByPlayer.set(key, list);
 }
 
 const showIwStats = rows.some((row: any) => {
@@ -464,30 +453,47 @@ const columns = buildNtColumns({
   showStats: showIwStats,
   clubHref,
   clubLabel,
-  tournamentLinks: (row) => {
-    const key = playerKey(row);
-    const editions = wcEditionsByPlayer.get(key) ?? [];
-
-    return editions.map((wcEdition) => ({
-      label: wcEdition,
-      href: `/wc/${encodeURIComponent(wcEdition)}/team/${encodeURIComponent(countryName)}/`,
-    }));
-  },
+  groupTournamentHistory: true,
+  tournamentLinks: (row) =>
+    (editionsByPlayer.get(playerKey(row)) ?? []).map(
+      ({ competition, edition }) => ({
+        label: `${competition}${edition}`,
+        href: `/${competition.toLowerCase()}/${edition}/team/${encodeURIComponent(countryName)}/`,
+      }),
+    ),
 });
 
-const latestIwEdition = loadCallups()
-  .filter(
-    (row) =>
-      clean(row.competition).toUpperCase() === "IW" &&
-      clean(row.country) === countryName,
-  )
-  .reduce(
-    (latest, row) =>
-      clean(row.edition) > latest ? clean(row.edition) : latest,
-    "",
-  );
-
+const countryCallups = loadCallups().filter(
+  (row) => normalize(row.country) === normalize(countryName),
+);
+const iwEditions = [
+  ...new Set(
+    countryCallups
+      .filter((row) => clean(row.competition).toUpperCase() === "IW")
+      .map((row) => clean(row.edition))
+      .filter((edition) => /^\d{6}$/.test(edition)),
+  ),
+]
+  .sort()
+  .reverse();
+const latestIwEdition = iwEditions[0] ?? "";
 const isLatestIw = editionKey === latestIwEdition;
+const latestCountrySnapshot =
+  countryCallups
+    .map((row) => clean(row.snapshot_date).replaceAll("/", "-").slice(0, 10))
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? "";
+const currentSnapshot =
+  rows
+    .map((row) => clean(row.snapshot_date).replaceAll("/", "-").slice(0, 10))
+    .filter(Boolean)
+    .sort()
+    .at(-1) ?? "";
+const hasNewerSnapshot =
+  !!latestCountrySnapshot &&
+  !!currentSnapshot &&
+  latestCountrySnapshot > currentSnapshot;
 
 const heading = `${countryName}代表 ${formatEdition(editionKey)} 招集メンバー・背番号一覧`;
 
@@ -525,6 +531,17 @@ const description =
       ※背番号は決まり次第更新します（直近のものを暫定で表示）
     </p>
   </div>
+
+  {
+    !isLatestIw && hasNewerSnapshot && (
+      <div class="iw-latest-guide">
+        📌 最新の{countryName}代表（{formatEdition(latestIwEdition)}）はこちら：
+        <a href={`/nt/${teamSlug}/iw/${latestIwEdition}/`}>
+          👉最新メンバー・背番号を見る
+        </a>
+      </div>
+    )
+  }
 
   {
     latestSnapshot && (
@@ -591,7 +608,7 @@ const description =
               {match.venueType === "H" && <span>（H）</span>}
               {match.venueType === "A" && <span>（A）</span>}
               {match.venueType === "N" && <span>（中立地）</span>}
-              {match.note && <span>　{match.note}</span>}
+              {match.note && <span class="iw-match-note">　{match.note}</span>}
               {match.score && <span class="iw-match-score">{match.score}</span>}
             </div>
           ))}
@@ -600,6 +617,24 @@ const description =
     )
   }
 
+  {
+    iwEditions.length > 1 && (
+      <nav class="iw-edition-nav" aria-label="IW招集期間の切り替え">
+        <strong>🔎 招集期間を切り替える</strong>
+        <div class="iw-edition-pills">
+          {iwEditions.map((ed) => (
+            <a
+              class={`iw-edition-pill ${ed === editionKey ? "is-active" : ""}`}
+              aria-current={ed === editionKey ? "page" : undefined}
+              href={`/nt/${teamSlug}/iw/${ed}/`}
+            >
+              {formatEdition(ed)}
+            </a>
+          ))}
+        </div>
+      </nav>
+    )
+  }
   <div class="iw-portal-link">
     <a href={`/nt/${teamSlug}/`}>
       👉 {countryName}代表 ポータルページへ
@@ -765,6 +800,71 @@ const description =
       font-weight: 600;
     }
 
+    .page-nt-iw .iw-latest-guide {
+      margin: 14px 0;
+      padding: 12px 14px;
+      border: 1px solid #d9e3ee;
+      border-radius: 10px;
+      background: #f8fafc;
+    }
+
+    /* IW切替：外枠と背景をなくす */
+    .page-nt-iw .iw-edition-nav {
+      border: none;
+      background: transparent;
+      padding: 0;
+      border-radius: 0;
+    }
+
+    .page-nt-iw .iw-latest-guide {
+      border-color: rgba(179, 28, 45, 0.25);
+      border-left: 4px solid var(--theme-color);
+      background: #fff1a8;
+    }
+    .page-nt-iw .iw-latest-guide a {
+      font-weight: 700;
+      margin-left: 8px;
+    }
+    .page-nt-iw .iw-edition-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 9px;
+    }
+    .page-nt-iw .iw-edition-pill {
+      display: inline-block;
+      padding: 5px 11px;
+      border: 1px solid #b9c9dd;
+      border-radius: 999px;
+      text-decoration: none;
+      color: #8f1720;
+      background: white;
+      font-size: 13px;
+    }
+    .page-nt-iw .iw-edition-pill.is-active {
+      color: white;
+      background: #8f1720;
+      border-color: #8f1720;
+    }
+    .page-nt-iw .tournament-history-grouped {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      text-align: left;
+      align-items: flex-start;
+    }
+    .page-nt-iw .tournament-history-line {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+    }
+    .page-nt-iw .tournament-history-label {
+      min-width: 30px;
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+    }
+
     .page-nt-iw .iw-summary {
       display: flex;
       flex-wrap: wrap;
@@ -824,7 +924,7 @@ const description =
 
     .page-nt-iw .club-cell {
       display: inline-block;
-      max-width: 150px;
+      max-width: 120px;
       white-space: normal;
       overflow-wrap: anywhere;
       word-break: break-word;
@@ -840,13 +940,28 @@ const description =
 
     /* ===== IW代表ページ：備考列 ===== */
 
-    .page-nt-iw .note-cell {
-      display: inline-block;
-      max-width: 90px;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      word-break: break-word;
-      line-height: 1.35;
+    /* ===== IW代表ページ：備考列の幅を抑制（PC） ===== */
+    @media (min-width: 769px) {
+      .page-nt-iw .roster-block .roster-table th:nth-child(10),
+      .page-nt-iw .roster-block .roster-table td:nth-child(10) {
+        width: 55px;
+        min-width: 55px;
+        max-width: 55px;
+        padding-left: 4px;
+        padding-right: 4px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+      }
+
+      .page-nt-iw .roster-block .roster-table .note-cell {
+        display: block;
+        max-width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        word-break: break-word;
+        line-height: 1.35;
+      }
     }
 
     /* ===== IW代表ページ：W杯招集歴 ===== */
@@ -854,9 +969,9 @@ const description =
     @media (min-width: 769px) {
       .page-nt-iw .roster-table th:nth-child(6),
       .page-nt-iw .roster-table td:nth-child(6) {
-        width: 120px;
-        min-width: 120px;
-        max-width: 120px;
+        width: 145px;
+        min-width: 145px;
+        max-width: 145px;
         white-space: normal;
         line-height: 1.35;
       }
@@ -1265,6 +1380,30 @@ const description =
       margin-left: 8px;
       color: #c62828;
       font-weight: 700;
+    }
+
+    /* IW：モバイルの試合日程を折り返し表示 */
+    @media (max-width: 768px) {
+      .page-nt-iw .iw-match-list {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        overflow-x: visible;
+      }
+
+      .page-nt-iw .iw-match-item {
+        display: block;
+        min-width: 0;
+        width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        line-height: 1.6;
+      }
+
+      /* モバイルでは大会名・備考を非表示 */
+      .page-nt-iw .iw-match-note {
+        display: none;
+      }
     }
   </style>
 
