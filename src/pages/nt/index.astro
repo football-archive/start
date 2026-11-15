@@ -377,7 +377,8 @@ const countrySections = [...countriesByConfederation.entries()]
   </div>
 
   {
-
+    /* 旧：メンバー発表済一覧（再利用用に保存）
+  {
     currentIwCountries.length > 0 && (
       <div class="iw-current-summary">
         <div class="iw-current-summary-title">
@@ -396,7 +397,19 @@ const countrySections = [...countriesByConfederation.entries()]
         </div>
       </div>
     )
+  }
+  */
+  }
 
+  {
+    currentIwEdition && (
+      <div class="iw-portal-notice">
+        <a href={`/iw/${currentIwEdition}/`}>
+          最新の代表活動：👉 🌍{currentIwLabel} 代表ウィーク
+          <span>｜試合日程・結果一覧はこちらから</span>
+        </a>
+      </div>
+    )
   }
 
   <section
@@ -975,6 +988,37 @@ const countrySections = [...countriesByConfederation.entries()]
     .page-nt-portal a.competition-card[href^="/afc/"]:hover {
       border-color: #7046a6;
       background: #f3ebfc;
+    }
+
+    /* IW月別ハブ案内 */
+    .page-nt-portal .iw-portal-notice {
+      margin: 6px 0 20px;
+      padding: 11px 15px;
+      border: 1px solid #eadc99;
+      border-left: 4px solid #d2ac36;
+      border-radius: 8px;
+      background: #fffbea;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .page-nt-portal .iw-portal-notice a {
+      color: #75551b;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .page-nt-portal .iw-portal-notice a:hover {
+      color: #9a6210;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-portal .iw-portal-notice {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
     }
   </style>
 </BaseLayout>

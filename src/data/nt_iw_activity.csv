@@ -325,8 +325,8 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202611,mali,2026-11-02,アントニー・ダ・シルヴァ,2026-11-17,rwanda,A,,アフリカネイションズカップ2027予選
 202611,guinea,2026-11-02,パウロ・ドゥアルテ,2026-11-12,eritrea,H,2-1,2027年AFCON予選（コナクリ）
 202611,guinea,2026-11-02,パウロ・ドゥアルテ,2026-11-16,eritrea,A,,2027年AFCON予選（カイロ）
-202611,austria,2026-11-02,ラルフ・ラングニック,2026-11-15,ireland,H,1-0,UEFAネーションズリーグB
-202611,austria,2026-11-02,ラルフ・ラングニック,2026-11-18,israel,A,,UEFAネーションズリーグB
+202611,austria,2026-11-02,ラルフ・ラングニック,2026-11-14,ireland,H,1-0,UEFAネーションズリーグB
+202611,austria,2026-11-02,ラルフ・ラングニック,2026-11-17,israel,A,,UEFAネーションズリーグB
 202611,new-zealand,2026-11-03,ダレン・ベイズリー,2026-11-12,india,H,5-0,国際親善試合（オークランド）
 202611,new-zealand,2026-11-03,ダレン・ベイズリー,2026-11-15,india,H,,国際親善試合（クライストチャーチ）
 202611,north-macedonia,2026-11-03,ゴツェ・セドロスキ,2026-11-13,scotland,A,1-2,UEFAネーションズリーグB
@@ -480,5 +480,5 @@ edition,team_slug,announcement_date,coach_ja,date,opponent_key,venue_type,score,
 202611,russia,2026-11-06,ヴァレリー・カルピン,2026-11-12,uzbekistan,A,3-2,親善試合
 202611,russia,2026-11-06,ヴァレリー・カルピン,2026-11-17,venezuela,H,,親善試合
 202611,jordan,2026-11-07,ジャマル・セラミ,2026-11-17,australia,H,,親善試合・開催地変更の可能性あり（要確認）
-202611,portugal,2026-11-14,ジョルジェ・ジェズス,2026-10-01,denmark,H,1-4,UEFAネーションズリーグA
-202611,portugal,2026-11-18,ジョルジェ・ジェズス,2026-10-04,wales,A,,UEFAネーションズリーグA
+202611,portugal,2026-11-14,ジョルジェ・ジェズス,2026-11-14,denmark,H,1-4,UEFAネーションズリーグA
+202611,portugal,2026-11-18,ジョルジェ・ジェズス,2026-11-17,wales,A,,UEFAネーションズリーグA

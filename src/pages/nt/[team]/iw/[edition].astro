@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../../../layouts/BaseLayout.astro";
+import { publishedIwEditions } from "../../../../lib/iwPublishedEditions";
 import RosterView from "../../../../components/RosterView.astro";
 
 import { parseCsv } from "../../../../lib/csvSimple";
@@ -141,6 +142,7 @@ const { team, edition } = Astro.params;
 
 const teamSlug = clean(team);
 const editionKey = clean(edition);
+const hasMonthlyIwPortal = publishedIwEditions.includes(editionKey);
 
 const countries = readCsv("country_master.csv").map((row) => ({
   country_key: clean(row.country_key),
@@ -617,6 +619,14 @@ const description =
     )
   }
 
+  {hasMonthlyIwPortal && (
+    <div class="iw-monthly-notice">
+      <a href={`/iw/${editionKey}/`}>
+        👉 🌍 {formatEdition(editionKey)} 代表ウィーク｜世界各国の試合日程・結果一覧はこちら
+      </a>
+    </div>
+  )}
+
   {
     iwEditions.length > 1 && (
       <nav class="iw-edition-nav" aria-label="IW招集期間の切り替え">
@@ -1064,6 +1074,37 @@ const description =
 
     .page-nt-iw #roster a.tournament-link:visited {
       color: #551a8b;
+    }
+
+    /* 国別IW → 同月の世界代表戦一覧 */
+    .page-nt-iw .iw-monthly-notice {
+      margin: 8px 0 18px;
+      padding: 11px 15px;
+      border: 1px solid #eadc99;
+      border-left: 4px solid #d2ac36;
+      border-radius: 8px;
+      background: #fffbea;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .page-nt-iw .iw-monthly-notice a {
+      color: #75551b;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .page-nt-iw .iw-monthly-notice a:hover {
+      color: #9a6210;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-iw .iw-monthly-notice {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
     }
 
     .page-nt-iw .iw-matches {

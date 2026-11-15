@@ -2,6 +2,7 @@
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import { parseCsv } from "../../../lib/csvSimple";
 import { loadNtDecadePlayers } from "../../../lib/ntDecadePlayers";
+import { publishedIwEditions } from "../../../lib/iwPublishedEditions";
 
 import fs from "node:fs";
 import path from "node:path";
@@ -269,7 +270,7 @@ const publishedAfcEditions = new Set(
   allCallupRows
     .filter((row) => normalizeCompetition(row.competition) === "AFC")
     .map((row) => clean(row.edition))
-    .filter(Boolean)
+    .filter(Boolean),
 );
 
 /* ===== 国ハブ：代表活動・大会の統合履歴 ===== */
@@ -330,6 +331,20 @@ const activityHistory = Array.from(editionMap.values())
 
     return b.edition.localeCompare(a.edition);
   });
+
+// この国に掲載されている、公開済みIW月別ハブの最新月
+const countryIwPortalEdition =
+  publishedIwEditions
+    .filter((edition) =>
+      activityHistory.some(
+        (item) => item.isIw && item.edition === edition && item.hasRoster,
+      ),
+    )
+    .sort((a, b) => b.localeCompare(a))[0] ?? "";
+
+const countryIwPortalLabel = countryIwPortalEdition
+  ? `${countryIwPortalEdition.slice(0, 4)}年${Number(countryIwPortalEdition.slice(4, 6))}月`
+  : "";
 
 const latestCallup = allCallups
   .slice()
@@ -557,7 +572,16 @@ const description =
     }
   </div>
 
-
+  {
+    countryIwPortalEdition && (
+      <div class="iw-portal-notice">
+        <a href={`/iw/${countryIwPortalEdition}/`}>
+          最新の代表活動：👉 🌍{countryIwPortalLabel} 代表ウィーク
+          <span>｜世界各国の試合日程・結果一覧はこちらから →</span>
+        </a>
+      </div>
+    )
+  }
 
   {
     activityHistory.length > 0 && (
@@ -620,7 +644,7 @@ const description =
     )
   }
 
-    {
+  {
     decadePlayers.length > 0 && (
       <section class="nt-decade-players">
         <h2>⚽ {countryJa}代表｜年代別 主力選手</h2>
@@ -1299,6 +1323,37 @@ const description =
     .page-nt-country .activity-history-row.is-iw:nth-child(even) {
       background: transparent;
       border-left: 0;
+    }
+
+    /* 国ハブ：IW月別ポータルへの導線 */
+    .page-nt-country .iw-portal-notice {
+      margin: -8px 0 20px;
+      padding: 11px 15px;
+      border: 1px solid #eadc99;
+      border-left: 4px solid #d2ac36;
+      border-radius: 8px;
+      background: #fffbea;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .page-nt-country .iw-portal-notice a {
+      color: #75551b;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .page-nt-country .iw-portal-notice a:hover {
+      color: #9a6210;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    @media (max-width: 560px) {
+      .page-nt-country .iw-portal-notice {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
     }
   </style>
 </BaseLayout>
