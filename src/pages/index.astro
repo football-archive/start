@@ -75,7 +75,7 @@ const groupUpdatesByDate = (rows: any[]) =>
 // 全体21件ではなく、代表・クラブそれぞれの表示枠を確保する。
 const ntUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "nt")
-  .slice(0, 42);
+  .slice(0, 20);
 
 const clubUpdates = updatesAll
   .filter((u: any) => normalizeUpdateCategory(u.category) === "club")
@@ -1777,7 +1777,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             <h3 class="subcard-title">
               <a href="/transfers/">
                 <span class="card-ico ico-transfer" aria-hidden="true">🔁</span>
-                2026-27夏 主な移籍一覧
+                2026-27冬 主な移籍一覧
               </a>
             </h3>
             <div class="transfer-sub">
