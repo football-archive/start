@@ -188,6 +188,7 @@ const isProd = import.meta.env.PROD;
 
         /* ===== Palette (司令塔) ===== */
         --color-ucl: #0a1f44; /* CL：紺 */
+        --color-uel: #e87516; /* EL：オレンジ */
         --color-wc: #7a1f2b; /* WC：ワインレッド（暫定） */
         --color-nt: #8b1a1a; /* 代表：ワインレッド */
         --color-japan: #1f4fa3; /* 日本：SAMURAI BLUE */
@@ -237,10 +238,13 @@ body {
         --theme-color: var(--color-wc);
       }
       body.page-nt {
-  --theme-color: var(--color-nt);
-}
+        --theme-color: var(--color-nt);
+      }
       body.page-ucl {
         --theme-color: var(--color-ucl);
+      }
+      body.page-uel {
+        --theme-color: var(--color-uel);
       }
       body.page-japan {
         --theme-color: var(--color-japan);
@@ -268,6 +272,9 @@ body {
       .theme-ucl {
         --theme-color: var(--color-ucl);
       }
+      .theme-uel {
+  --theme-color: var(--color-uel);
+}
       .theme-japan {
         --theme-color: var(--color-japan);
       }

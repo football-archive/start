@@ -38,7 +38,7 @@ import path from "node:path";
 
 import { clubUrl } from "../../../../../lib/urls";
 
-import { hasClubUclMode } from "../../../../../lib/clubCompetitionMode";
+import { hasClubEuropeanMode } from "../../../../../lib/clubCompetitionMode";
 
 // --------------------
 // getStaticPaths：keyで生成
@@ -71,7 +71,15 @@ const league_key = Astro.params.league_key!;
 const club_key = Astro.params.club_key!;
 const routeSeason = String(Astro.params.season ?? "").trim();
 
-const hasUclMode = hasClubUclMode({
+const hasUclMode = hasClubEuropeanMode({
+  competition: "UCL",
+  season: routeSeason,
+  leagueKey: league_key,
+  clubKey: club_key,
+});
+
+const hasUelMode = hasClubEuropeanMode({
+  competition: "UEL",
   season: routeSeason,
   leagueKey: league_key,
   clubKey: club_key,
@@ -779,18 +787,29 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 }
 
 {
-  hasUclMode && (
+  (hasUclMode || hasUelMode) && (
     <div class="club-mode-switch">
       <span class="club-mode-current">
         -- 国内モード表示中 --
       </span>
 
-      <a
-        class="club-mode-switch-link club-mode-switch-link-ucl"
-        href={`/ucl/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
-      >
-        CLモードへ切替
-      </a>
+      {hasUclMode && (
+        <a
+          class="club-mode-switch-link club-mode-switch-link-ucl"
+          href={`/ucl/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
+        >
+          CLモードへ切替
+        </a>
+      )}
+
+      {hasUelMode && (
+        <a
+          class="club-mode-switch-link club-mode-switch-link-uel"
+          href={`/uel/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
+        >
+          ELモードへ切替
+        </a>
+      )}
     </div>
   )
 }
@@ -1768,6 +1787,12 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
       transform: translateY(-1px);
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
     }
+
+    .page-club .club-mode-switch-link-uel {
+  color: #fff;
+  background: var(--color-uel, #e87516);
+  border: 2px solid var(--color-uel, #e87516);
+}
 
     @media (max-width: 640px) {
       .page-club .club-mode-switch {

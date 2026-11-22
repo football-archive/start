@@ -1,11 +1,14 @@
-// src/lib/ucl.ts
-// UEFA Champions League (UCL) helpers / loaders
+// src/lib/europeanLeaguePhase.ts
+// Shared league-phase loader for UCL / UEL / ECL
 
 import fs from "node:fs";
 import path from "node:path";
 import type { Season } from "./urls";
 
-export type UclLeaguePhaseRow = {
+export type EuropeanCompetition = "UCL" | "UEL" | "ECL";
+
+export type EuropeanLeaguePhaseRow = {
+  competition: EuropeanCompetition;
   season: Season | string;
   club_key: string;
   rank: number | null;
@@ -95,30 +98,32 @@ function toOptionalNum(v: any): number | null {
 }
 
 // ビルド中の読込結果を保持
-let uclLeaguePhaseCache: UclLeaguePhaseRow[] | null = null;
+let europeanLeaguePhaseCache: EuropeanLeaguePhaseRow[] | null = null;
 
-export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
-  if (uclLeaguePhaseCache !== null) {
-    return uclLeaguePhaseCache;
+export function loadEuropeanLeaguePhaseAll(): EuropeanLeaguePhaseRow[] {
+  if (europeanLeaguePhaseCache !== null) {
+    return europeanLeaguePhaseCache;
   }
 
   const csvPath = path.join(
     process.cwd(),
     "src",
     "data",
-    "ucl_league_phase.csv",
+    "european_league_phase.csv",
   );
 
   const rows = readCSV(csvPath) as any[];
 
-  uclLeaguePhaseCache = rows
+  europeanLeaguePhaseCache = rows
     .map((r) => {
+      const competition = String(r.competition ?? "").trim().toUpperCase();
       const season = (r.season ?? "").trim();
       const rank = toOptionalNum(r.rank);
 
-      if (!season) return null;
+      if (!season || !["UCL", "UEL", "ECL"].includes(competition)) return null;
 
       return {
+        competition: competition as EuropeanCompetition,
         season,
         club_key: (r.club_key ?? "").trim(),
         rank,
@@ -138,24 +143,25 @@ export function loadUclLeaguePhaseAll(): UclLeaguePhaseRow[] {
         league_name_override:
           (r.league_name_override ?? "").trim() || undefined,
         league_rank_override: toOptionalNum(r.league_rank_override),
-      } as UclLeaguePhaseRow;
+      } as EuropeanLeaguePhaseRow;
     })
-    .filter(Boolean) as UclLeaguePhaseRow[];
+    .filter(Boolean) as EuropeanLeaguePhaseRow[];
 
-  return uclLeaguePhaseCache;
+  return europeanLeaguePhaseCache;
 }
 
-export function getUclSeasons(): string[] {
-  const rows = loadUclLeaguePhaseAll();
+export function getEuropeanSeasons(competition: EuropeanCompetition): string[] {
+  const rows = loadEuropeanLeaguePhaseAll().filter((r) => r.competition === competition);
   const set = new Set(rows.map((r) => String(r.season)));
   return [...set].sort((a, b) => b.localeCompare(a));
 }
 
-export function loadUclLeaguePhaseBySeason(
+export function loadEuropeanLeaguePhaseBySeason(
+  competition: EuropeanCompetition,
   season: string,
-): UclLeaguePhaseRow[] {
-  const rows = loadUclLeaguePhaseAll().filter(
-    (r) => String(r.season) === String(season),
+): EuropeanLeaguePhaseRow[] {
+  const rows = loadEuropeanLeaguePhaseAll().filter(
+    (r) => r.competition === competition && String(r.season) === String(season),
   );
 
   // stable sort
@@ -163,7 +169,8 @@ export function loadUclLeaguePhaseBySeason(
   return rows;
 }
 
-export function hasUclLeaguePhaseClub(
+export function hasEuropeanLeaguePhaseClub(
+  competition: EuropeanCompetition,
   season: string,
   clubKey: string,
 ): boolean {
@@ -172,8 +179,9 @@ export function hasUclLeaguePhaseClub(
 
   if (!targetSeason || !targetClubKey) return false;
 
-  return loadUclLeaguePhaseAll().some(
+  return loadEuropeanLeaguePhaseAll().some(
     (r) =>
+      r.competition === competition &&
       String(r.season ?? "").trim() === targetSeason &&
       String(r.club_key ?? "").trim() === targetClubKey,
   );

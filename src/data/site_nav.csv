@@ -5,16 +5,16 @@ parent_id,level,sort_order,id,label,href,visible
 award,2,06,ballon-dor,🏆歴代バロンドール,/awards/ballon-dor/,true
 ,1,10,nt,🌍各国代表一覧・国際大会,/nt/,true
 nt,2,11,iw202611,→ 2026年11月代表ウィーク,/iw/202611/,true
-nt,2,12,iw202609,→ 2026年09月代表ウィーク,/iw/202609/,true
+nt,2,12,iw202609,→ 2026年09月代表ウィーク,/iw/202609/,false
 nt,2,111,afc,⚽ AFCアジアカップ,/afc/2027/,true
 afc,3,112,afc2027,→ アジアカップ2027,/afc/2027/,true
-afc,3,113,afc2023,→ アジアカップ2023,/afc/2023/,true
-afc,3,114,afc2019,→ アジアカップ2019,/afc/2019/,true
-afc,3,115,afc2015,→ アジアカップ2015,/afc/2015/,true
-afc,3,116,afc2011,→ アジアカップ2011,/afc/2011/,true
-afc,3,117,afc2007,→ アジアカップ2007,/afc/2007/,true
-afc,3,118,afc2004,→ アジアカップ2004,/afc/2004/,true
-afc,3,119,afc2000,→ アジアカップ2000,/afc/2000/,true
+afc,3,113,afc2023,→ アジアカップ2023,/afc/2023/,false
+afc,3,114,afc2019,→ アジアカップ2019,/afc/2019/,false
+afc,3,115,afc2015,→ アジアカップ2015,/afc/2015/,false
+afc,3,116,afc2011,→ アジアカップ2011,/afc/2011/,false
+afc,3,117,afc2007,→ アジアカップ2007,/afc/2007/,false
+afc,3,118,afc2004,→ アジアカップ2004,/afc/2004/,false
+afc,3,119,afc2000,→ アジアカップ2000,/afc/2000/,false
 nt,2,120,wc,⚽ FIFAワールドカップ,/wc/2026/,true
 wc,3,121,wc2026,→ 2026 北中米,/wc/2026/,true
 wc2026,4,122,wc2026-teams,→ 出場国一覧,/wc/2026/#teams,false
@@ -22,12 +22,12 @@ wc2026,4,123,wc2026-schedule,→ スケジュール・結果,/wc/2026/#schedule,
 wc2026,4,124,wc2026-groups,→ グループ勝敗表,/wc/2026/#groups,false
 wc2026,4,125,wc2026-rank,→ 得点・アシストランキング,/wc/2026/#rankings,false
 wc2026,3,130,wc-japan,🔴日本代表,/wc/2026/team/日本/,false
-wc,3,130,wc2022,→ 2022 カタール,/wc/2022/,true
-wc,3,140,wc2018,→ 2018 ロシア,/wc/2018/,true
-wc,3,150,wc2014,→ 2014 ブラジル,/wc/2014/,true
-wc,3,160,wc2010,→ 2010 南アフリカ,/wc/2010/,true
-wc,3,170,wc2006,→ 2006 ドイツ,/wc/2006/,true
-wc,3,180,wc2002,→ 2002 日韓,/wc/2002/,true
+wc,3,130,wc2022,→ 2022 カタール,/wc/2022/,false
+wc,3,140,wc2018,→ 2018 ロシア,/wc/2018/,false
+wc,3,150,wc2014,→ 2014 ブラジル,/wc/2014/,false
+wc,3,160,wc2010,→ 2010 南アフリカ,/wc/2010/,false
+wc,3,170,wc2006,→ 2006 ドイツ,/wc/2006/,false
+wc,3,180,wc2002,→ 2002 日韓,/wc/2002/,false
 nt,2,190,nt-archive,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true
 nt,2,195,nt-teams,代表国一覧,/nt/,false
 clubs,2,201,transfers,🔁 移籍情報,/transfers/,true
@@ -58,7 +58,12 @@ club-leagues,3,280,club-scottish-premiership,▼スコティッシュ,/clubs/sco
 clubs,2,290,club-history,📓歴代強豪クラブ アーカイブ,/clubs/history/,true
 ,1,190,ucl,👑UEFAチャンピオンズリーグ,/ucl/,true
 ucl,2,191,ucl-seasons,シーズン一覧,/ucl/,false
-ucl-seasons,3,194,ucl-seasons-latest,2026-27,/ucl/2026-27/,true
-ucl-seasons,3,195,ucl-seasons-past-25-26,2025-26,/ucl/2025-26/,true
-ucl-seasons,3,196,ucl-seasons-past-24-25,2024-25,/ucl/2024-25/,true
+ucl-seasons,3,192,ucl-seasons-latest,2026-27,/ucl/2026-27/,true
+ucl-seasons,3,193,ucl-seasons-past-25-26,2025-26,/ucl/2025-26/,false
+ucl-seasons,3,194,ucl-seasons-past-24-25,2024-25,/ucl/2024-25/,false
+,1,195,uel,👑UEFAヨーロッパリーグ,/uel/,true
+uel,2,196,uel-seasons,シーズン一覧,/uel/,false
+uel-seasons,3,197,uel-seasons-latest,2026-27,/uel/2026-27/,true
+uel-seasons,3,193,uel-seasons-past-25-26,2025-26,/uel/2025-26/,false
+uel-seasons,3,194,uel-seasons-past-24-25,2024-25,/uel/2024-25/,false
 ,1,900,about,サイト情報,/about/,true

@@ -16,7 +16,10 @@ import {
   teamsListUrl,
   teamUrl,
 } from "../lib/urls";
-import { getUclSeasons, loadUclLeaguePhaseBySeason } from "../lib/ucl";
+import {
+  getEuropeanSeasons,
+  loadEuropeanLeaguePhaseBySeason,
+} from "../lib/europeanLeaguePhase";
 import { loadTransfers } from "../lib/transfers";
 import { toYMD } from "../lib/rosterFormat";
 import { loadLeagueStandings } from "../lib/leagueStandings";
@@ -312,10 +315,10 @@ const leagueHref = (leagueKey: string) => `/clubs/${leagueKey}/`;
 // --------------------
 // UCL
 // --------------------
-const uclSeasons = getUclSeasons();
-const uclSeason = uclSeasons?.[0] ? String(uclSeasons[0]).trim() : "2025-26";
+const uclSeasons = getEuropeanSeasons("UCL");
+const uclSeason = uclSeasons?.[0] ? String(uclSeasons[0]).trim() : "2026-27";
 const uclHref = competitionSeasonUrl("ucl", uclSeason);
-const uclRows = loadUclLeaguePhaseBySeason(uclSeason);
+const uclRows = loadEuropeanLeaguePhaseBySeason("UCL", uclSeason);
 const uclUpdatedAt = uclRows?.[0]?.updated_at
   ? String(uclRows[0].updated_at).replaceAll("-", "/")
   : "—";
@@ -1767,9 +1770,7 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               </a>
             </h3>
 
-            <div class="award-sub">
-              歴代受賞者・候補者を年別に一覧で掲載
-            </div>
+            <div class="award-sub">歴代受賞者・候補者を年別に一覧で掲載</div>
           </div>
 
           <!-- row3 col2: Transfers -->

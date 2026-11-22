@@ -11,9 +11,8 @@ import {
 } from "../../../../lib/ctSeasonMeta";
 
 import {
-  loadUclLeaguePhaseAll,
-  hasUclLeaguePhaseClub,
-} from "../../../../lib/ucl";
+  loadEuropeanLeaguePhaseAll,
+} from "../../../../lib/europeanLeaguePhase";
 
 import {
   loadClubSquads,
@@ -138,7 +137,8 @@ const uclResult = String(ctMeta?.uefa_cup_rank ?? "").trim();
 // CLリーグフェーズ情報
 // rank / pot は ucl_league_phase.csv から取得
 // --------------------
-const uclLeaguePhaseRows = loadUclLeaguePhaseAll();
+const uclLeaguePhaseRows = loadEuropeanLeaguePhaseAll()
+  .filter((r) => r.competition === "UCL");
 
 const uclLeaguePhaseRow = uclLeaguePhaseRows.find(
   (r) =>

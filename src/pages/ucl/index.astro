@@ -1,8 +1,8 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getUclSeasons } from "../../lib/ucl";
+import { getEuropeanSeasons } from "../../lib/europeanLeaguePhase";
 
-const seasons = getUclSeasons()
+const seasons = getEuropeanSeasons("UCL")
   .map((s) => String(s).trim())
   .sort()
   .reverse();
