@@ -15,6 +15,7 @@ import {
 import { getCompetitionSummary } from "../../lib/competitionSummary";
 import { getCompetitionPlayerStats } from "../../lib/competitionPlayerStats";
 import MatchScheduleTable from "../../components/MatchScheduleTable.astro";
+import { getAwards } from "../../lib/competitionAwards";
 
 import { loadLeagueMaster } from "../../lib/leagueMaster";
 import { loadLeagueStandings } from "../../lib/leagueStandings";
@@ -238,6 +239,55 @@ const clubDisplay = (clubKey: string, fallback = "") => {
   );
 };
 
+// ===== UCL公式表彰＋選手成績 =====
+const awardRowsRaw = getAwards("UCL", season);
+
+const normAwardName = (v: unknown) =>
+  String(v ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+
+const awardRows = awardRowsRaw.map((award) => {
+  const candidates = clubSquadRows.filter(
+    (r: any) =>
+      String(r.season ?? "").trim() === season &&
+      String(r.club_key ?? "").trim() === award.team &&
+      normAwardName(r.name_ja) === normAwardName(award.player),
+  );
+
+  // 夏・冬の重複がある場合は、欧州大会成績が入った
+  // レコードを優先。同条件なら冬を優先。
+  const squad =
+    [...candidates].sort((a: any, b: any) => {
+      const score = (r: any) =>
+        ["uefa_apps", "uefa_starts", "uefa_goals", "uefa_assists"].filter(
+          (key) => String(r[key] ?? "").trim() !== "",
+        ).length;
+
+      return (
+        score(b) - score(a) ||
+        Number(b.window === "winter") - Number(a.window === "winter")
+      );
+    })[0] ?? null;
+
+  return {
+    ...award,
+    squad,
+    clubName: clubDisplay(award.team),
+    clubHref: clubHrefByKey(award.team),
+  };
+});
+
+const hasAwardStats = awardRows.some(
+  (r) => r.squad && String(r.squad.uefa_apps ?? "").trim() !== "",
+);
+
+const awardStat = (value: unknown) => {
+  const s = String(value ?? "").trim();
+  return s === "" ? "－" : s;
+};
+
 const fmt = (v: any) => ((v ?? v === 0) ? String(v) : "—");
 
 const updated = rows[0]?.updated_at
@@ -283,6 +333,29 @@ const runnerUpHref = summary?.runner_up_club_key
       season
     }シーズンの抽選結果・組み合わせ、出場クラブ、リーグフェーズ順位表、日程・結果、決勝トーナメント、得点・アシストランキングをまとめた大会ポータルページです。
   </p>
+
+  <!-- ===== セクション移動ピル ===== -->
+  <div class="ucl-section-nav">
+    <div class="ucl-section-nav-label">🧭 このページで確認できる内容</div>
+
+    <div class="ucl-section-pills">
+      <a href="#summary">大会サマリー</a>
+      <a href="#clubs">出場クラブ一覧</a>
+      <a href="#league-phase-schedule">LP日程・結果</a>
+      <a href="#league-phase">LP順位表</a>
+      <a href="#schedule">KP日程・結果</a>
+
+      {
+        hasTournamentBracket && (
+          <a href="#tournament-bracket">決勝トーナメント表</a>
+        )
+      }
+
+      <a href="#rankings">得点・アシスト</a>
+
+      {awardRows.length > 0 && <a href="#awards">大会表彰</a>}
+    </div>
+  </div>
 
   <div class="pill-block">
     <div class="pill-label">🔎 シーズンを切り替える</div>
@@ -720,6 +793,81 @@ const runnerUpHref = summary?.runner_up_club_key
       </div>
     </div>
   </section>
+
+  {
+    awardRows.length > 0 && (
+      <section id="awards" class="ucl-awards-section">
+        <h2>⚽ UEFAチャンピオンズリーグ {season} 表彰</h2>
+
+        <p class="note">
+          UEFA公式の個人賞・チーム・オブ・ザ・シーズンを掲載しています。
+        </p>
+
+        <div class="ucl-awards-table-wrap">
+          <table class="ucl-awards-table">
+            <thead>
+              <tr>
+                <th>賞</th>
+                <th>選手</th>
+                <th>クラブ</th>
+                {hasAwardStats && (
+                  <>
+                    <th class="num">出場</th>
+                    <th class="num">G</th>
+                    <th class="num">A</th>
+                  </>
+                )}
+              </tr>
+            </thead>
+
+            <tbody>
+              {awardRows.map((r) => (
+                <tr>
+                  <td>
+                    <b>{r.award_name}</b>
+                    {r.note && <span class="ucl-award-note">{r.note}</span>}
+                  </td>
+
+                  <td>
+                    <b>{r.player}</b>
+                    {r.squad?.position_primary && (
+                      <span class="ucl-award-note">
+                        （{r.squad.position_primary}）
+                      </span>
+                    )}
+                  </td>
+
+                  <td>
+                    {r.clubHref ? (
+                      <a href={r.clubHref}>{r.clubName}</a>
+                    ) : (
+                      <span>{r.clubName}</span>
+                    )}
+                  </td>
+
+                  {hasAwardStats && (
+                    <>
+                      <td class="num">
+                        {r.squad
+                          ? `${awardStat(r.squad.uefa_apps)}${
+                              String(r.squad.uefa_starts ?? "").trim()
+                                ? `（先発${r.squad.uefa_starts}）`
+                                : ""
+                            }`
+                          : "－"}
+                      </td>
+                      <td class="num">{awardStat(r.squad?.uefa_goals)}</td>
+                      <td class="num">{awardStat(r.squad?.uefa_assists)}</td>
+                    </>
+                  )}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
 
   <style is:global>
     /* ===== UCL theme（ニュートラル寄り） ===== */
@@ -1393,6 +1541,145 @@ const runnerUpHref = summary?.runner_up_club_key
 
       .page-ucl .summaryGrid b {
         font-size: 12px;
+      }
+    }
+
+    /* ===== UCL公式表彰 ===== */
+
+    .page-ucl .ucl-awards-section {
+      margin: 20px 0;
+    }
+
+    .page-ucl .ucl-awards-table-wrap {
+      overflow-x: auto;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ucl .ucl-awards-table {
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-ucl .ucl-awards-table th,
+    .page-ucl .ucl-awards-table td {
+      padding: 9px 10px;
+      border-bottom: 1px solid #e6e6e6;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .page-ucl .ucl-awards-table thead th {
+      background: #f8fafc;
+      color: var(--theme-color, #333);
+      font-weight: 700;
+    }
+
+    .page-ucl .ucl-awards-table tbody tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .page-ucl .ucl-award-note {
+      display: block;
+      margin-top: 2px;
+      color: #666;
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+    .page-ucl .ucl-awards-table th.num,
+    .page-ucl .ucl-awards-table td.num {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-ucl .ucl-awards-table-wrap {
+      overflow-x: auto;
+    }
+
+    /* ===== 表彰テーブルのヘッダー固定を解除 ===== */
+
+    .page-ucl .ucl-awards-table thead th {
+      position: static;
+      top: auto;
+      z-index: auto;
+      background: #f8fafc;
+    }
+
+    .page-ucl .ucl-awards-table {
+      min-width: 0;
+      width: 100%;
+      table-layout: auto;
+    }
+
+    /* 表彰欄のクラブリンクを太字に */
+    .page-ucl .ucl-awards-table td a {
+      font-weight: 700;
+    }
+
+    /* ===== UCLセクション移動ピル ===== */
+
+    .page-ucl .ucl-section-nav {
+      margin: 12px 0 16px;
+    }
+
+    .page-ucl .ucl-section-nav-label {
+      margin-bottom: 7px;
+      font-size: 12px;
+      color: #666;
+    }
+
+    .page-ucl .ucl-section-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .page-ucl .ucl-section-pills a {
+      display: inline-flex;
+      align-items: center;
+      padding: 7px 11px;
+      border: 1px solid #e5e7eb;
+      border-radius: 999px;
+      background: #fff;
+      color: #333;
+      font-size: 12px;
+      line-height: 1.2;
+      text-decoration: none;
+      transition:
+        background 0.15s,
+        border-color 0.15s;
+    }
+
+    .page-ucl .ucl-section-pills a::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      margin-right: 6px;
+      border-radius: 50%;
+      background:  var(--theme-color);
+    }
+
+    .page-ucl .ucl-section-pills a:hover {
+      background: #f8f4f5;
+      border-color:  var(--theme-color);
+    }
+
+    .page-ucl section[id] {
+      scroll-margin-top: 80px;
+    }
+
+    @media (max-width: 560px) {
+      .page-ucl .ucl-awards-table {
+        font-size: 12px;
+      }
+
+      .page-ucl .ucl-awards-table th,
+      .page-ucl .ucl-awards-table td {
+        padding: 8px 6px;
       }
     }
   </style>
