@@ -12,6 +12,7 @@ const OUTPUT_DIR = path.resolve(ROOT, "public/images/brackets");
 const TARGETS = [
   { competition: "UCL", edition: "2024-25" },
   { competition: "UCL", edition: "2025-26" },
+  { competition: "UEL", edition: "2025-26" },
 ];
 
 const COLORS = {
@@ -379,6 +380,7 @@ function flattenLeaves(node) {
 }
 
 function renderBracket({ competition, edition, matches }) {
+  const themeColor = competition === "UEL" ? "#e87516" : COLORS.theme;
   const twoLegTies = buildTwoLegTies(matches);
 
   const finalMatches = matches
@@ -519,29 +521,32 @@ function renderBracket({ competition, edition, matches }) {
     ? Math.max(baseHeight, thirdPlaceY + cardH / 2 + 70)
     : baseHeight;
 
+  const competitionName =
+    competition === "UEL" ? "UEFAヨーロッパリーグ" : "UEFAチャンピオンズリーグ";
+
   const parts = [];
   parts.push(
     `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="title desc">`,
   );
   parts.push(
-    `<title id="title">${esc(edition)} UEFAチャンピオンズリーグ 決勝トーナメント</title>`,
+    `<title id="title">${esc(edition)} ${esc(competitionName)} 決勝トーナメント</title>`,
   );
   parts.push(
     `<desc id="desc">試合データから自動生成した決勝トーナメント表</desc>`,
   );
   parts.push(`<rect width="100%" height="100%" fill="${COLORS.background}"/>`);
   parts.push(`<style>
-    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .title{font:700 58px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${themeColor}}
     .round{font:700 40px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
-.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: ${COLORS.theme};}
+.team{font:700 29px 'Noto Sans JP','Yu Gothic',sans-serif;fill: ${themeColor};}
 .rank{font:400 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
 .score{font:700 25px 'Noto Sans JP','Yu Gothic',sans-serif;}
-    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${COLORS.theme}}
+    .champ{font:700 48px 'Noto Sans JP','Yu Gothic',sans-serif;fill:${themeColor}}
     .third-title{font:700 38px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#fff}
     .legend{font:400 22px 'Noto Sans JP','Yu Gothic',sans-serif;fill:#666;}
   </style>`);
 
-  const title = `${edition} UEFAチャンピオンズリーグ　決勝トーナメント`;
+  const title = `${edition} ${competitionName}　決勝トーナメント`;
   parts.push(
     `<text class="title" x="${width / 2}" y="64" text-anchor="middle">${esc(title)}</text>`,
   );
@@ -562,7 +567,7 @@ function renderBracket({ competition, edition, matches }) {
       width="${cardW}"
       height="${headerH}"
       rx="4"
-      fill="${COLORS.theme}"
+      fill="${themeColor}"
     />`,
     );
 

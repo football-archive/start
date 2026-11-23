@@ -339,21 +339,21 @@ const runnerUpHref = summary?.runner_up_club_key
     <div class="ucl-section-nav-label">🧭 このページで確認できる内容</div>
 
     <div class="ucl-section-pills">
-      <a href="#summary">大会サマリー</a>
-      <a href="#clubs">出場クラブ一覧</a>
-      <a href="#league-phase-schedule">LP日程・結果</a>
-      <a href="#league-phase">LP順位表</a>
-      <a href="#schedule">KP日程・結果</a>
+      <a href="#summary">🏆 大会サマリー</a>
+      <a href="#clubs">⚽ 出場クラブ</a>
+      <a href="#league-phase-schedule">🏟 LP日程・結果</a>
+      <a href="#league-phase">📊 LP順位表</a>
+      <a href="#knockout-phase-schedule">🏟 KP日程・結果</a>
 
       {
         hasTournamentBracket && (
-          <a href="#tournament-bracket">決勝トーナメント表</a>
+          <a href="#tournament-bracket">🏆 トーナメント表</a>
         )
       }
 
-      <a href="#rankings">得点・アシスト</a>
+      <a href="#rankings">🥇 得点・アシスト</a>
 
-      {awardRows.length > 0 && <a href="#awards">大会表彰</a>}
+      {awardRows.length > 0 && <a href="#awards">🏅 大会表彰</a>}
     </div>
   </div>
 
@@ -660,7 +660,7 @@ const runnerUpHref = summary?.runner_up_club_key
     </p>
   </section>
 
-  <section id="schedule">
+  <section id="knockout-phase-schedule">
     <h2>🏟 ノックアウトフェーズ(KP) 日程・結果</h2>
     <MatchScheduleTable
       matches={knockoutMatches}
@@ -1660,12 +1660,12 @@ const runnerUpHref = summary?.runner_up_club_key
       height: 7px;
       margin-right: 6px;
       border-radius: 50%;
-      background:  var(--theme-color);
+      background: var(--theme-color);
     }
 
     .page-ucl .ucl-section-pills a:hover {
       background: #f8f4f5;
-      border-color:  var(--theme-color);
+      border-color: var(--theme-color);
     }
 
     .page-ucl section[id] {

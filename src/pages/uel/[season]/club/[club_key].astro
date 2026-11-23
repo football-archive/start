@@ -16,6 +16,7 @@ import {
 import {
   loadClubSquads,
   sortClubRoster,
+  applyClubStatsMode,
 } from "../../../../lib/clubSquads";
 
 import RosterView from "../../../../components/RosterView.astro";
@@ -35,6 +36,7 @@ import { hasClubEuropeanMode } from "../../../../lib/clubCompetitionMode";
 import fs from "node:fs";
 import path from "node:path";
 import { parseCsv } from "../../../../lib/csvSimple";
+
 
 // --------------------
 // getStaticPaths
@@ -130,7 +132,7 @@ const uelClubUrl = (targetSeason: string) =>
   `/uel/${encodeURIComponent(targetSeason)}` +
   `/club/${encodeURIComponent(club_key)}/`;
 
-const uelResult = ""; // UELの大会成績は専用データが整うまで非表示
+const uelResult = String(ctMeta?.uefa_cup_rank ?? "").trim();
 
 // --------------------
 // ELリーグフェーズ情報
@@ -183,7 +185,7 @@ const latestRosterRows = clubSeasonRows.filter(
   (r) => toYMD(String(r.snapshot_date ?? "")) === latestSnapshot,
 );
 
-const roster = sortClubRoster(latestRosterRows);
+const roster = applyClubStatsMode(sortClubRoster(latestRosterRows), "uefa");
 
 // --------------------
 // 代表情報
@@ -202,7 +204,14 @@ const repHistoryLinks = buildRepHistoryLinksFromCallups(callups, {
   max: 6,
 });
 
-const hasUelStats = false; // 既存uefa_*はUEL専用成績ではないため表示しない
+const hasUelStats = roster.some((r: any) => {
+  const apps = Number(r.uefa_apps ?? 0);
+  const starts = Number(r.uefa_starts ?? 0);
+  const goals = Number(r.uefa_goals ?? 0);
+  const assists = Number(r.uefa_assists ?? 0);
+
+  return apps > 0 || starts > 0 || goals > 0 || assists > 0;
+});
 
 const columns = buildClubColumns({
   isLatestView: true,
@@ -1137,13 +1146,13 @@ const heading =
 @media (min-width: 769px) {
   :global(.page-uel .roster-table th:nth-child(10)),
   :global(.page-uel .roster-table td:nth-child(10)) {
-    width: 90px !important;
-    min-width: 90px !important;
-    max-width: 90px !important;
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
   }
 
   :global(.page-uel .roster-table .note-cell) {
-    max-width: 86px !important;
+    max-width: 56px !important;
   }
 }
 
