@@ -12,6 +12,7 @@ const OUTPUT_DIR = path.resolve(ROOT, "public/images/brackets");
 const TARGETS = [
   { competition: "UCL", edition: "2024-25" },
   { competition: "UCL", edition: "2025-26" },
+  { competition: "UEL", edition: "2024-25" },
   { competition: "UEL", edition: "2025-26" },
 ];
 
