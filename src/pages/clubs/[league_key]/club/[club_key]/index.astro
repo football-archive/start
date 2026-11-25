@@ -308,6 +308,13 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                 clubKey,
               });
 
+              const hasEclMode = hasClubEuropeanMode({
+                competition: "ECL",
+                season,
+                leagueKey,
+                clubKey,
+              });
+
               const href =
                 season && hasSquad
                   ? clubUrl({
@@ -359,6 +366,16 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                         ELページへ
                       </a>
                     )}
+
+                    {hasEclMode && (
+                      <a
+                        class="ecl-mobile-badge"
+                        href={`/ecl/${encodeURIComponent(season)}/club/${encodeURIComponent(clubKey)}/`}
+                        aria-label={`${clubName} ${season} ECLモードへ`}
+                      >
+                        ECLページへ
+                      </a>
+                    )}
                   </td>
 
                   {hasCoach && (
@@ -393,6 +410,13 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
                           <a
                             class={`uefa-mode-link ${getUefaClass(uefa)}`}
                             href={`/uel/${encodeURIComponent(season)}/club/${encodeURIComponent(clubKey)}/`}
+                          >
+                            {uefa}
+                          </a>
+                        ) : hasEclMode && uefa.startsWith("ECL") ? (
+                          <a
+                            class={`uefa-mode-link ${getUefaClass(uefa)}`}
+                            href={`/ecl/${encodeURIComponent(season)}/club/${encodeURIComponent(clubKey)}/`}
                           >
                             {uefa}
                           </a>
@@ -609,7 +633,8 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
       }
 
       .ucl-mobile-badge,
-      .uel-mobile-badge {
+      .uel-mobile-badge,
+      .ecl-mobile-badge {
         display: none;
       }
 
@@ -649,7 +674,8 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
         }
 
         .ucl-mobile-badge,
-        .uel-mobile-badge {
+        .uel-mobile-badge,
+        .ecl-mobile-badge {
           display: block;
           width: fit-content;
           margin-top: 4px;
@@ -668,6 +694,10 @@ const description = `${clubName}の歴代メンバー、シーズン別のリー
 
         .uel-mobile-badge {
           background: #ea580c;
+        }
+
+        .ecl-mobile-badge {
+          background: #15803d;
         }
       }
 

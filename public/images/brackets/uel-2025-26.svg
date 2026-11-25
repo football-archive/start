@@ -222,7 +222,7 @@
 <text class="score" x="1432" y="569">(1st) 1 ＋ (2nd) 0 ＝ 1</text>
 <text class="team" x="1432" y="608">アストン・ヴィラ</text>
 <text class="score" x="1432" y="633">(1st) 0 ＋ (2nd) 4 ＝ 4</text>
-<rect x="1075" y="520" width="290" height="128" rx="5" fill="#fff" stroke="#0a1f44" stroke-width="3"/>
+<rect x="1075" y="520" width="290" height="128" rx="5" fill="#fff" stroke="#e87516" stroke-width="3"/>
 <line x1="1075" y1="584" x2="1365" y2="584" stroke="#e6e1e3" stroke-width="2"/>
 <text class="team" x="1087" y="544">フライブルク</text>
 <text class="score" x="1087" y="569">0</text>

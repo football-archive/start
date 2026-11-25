@@ -28,8 +28,8 @@ wc,3,150,wc2014,→ 2014 ブラジル,/wc/2014/,false
 wc,3,160,wc2010,→ 2010 南アフリカ,/wc/2010/,false
 wc,3,170,wc2006,→ 2006 ドイツ,/wc/2006/,false
 wc,3,180,wc2002,→ 2002 日韓,/wc/2002/,false
-nt,2,190,nt-archive,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true
-nt,2,195,nt-teams,代表国一覧,/nt/,false
+nt,2,181,nt-archive,📓歴代強豪国 アーカイブ,/nt/wc/legends/,true
+nt,2,182,nt-teams,代表国一覧,/nt/,false
 clubs,2,201,transfers,🔁 移籍情報,/transfers/,true
 ,1,200,clubs,👕 欧州主要リーグ・クラブ,/clubs/,true
 clubs,2,203,club-leagues,▼リーグ一覧,/clubs/,false
@@ -56,14 +56,19 @@ club-leagues,3,260,club-eredivisie,▼エールディヴィジ,/clubs/eredivisie
 club-leagues,3,270,club-primeira-liga,▼プリメイラ,/clubs/primeira-liga/,true
 club-leagues,3,280,club-scottish-premiership,▼スコティッシュ,/clubs/scottish-premiership/,true
 clubs,2,290,club-history,📓歴代強豪クラブ アーカイブ,/clubs/history/,true
-,1,190,ucl,👑UEFAチャンピオンズリーグ,/ucl/,true
-ucl,2,191,ucl-seasons,シーズン一覧,/ucl/,false
-ucl-seasons,3,192,ucl-seasons-latest,2026-27,/ucl/2026-27/,true
-ucl-seasons,3,193,ucl-seasons-past-25-26,2025-26,/ucl/2025-26/,false
-ucl-seasons,3,194,ucl-seasons-past-24-25,2024-25,/ucl/2024-25/,false
-,1,195,uel,👑UEFAヨーロッパリーグ,/uel/,true
-uel,2,196,uel-seasons,シーズン一覧,/uel/,false
-uel-seasons,3,197,uel-seasons-latest,2026-27,/uel/2026-27/,true
-uel-seasons,3,198,uel-seasons-past-25-26,2025-26,/uel/2025-26/,false
-uel-seasons,3,199,uel-seasons-past-24-25,2024-25,/uel/2024-25/,false
+,1,185,ucl,👑UEFAチャンピオンズリーグ,/ucl/,true
+ucl,2,186,ucl-seasons,シーズン一覧,/ucl/,false
+ucl-seasons,3,187,ucl-seasons-latest,2026-27,/ucl/2026-27/,true
+ucl-seasons,3,188,ucl-seasons-past-25-26,2025-26,/ucl/2025-26/,false
+ucl-seasons,3,189,ucl-seasons-past-24-25,2024-25,/ucl/2024-25/,false
+,1,190,uel,👑UEFAヨーロッパリーグ,/uel/,true
+uel,2,191,uel-seasons,シーズン一覧,/uel/,false
+uel-seasons,3,192,uel-seasons-latest,2026-27,/uel/2026-27/,true
+uel-seasons,3,193,uel-seasons-past-25-26,2025-26,/uel/2025-26/,false
+uel-seasons,3,194,uel-seasons-past-24-25,2024-25,/uel/2024-25/,false
+,1,195,ecl,👑UEFAカンファレンスリーグ,/ecl/,true
+ecl,2,196,ecl-seasons,シーズン一覧,/ecl/,false
+ecl-seasons,3,197,ecl-seasons-latest,2026-27,/ecl/2026-27/,true
+ecl-seasons,3,198,ecl-seasons-past-25-26,2025-26,/ecl/2025-26/,false
+ecl-seasons,3,199,ecl-seasons-past-24-25,2024-25,/ecl/2024-25/,false
 ,1,900,about,サイト情報,/about/,true

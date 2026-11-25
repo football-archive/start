@@ -324,6 +324,15 @@ const uclUpdatedAt = uclRows?.[0]?.updated_at
   : "—";
 const uclClubCount = uclRows?.length ?? 0;
 
+const uelSeason = getEuropeanSeasons("UEL")[0] ?? "";
+const uelRows = uelSeason ? loadEuropeanLeaguePhaseBySeason("UEL", uelSeason) : [];
+const uelUpdatedAt = uelRows[0]?.updated_at ? String(uelRows[0].updated_at).replaceAll("-", "/") : "—";
+
+const eclSeason = getEuropeanSeasons("ECL")[0] ?? "";
+const eclRows = eclSeason ? loadEuropeanLeaguePhaseBySeason("ECL", eclSeason) : [];
+const eclUpdatedAt = eclRows[0]?.updated_at ? String(eclRows[0].updated_at).replaceAll("-", "/") : "—";
+
+
 // --------------------
 // Transfers
 // --------------------
@@ -985,6 +994,11 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
     .subcard.theme-japan .subcard-title a:hover {
       text-decoration-color: #fff;
     }
+
+    .european-card-stack { display: grid; gap: 12px; align-content: start; min-width: 0; }
+    .european-extra-card.theme-uel { background: #f5cba7; color: #713b10; }
+    .european-extra-card.theme-ecl { background: #c5e5d1; color: #14532d; }
+    .european-extra-card .ucl-sub { color: inherit; }
 
     /* Footer */
     .footer {
@@ -1746,8 +1760,9 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
             </div>
           </div>
 
-          <!-- row2 col2: UCL -->
-          <div class="subcard ucl-box theme-ucl grid-club-sub1">
+          <!-- UEFA 3大会 -->
+          <div class="grid-club-sub1 european-card-stack">
+<div class="subcard ucl-box theme-ucl">
             <h3 class="subcard-title">
               <a href={uclHref}>
                 <span class="card-ico ico-ucl" aria-hidden="true">👑</span>
@@ -1755,11 +1770,24 @@ const wcPastEditions = ["2022", "2018", "2014", "2010", "2006", "2002"];
               </a>
             </h3>
             <div class="ucl-sub">
-              リーグフェーズ最終順位表（クラブ詳細へ遷移できます）<br />
+              出場クラブ・組み合わせ・順位表・日程結果<br />
               更新：<span class="date-red">{uclUpdatedAt}</span>　参加：{
                 uclClubCount
               }クラブ
             </div>
+          </div>
+            { uelSeason && (
+              <div class="subcard theme-uel european-extra-card">
+                <h3 class="subcard-title"><a href={`/uel/${encodeURIComponent(uelSeason)}/`}>🏆 UEFAヨーロッパリーグ(EL) {uelSeason}</a></h3>
+                <div class="ucl-sub">出場クラブ・組み合わせ・順位表・日程結果<br />更新：<span class="date-red">{uelUpdatedAt}</span>　参加：{uelRows.length}クラブ</div>
+              </div>
+            ) }
+            { eclSeason && (
+              <div class="subcard theme-ecl european-extra-card">
+                <h3 class="subcard-title"><a href={`/ecl/${encodeURIComponent(eclSeason)}/`}>🏆 UEFAカンファレンスリーグ(ECL) {eclSeason}</a></h3>
+                <div class="ucl-sub">出場クラブ・組み合わせ・順位表・日程結果<br />更新：<span class="date-red">{eclUpdatedAt}</span>　参加：{eclRows.length}クラブ</div>
+              </div>
+            ) }
           </div>
 
           <div class="subcard award-box theme-award grid-nt-sub2">

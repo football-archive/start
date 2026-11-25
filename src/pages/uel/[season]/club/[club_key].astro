@@ -191,6 +191,43 @@ const roster = applyClubStatsMode(sortClubRoster(latestRosterRows), "uefa");
 // 代表情報
 // 国内クラブページと同じロジックを使用
 // --------------------
+// --------------------
+// country master / 国ハブリンク
+// --------------------
+type CountryMasterRow = {
+  country_key: string;
+  country_name_ja: string;
+  country_name_en: string;
+  continent: string;
+  confederation: string;
+};
+
+const countryMaster: CountryMasterRow[] = parseCsv(
+  fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "country_master.csv"),
+    "utf-8",
+  ),
+).map((r: any) => ({
+  country_key: String(r.country_key ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  country_name_en: String(r.country_name_en ?? "").trim(),
+  continent: String(r.continent ?? "").trim(),
+  confederation: String(r.confederation ?? "").trim(),
+}));
+
+const ntCountryHref = (countryNameJa: string) => {
+  const name = String(countryNameJa ?? "").trim();
+  if (!name) return "";
+
+  const hit = countryMaster.find(
+    (r) => r.country_name_ja === name,
+  );
+
+  return hit?.country_key
+    ? `/nt/${encodeURIComponent(hit.country_key)}/`
+    : "";
+};
+
 const callups = loadCallups();
 
 const { repLabel, repLinks } = buildRepLabelFromCallups(callups, {
@@ -216,10 +253,11 @@ const hasUelStats = roster.some((r: any) => {
 const columns = buildClubColumns({
   isLatestView: true,
   repLabel,
+  repHref: ntCountryHref,
   repLinks,
   repHistoryLinks,
 
-  // UEL専用の選手成績が未整備のためGA列は非表示
+  // EL出場成績が1件でもある場合だけGA列を表示
   showStats: hasUelStats,
 });
 
@@ -474,22 +512,22 @@ const domesticLeagueLinks = leagueMaster
 
 // SEO：ひとまずEL専用ページとして独立
 const title =
-  `${clubLabel} EL ${season}メンバー・組み合わせ・日程・結果` +
+  `${clubLabel} EL ${season}メンバー・ゴール・アシスト・組み合わせ・日程・結果` +
   `｜UEFAヨーロッパリーグ`;
 
 const description =
   `${clubLabel}の${season}シーズンUEFAヨーロッパリーグ情報。` +
-  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載。`;
+  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載。シーズンごとに出場数・先発数・ゴール・アシストも確認できます。`;
 
 const heading =
-  `${clubLabel} EL ${season} メンバー・組み合わせ・試合日程`;
+  `${clubLabel} EL ${season} メンバー・選手成績・試合日程`;
 ---
 
 <BaseLayout
   title={title}
   description={description}
   bodyClass="page-uel"
-  bodyStyle="margin:0; font-family: system-ui;"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #f5cba7;"
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },

@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 
 const title = "サッカー表彰・個人賞一覧";
 const description =
-  "バロンドールやFIFAワールドカップの各種表彰・個人賞を一覧で掲載しています。";
+  "バロンドール、FIFAワールドカップ、AFCアジアカップ、UEFAチャンピオンズリーグ（CL）、ヨーロッパリーグ（EL）、カンファレンスリーグ（ECL）の歴代表彰・個人賞・ベストイレブンを一覧で掲載しています。";
 
 const awardCategories = [
   {
@@ -141,9 +141,28 @@ const awardCategories = [
         href: "/uel/2025-26/#awards",
         note: "大会個人賞・ベストイレブン",
       },
-            {
+      {
         label: "2024-25 UEFAヨーロッパリーグ",
         href: "/uel/2024-25/#awards",
+        note: "大会個人賞・ベストイレブン",
+      },
+    ],
+  },
+  {
+    key: "conference-league",
+    icon: "🥇",
+    title: "UEFAカンファレンスリーグ表彰",
+    description:
+      "UEFAカンファレンスリーグ（ECL）の大会最優秀選手、最優秀若手選手、チーム・オブ・ザ・シーズンなどの公式表彰を掲載しています。",
+    links: [
+      {
+        label: "2025-26 UEFAカンファレンスリーグ",
+        href: "/ecl/2025-26/#awards",
+        note: "大会個人賞・ベストイレブン",
+      },
+      {
+        label: "2024-25 UEFAカンファレンスリーグ",
+        href: "/ecl/2024-25/#awards",
         note: "大会個人賞・ベストイレブン",
       },
     ],

@@ -14,6 +14,8 @@ const TARGETS = [
   { competition: "UCL", edition: "2025-26" },
   { competition: "UEL", edition: "2024-25" },
   { competition: "UEL", edition: "2025-26" },
+  { competition: "ECL", edition: "2024-25" },
+  { competition: "ECL", edition: "2025-26" },
 ];
 
 const COLORS = {
@@ -381,7 +383,12 @@ function flattenLeaves(node) {
 }
 
 function renderBracket({ competition, edition, matches }) {
-  const themeColor = competition === "UEL" ? "#e87516" : COLORS.theme;
+  const themeColor =
+    competition === "ECL"
+      ? "#15803d"
+      : competition === "UEL"
+        ? "#e87516"
+        : COLORS.theme;
   const twoLegTies = buildTwoLegTies(matches);
 
   const finalMatches = matches
@@ -523,7 +530,11 @@ function renderBracket({ competition, edition, matches }) {
     : baseHeight;
 
   const competitionName =
-    competition === "UEL" ? "UEFAヨーロッパリーグ" : "UEFAチャンピオンズリーグ";
+    competition === "ECL"
+      ? "UEFAカンファレンスリーグ"
+      : competition === "UEL"
+        ? "UEFAヨーロッパリーグ"
+        : "UEFAチャンピオンズリーグ";
 
   const parts = [];
   parts.push(
@@ -626,7 +637,7 @@ function renderBracket({ competition, edition, matches }) {
     const topY = y - cardH / 2;
     const isFinal = m._stage === "F";
     parts.push(
-      `<rect x="${x}" y="${topY}" width="${cardW}" height="${cardH}" rx="5" fill="#fff" stroke="${isFinal ? COLORS.theme : COLORS.line}" stroke-width="${isFinal ? 3 : 2}"/>`,
+      `<rect x="${x}" y="${topY}" width="${cardW}" height="${cardH}" rx="5" fill="#fff" stroke="${isFinal ? themeColor : COLORS.line}" stroke-width="${isFinal ? 3 : 2}"/>`,
     );
     parts.push(
       `<line x1="${x}" y1="${y}" x2="${x + cardW}" y2="${y}" stroke="${COLORS.separator}" stroke-width="2"/>`,

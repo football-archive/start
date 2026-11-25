@@ -85,6 +85,13 @@ const hasUelMode = hasClubEuropeanMode({
   clubKey: club_key,
 });
 
+const hasEclMode = hasClubEuropeanMode({
+  competition: "ECL",
+  season: routeSeason,
+  leagueKey: league_key,
+  clubKey: club_key,
+});
+
 // --------------------
 // master 参照：表示名（日本語）をここで確定
 // --------------------
@@ -787,7 +794,7 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
 }
 
 {
-  (hasUclMode || hasUelMode) && (
+  (hasUclMode || hasUelMode || hasEclMode) && (
     <div class="club-mode-switch">
       <span class="club-mode-current">
         -- 国内モード表示中 --
@@ -808,6 +815,15 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
           href={`/uel/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
         >
           ELモードへ切替
+        </a>
+      )}
+
+      {hasEclMode && (
+        <a
+          class="club-mode-switch-link club-mode-switch-link-ecl"
+          href={`/ecl/${encodeURIComponent(routeSeason)}/club/${encodeURIComponent(club_key)}/`}
+        >
+          ECLモードへ切替
         </a>
       )}
     </div>
@@ -1792,6 +1808,12 @@ const topOtherLeaguePills = leaguePills.filter((p) => p.key !== league_key);
   color: #fff;
   background: var(--color-uel, #e87516);
   border: 2px solid var(--color-uel, #e87516);
+}
+
+    .page-club .club-mode-switch-link-ecl {
+  color: #fff;
+  background: var(--color-ecl, #15803d);
+  border: 2px solid var(--color-ecl, #15803d);
 }
 
     @media (max-width: 640px) {

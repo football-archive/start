@@ -1,0 +1,155 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getEuropeanSeasons } from "../../lib/europeanLeaguePhase";
+
+const seasons = getEuropeanSeasons("ECL")
+  .map((s) => String(s).trim())
+  .sort()
+  .reverse();
+const latest = seasons[0] ?? "2026-27";
+
+const title = "UEFA Conference League｜シーズン一覧";
+---
+
+<BaseLayout
+  title={title}
+  description="UEFAカンファレンスリーグ（ECL）のシーズン一覧ページです。各シーズンの順位表や出場クラブ、結果を確認できます。"
+  bodyClass="page-ecl"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #c5e5d1;"
+  showPageHeader={true}
+  crumbs={[{ label: "トップ", href: "/" }, { label: "ECL" }]}
+  heading=""
+>
+  <h1 class="page-title">UEFAカンファレンスリーグ（ECL）シーズン一覧</h1>
+
+  <p class="lead">
+    UEFAカンファレンスリーグ（ECL）のシーズン一覧ページです。各シーズンの順位表や出場クラブ、結果を確認できます。リーグフェーズ（新形式）を中心に掲載しています。
+  </p>
+
+  <div class="pill-block">
+    <div class="pill-label">👉 最新シーズンを見る</div>
+    <div class="pills">
+      <a class="pill is-active" href={`/ecl/${encodeURIComponent(latest)}/`}>
+        <span class="dot" aria-hidden="true"></span>最新：{latest}
+      </a>
+    </div>
+  </div>
+
+  <div class="box">
+    <h2>掲載シーズン</h2>
+    <ul>
+      {
+        seasons.map((s) => (
+          <li>
+            <a href={`/ecl/${encodeURIComponent(s)}/`}>UEFA ECL {s}（出場クラブ・大会結果・得点/アシストランキング）</a>
+          </li>
+        ))
+      }
+    </ul>
+    <p class="note">
+      ※
+      各シーズンページでは、順位表・出場クラブ・クラブ詳細へのリンクを掲載しています。
+    </p>
+  </div>
+
+  <style is:global>
+    .page-ecl .muted {
+      color: #666;
+      font-size: 12.5px;
+      margin: 6px 0 10px;
+    }
+    .page-ecl .box {
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      padding: 14px;
+    }
+    .page-ecl ul {
+      margin: 8px 0 0;
+      padding-left: 18px;
+    }
+    .page-ecl li {
+      margin: 6px 0;
+    }
+    .page-ecl a {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .page-ecl a:hover {
+      background: #eef6fd;
+    }
+
+    .page-ecl .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .page-ecl .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #cfe0ff;
+      background: #fff;
+      color: #111;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .page-ecl .pill:hover {
+      background: #eef6fd;
+    }
+    .page-ecl .pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: #15803d;
+      opacity: 0.6;
+    }
+    .page-ecl .pill.is-active {
+      font-weight: 800;
+      border-color: #15803d;
+    }
+    .page-ecl .pill.is-active .dot {
+      opacity: 1;
+    }
+
+    .page-ecl .page-title {
+      margin: 6px 0 10px;
+      font-size: 28px;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    .page-ecl .lead {
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .page-ecl .pill-block {
+      margin: 10px 0 14px;
+    }
+
+    .page-ecl .pill-label {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .page-ecl .box h2 {
+      margin: 0 0 8px;
+      font-size: 20px;
+    }
+
+    .page-ecl .note {
+      margin: 10px 0 0;
+      font-size: 12.5px;
+      color: #666;
+    }
+  </style>
+</BaseLayout>

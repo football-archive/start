@@ -189,6 +189,43 @@ const roster = applyClubStatsMode(sortClubRoster(latestRosterRows), "uefa");
 // 代表情報
 // 国内クラブページと同じロジックを使用
 // --------------------
+// --------------------
+// country master / 国ハブリンク
+// --------------------
+type CountryMasterRow = {
+  country_key: string;
+  country_name_ja: string;
+  country_name_en: string;
+  continent: string;
+  confederation: string;
+};
+
+const countryMaster: CountryMasterRow[] = parseCsv(
+  fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "country_master.csv"),
+    "utf-8",
+  ),
+).map((r: any) => ({
+  country_key: String(r.country_key ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  country_name_en: String(r.country_name_en ?? "").trim(),
+  continent: String(r.continent ?? "").trim(),
+  confederation: String(r.confederation ?? "").trim(),
+}));
+
+const ntCountryHref = (countryNameJa: string) => {
+  const name = String(countryNameJa ?? "").trim();
+  if (!name) return "";
+
+  const hit = countryMaster.find(
+    (r) => r.country_name_ja === name,
+  );
+
+  return hit?.country_key
+    ? `/nt/${encodeURIComponent(hit.country_key)}/`
+    : "";
+};
+
 const callups = loadCallups();
 
 const { repLabel, repLinks } = buildRepLabelFromCallups(callups, {
@@ -214,6 +251,7 @@ const hasUclStats = roster.some((r: any) => {
 const columns = buildClubColumns({
   isLatestView: true,
   repLabel,
+  repHref: ntCountryHref,
   repLinks,
   repHistoryLinks,
 
@@ -471,22 +509,22 @@ const domesticLeagueLinks = leagueMaster
 
 // SEO：ひとまずCL専用ページとして独立
 const title =
-  `${clubLabel} CL ${season}メンバー・組み合わせ・日程・結果` +
+  `${clubLabel} CL ${season}メンバー・ゴール・アシスト・組み合わせ・日程・結果` +
   `｜UEFAチャンピオンズリーグ`;
 
 const description =
   `${clubLabel}の${season}シーズンUEFAチャンピオンズリーグ情報。` +
-  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果、選手ごとの出場・先発・ゴール・アシストを掲載。`;
+  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載。シーズンごとに出場数・先発数・ゴール・アシストも確認できます。`;
 
 const heading =
-  `${clubLabel} CL ${season} メンバー・組み合わせ・試合日程`;
+  `${clubLabel} CL ${season} メンバー・選手成績・試合日程`;
 ---
 
 <BaseLayout
   title={title}
   description={description}
   bodyClass="page-ucl"
-  bodyStyle="margin:0; font-family: system-ui;"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #d0dbee;"
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },

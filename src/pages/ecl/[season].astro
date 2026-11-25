@@ -1,0 +1,1918 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  getEuropeanSeasons,
+  loadEuropeanLeaguePhaseBySeason,
+} from "../../lib/europeanLeaguePhase";
+import { loadClubMaster } from "../../lib/clubMaster";
+import { hasClubEuropeanMode } from "../../lib/clubCompetitionMode";
+
+import {
+  loadCompetitionSchedule,
+  filterMatches,
+  mdNum,
+} from "../../lib/competitionSchedule";
+import { getCompetitionSummary } from "../../lib/competitionSummary";
+import { getCompetitionPlayerStats } from "../../lib/competitionPlayerStats";
+import MatchScheduleTable from "../../components/MatchScheduleTable.astro";
+
+import { loadLeagueMaster } from "../../lib/leagueMaster";
+import { loadLeagueStandings } from "../../lib/leagueStandings";
+
+import { loadClubSquads } from "../../lib/clubSquads";
+
+import { getAwards } from "../../lib/competitionAwards";
+
+// ✅ 静的生成
+export function getStaticPaths() {
+  const seasons = getEuropeanSeasons("ECL").map((s) => String(s).trim());
+  return seasons.map((season) => ({ params: { season } }));
+}
+
+const season = String(Astro.params.season ?? "").trim();
+
+/* ===== 決勝トーナメント表 ===== */
+const bracketSeasons = new Set<string>(["2024-25","2025-26"]);
+
+const hasTournamentBracket = bracketSeasons.has(season);
+const tournamentBracketSrc = `/images/brackets/ecl-${season}.svg`;
+
+const rows = loadEuropeanLeaguePhaseBySeason("ECL", season);
+
+const clubMaster = loadClubMaster();
+const clubMap = new Map(clubMaster.map((c: any) => [c.club_key, c]));
+
+const leagueMaster = loadLeagueMaster();
+
+const clubSquadRows = loadClubSquads();
+
+const hasDomesticClubPage = (
+  leagueKey: string,
+  clubKey: string,
+  season: string,
+) =>
+  clubSquadRows.some(
+    (r: any) =>
+      String(r.league_key ?? "").trim() === leagueKey &&
+      String(r.club_key ?? "").trim() === clubKey &&
+      String(r.season ?? "").trim() === season,
+  );
+
+const leagueLabelMap = new Map(
+  leagueMaster
+    .filter((r) => r.league_key)
+    .map((r) => [
+      String(r.league_key).trim(),
+      String(r.league_display_ja || r.league_display_en || r.league_key).trim(),
+    ]),
+);
+
+const leagueLabel = (leagueKey: string) => {
+  const key = String(leagueKey ?? "").trim();
+  return leagueLabelMap.get(key) || key || "—";
+};
+
+const previousSeason = (season: string) => {
+  const m = String(season ?? "")
+    .trim()
+    .match(/^(\d{4})-(\d{2})$/);
+
+  if (!m) return "";
+
+  const startYear = Number(m[1]);
+
+  return `${startYear - 1}-${String(startYear).slice(-2)}`;
+};
+
+const previousLeagueSeason = previousSeason(season);
+
+const leagueStandings = loadLeagueStandings();
+
+const standingByClub = new Map(
+  leagueStandings
+    .filter((r) => r.season === previousLeagueSeason)
+    .map((r) => [`${r.league_key}|||${r.club_key}`, r]),
+);
+
+const getEclClubLeagueInfo = (r: any) => {
+  const clubKey = String(r.club_key ?? "").trim();
+  const c: any = clubMap.get(clubKey);
+
+  const leagueKey = String(c?.league_key ?? "").trim();
+
+  const overrideName = String(r.league_name_override ?? "").trim();
+
+  const overrideRank =
+    r.league_rank_override != null &&
+    Number.isFinite(Number(r.league_rank_override))
+      ? Number(r.league_rank_override)
+      : null;
+
+  const leagueName = overrideName || leagueLabel(leagueKey);
+
+  const standing = leagueKey
+    ? standingByClub.get(`${leagueKey}|||${clubKey}`)
+    : undefined;
+
+  const rank = overrideRank ?? (standing?.rank ? Number(standing.rank) : null);
+
+  return {
+    leagueKey,
+    leagueName,
+    rank,
+    label: leagueName && rank ? `${leagueName} ${rank}位` : leagueName || "—",
+  };
+};
+
+const summary = getCompetitionSummary("ECL", season);
+
+const allMatches = loadCompetitionSchedule();
+
+const eclMatches = filterMatches(allMatches, "ECL", season).sort(
+  (a: any, b: any) => mdNum(a.md) - mdNum(b.md),
+);
+
+const leaguePhaseMatches = eclMatches.filter(
+  (r: any) => String(r.stage ?? "").trim() === "League Phase",
+);
+
+const opponentMap = new Map<string, Set<string>>();
+
+for (const m of leaguePhaseMatches) {
+  const homeKey = String(m.homeKey ?? "").trim();
+  const awayKey = String(m.awayKey ?? "").trim();
+
+  if (!homeKey || !awayKey) continue;
+
+  if (!opponentMap.has(homeKey)) {
+    opponentMap.set(homeKey, new Set());
+  }
+
+  if (!opponentMap.has(awayKey)) {
+    opponentMap.set(awayKey, new Set());
+  }
+
+  opponentMap.get(homeKey)!.add(awayKey);
+  opponentMap.get(awayKey)!.add(homeKey);
+}
+
+const knockoutMatches = eclMatches.filter(
+  (r: any) => String(r.stage ?? "").trim() !== "League Phase",
+);
+
+const goalRank = getCompetitionPlayerStats("ECL", season, "goals");
+const assistRank = getCompetitionPlayerStats("ECL", season, "assists");
+const topScorer = goalRank[0] ?? null;
+const topAssist = assistRank[0] ?? null;
+
+const awards = getAwards("ECL", season);
+
+const majorLeagueOrder = [
+  "プレミアリーグ",
+  "ラ・リーガ",
+  "セリエA",
+  "ブンデスリーガ",
+  "リーグ・アン",
+  "エールディヴィジ",
+  "プリメイラ・リーガ",
+];
+
+const allLeagueNames = Array.from(
+  new Set(
+    rows.map((r: any) => getEclClubLeagueInfo(r).leagueName).filter(Boolean),
+  ),
+);
+
+const majorLeagueNames = majorLeagueOrder.filter((name) =>
+  allLeagueNames.includes(name),
+);
+
+const hasOtherLeagues = allLeagueNames.some(
+  (name) => !majorLeagueOrder.includes(name),
+);
+
+const leagueNames = [
+  ...majorLeagueNames,
+  ...(hasOtherLeagues ? ["その他"] : []),
+];
+
+const clubHrefByKey = (clubKey: string) => {
+  const key = String(clubKey ?? "").trim();
+  const c: any = clubMap.get(key);
+
+  if (!c) return "";
+
+  const leagueKey = String(c.league_key ?? "").trim();
+  if (!leagueKey) return "";
+
+  if (
+    hasClubEuropeanMode({
+      competition: "ECL",
+      season,
+      leagueKey,
+      clubKey: key,
+    })
+  ) {
+    return (
+      `/ecl/${encodeURIComponent(season)}` + `/club/${encodeURIComponent(key)}/`
+    );
+  }
+
+  // ECLクラブページが未生成ならリンクを付けない
+  return "";
+};
+
+const clubDisplay = (clubKey: string, fallback = "") => {
+  const c: any = clubMap.get(String(clubKey));
+  return (
+    c?.club_display_ja ||
+    c?.name_ja ||
+    c?.club_name_en ||
+    fallback ||
+    clubKey ||
+    "—"
+  );
+};
+
+// ===== ECL公式表彰＋選手成績 =====
+
+const normAwardName = (v: unknown) =>
+  String(v ?? "")
+    .trim()
+    .replace(/　/g, " ")
+    .replace(/\s+/g, " ");
+
+const awardRows = awards.map((award) => {
+  const candidates = clubSquadRows.filter(
+    (r: any) =>
+      String(r.season ?? "").trim() === season &&
+      String(r.club_key ?? "").trim() === award.team &&
+      normAwardName(r.name_ja) === normAwardName(award.player),
+  );
+
+  // UEFA成績が入力されたレコードを優先。
+  // 同条件なら冬のスナップショットを優先。
+  const squad =
+    [...candidates].sort((a: any, b: any) => {
+      const score = (r: any) =>
+        ["uefa_apps", "uefa_starts", "uefa_goals", "uefa_assists"].filter(
+          (key) => String(r[key] ?? "").trim() !== "",
+        ).length;
+
+      return (
+        score(b) - score(a) ||
+        Number(b.window === "winter") - Number(a.window === "winter")
+      );
+    })[0] ?? null;
+
+  return {
+    ...award,
+    squad,
+    clubName: clubDisplay(award.team),
+    clubHref: clubHrefByKey(award.team),
+  };
+});
+
+const hasAwardStats = awardRows.some(
+  (r) => r.squad && String(r.squad.uefa_apps ?? "").trim() !== "",
+);
+
+const awardStat = (value: unknown) => {
+  const s = String(value ?? "").trim();
+  return s === "" ? "－" : s;
+};
+
+const fmt = (v: any) => ((v ?? v === 0) ? String(v) : "—");
+
+const updated = rows[0]?.updated_at
+  ? String(rows[0].updated_at).replaceAll("-", "/")
+  : "—";
+
+const title = `UEFAカンファレンスリーグ ${season}｜組み合わせ・出場クラブ・順位表・日程結果｜海外サッカーDB`;
+
+// under-title に “シーズンピル” を出す
+const seasons = getEuropeanSeasons("ECL")
+  .map((s) => String(s).trim())
+  .sort()
+  .reverse();
+
+const championHref = summary?.champion_club_key
+  ? clubHrefByKey(summary.champion_club_key)
+  : "";
+
+const runnerUpHref = summary?.runner_up_club_key
+  ? clubHrefByKey(summary.runner_up_club_key)
+  : "";
+---
+
+<BaseLayout
+  title={title}
+  description={title}
+  bodyClass="page-ecl"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #c5e5d1;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "UEFA ECL", href: "/ecl/" },
+    { label: season },
+  ]}
+  heading=""
+>
+  <h1 class="page-title">
+    UEFAカンファレンスリーグ {season} 大会ポータル
+  </h1>
+
+  <p class="lead">
+    UEFAカンファレンスリーグ（ECL）{
+      season
+    }シーズンの抽選結果・組み合わせ、出場クラブ、リーグフェーズ順位表、日程・結果、決勝トーナメント、得点・アシストランキングをまとめた大会ポータルページです。
+  </p>
+
+  <div class="pill-block">
+    <div class="pill-label">🔎 シーズンを切り替える</div>
+
+    <div class="pills">
+      {
+        seasons.map((s) => (
+          <a
+            class={`pill ${s === season ? "is-active" : ""}`}
+            href={`/ecl/${encodeURIComponent(s)}/`}
+          >
+            <span class="dot" aria-hidden="true" />
+            {s}
+          </a>
+        ))
+      }
+
+      <a class="pill" href="/ecl/">
+        <span class="dot" aria-hidden="true"></span>シーズン一覧
+      </a>
+    </div>
+  </div>
+
+  <div class="pill-block">
+    <div class="pill-label">📑 ページ内の各項目へ移動</div>
+
+    <nav class="pills" aria-label="ページ内ナビゲーション">
+      <a class="pill" href="#summary">🏆 大会サマリー</a>
+      <a class="pill" href="#clubs">⚽ 出場クラブ</a>
+      <a class="pill" href="#league-phase-schedule">🏟 LP日程・結果</a>
+      <a class="pill" href="#league-phase">📊 LP順位表</a>
+      <a class="pill" href="#knockout-phase-schedule">🏟 KP日程・結果</a>
+
+      {
+        hasTournamentBracket && (
+          <a class="pill" href="#tournament-bracket">
+            🏆 トーナメント表
+          </a>
+        )
+      }
+
+      {
+        (goalRank.length > 0 || assistRank.length > 0) && (
+          <a class="pill" href="#rankings">
+            🥇 得点・アシスト
+          </a>
+        )
+      }
+
+      {
+        awards.length > 0 && (
+          <a class="pill" href="#awards">
+            🏅 大会表彰
+          </a>
+        )
+      }
+    </nav>
+  </div>
+
+  <section id="summary" class="summaryBox">
+    <h2>🏆 大会サマリー</h2>
+
+    <div class="summaryGrid">
+      <div>
+        <span>形式</span>
+        <b
+          >{
+            summary?.format_type === "league_phase"
+              ? "リーグフェーズ(LP) ⇒ ノックアウトフェーズ(KP)"
+              : summary?.format_type || "—"
+          }</b
+        >
+      </div>
+
+      <div>
+        <span>優勝</span>
+        <b>
+          {
+            summary?.champion_club_key ? (
+              championHref ? (
+                <a href={championHref}>
+                  {clubDisplay(summary.champion_club_key)}
+                </a>
+              ) : (
+                clubDisplay(summary.champion_club_key)
+              )
+            ) : (
+              "未定"
+            )
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>準優勝</span>
+        <b>
+          {
+            summary?.runner_up_club_key ? (
+              runnerUpHref ? (
+                <a href={runnerUpHref}>
+                  {clubDisplay(summary.runner_up_club_key)}
+                </a>
+              ) : (
+                clubDisplay(summary.runner_up_club_key)
+              )
+            ) : (
+              "未定"
+            )
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>得点王</span>
+        <b>
+          {
+            topScorer
+              ? `${topScorer.player_name} (${topScorer.team_name_ja})`
+              : "—"
+          }
+        </b>
+      </div>
+
+      <div>
+        <span>アシスト王</span>
+        <b>
+          {
+            topAssist
+              ? `${topAssist.player_name} (${topAssist.team_name_ja})`
+              : "—"
+          }
+        </b>
+      </div>
+    </div>
+  </section>
+
+  <section id="clubs">
+    <h2>⚽ リーグフェーズ(LP) 出場クラブ一覧</h2>
+    <div class="filter-line">
+      <div class="filter-label">🔎 ポットで絞り込み</div>
+
+      <div class="pills" id="ecl-pot-pills">
+        <button class="pill clear is-active" type="button" data-pot="">
+          <span class="dot"></span>全て
+        </button>
+
+        {
+          [1, 2, 3, 4, 5, 6].map((pot) => (
+            <button
+              class={`pill pot-filter pot-${pot}`}
+              type="button"
+              data-pot={String(pot)}
+            >
+              <span class="dot" />
+              ポット{pot}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+    <div class="filter-line">
+      <div class="filter-label">🔎 所属リーグで絞り込み</div>
+      <div class="pills" id="ecl-league-pills">
+        <button class="pill clear is-active" type="button" data-league="">
+          <span class="dot"></span>全て
+        </button>
+        {
+          leagueNames.map((name) => (
+            <button class="pill" type="button" data-league={name}>
+              <span class="dot" />
+              {name}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="ecl-opponent-status" id="ecl-opponent-status" hidden>
+      <span id="ecl-opponent-status-text" class="ecl-focus-action"></span>
+
+      <button
+        type="button"
+        id="ecl-jump-to-schedule"
+        class="ecl-focus-action ecl-focus-button"
+      >
+        ↓ 日程・結果へジャンプ
+      </button>
+
+      <button type="button" id="ecl-opponent-clear"> 選択をリセット </button>
+    </div>
+
+    <div class="team-grid" id="ecl-club-grid">
+      {
+        rows.map((r: any) => {
+          const clubKey = String(r.club_key ?? "").trim();
+          const c: any = clubMap.get(clubKey);
+          const leagueInfo = getEclClubLeagueInfo(r);
+          const league = leagueInfo.leagueName;
+          const leagueFilter = majorLeagueOrder.includes(league)
+            ? league
+            : "その他";
+          const pot =
+            r.pot != null && Number.isFinite(Number(r.pot))
+              ? String(r.pot)
+              : "";
+
+          const href = clubKey ? clubHrefByKey(clubKey) : "";
+          const name = r.club_name_raw || clubDisplay(clubKey);
+          const opponentKeys = clubKey
+            ? [...(opponentMap.get(clubKey) ?? [])]
+            : [];
+          return (
+            <div
+              class="team-card"
+              data-ecl-club-card
+              data-club-key={clubKey}
+              data-opponents={opponentKeys.join("|")}
+              data-league={leagueFilter}
+              data-pot={pot}
+            >
+              <div class="row1">
+                <div class="name">{name}</div>
+              </div>
+
+              <div class="meta">
+                <span class={`badge pot-badge ${pot ? `pot-${pot}` : ""}`}>
+                  {pot ? `ポット${pot}` : "ポット —"}
+                </span>
+
+                <span class="badge">{leagueInfo.label}</span>
+              </div>
+
+              <div class="team-card-actions">
+                {href ? (
+                  <a class="team-card-link" href={href}>
+                    👕選手一覧
+                  </a>
+                ) : (
+                  <span class="team-card-link is-disabled">👕選手一覧</span>
+                )}
+
+                <button
+                  type="button"
+                  class="team-card-opponents"
+                  data-ecl-opponents-button
+                  data-club-key={clubKey}
+                  disabled={!clubKey}
+                >
+                  🔎 対戦相手
+                </button>
+              </div>
+            </div>
+          );
+        })
+      }
+    </div>
+  </section>
+
+  <section id="league-phase-schedule">
+    <h2>🏟 リーグフェーズ(LP) 日程・結果</h2>
+
+    <div class="ecl-lp-filter-status" id="ecl-lp-filter-status" hidden>
+      <span id="ecl-lp-filter-status-text" class="ecl-focus-action"></span>
+
+      <button
+        type="button"
+        id="ecl-jump-to-clubs"
+        class="ecl-focus-action ecl-focus-button"
+      >
+        ↑ 出場クラブ一覧へ戻る
+      </button>
+
+      <button type="button" id="ecl-lp-filter-clear"> 選択をリセット </button>
+    </div>
+
+    <MatchScheduleTable
+      matches={leaguePhaseMatches}
+      heading={`ECL ${season} リーグフェーズ`}
+      showMatchLinks={false}
+    />
+  </section>
+
+  <section id="league-phase">
+    <h2>📊 リーグフェーズ(LP)順位表</h2>
+    <div class="ecl-meta">
+      <span>クラブ数：{rows.length}</span>
+      <span>更新：{updated}</span>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th style="text-align:center;">クラブ</th>
+            <th>試</th><th>勝</th><th>分</th><th>敗</th>
+            <th>得</th><th>失</th><th>差</th><th>点</th>
+            <th>枠</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            rows.map((r: any) => {
+              const clubKey = String(r.club_key ?? "").trim();
+              const href = clubKey ? clubHrefByKey(clubKey) : "";
+              return (
+                <tr>
+                  <td>{fmt(r.rank)}</td>
+                  <td class="left">
+                    {href ? (
+                      <a class="club-link" href={href}>
+                        {r.club_name_raw ?? r.club_key}
+                      </a>
+                    ) : (
+                      (r.club_name_raw ?? "—")
+                    )}
+                  </td>
+                  <td>{fmt(r.played)}</td>
+                  <td>{fmt(r.won)}</td>
+                  <td>{fmt(r.draw)}</td>
+                  <td>{fmt(r.lost)}</td>
+                  <td>{fmt(r.gf)}</td>
+                  <td>{fmt(r.ga)}</td>
+                  <td>{fmt(r.gd)}</td>
+                  <td>{fmt(r.pts)}</td>
+                  <td>
+                    <span class="pill small">{fmt(r.qualified)}</span>
+                  </td>
+                </tr>
+              );
+            })
+          }
+        </tbody>
+      </table>
+    </div>
+    <p class="note">
+      ※ 上位8クラブはラウンド16へ。9～24位の16クラブはKOフェーズ進出をかけてPO
+    </p>
+  </section>
+
+  <section id="knockout-phase-schedule">
+    <h2>🏟 ノックアウトフェーズ(KP) 日程・結果</h2>
+    <MatchScheduleTable
+      matches={knockoutMatches}
+      heading={`ECL ${season} 決勝トーナメント`}
+      showMatchLinks={false}
+    />
+  </section>
+
+  {
+    hasTournamentBracket && (
+      <section id="tournament-bracket" class="ecl-bracket-section">
+        <h2>🏆 ノックアウトフェーズ(KP) 決勝トーナメント表</h2>
+
+        <p class="note ecl-bracket-note">
+          ラウンド16以降の組み合わせ、2戦合計スコア、決勝までの勝ち上がりを一覧で確認できます。
+        </p>
+
+        <div class="tournament-bracket-wrap">
+          <img
+            class="tournament-bracket-image"
+            src={tournamentBracketSrc}
+            alt={`UEFAカンファレンスリーグ ${season} 決勝トーナメント表`}
+            loading="lazy"
+          />
+        </div>
+
+        <p class="tournament-bracket-open">
+          <a href={`/ecl/${season}/bracket/`} target="_blank" rel="noopener">
+            トーナメント表を大きく表示する →
+          </a>
+        </p>
+      </section>
+    )
+  }
+
+  <section id="rankings">
+    <h2>🥇 得点・アシストランキング</h2>
+
+    <div class="rank-grid">
+      <div class="rank-card">
+        <h3>得点ランキング</h3>
+        {
+          goalRank.length === 0 ? (
+            <p class="note">データ準備中です。</p>
+          ) : (
+            <table class="rank">
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>選手</th>
+                  <th>クラブ</th>
+                  <th class="num">得点</th>
+                </tr>
+              </thead>
+              <tbody>
+                {goalRank.map((r: any) => (
+                  <tr>
+                    <td>{r.rank}</td>
+                    <td>{r.player_name}</td>
+                    <td>
+                      {(() => {
+                        const teamKey = String(r.team_key ?? "").trim();
+                        const href = teamKey ? clubHrefByKey(teamKey) : "";
+                        const label = r.team_name_ja || clubDisplay(teamKey);
+
+                        return href ? (
+                          <a class="club-link" href={href}>
+                            {label}
+                          </a>
+                        ) : (
+                          <span>{label}</span>
+                        );
+                      })()}
+                    </td>
+                    <td class="num">
+                      <b>{r.goals || "—"}</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+      </div>
+
+      <div class="rank-card">
+        <h3>アシストランキング</h3>
+        {
+          assistRank.length === 0 ? (
+            <p class="note">データ準備中です。</p>
+          ) : (
+            <table class="rank">
+              <thead>
+                <tr>
+                  <th>順位</th>
+                  <th>選手</th>
+                  <th>クラブ</th>
+                  <th class="num">アシスト</th>
+                </tr>
+              </thead>
+              <tbody>
+                {assistRank.map((r: any) => (
+                  <tr>
+                    <td>{r.rank}</td>
+                    <td>{r.player_name}</td>
+                    <td>
+                      {(() => {
+                        const teamKey = String(r.team_key ?? "").trim();
+                        const href = teamKey ? clubHrefByKey(teamKey) : "";
+                        const label = r.team_name_ja || clubDisplay(teamKey);
+
+                        return href ? (
+                          <a class="club-link" href={href}>
+                            {label}
+                          </a>
+                        ) : (
+                          <span>{label}</span>
+                        );
+                      })()}
+                    </td>
+                    <td class="num">
+                      <b>{r.assists || "—"}</b>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )
+        }
+      </div>
+    </div>
+  </section>
+
+  {
+    awards.length > 0 && (
+      <section id="awards" class="ecl-awards-section">
+        <h2>⚽ UEFAカンファレンスリーグ {season} 表彰</h2>
+
+        <p class="note">
+          UEFA公式の個人賞・チーム・オブ・ザ・シーズンを掲載しています。
+        </p>
+
+        <div class="ecl-awards-table-wrap">
+          <table class="ecl-awards-table">
+            <thead>
+              <tr>
+                <th>賞</th>
+                <th>選手</th>
+                <th>クラブ</th>
+                {hasAwardStats && (
+                  <>
+                    <th class="num">出場</th>
+                    <th class="num">G</th>
+                    <th class="num">A</th>
+                  </>
+                )}
+              </tr>
+            </thead>
+
+            <tbody>
+              {awardRows.map((r) => {
+                const href = r.clubHref;
+                const squad = r.squad;
+
+                return (
+                  <tr>
+                    <td>
+                      <b>{r.award_name}</b>
+                      {r.note && <span class="ecl-award-note">{r.note}</span>}
+                    </td>
+
+                    <td>
+                      <b>{r.player}</b>
+                    </td>
+
+                    <td>
+                      {href ? (
+                        <a class="club-link" href={href}>{clubDisplay(r.team)}</a>
+                      ) : (
+                        <span>{clubDisplay(r.team)}</span>
+                      )}
+                    </td>
+
+                    {hasAwardStats && (
+                      <>
+                        <td class="num">
+                          {squad
+                            ? `${awardStat(squad.uefa_apps)}${
+                                String(squad.uefa_starts ?? "").trim()
+                                  ? `（先発${squad.uefa_starts}）`
+                                  : ""
+                              }`
+                            : "－"}
+                        </td>
+                        <td class="num">{awardStat(squad?.uefa_goals)}</td>
+                        <td class="num">{awardStat(squad?.uefa_assists)}</td>
+                      </>
+                    )}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+
+  <style is:global>
+    /* ===== ECL theme（ニュートラル寄り） ===== */
+    .page-ecl .ecl-top {
+      margin: 6px 0 12px;
+    }
+    .page-ecl .ecl-meta {
+      color: #666;
+      font-size: 12.5px;
+      margin: 0 0 10px;
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-ecl .table-wrap {
+      /* ✅ この箱の中で縦スクロールさせる（stickyを安定させる） */
+      overflow: auto; /* 横も縦もここでスクロール */
+      max-height: calc(
+        100vh - 260px
+      ); /* だいたい: TitleBar + crumbs + pills分 */
+      background: #fff;
+      border: 1px solid #e6e6e6;
+      border-radius: 12px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .page-ecl table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      min-width: 760px;
+    }
+
+    .page-ecl thead th {
+      position: sticky;
+      top: 0; /* ✅ “箱”の先頭に張り付くのでオフセット不要 */
+      z-index: 3; /* ✅ 行より前に出す */
+      background: #f7f7f7; /* ✅ 透け防止 */
+      border-bottom: 1px solid #e6e6e6;
+      padding: 10px 10px;
+      font-size: 12.5px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    /* ✅ TitleBar の高さ分だけ sticky を下げる（BaseLayout の padding-top と同値） */
+    .has-titlebar-2.page-ecl thead th {
+      top: 56px;
+    }
+    .has-titlebar-1.page-ecl thead th {
+      top: 40px;
+    }
+
+    .page-ecl tbody td {
+      border-bottom: 1px solid #f0f0f0;
+      padding: 9px 10px;
+      font-size: 13px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-ecl tbody tr:hover {
+      background: #fafafa;
+    }
+    .page-ecl td.left {
+      text-align: left;
+    }
+
+    .page-ecl a {
+      color: #111;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .page-ecl a:hover {
+      background: #eef6fd;
+    }
+
+    /* pills（既存の見た目に寄せつつ ECL らしく緑寄せ） */
+    .page-ecl .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .page-ecl .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #15803d;
+      background: #fff;
+      color: #15803d;
+      text-decoration: none;
+      font-size: 13px;
+      line-height: 1;
+    }
+    .page-ecl .pill:hover {
+      background: #eef6fd;
+    }
+    .page-ecl .pill .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: var(--color-ecl, #15803d);
+      opacity: 0.6;
+    }
+    .page-ecl .pill.is-active {
+      font-weight: 800;
+      border-color: var(--color-ecl, #15803d);
+      background: var(--color-ecl, #15803d);
+      color: #fff;
+    }
+
+    .page-ecl .pill.is-active:hover {
+      background: var(--color-ecl, #15803d);
+      color: #fff;
+    }
+
+    .page-ecl .pill.is-active .dot {
+      background: #fff;
+      opacity: 1;
+    }
+
+    .page-ecl .pill.small {
+      padding: 2px 8px;
+      font-size: 12px;
+      border-color: #e6e6e6;
+    }
+
+    /* ✅ ECL表：箱内で上に詰める（謎の空白対策） */
+    .page-ecl .table-wrap {
+      padding: 0; /* ← まずpaddingをゼロに固定 */
+    }
+
+    .page-ecl .table-wrap table {
+      margin: 0; /* ← tableのデフォmargin除去 */
+      border-collapse: separate;
+      border-spacing: 0; /* ← 余計な隙間を消す */
+    }
+
+    /* ✅ theadの高さがズレる環境対策（特にSafari/Chromium差分） */
+    .page-ecl .table-wrap thead {
+      transform: translateZ(0);
+    }
+
+    /* ✅ stickyヘッダーが最上部にピタッと来るように */
+    .page-ecl .table-wrap thead th {
+      top: 0; /* 念押し（他CSSの上書き防止） */
+    }
+
+    /* ECL順位表ヘッダー */
+    .page-ecl table thead th {
+      background: color-mix(in srgb, var(--color-ecl) 28%, white);
+    }
+
+    .page-ecl .page-title {
+      margin: 6px 0 10px;
+      font-size: 28px;
+      line-height: 1.35;
+      color: #111;
+    }
+
+    .page-ecl .lead {
+      margin: 4px 0 14px;
+      font-size: 13px;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    .page-ecl .pill-block {
+      margin: 10px 0 14px;
+    }
+
+    .page-ecl .pill-label {
+      font-size: 15px;
+      color: #666;
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .page-ecl .note {
+      margin: 10px 0 0;
+      font-size: 12.5px;
+      color: #666;
+    }
+
+    .page-ecl .summaryBox {
+      margin: 18px 0;
+      padding: 14px;
+      border: 1px solid
+        color-mix(in srgb, var(--color-ecl, #15803d) 45%, #dbeafe);
+      border-left: 6px solid var(--color-ecl, #15803d);
+      border-radius: 14px;
+      background: color-mix(in srgb, var(--color-ecl, #15803d) 7%, white);
+    }
+
+    .page-ecl .summaryGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 10px;
+    }
+
+    .page-ecl .summaryGrid div {
+      padding: 10px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid #e6e6e6;
+    }
+
+    .page-ecl .summaryGrid span {
+      display: block;
+      font-size: 12px;
+      color: #666;
+      margin-bottom: 4px;
+    }
+
+    .page-ecl .summaryGrid b {
+      font-size: 14px;
+    }
+
+    .page-ecl .team-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .page-ecl .team-card {
+      display: block;
+      padding: 10px 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+      color: #111;
+    }
+
+    .page-ecl .team-card-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .page-ecl .team-card-link,
+    .page-ecl .team-card-opponents {
+      padding: 0;
+      min-height: auto;
+      border: 0;
+      border-radius: 0;
+      background: transparent;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .page-ecl .team-card-link {
+      color: var(--theme-color);
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-ecl .team-card-link:hover {
+      color: #fff;
+      background: var(--theme-color);
+    }
+
+    .page-ecl .team-card-opponents {
+      color: #c0392b;
+      cursor: pointer;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .page-ecl .team-card-opponents:hover {
+      background: color-mix(in srgb, var(--theme-color) 7%, white);
+    }
+
+    .page-ecl .team-card-link.is-disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .page-ecl .team-card-opponents:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
+
+    .page-ecl .team-card.is-disabled {
+      opacity: 0.75;
+    }
+
+    .page-ecl .team-card .name {
+      font-weight: 800;
+    }
+
+    .page-ecl .team-card .meta {
+      margin-top: 8px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    /* ===== LP対戦相手ハイライト ===== */
+
+    .page-ecl .team-card {
+      transition:
+        opacity 0.15s ease,
+        background 0.15s ease,
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+    /* 選択したクラブ */
+    .page-ecl .team-card.is-selected-club {
+      opacity: 1;
+      background: color-mix(in srgb, var(--theme-color) 13%, white);
+      border-color: var(--theme-color);
+      box-shadow: 0 0 0 2px
+        color-mix(in srgb, var(--theme-color) 18%, transparent);
+    }
+
+    /* 対戦相手 */
+    .page-ecl .team-card.is-opponent-club {
+      opacity: 1;
+      background: color-mix(in srgb, var(--theme-color) 5%, white);
+      border-color: color-mix(in srgb, var(--theme-color) 55%, #e6e6e6);
+    }
+
+    /* 非対戦クラブ */
+    .page-ecl .team-card.is-dimmed-club {
+      opacity: 0.28;
+    }
+
+    /* 選択中ボタン */
+    .page-ecl .team-card-opponents.is-active {
+      color: #c0392b;
+      font-size: 16px;
+      font-weight: 1200;
+      text-decoration: none;
+    }
+
+    /* 選択状態説明 */
+    .page-ecl .ecl-opponent-status,
+    .page-ecl .ecl-lp-filter-status {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px 12px;
+      margin: 12px 0 10px;
+    }
+
+    .page-ecl #ecl-opponent-status-text,
+    .page-ecl #ecl-lp-filter-status-text {
+      flex-basis: 100%;
+      font-size: 20px;
+      font-weight: 900;
+      line-height: 1.5;
+      color: #c0392b;
+    }
+
+    .page-ecl .ecl-opponent-status[hidden] {
+      display: none;
+    }
+
+    .page-ecl .ecl-lp-filter-status[hidden] {
+      display: none;
+    }
+
+    /* ===== 対戦可視化機能の操作色 ===== */
+
+    .page-ecl .ecl-focus-action {
+      color: var(--theme-color);
+      font-weight: 800;
+    }
+
+    .page-ecl .ecl-focus-button {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      font-size: 14px;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .page-ecl .ecl-focus-button:hover {
+      color: #922b21;
+      background: transparent;
+    }
+
+    .page-ecl #clubs,
+    .page-ecl #league-phase-schedule {
+      scroll-margin-top: 80px;
+    }
+
+    .page-ecl #ecl-opponent-clear {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #c0392b;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    .page-ecl .badge {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #e6e6e6;
+      font-size: 12px;
+      background: #fff;
+    }
+
+    /* ===== ECL Pot colors ===== */
+
+    /* Pot 1：ECLテーマカラー */
+    .page-ecl .pot-1 {
+      --pot-color: var(--color-ecl, #15803d);
+      --pot-bg: color-mix(in srgb, var(--color-ecl, #15803d) 12%, white);
+    }
+
+    /* Pot 2：紺 */
+    .page-ecl .pot-2 {
+      --pot-color: #1e3a8a;
+      --pot-bg: #dbeafe;
+    }
+
+    /* Pot 3：黄 */
+    .page-ecl .pot-3 {
+      --pot-color: #92400e;
+      --pot-bg: #fef3c7;
+    }
+
+    /* Pot 4：赤 */
+    .page-ecl .pot-4 {
+      --pot-color: #991b1b;
+      --pot-bg: #fee2e2;
+    }
+
+    /* Pot 5：紫 */
+    .page-ecl .pot-5 {
+      --pot-color: #6b21a8;
+      --pot-bg: #f3e8ff;
+    }
+
+    /* Pot 6：グレー */
+    .page-ecl .pot-6 {
+      --pot-color: #475569;
+      --pot-bg: #e2e8f0;
+    }
+
+    /* カード内Potバッジ */
+    .page-ecl .pot-badge.pot-1,
+    .page-ecl .pot-badge.pot-2,
+    .page-ecl .pot-badge.pot-3,
+    .page-ecl .pot-badge.pot-4,
+    .page-ecl .pot-badge.pot-5,
+    .page-ecl .pot-badge.pot-6 {
+      color: var(--pot-color);
+      background: var(--pot-bg);
+      border-color: color-mix(in srgb, var(--pot-color) 30%, white);
+      font-weight: 700;
+    }
+
+    /* Pot絞り込み */
+    .page-ecl .pot-filter.pot-1 .dot,
+    .page-ecl .pot-filter.pot-2 .dot,
+    .page-ecl .pot-filter.pot-3 .dot,
+    .page-ecl .pot-filter.pot-4 .dot,
+    .page-ecl .pot-filter.pot-5 .dot,
+    .page-ecl .pot-filter.pot-6 .dot {
+      background: var(--pot-color);
+      opacity: 1;
+    }
+
+    .page-ecl .pot-filter.pot-1.is-active,
+    .page-ecl .pot-filter.pot-2.is-active,
+    .page-ecl .pot-filter.pot-3.is-active,
+    .page-ecl .pot-filter.pot-4.is-active,
+    .page-ecl .pot-filter.pot-5.is-active,
+    .page-ecl .pot-filter.pot-6.is-active {
+      color: #fff;
+      background: var(--color-ecl, #15803d);
+      border-color: var(--color-ecl, #15803d);
+      font-weight: 800;
+    }
+
+    .page-ecl .pot-filter.is-active .dot {
+      background: #fff;
+      opacity: 1;
+    }
+
+    .page-ecl .rank-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .page-ecl .rank-card {
+      padding: 12px;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ecl table.rank {
+      width: 100%;
+      min-width: 0;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .page-ecl table.rank th,
+    .page-ecl table.rank td {
+      border-top: 1px solid #e6e6e6;
+      padding: 8px;
+      text-align: left;
+    }
+
+    .page-ecl table.rank .num {
+      text-align: right;
+    }
+
+    .page-ecl .summaryGrid a {
+      color: var(--theme-color);
+      font-weight: 700;
+    }
+
+    .page-ecl .summaryGrid a:hover {
+      color: var(--theme-color);
+    }
+
+    .page-ecl .club-link {
+      color: var(--theme-color);
+      font-weight: 600;
+    }
+
+    .page-ecl #ecl-lp-filter-clear {
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: #c0392b;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+      cursor: pointer;
+    }
+
+    /* ===== ECL 決勝トーナメント表 ===== */
+
+    .page-ecl .ecl-bracket-section {
+      margin: 18px 0;
+    }
+
+    .page-ecl .ecl-bracket-note {
+      margin: 6px 0 10px;
+    }
+
+    .page-ecl .tournament-bracket-wrap {
+      width: 100%;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      border: 1px solid var(--border, #e6e6e6);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ecl .tournament-bracket-image {
+      display: block;
+      width: 100%;
+      height: auto;
+      margin: 0 auto;
+    }
+
+    .page-ecl .tournament-bracket-open {
+      margin: 8px 0 0;
+      text-align: right;
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      .page-ecl .tournament-bracket-image {
+        width: 1100px;
+        max-width: none;
+      }
+    }
+
+    /* ===== ECL club card compact test ===== */
+
+    .page-ecl .team-grid {
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 7px;
+    }
+
+    .page-ecl .team-card {
+      padding: 8px 10px;
+      border-radius: 10px;
+    }
+
+    .page-ecl .team-card .name {
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .page-ecl .team-card .meta {
+      margin-top: 5px;
+      gap: 4px;
+      flex-wrap: nowrap;
+    }
+
+    .page-ecl .team-card .badge {
+      padding: 2px 6px;
+      font-size: 11px;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .page-ecl .team-card-actions {
+      gap: 10px;
+      margin-top: 6px;
+      flex-wrap: nowrap;
+    }
+
+    .page-ecl .team-card-link,
+    .page-ecl .team-card-opponents {
+      font-size: 11px;
+      line-height: 1.3;
+      white-space: nowrap;
+    }
+
+    /* ===== ECL summary compact test ===== */
+
+    .page-ecl .summaryBox {
+      margin: 14px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+    }
+
+    .page-ecl .summaryBox h2 {
+      margin: 0 0 8px;
+      font-size: 22px;
+      line-height: 1.25;
+    }
+
+    .page-ecl .summaryGrid {
+      grid-template-columns: 1.35fr repeat(4, 1fr);
+      gap: 7px;
+    }
+
+    .page-ecl .summaryGrid > div {
+      padding: 7px 9px;
+      border-radius: 9px;
+      min-width: 0;
+    }
+
+    .page-ecl .summaryGrid span {
+      margin-bottom: 2px;
+      font-size: 11px;
+      line-height: 1.25;
+    }
+
+    .page-ecl .summaryGrid b {
+      display: block;
+      font-size: 13px;
+      line-height: 1.4;
+    }
+
+    /* スマホ：形式だけ全幅、残り4項目は2列 */
+    @media (max-width: 700px) {
+      .page-ecl .summaryBox {
+        margin: 12px 0;
+        padding: 9px 10px;
+      }
+
+      .page-ecl .summaryBox h2 {
+        margin-bottom: 7px;
+        font-size: 20px;
+      }
+
+      .page-ecl .summaryGrid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 6px;
+      }
+
+      .page-ecl .summaryGrid > div {
+        padding: 6px 8px;
+      }
+
+      .page-ecl .summaryGrid > div:first-child {
+        grid-column: 1 / -1;
+      }
+
+      .page-ecl .summaryGrid span {
+        font-size: 10.5px;
+      }
+
+      .page-ecl .summaryGrid b {
+        font-size: 12px;
+      }
+    }
+
+    .page-ecl section[id] {
+      scroll-margin-top: 85px;
+    }
+
+    /* ===== ECL 表彰：UCL統一レイアウト ===== */
+
+    .page-ecl .ecl-awards-section {
+      margin: 18px 0;
+    }
+
+    .page-ecl .ecl-awards-table-wrap {
+      width: 100%;
+      overflow-x: auto;
+      border: 1px solid #e6e6e6;
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .page-ecl table.ecl-awards-table {
+      width: 100%;
+      min-width: 650px;
+      border-collapse: collapse;
+      border-spacing: 0;
+    }
+
+    .page-ecl .ecl-awards-table th {
+      position: static;
+      padding: 10px;
+      text-align: left;
+      background: color-mix(in srgb, var(--color-ecl, #15803d) 28%, white);
+      font-size: 12px;
+    }
+
+    .page-ecl .ecl-awards-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #e6e6e6;
+      white-space: normal;
+      vertical-align: middle;
+    }
+
+    .page-ecl .ecl-awards-table td:first-child {
+      width: 35%;
+    }
+
+    .page-ecl .ecl-awards-table td:nth-child(2) {
+      width: 22%;
+    }
+
+    .page-ecl .ecl-awards-table .num {
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    .page-ecl .ecl-award-note {
+      display: block;
+      margin-top: 3px;
+      color: #777;
+      font-size: 11px;
+      font-weight: 400;
+    }
+  </style>
+
+  <script is:inline>
+    const $$ = (sel) => Array.from(document.querySelectorAll(sel));
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const leaguePills = $$("#ecl-league-pills [data-league]");
+      const potPills = $$("#ecl-pot-pills [data-pot]");
+      const cards = $$("[data-ecl-club-card]");
+      const opponentButtons = $$("[data-ecl-opponents-button]");
+      const opponentStatus = document.getElementById("ecl-opponent-status");
+      const opponentStatusText = document.getElementById(
+        "ecl-opponent-status-text",
+      );
+      const opponentClear = document.getElementById("ecl-opponent-clear");
+
+      const leaguePhaseMatchRows = $$(
+        "#league-phase-schedule [data-match-row]",
+      );
+
+      const lpFilterStatus = document.getElementById("ecl-lp-filter-status");
+
+      const lpFilterStatusText = document.getElementById(
+        "ecl-lp-filter-status-text",
+      );
+
+      const lpFilterClear = document.getElementById("ecl-lp-filter-clear");
+
+      const jumpToSchedule = document.getElementById("ecl-jump-to-schedule");
+
+      const jumpToClubs = document.getElementById("ecl-jump-to-clubs");
+
+      let selectedClubKey = "";
+
+      let currentLeague = "";
+      let currentPot = "";
+
+      function applyFilter() {
+        cards.forEach((card) => {
+          const league = card.getAttribute("data-league") || "";
+          const pot = card.getAttribute("data-pot") || "";
+
+          const okLeague = currentLeague === "" || league === currentLeague;
+
+          const okPot = currentPot === "" || pot === currentPot;
+
+          card.style.display = okLeague && okPot ? "" : "none";
+        });
+      }
+
+      function resetOpponentHighlight() {
+        selectedClubKey = "";
+
+        cards.forEach((card) => {
+          card.classList.remove(
+            "is-selected-club",
+            "is-opponent-club",
+            "is-dimmed-club",
+          );
+        });
+
+        opponentButtons.forEach((button) => {
+          button.classList.remove("is-active");
+          button.textContent = "🔎 対戦相手";
+          button.setAttribute("aria-pressed", "false");
+        });
+
+        if (opponentStatus) {
+          opponentStatus.hidden = true;
+        }
+
+        if (opponentStatusText) {
+          opponentStatusText.textContent = "";
+        }
+
+        resetLeaguePhaseMatchFilter();
+      }
+
+      function resetClubFilters() {
+        currentLeague = "";
+        currentPot = "";
+
+        leaguePills.forEach((pill) => {
+          pill.classList.toggle(
+            "is-active",
+            (pill.getAttribute("data-league") || "") === "",
+          );
+        });
+
+        potPills.forEach((pill) => {
+          pill.classList.toggle(
+            "is-active",
+            (pill.getAttribute("data-pot") || "") === "",
+          );
+        });
+
+        applyFilter();
+      }
+
+      function selectClub(card, button) {
+        const clubKey = card.getAttribute("data-club-key") || "";
+
+        if (!clubKey) return;
+
+        // 同じクラブをもう一度押したら解除
+        if (selectedClubKey === clubKey) {
+          resetOpponentHighlight();
+          return;
+        }
+
+        selectedClubKey = clubKey;
+
+        // 対戦関係を見る時は36クラブ全部を表示する
+        resetClubFilters();
+
+        const opponents = new Set(
+          (card.getAttribute("data-opponents") || "")
+            .split("|")
+            .filter(Boolean),
+        );
+
+        cards.forEach((targetCard) => {
+          const targetKey = targetCard.getAttribute("data-club-key") || "";
+
+          targetCard.classList.remove(
+            "is-selected-club",
+            "is-opponent-club",
+            "is-dimmed-club",
+          );
+
+          if (targetKey === clubKey) {
+            targetCard.classList.add("is-selected-club");
+          } else if (opponents.has(targetKey)) {
+            targetCard.classList.add("is-opponent-club");
+          } else {
+            targetCard.classList.add("is-dimmed-club");
+          }
+        });
+
+        opponentButtons.forEach((targetButton) => {
+          const targetKey = targetButton.getAttribute("data-club-key") || "";
+
+          const active = targetKey === clubKey;
+
+          targetButton.classList.toggle("is-active", active);
+          targetButton.setAttribute("aria-pressed", active ? "true" : "false");
+
+          targetButton.textContent = active ? "✓ 選択中" : "🔎 対戦相手";
+        });
+
+        const clubName =
+          card.querySelector(".name")?.textContent?.trim() || clubKey;
+
+        applyLeaguePhaseMatchFilter(clubKey, clubName);
+
+        if (opponentStatus && opponentStatusText) {
+          opponentStatusText.textContent = `※ ${clubName}のLP対戦カード（絞込表示中）`;
+
+          opponentStatus.hidden = false;
+        }
+
+        lpFilterClear?.addEventListener("click", () => {
+          resetOpponentHighlight();
+        });
+      }
+
+      function resetLeaguePhaseMatchFilter() {
+        leaguePhaseMatchRows.forEach((row) => {
+          row.style.display = "";
+        });
+
+        if (lpFilterStatus) {
+          lpFilterStatus.hidden = true;
+        }
+
+        if (lpFilterStatusText) {
+          lpFilterStatusText.textContent = "";
+        }
+      }
+
+      function applyLeaguePhaseMatchFilter(clubKey, clubName) {
+        if (!clubKey) {
+          resetLeaguePhaseMatchFilter();
+          return;
+        }
+
+        let visibleCount = 0;
+
+        leaguePhaseMatchRows.forEach((row) => {
+          const homeKey = row.getAttribute("data-home-key") || "";
+
+          const awayKey = row.getAttribute("data-away-key") || "";
+
+          const visible = homeKey === clubKey || awayKey === clubKey;
+
+          row.style.display = visible ? "" : "none";
+
+          if (visible) {
+            visibleCount++;
+          }
+        });
+
+        if (lpFilterStatus && lpFilterStatusText) {
+          lpFilterStatusText.textContent = `※ ${clubName}のLP対戦カード（絞込表示中）（${visibleCount}試合）`;
+
+          lpFilterStatus.hidden = false;
+        }
+      }
+
+      opponentButtons.forEach((button) => {
+        button.setAttribute("aria-pressed", "false");
+
+        button.addEventListener("click", () => {
+          const clubKey = button.getAttribute("data-club-key") || "";
+
+          const card = cards.find(
+            (item) => (item.getAttribute("data-club-key") || "") === clubKey,
+          );
+
+          if (!card) return;
+
+          selectClub(card, button);
+        });
+      });
+
+      opponentClear?.addEventListener("click", () => {
+        resetOpponentHighlight();
+      });
+
+      leaguePills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          currentLeague = pill.getAttribute("data-league") || "";
+
+          leaguePills.forEach((p) => {
+            p.classList.toggle("is-active", p === pill);
+          });
+
+          applyFilter();
+        });
+      });
+
+      potPills.forEach((pill) => {
+        pill.addEventListener("click", () => {
+          currentPot = pill.getAttribute("data-pot") || "";
+
+          potPills.forEach((p) => {
+            p.classList.toggle("is-active", p === pill);
+          });
+
+          applyFilter();
+        });
+      });
+
+      jumpToSchedule?.addEventListener("click", () => {
+        document.getElementById("league-phase-schedule")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+
+      jumpToClubs?.addEventListener("click", () => {
+        document.getElementById("clubs")?.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      });
+
+      /* 初期状態を明示的に全表示 */
+      applyFilter();
+    });
+  </script>
+</BaseLayout>

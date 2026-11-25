@@ -315,7 +315,7 @@ const runnerUpHref = summary?.runner_up_club_key
   title={title}
   description={title}
   bodyClass="page-ucl"
-  bodyStyle="margin:0; font-family: system-ui;"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #d0dbee;"
   showPageHeader={true}
   crumbs={[
     { label: "トップ", href: "/" },
@@ -839,7 +839,7 @@ const runnerUpHref = summary?.runner_up_club_key
 
                   <td>
                     {r.clubHref ? (
-                      <a href={r.clubHref}>{r.clubName}</a>
+                      <a class="club-link" href={r.clubHref}>{r.clubName}</a>
                     ) : (
                       <span>{r.clubName}</span>
                     )}

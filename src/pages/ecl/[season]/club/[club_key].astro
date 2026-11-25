@@ -1,0 +1,1355 @@
+---
+import BaseLayout from "../../../../layouts/BaseLayout.astro";
+
+import { loadClubMaster } from "../../../../lib/clubMaster";
+import { loadLeagueMaster } from "../../../../lib/leagueMaster";
+
+import {
+  loadCtSeasonMeta,
+  findCtSeasonMeta,
+} from "../../../../lib/ctSeasonMeta";
+
+import {
+  loadEuropeanLeaguePhaseAll,
+} from "../../../../lib/europeanLeaguePhase";
+
+import {
+  loadClubSquads,
+  sortClubRoster,
+  applyClubStatsMode,
+} from "../../../../lib/clubSquads";
+
+import RosterView from "../../../../components/RosterView.astro";
+import { buildClubColumns } from "../../../../lib/rosterColumns";
+import { toYMD } from "../../../../lib/rosterFormat";
+
+import { loadCallups } from "../../../../lib/callups";
+import {
+  buildRepLabelFromCallups,
+  buildRepHistoryLinksFromCallups,
+} from "../../../../lib/repCandidate";
+
+import { seasonShort } from "../../../../lib/seasonFormat";
+
+import { hasClubEuropeanMode } from "../../../../lib/clubCompetitionMode";
+
+import fs from "node:fs";
+import path from "node:path";
+import { parseCsv } from "../../../../lib/csvSimple";
+
+
+// --------------------
+// getStaticPaths
+// 国内クラブ選手データ・ECL LP参加・ECL試合日程の3条件を満たす場合のみ生成
+// --------------------
+export async function getStaticPaths() {
+  const metaRows = loadClubSquads();
+
+  const targets = metaRows.filter((meta) => {
+    const season = String(meta.season ?? "").trim();
+    const leagueKey = String(meta.league_key ?? "").trim();
+    const clubKey = String(meta.club_key ?? "").trim();
+
+    return hasClubEuropeanMode({
+      competition: "ECL",
+      season,
+      leagueKey,
+      clubKey,
+    });
+  });
+
+  const uniqueTargets = [...new Map(targets.map((meta) => [`${meta.season}|||${meta.club_key}`, meta])).values()];
+
+  return uniqueTargets.map((meta) => ({
+    params: {
+      season: meta.season,
+      club_key: meta.club_key,
+    },
+    props: {
+      league_key: meta.league_key,
+    },
+  }));
+}
+
+const season = String(Astro.params.season ?? "").trim();
+const club_key = String(Astro.params.club_key ?? "").trim();
+
+const { league_key } = Astro.props as {
+  league_key: string;
+};
+
+const clubMaster = loadClubMaster();
+const leagueMaster = loadLeagueMaster();
+
+const clubInfo = clubMaster.find(
+  (c) => String(c.club_key ?? "").trim() === club_key,
+);
+
+const leagueInfo = leagueMaster.find(
+  (l) => String(l.league_key ?? "").trim() === league_key,
+);
+
+const clubLabel = clubInfo?.club_display_ja ?? club_key;
+const leagueLabel = leagueInfo?.league_display_ja ?? league_key;
+
+// 念のため、このページ自身でも正本を再確認
+const ctMetaAll = loadCtSeasonMeta();
+
+const ctMeta = findCtSeasonMeta(ctMetaAll, {
+  season,
+  league_key,
+  club_key,
+});
+
+// --------------------
+// ECLモードで表示できるシーズン一覧
+// ECLモード有効なシーズンだけ列挙
+// --------------------
+const eclSeasonCandidates = loadClubSquads()
+  .filter((r) => {
+    const targetSeason = String(r.season ?? "").trim();
+
+    return (
+      String(r.league_key ?? "").trim() === league_key &&
+      String(r.club_key ?? "").trim() === club_key &&
+      hasClubEuropeanMode({
+      competition: "ECL",
+        season: targetSeason,
+        leagueKey: league_key,
+        clubKey: club_key,
+      })
+    );
+  })
+  .map((r) => String(r.season ?? "").trim())
+  .filter(Boolean);
+
+// 念のため重複除去＋新しい順
+const eclSeasons = [...new Set(eclSeasonCandidates)].sort((a, b) =>
+  b.localeCompare(a),
+);
+
+const eclClubUrl = (targetSeason: string) =>
+  `/ecl/${encodeURIComponent(targetSeason)}` +
+  `/club/${encodeURIComponent(club_key)}/`;
+
+const eclResult = String(ctMeta?.uefa_cup_rank ?? "").trim();
+
+// --------------------
+// ECLリーグフェーズ情報
+// rank / pot は european_league_phase.csv から取得
+// --------------------
+const eclLeaguePhaseRows = loadEuropeanLeaguePhaseAll()
+  .filter((r) => r.competition === "ECL");
+
+const eclLeaguePhaseRow = eclLeaguePhaseRows.find(
+  (r) =>
+    String(r.season ?? "").trim() === season &&
+    String(r.club_key ?? "").trim() === club_key,
+);
+
+const leaguePhaseRank = String(eclLeaguePhaseRow?.rank ?? "").trim();
+const pot = String(eclLeaguePhaseRow?.pot ?? "").trim();
+
+const hasValidEclMode = hasClubEuropeanMode({
+      competition: "ECL",
+  season,
+  leagueKey: league_key,
+  clubKey: club_key,
+});
+
+// --------------------
+// ECLモード用 roster
+// 当該seasonの最新snapshotを1枚だけ使用
+// window（summer / winter）は画面には持ち込まない
+// --------------------
+const allClubSquadRows = loadClubSquads();
+
+const clubSeasonRows = allClubSquadRows.filter(
+  (r) =>
+    String(r.league_key ?? "").trim() === league_key &&
+    String(r.club_key ?? "").trim() === club_key &&
+    String(r.season ?? "").trim() === season,
+);
+
+let latestSnapshot = "";
+
+for (const r of clubSeasonRows) {
+  const snap = toYMD(String(r.snapshot_date ?? ""));
+
+  if (snap && snap > latestSnapshot) {
+    latestSnapshot = snap;
+  }
+}
+
+const latestRosterRows = clubSeasonRows.filter(
+  (r) => toYMD(String(r.snapshot_date ?? "")) === latestSnapshot,
+);
+
+const roster = applyClubStatsMode(sortClubRoster(latestRosterRows), "uefa");
+
+// --------------------
+// 代表情報
+// 国内クラブページと同じロジックを使用
+// --------------------
+// --------------------
+// country master / 国ハブリンク
+// --------------------
+type CountryMasterRow = {
+  country_key: string;
+  country_name_ja: string;
+  country_name_en: string;
+  continent: string;
+  confederation: string;
+};
+
+const countryMaster: CountryMasterRow[] = parseCsv(
+  fs.readFileSync(
+    path.join(process.cwd(), "src", "data", "country_master.csv"),
+    "utf-8",
+  ),
+).map((r: any) => ({
+  country_key: String(r.country_key ?? "").trim(),
+  country_name_ja: String(r.country_name_ja ?? "").trim(),
+  country_name_en: String(r.country_name_en ?? "").trim(),
+  continent: String(r.continent ?? "").trim(),
+  confederation: String(r.confederation ?? "").trim(),
+}));
+
+const ntCountryHref = (countryNameJa: string) => {
+  const name = String(countryNameJa ?? "").trim();
+  if (!name) return "";
+
+  const hit = countryMaster.find(
+    (r) => r.country_name_ja === name,
+  );
+
+  return hit?.country_key
+    ? `/nt/${encodeURIComponent(hit.country_key)}/`
+    : "";
+};
+
+const callups = loadCallups();
+
+const { repLabel, repLinks } = buildRepLabelFromCallups(callups, {
+  competition: "WC",
+  edition: 2026,
+});
+
+const repHistoryLinks = buildRepHistoryLinksFromCallups(callups, {
+  competition: "WC",
+  excludeEdition: 2026,
+  max: 6,
+});
+
+const hasEclStats = roster.some((r: any) => {
+  const apps = Number(r.uefa_apps ?? 0);
+  const starts = Number(r.uefa_starts ?? 0);
+  const goals = Number(r.uefa_goals ?? 0);
+  const assists = Number(r.uefa_assists ?? 0);
+
+  return apps > 0 || starts > 0 || goals > 0 || assists > 0;
+});
+
+const columns = buildClubColumns({
+  isLatestView: true,
+  repLabel,
+  repHref: ntCountryHref,
+  repLinks,
+  repHistoryLinks,
+
+  // ECL出場成績が1件でもある場合だけGA列を表示
+  showStats: hasEclStats,
+});
+
+// ====================
+// ECL 試合結果一覧
+// 参照：src/data/competition_schedule_and_results.csv
+// ====================
+
+type EclMatchResultRow = {
+  match_id: string;
+  slug: string;
+  competition: string;
+  edition: string;
+  md: string;
+  stage: string;
+  group: string;
+  sec: string;
+  datetime_local: string;
+  home: string;
+  home_key: string;
+  away: string;
+  away_key: string;
+  home_score: string;
+  away_score: string;
+  home_score_pk: string;
+  away_score_pk: string;
+  note: string;
+};
+
+const readCsv = (fileName: string) => {
+  const p = path.join(process.cwd(), "src", "data", fileName);
+  const text = fs.readFileSync(p, "utf-8");
+  return parseCsv(text);
+};
+
+const isScoreValue = (v: any) => {
+  const s = String(v ?? "").trim();
+
+  return (
+    s !== "" &&
+    s.toLowerCase() !== "nan" &&
+    Number.isFinite(Number(s))
+  );
+};
+
+const eclStageLabel = (stage: string, sec = "") => {
+  const st = String(stage ?? "").trim();
+  const s = String(sec ?? "").trim();
+
+  if (st === "League Phase") return "LP";
+
+  if (st === "KPプレーオフ") {
+    return /2nd/i.test(s) ? "PO 2nd" : "PO 1st";
+  }
+
+  if (st === "Round 16") {
+    return /2nd/i.test(s) ? "R16 2nd" : "R16 1st";
+  }
+
+  if (st === "Quarter-Final") {
+    return /2nd/i.test(s) ? "QF 2nd" : "QF 1st";
+  }
+
+  if (st === "Semi-Final") {
+    return /2nd/i.test(s) ? "SF 2nd" : "SF 1st";
+  }
+
+  if (st === "Final") return "決勝";
+
+  return st;
+};
+
+const matchScoreCore = (m: EclMatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "試合前";
+  }
+
+  return `${Number(m.home_score)}-${Number(m.away_score)}`;
+};
+
+const matchPkText = (m: EclMatchResultRow) => {
+  if (
+    isScoreValue(m.home_score_pk) &&
+    isScoreValue(m.away_score_pk)
+  ) {
+    return `PK ${Number(m.home_score_pk)}-${Number(m.away_score_pk)}`;
+  }
+
+  return "";
+};
+
+const matchResultClass = (m: EclMatchResultRow) => {
+  if (!isScoreValue(m.home_score) || !isScoreValue(m.away_score)) {
+    return "is-upcoming";
+  }
+
+  const isHome = m.home_key === club_key;
+
+  const gf = isHome
+    ? Number(m.home_score)
+    : Number(m.away_score);
+
+  const ga = isHome
+    ? Number(m.away_score)
+    : Number(m.home_score);
+
+  // PKがある場合はPKで勝敗判定
+  if (
+    isScoreValue(m.home_score_pk) &&
+    isScoreValue(m.away_score_pk)
+  ) {
+    const pkFor = isHome
+      ? Number(m.home_score_pk)
+      : Number(m.away_score_pk);
+
+    const pkAgainst = isHome
+      ? Number(m.away_score_pk)
+      : Number(m.home_score_pk);
+
+    if (pkFor > pkAgainst) return "is-win";
+    if (pkFor < pkAgainst) return "is-loss";
+    return "is-draw";
+  }
+
+  if (gf > ga) return "is-win";
+  if (gf < ga) return "is-loss";
+
+  return "is-draw";
+};
+
+const matchResultLabel = (m: EclMatchResultRow) => {
+  const cls = matchResultClass(m);
+
+  if (cls === "is-win") return "○";
+  if (cls === "is-loss") return "●";
+  if (cls === "is-draw") return "△";
+
+  return "—";
+};
+
+const opponentClubHref = (targetClubKey: string) => {
+  const key = String(targetClubKey ?? "").trim();
+  if (!key || key === club_key) return "";
+
+  const opponent = clubMaster.find(
+    (c: any) => String(c.club_key ?? "").trim() === key,
+  );
+
+  if (!opponent) return "";
+
+  const opponentLeagueKey = String(
+    opponent.league_key ?? "",
+  ).trim();
+
+  if (!opponentLeagueKey) return "";
+
+  // ★ 実際にそのseasonのECLクラブページが生成される場合だけリンク
+  if (
+    !hasClubEuropeanMode({
+      competition: "ECL",
+      season,
+      leagueKey: opponentLeagueKey,
+      clubKey: key,
+    })
+  ) {
+    return "";
+  }
+
+  return (
+    `/ecl/${encodeURIComponent(season)}` +
+    `/club/${encodeURIComponent(key)}/`
+  );
+};
+
+const eclMatchResultsAll: EclMatchResultRow[] = readCsv(
+  "competition_schedule_and_results.csv",
+).map((r: any) => ({
+  match_id: String(r["match-id"] ?? "").trim(),
+  slug: String(r.slug ?? "").trim(),
+  competition: String(r.competition ?? "").trim(),
+  edition: String(r.edition ?? "").trim(),
+  md: String(r.md ?? "").trim(),
+  stage: String(r.stage ?? "").trim(),
+  group: String(r.group ?? "").trim(),
+  sec: String(r.sec ?? "").trim(),
+  datetime_local: String(r["datetime-local"] ?? "").trim(),
+  home: String(r.home ?? "").trim(),
+  home_key: String(r.home_key ?? "").trim(),
+  away: String(r.away ?? "").trim(),
+  away_key: String(r.away_key ?? "").trim(),
+  home_score: String(r.home_score ?? "").trim(),
+  away_score: String(r.away_score ?? "").trim(),
+  home_score_pk: String(r.home_score_pk ?? "").trim(),
+  away_score_pk: String(r.away_score_pk ?? "").trim(),
+  note: String(r.note ?? "").trim(),
+}));
+
+const teamMatchResults = eclMatchResultsAll
+  .filter(
+    (m) => String(m.competition ?? "").toUpperCase() === "ECL",
+  )
+  .filter(
+    (m) => String(m.edition ?? "").trim() === season,
+  )
+  .filter(
+    (m) =>
+      m.home_key === club_key ||
+      m.away_key === club_key,
+  )
+  .sort((a, b) =>
+  (Number(a.md.replace(/\D/g, "")) || 0) -
+    (Number(b.md.replace(/\D/g, "")) || 0) ||
+    String(a.datetime_local).localeCompare(String(b.datetime_local)),
+);
+
+const hasTeamMatchResults = teamMatchResults.length > 0;
+
+const searchTextFn = (r: any) =>
+  `${r.name_ja ?? ""} ${r.name_en ?? ""} ${repLabel(r) ?? ""} ${r.nationality ?? ""}`.trim();
+
+const clubRosterRowClass = (r: any) => {
+  const note = String(r.notes ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (note.includes("new")) return "row-new";
+  if (note.includes("out")) return "row-out";
+
+  return "";
+};
+
+// 国内ページへ戻るURL
+const domesticUrl =
+  `/clubs/${encodeURIComponent(league_key)}` +
+  `/club/${encodeURIComponent(club_key)}` +
+  `/${encodeURIComponent(season)}/`;
+
+const clubTopUrl =
+  `/clubs/${encodeURIComponent(league_key)}` +
+  `/club/${encodeURIComponent(club_key)}/`;
+
+const eclSeasonTopUrl =
+  `/ecl/${encodeURIComponent(season)}/`;
+
+const domesticLeagueLinks = leagueMaster
+  .filter((l: any) => (l.is_public ?? true) === true)
+  .filter((l: any) => String(l.league_key ?? "").trim())
+  .map((l: any) => ({
+    key: String(l.league_key ?? "").trim(),
+    label:
+      String(l.league_display_ja ?? "").trim() ||
+      String(l.league_key ?? "").trim(),
+  }));
+
+// SEO：ひとまずECL専用ページとして独立
+const title =
+  `${clubLabel} ECL ${season}メンバー・ゴール・アシスト・組み合わせ・日程・結果` +
+  `｜UEFAカンファレンスリーグ`;
+
+const description =
+  `${clubLabel}の${season}シーズンUEFAカンファレンスリーグ情報。` +
+  `メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載。シーズンごとに出場数・先発数・ゴール・アシストも確認できます。`;
+
+const heading =
+  `${clubLabel} ECL ${season} メンバー・選手成績・試合日程`;
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  bodyClass="page-ecl"
+  bodyStyle="margin:0; font-family: system-ui; background-color: #c5e5d1;"
+  showPageHeader={true}
+  crumbs={[
+    { label: "トップ", href: "/" },
+    { label: "ECL", href: "/ecl/" },
+    { label: season, href: `/ecl/${encodeURIComponent(season)}/` },
+    { label: clubLabel },
+  ]}
+  heading={heading}
+>
+  <h1 class="ecl-club-title">
+    {heading}
+  </h1>
+
+  {
+    hasValidEclMode && (
+      <>
+<p class="ecl-club-lead">
+  {clubLabel}の{season}シーズン UEFAカンファレンスリーグ情報。
+  メンバー、リーグフェーズの組み合わせ・対戦相手、試合日程・結果を掲載しています。
+
+</p>
+
+        <div class="club-mode-switch">
+          <span class="club-mode-current">-- ECLモード表示中 --</span>
+
+          <a
+            class="club-mode-switch-link club-mode-switch-link-domestic"
+            href={domesticUrl}
+          >
+            国内モードへ切替
+          </a>
+        </div>
+
+        {(eclResult || leaguePhaseRank || pot) && (
+<div class="ecl-club-meta">
+  ℹ️{" "}
+
+  {eclResult && <>🏆 ECL：{eclResult}</>}
+
+  {eclResult && leaguePhaseRank && " ｜ "}
+
+  {leaguePhaseRank && (
+    <>リーグフェーズ {leaguePhaseRank}位</>
+  )}
+
+  {(eclResult || leaguePhaseRank) && pot && " ｜ "}
+
+  {pot && <>ポット{pot}</>}
+</div>
+)}
+
+        {eclSeasons.length > 1 && (
+          <div class="ecl-season-block">
+            <div class="ecl-season-label">
+              🔎 {clubLabel}のECL出場シーズンを見る
+            </div>
+
+            <div class="ecl-season-pills">
+              {eclSeasons.map((s) => (
+                <a
+                  class={`ecl-season-pill ${s === season ? "is-active" : ""}`}
+                  href={eclClubUrl(s)}
+                >
+                  {seasonShort(s)}
+                </a>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div class="ecl-guide">
+  <p class="ecl-guide-link">
+    <a href={clubTopUrl}>
+      👉 {clubLabel} ポータルページを見る
+    </a>
+  </p>
+
+  <p class="ecl-guide-link">
+    <a href={eclSeasonTopUrl}>
+      👉 ECL {seasonShort(season)}トップへ
+    </a>
+  </p>
+
+  {domesticLeagueLinks.length > 0 && (
+    <div class="ecl-domestic-leagues">
+      <div class="ecl-guide-label">
+        🔎 各国の国内リーグを見る
+      </div>
+
+      <div class="ecl-league-pills">
+        {domesticLeagueLinks.map((item) => (
+          <a
+            class="ecl-league-pill"
+            href={`/clubs/${encodeURIComponent(item.key)}/`}
+          >
+            {item.label}
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</div>
+
+{hasTeamMatchResults && (
+  <section class="match-results-block" aria-label="ECL試合結果一覧">
+    <h2 class="match-results-title">
+      📅 今大会の試合結果
+    </h2>
+
+    <div class="match-results-table-wrap">
+      <table class="match-results-table">
+        <thead>
+          <tr>
+            <th>日時</th>
+            <th>Stage</th>
+            <th>試合</th>
+            <th>スコア</th>
+            <th>結果</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {teamMatchResults.map((m) => {
+            const resultClass = matchResultClass(m);
+            const stage = eclStageLabel(m.stage, m.sec);
+            const pk = matchPkText(m);
+
+            const homeHref = opponentClubHref(m.home_key);
+            const awayHref = opponentClubHref(m.away_key);
+
+            return (
+              <tr class={`match-result-row ${resultClass}`}>
+                <td class="match-result-date">
+                  {m.datetime_local || (m.stage === "League Phase" ? `第${Number(m.md.replace(/\D/g, ""))}節` : "—")}
+                </td>
+
+                <td class="match-result-stage">
+                  {stage}
+                </td>
+
+                <td class="match-result-game">
+                  <div class="match-result-game-line">
+                    <span class="match-team match-team-home">
+  {homeHref ? (
+    <a href={homeHref}>{m.home}</a>
+  ) : (
+    <span class:list={{ "match-team-current": m.home_key === club_key }}>
+      {m.home}
+    </span>
+  )}
+</span>
+
+                    <span class="match-vs" aria-hidden="true">
+                      vs
+                    </span>
+
+<span class="match-team match-team-away">
+  {awayHref ? (
+    <a href={awayHref}>{m.away}</a>
+  ) : (
+    <span class:list={{ "match-team-current": m.away_key === club_key }}>
+      {m.away}
+    </span>
+  )}
+</span>
+                  </div>
+                </td>
+
+                <td class="match-result-score">
+                  <span>{matchScoreCore(m)}</span>
+
+                  {pk && (
+                    <div class="match-result-pk">
+                      {pk}
+                    </div>
+                  )}
+                </td>
+
+                <td class="match-result-status">
+                  <span
+                    class={`match-result-badge ${resultClass}`}
+                  >
+                    {matchResultLabel(m)}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
+  </section>
+)}
+
+        {roster.length > 0 ? (
+          <RosterView
+            tableId={`ecl-club-roster-${season}-${club_key}`}
+            rows={roster}
+            minWidthPx={920}
+            borderColor="var(--border, #e6e6e6)"
+            placeholder="検索：選手名 / 国名 / 国籍"
+            searchText={searchTextFn}
+            columns={columns}
+            rowClass={clubRosterRowClass}
+          />
+        ) : (
+          <p>選手データがありません。</p>
+        )}
+      </>
+    )
+  }
+</BaseLayout>
+
+<style>
+  .ecl-club-lead {
+    margin: 0 0 8px;
+    color: #666;
+    line-height: 1.7;
+  }
+
+  .club-mode-switch {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    margin: 8px 0 18px;
+    flex-wrap: wrap;
+  }
+
+  .club-mode-current {
+    font-size: 20px;
+    font-weight: 800;
+    line-height: 1;
+    color: var(--theme-color);
+    white-space: nowrap;
+  }
+
+  .club-mode-switch-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 8px 15px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 900;
+    line-height: 1;
+    text-decoration: none;
+    box-shadow: 0 2px 7px rgba(0, 0, 0, 0.16);
+  }
+
+  .club-mode-switch-link-domestic {
+    color: #fff;
+    background: var(--color-club-accent);
+    border: 2px solid var(--color-club-accent);
+  }
+
+  :global(.mob-stat-line) {
+    display: none;
+  }
+
+
+
+  .ecl-season-pill {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+
+
+  .ecl-club-title {
+    margin: 4px 0 8px;
+    font-size: 28px;
+    line-height: 1.35;
+    font-weight: 700;
+    color: #111;
+  }
+
+  .ecl-club-meta {
+    margin: 4px 0 18px;
+    font-size: 16px;
+    line-height: 1.6;
+    font-weight: 700;
+  }
+
+  .ecl-season-block {
+  margin: 8px 0 14px;
+}
+
+.ecl-season-label {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.4;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+.ecl-season-pills {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+  padding-bottom: 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.ecl-season-pill {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  border: 1px solid #b8bec8;
+  border-radius: 999px;
+  background: #fff;
+  color: #222;
+  font-size: 14px;
+  line-height: 1;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.ecl-season-pill.is-active {
+  background: var(--theme-color);
+  border-color: var(--theme-color);
+  color: #fff;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.ecl-season-pill:hover {
+  border-color: var(--theme-color);
+}
+
+.ecl-guide {
+  margin: 10px 0 18px;
+}
+
+.ecl-guide-link {
+  margin: 5px 0;
+  font-weight: 700;
+}
+
+.ecl-guide-link a {
+  color: var(--theme-color);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.ecl-domestic-leagues {
+  margin-top: 12px;
+}
+
+.ecl-guide-label {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 800;
+  color: var(--theme-color);
+}
+
+.ecl-league-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.ecl-league-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 11px;
+  border: 1px solid
+    color-mix(in srgb, var(--color-club-accent) 45%, #d1d5db);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--color-club-accent);
+  font-size: 13px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.ecl-league-pill:hover {
+  border-color: var(--color-club-accent);
+  background: color-mix(
+    in srgb,
+    var(--color-club-accent) 7%,
+    #fff
+  );
+}
+
+.ecl-league-pill:hover {
+  border-color: var(--theme-color);
+  color: var(--theme-color);
+}
+
+ @media (max-width: 640px) {
+    .club-mode-switch {
+      gap: 7px;
+    }
+
+    .club-mode-current {
+      font-size: 12px;
+    }
+
+    .club-mode-switch-link {
+      min-height: 34px;
+      padding: 7px 11px;
+      font-size: 13px;
+    }
+
+    :global(.mob-stat-line) {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      line-height: 1.35;
+      font-weight: 700;
+      color: var(--meta-color, #2f4f46);
+    }
+
+    .ecl-club-title {
+      font-size: 23px;
+    }
+
+    .ecl-season-pills {
+    gap: 6px;
+    }
+ }
+
+ .match-results-block {
+  margin: 12px 0 20px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: #fff;
+  border: 1px solid
+    color-mix(
+      in srgb,
+      var(--theme-color) 22%,
+      var(--border, #e5e7eb)
+    );
+}
+
+.match-results-title {
+  margin: 0 0 8px;
+  font-size: 17px;
+  font-weight: 750;
+  color: var(--theme-color);
+}
+
+.match-results-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.match-results-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.match-results-table th,
+.match-results-table td {
+  padding: 7px 8px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  vertical-align: middle;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.match-results-table th {
+  font-size: 11px;
+  color: #666;
+  font-weight: 800;
+  background: #f9fafb;
+}
+
+.match-results-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.match-results-table th:nth-child(1),
+.match-results-table td:nth-child(1) {
+  width: 118px;
+}
+
+.match-results-table th:nth-child(2),
+.match-results-table td:nth-child(2) {
+  width: 72px;
+}
+
+.match-results-table th:nth-child(4),
+.match-results-table td:nth-child(4) {
+  width: 74px;
+}
+
+.match-results-table th:nth-child(5),
+.match-results-table td:nth-child(5) {
+  width: 46px;
+}
+
+.match-result-date {
+  color: #555;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.match-result-stage {
+  color: #666;
+  font-weight: 800;
+}
+
+.match-result-game {
+  min-width: 0;
+  font-weight: 750;
+  color: #111;
+}
+
+.match-result-game-line {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 26px minmax(0, 1fr);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+
+.match-team {
+  display: block;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 800;
+}
+
+.match-team-home {
+  text-align: right;
+}
+
+.match-team-away {
+  text-align: left;
+}
+
+.match-vs {
+  text-align: center;
+  font-size: 11px;
+  color: #666;
+  font-weight: 800;
+}
+
+.match-result-score {
+  font-variant-numeric: tabular-nums;
+  font-weight: 900;
+  color: #111;
+}
+
+.match-result-pk {
+  display: block;
+  margin-top: 1px;
+  font-size: 10px;
+  line-height: 1.1;
+  color: #666;
+  font-weight: 700;
+}
+
+.match-result-badge {
+  width: 22px;
+  height: 22px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.match-result-badge.is-win {
+  background: #e8f5e9;
+  color: #1b5e20;
+}
+
+.match-result-badge.is-loss {
+  background: #ffebee;
+  color: #b71c1c;
+}
+
+.match-result-badge.is-draw {
+  background: #f3f4f6;
+  color: #555;
+}
+
+.match-result-badge.is-upcoming {
+  background: #f3f4f6;
+  color: #777;
+}
+
+.match-team a {
+  color: var(--theme-color);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.match-team-current {
+  display: inline-block;
+  padding: 2px 5px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--theme-color) 12%, #fff);
+  color: var(--theme-color);
+  font-weight: 900;
+}
+
+/* ===== ECL選手一覧：国内モードと列幅を統一 ===== */
+
+@media (min-width: 641px) {
+  :global(.page-ecl .roster-table th:nth-child(6)),
+  :global(.page-ecl .roster-table td:nth-child(6)) {
+    min-width: 110px;
+    width: 110px;
+  }
+
+  :global(.page-ecl .rep2) {
+    min-width: 100px;
+    max-width: 110px;
+    margin: 0 auto;
+
+    white-space: normal;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+
+    :global(.page-ecl .rep2 a) {
+    white-space: normal;
+  }
+}
+
+/* 備考 */
+:global(.page-ecl .note-cell) {
+  display: inline-block;
+  max-width: 110px;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  line-height: 1.35;
+}
+
+@media (max-width: 640px) {
+  :global(.page-ecl .note-cell) {
+    max-width: 160px;
+  }
+}
+
+@media (min-width: 769px) {
+  :global(.page-ecl .roster-table th:nth-child(10)),
+  :global(.page-ecl .roster-table td:nth-child(10)) {
+    width: 60px !important;
+    min-width: 60px !important;
+    max-width: 60px !important;
+  }
+
+  :global(.page-ecl .roster-table .note-cell) {
+    max-width: 56px !important;
+  }
+}
+
+/* =========================================================
+   選手の加入・退団状態（国内モードと同一仕様）
+========================================================= */
+
+/* NEW：新加入 */
+:global(.page-ecl .roster-table tbody tr.row-new td) {
+  background: #fff7cc !important;
+}
+
+/* sticky固定されている背番号・Pos列にも同じ色を適用 */
+:global(.page-ecl .roster-table tbody tr.row-new td:nth-child(1)),
+:global(.page-ecl .roster-table tbody tr.row-new td:nth-child(2)) {
+  background: #fff7cc !important;
+}
+
+/* NEW行の左端アクセント */
+:global(.page-ecl .roster-table tbody tr.row-new td:first-child) {
+  box-shadow:
+    inset 4px 0 0 #e6b800,
+    inset -1px 0 0 var(--roster-border);
+}
+
+/* OUT：退団 */
+:global(.page-ecl .roster-table tbody tr.row-out td) {
+  background: #eeeeee !important;
+  color: #707070;
+}
+
+/* sticky固定列にも同じ色を適用 */
+:global(.page-ecl .roster-table tbody tr.row-out td:nth-child(1)),
+:global(.page-ecl .roster-table tbody tr.row-out td:nth-child(2)) {
+  background: #eeeeee !important;
+}
+
+/* OUT行の左端アクセント */
+:global(.page-ecl .roster-table tbody tr.row-out td:first-child) {
+  box-shadow:
+    inset 4px 0 0 #9a9a9a,
+    inset -1px 0 0 var(--roster-border);
+}
+
+/* ホバー時 */
+:global(.page-ecl .roster-table tbody tr.row-new:hover td) {
+  background: #fff2aa !important;
+}
+
+:global(.page-ecl .roster-table tbody tr.row-out:hover td) {
+  background: #e3e3e3 !important;
+}
+
+/* NEWの備考文字は青 */
+:global(.page-ecl .roster-table tbody tr.row-new td:nth-child(10) .note-red) {
+  color: #1565c0 !important;
+  font-weight: 700;
+}
+
+/* OUTの備考文字は赤 */
+:global(.page-ecl .roster-table tbody tr.row-out td:nth-child(10) .note-red) {
+  color: #c62828 !important;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  :global(.page-ecl .roster-table tbody tr.row-new .mob-note-line) {
+    color: #1565c0 !important;
+    font-weight: 700;
+  }
+
+  :global(.page-ecl .roster-table tbody tr.row-out .mob-note-line) {
+    color: #c62828 !important;
+    font-weight: 700;
+  }
+}
+
+.club-mode-current {
+  display: inline-flex;
+  align-items: center;
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--theme-color);
+  white-space: nowrap;
+
+  background: #fff3a6;
+  padding: 5px 10px;
+  border-radius: 4px;
+}
+
+
+
+/* ECL試合結果：モバイル専用 */
+@media (max-width: 640px) {
+  .match-results-table {
+    width: 500px;
+    min-width: 500px;
+    table-layout: fixed;
+  }
+
+  /* 日時 */
+  .match-results-table th:nth-child(1),
+  .match-results-table td:nth-child(1) {
+    width: 88px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  /* Stage */
+  .match-results-table th:nth-child(2),
+  .match-results-table td:nth-child(2) {
+    width: 58px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  /* 対戦カード */
+  .match-results-table th:nth-child(3),
+  .match-results-table td:nth-child(3) {
+    width: 234px;
+    padding-left: 3px;
+    padding-right: 3px;
+  }
+
+  .match-results-table-wrap {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}
+
+
+/* モバイル：成績は選手名セル内に集約 */
+
+/* ECL選手一覧：モバイル専用 */
+@media (max-width: 768px) {
+
+  /* 4列目以降をすべて非表示 */
+  :global(.page-ecl .roster-table th:nth-child(n+4)),
+  :global(.page-ecl .roster-table td:nth-child(n+4)) {
+    display: none !important;
+  }
+
+  /* 選手名セル内のECL成績を表示 */
+  :global(.page-ecl .roster-table .mob-stat-line) {
+    display: block !important;
+    margin-top: 5px;
+    padding-top: 4px;
+    border-top: 1px dashed #ddd;
+    font-size: 11px;
+    line-height: 1.4;
+    color: #333;
+    white-space: normal;
+  }
+}
+
+
+
+
+</style>
