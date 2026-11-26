@@ -1,0 +1,229 @@
+---
+import { getEuropeanSeasons } from "../lib/europeanLeaguePhase";
+
+interface Props {
+  competition: "UCL" | "UEL" | "ECL";
+  season: string;
+}
+
+const { competition, season } = Astro.props;
+
+const competitions = [
+  { key: "UCL", label: "CL", path: "ucl" },
+  { key: "UEL", label: "EL", path: "uel" },
+  { key: "ECL", label: "ECL", path: "ecl" },
+] as const;
+
+const currentPath = competition.toLowerCase();
+
+const seasons = getEuropeanSeasons(competition)
+  .map((s) => String(s).trim())
+  .sort()
+  .reverse();
+
+const availableCompetitions = competitions.filter(
+  (c) =>
+    c.key === competition ||
+    getEuropeanSeasons(c.key).some(
+      (s) => String(s).trim() === season,
+    ),
+);
+---
+
+<nav class="european-portal-nav" aria-label="シーズン・大会切替">
+  <div class="switch-row">
+    <div class="switch-label">🔎 シーズン切替</div>
+
+    <div class="switch-pills">
+      {
+        seasons.map((s) =>
+          s === season ? (
+            <span class="switch-pill season-active" aria-current="page">
+              <span class="switch-dot" aria-hidden="true" />
+              {s}
+            </span>
+          ) : (
+            <a
+              class="switch-pill"
+              href={`/${currentPath}/${encodeURIComponent(s)}/`}
+            >
+              <span class="switch-dot" aria-hidden="true" />
+              {s}
+            </a>
+          ),
+        )
+      }
+
+      <a class="switch-pill" href={`/${currentPath}/`}>
+        <span class="switch-dot" aria-hidden="true" />
+        シーズン一覧
+      </a>
+    </div>
+  </div>
+
+  {
+    availableCompetitions.length > 1 && (
+      <div class="switch-row">
+        <div class="switch-label">🔎 大会切替</div>
+
+        <div class="switch-pills">
+          {availableCompetitions.map((c) =>
+            c.key === competition ? (
+              <span
+                class={`switch-pill competition-pill competition-${c.path}`}
+                aria-current="page"
+              >
+                {c.label}
+              </span>
+            ) : (
+              <a
+                class={`switch-pill competition-pill competition-${c.path}`}
+                href={`/${c.path}/${encodeURIComponent(season)}/`}
+              >
+                {c.label}
+              </a>
+            ),
+          )}
+        </div>
+      </div>
+    )
+  }
+</nav>
+
+<style>
+  .european-portal-nav {
+    display: grid;
+    gap: 6px;
+    margin: 10px 0 14px;
+  }
+
+  .switch-row {
+    display: grid;
+    grid-template-columns: 116px minmax(0, 1fr);
+    align-items: center;
+    gap: 8px;
+  }
+
+  .switch-label {
+    color: #666;
+    font-size: 14px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .switch-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .european-portal-nav .switch-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid
+      color-mix(in srgb, var(--theme-color) 22%, white);
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    text-decoration: none;
+    font-size: 13px;
+    line-height: 1;
+    white-space: nowrap;
+  }
+
+  .switch-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: color-mix(
+      in srgb,
+      var(--theme-color) 65%,
+      white
+    );
+    opacity: 0.65;
+  }
+
+  .european-portal-nav .season-active {
+    background: var(--theme-color);
+    border-color: var(--theme-color);
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .season-active .switch-dot {
+    opacity: 1;
+    background: #fff;
+  }
+
+  .european-portal-nav a.switch-pill:hover {
+    background: color-mix(
+      in srgb,
+      var(--theme-color) 10%,
+      white
+    );
+  }
+
+  /* ===== 欧州3大会のテーマカラー ===== */
+
+  .competition-ucl {
+    --competition-color: var(--color-ucl, #0c2145);
+  }
+
+  .competition-uel {
+    --competition-color: var(--color-uel, #e87516);
+  }
+
+  .competition-ecl {
+    --competition-color: var(--color-ecl, #15803d);
+  }
+
+  .european-portal-nav .competition-pill {
+    min-width: 48px;
+    box-sizing: border-box;
+    background: var(--competition-color);
+    border-color: var(--competition-color);
+    color: #fff;
+    font-weight: 800;
+  }
+
+  .european-portal-nav a.competition-pill:hover {
+    background: color-mix(
+      in srgb,
+      var(--competition-color) 80%,
+      black
+    );
+    color: #fff;
+  }
+
+  .competition-pill[aria-current="page"] {
+    cursor: default;
+    box-shadow: 0 0 0 2px #fff;
+  }
+
+  @media (max-width: 700px) {
+    .switch-row {
+      grid-template-columns: 100px minmax(0, 1fr);
+      align-items: start;
+      gap: 6px;
+    }
+
+    .switch-label {
+      padding-top: 6px;
+      font-size: 12px;
+    }
+
+    .switch-pills {
+      gap: 5px;
+    }
+
+    .european-portal-nav .switch-pill {
+      padding: 6px 9px;
+      font-size: 12px;
+    }
+  }
+</style>

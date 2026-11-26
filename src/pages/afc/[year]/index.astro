@@ -249,6 +249,21 @@ const awardRows = awardRowsRaw.map((award) => {
   };
 });
 
+// サマリーは既存データから生成（未確定・未収録はダッシュ）
+const topScorers = (() => {
+  if (!goalRanking.length) return "—";
+  const value = Number(goalRanking[0].goals);
+  const leaders = goalRanking.filter((r) => Number(r.goals) === value);
+  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
+})();
+const topAssists = (() => {
+  if (!assistRanking.length) return "—";
+  const value = Number(assistRanking[0].assists);
+  const leaders = assistRanking.filter((r) => Number(r.assists) === value);
+  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
+})();
 const v = (x: unknown) => String(x ?? "").trim() || "-";
 ---
 
@@ -257,8 +272,11 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
   description={`AFCアジアカップ${year}の出場国、各国代表メンバー・背番号、グループ組み合わせ、試合日程・結果、順位表、決勝トーナメント表を掲載。`}
   bodyClass="page-afc"
 >
-  <main>
-    <h1>AFCアジアカップ{year} 大会ポータルページ</h1>
+  <main class="afc-portal">
+    <nav class="afc-breadcrumb" aria-label="パンくずリスト">
+      <a href="/">トップ</a><span>›</span><span>AFCアジアカップ{year}</span>
+    </nav>
+    <h1>AFCアジアカップ{year} 大会ポータル</h1>
 
     {
       year === "2027" && (
@@ -276,7 +294,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
       🔥この1ページで大会全体を俯瞰することができます。
     </p>
 
-    <p class="quick-title">
+    <p class="afc-lead">
       出場国・試合日程・グループ勝敗表・決勝トーナメント表をまとめて確認できます。
       {
         latestCallupSnapshot ? (
@@ -288,7 +306,7 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
     {
       finalizedCountries.length > 0 && (
         <div class="afc-final-summary">
-          <strong>📢 最終メンバー掲載国：</strong>{" "}
+          <strong>📢 最終メンバー掲載済：</strong>{" "}
           {finalizedCountries.map((country, idx) => {
             const href = getCountryHref(country);
 
@@ -304,18 +322,20 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
     }
 
     <div class="afc-page-nav">
-      <p class="quick-title">⚽ このページで確認できる内容</p>
+      <p class="quick-title">🧭 このページで確認できる内容</p>
       <nav class="afc-page-nav-links" aria-label="ページ内ナビゲーション">
-        <a href="#schedule">日程・結果</a>
-        <a href="#knockout">決勝トーナメント表</a>
-        <a href="#groups">グループ勝敗表</a>
-        <a href="#teams">出場国一覧</a>
-        <a href="#rankings">得点ランキング</a>
-        <a href="#awards">大会表彰</a>
+        <a href="#summary">🏆 大会サマリー</a>
+        <a href="#teams">⚽ 出場国一覧</a>
+        <a href="#schedule">🏟 日程・結果</a>
+        <a href="#groups">📊 グループ勝敗表</a>
+        <a href="#knockout">🏆 決勝トーナメント表</a>
+        <a href="#rankings">🥇 得点・アシスト</a>
+        <a href="#awards">🏅 大会表彰</a>
       </nav>
     </div>
 
-    <p class="quick-title">🔍 大会を切り替える</p>
+    <div class="afc-edition-row">
+    <span class="afc-switch-label">🔎 大会切替</span>
     <nav class="afc-editions" aria-label="AFCアジアカップ開催年">
       {
         editions.map((edition) => (
@@ -332,10 +352,21 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
         ))
       }
     </nav>
+    </div>
+
+    <section id="summary" class="afc-summary">
+      <h2>🏆 大会サマリー</h2>
+      <div class="afc-summary-grid">
+        <div><span>出場国</span><strong>{teams.length}か国</strong></div>
+
+        <div><span>得点王（最多得点）</span><strong>{topScorers}</strong></div>
+        <div><span>最多アシスト</span><strong>{topAssists}</strong></div>
+      </div>
+    </section>
 
     <section id="teams" class="afc-teams">
       <h2>⚽ AFCアジアカップ{year} 出場国一覧</h2>
-      <p>出場国をグループ別に確認できます。</p>
+      <p class="afc-lead">出場国をグループ別に確認できます。</p>
 
       <div class="afc-filterbar">
         <div class="afc-filter-row">
@@ -1328,6 +1359,48 @@ const v = (x: unknown) => String(x ?? "").trim() || "-";
 
     .page-afc .afc-postponement strong {
       font-weight: 800;
+    }
+
+    /* ===== ポータル上部：欧州大会・WC準拠 ===== */
+    .page-afc .afc-portal { --afc-accent: var(--color-afc, #7046a6); }
+    .page-afc .afc-breadcrumb { display:flex; align-items:center; gap:8px; padding:10px 12px; margin: 12px 0 14px; border:1px solid #e6e6e6; border-radius:14px; background:#fff; color:#666; font-size:12px; }
+    .page-afc .afc-breadcrumb a { color:#444; }
+    .page-afc .afc-portal h1 { margin: 0 0 8px; font-size:24px; line-height:1.35; }
+    .page-afc .afc-lead { margin:4px 0; color:#666; font-size:14px; line-height:1.6; }
+    .page-afc .afc-postponement { margin:6px 0 8px; font-size:12px; line-height:1.6; }
+    .page-afc .afc-page-nav { margin:10px 0 12px; }
+    .page-afc .afc-page-nav > .quick-title { margin:0 0 6px; font-size:12px; color:#666; }
+    .page-afc .afc-page-nav-links { gap:6px; }
+    .page-afc .afc-page-nav-links a, .page-afc .afc-edition-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e6e6e6; color:#111; font-size:12px; line-height:1.15; font-weight:400; text-decoration:none; white-space:nowrap; }
+    .page-afc .afc-page-nav-links a::before, .page-afc .afc-edition-pill::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:var(--afc-accent); }
+    .page-afc .afc-edition-pill::before { background:#9ca3af; }
+    .page-afc .afc-edition-pill.is-active { background:var(--afc-accent); border-color:var(--afc-accent); color:#fff; font-weight:700; }
+    .page-afc .afc-edition-pill.is-active::before { background:#fff; }
+    .page-afc .afc-edition-row { display:flex; align-items:center; gap:8px; margin:8px 0 14px; }
+    .page-afc .afc-switch-label { flex:0 0 100px; font-size:12px; color:#666; }
+    .page-afc .afc-editions { margin:0; gap:6px; }
+    .page-afc .afc-summary { margin:12px 0 18px; padding:10px 12px; border:1px solid #d8c9e9; border-left:5px solid var(--afc-accent); border-radius:12px; background:#f7f4fa; }
+    .page-afc .afc-summary h2 { margin:0 0 8px; font-size:18px; }
+    .page-afc .afc-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .page-afc .afc-summary-grid > div { min-width:0; padding:7px 9px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; }
+    .page-afc .afc-summary-grid span { display:block; color:#777; font-size:11px; }
+    .page-afc .afc-summary-grid strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+    .page-afc .afc-teams { margin:18px 0 24px; }
+    .page-afc .afc-teams h2 { margin:0 0 8px; font-size:20px; }
+    .page-afc .afc-filterbar { padding:10px; margin:8px 0; border:1px solid #e6e6e6; border-radius:12px; background:#fafafa; }
+    .page-afc .afc-filter-row { justify-content:space-between; margin-bottom:8px; font-size:12px; color:#666; }
+    .page-afc #afc-team-search { padding:6px 10px; font-size:12px; }
+    .page-afc .afc-group-filter { margin:0; gap:8px; }
+    .page-afc .afc-pill { padding:5px 10px; font-size:12px; line-height:1.15; }
+    .page-afc .afc-team-card { padding:8px; font-size:13px; }
+    .page-afc .afc-portal section[id] { scroll-margin-top:80px; }
+    @media (max-width:700px) {
+      .page-afc .afc-portal h1 { font-size:20px; }
+      .page-afc .afc-switch-label { flex-basis:76px; }
+      .page-afc .afc-edition-row { align-items:flex-start; }
+      .page-afc .afc-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .page-afc .afc-team-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .page-afc .afc-team-card { flex-wrap:wrap; gap:4px; }
     }
   </style>
 </BaseLayout>

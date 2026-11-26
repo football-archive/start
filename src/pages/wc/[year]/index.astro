@@ -24,6 +24,8 @@ import {
 
 import { getAwards } from "../../../lib/competitionAwards";
 
+import { applyTournamentGA } from "../../../lib/tournamentPlayerStats";
+
 // --------------------
 // getStaticPaths：callups に存在する edition を自動列挙
 // --------------------
@@ -318,34 +320,62 @@ for (const [g, list] of standingsByGroup.entries()) {
 }
 
 const awardRowsRaw = getAwards("WC", String(year));
+
 const normalizeAwardMatchText = (value: unknown) =>
   String(value ?? "")
     .trim()
     .replace(/　/g, " ")
     .replace(/\s+/g, " ");
-const makeAwardCallupKey = (player: unknown) => normalizeAwardMatchText(player);
-const callupByAwardKey = new Map<string, any>();
+
+const makeAwardCallupKey = (player: unknown, team: unknown) =>
+  `${normalizeAwardMatchText(team)}__${normalizeAwardMatchText(player)}`;
+
+// 国別にcallupsを分類
+const awardCallupsByTeam = new Map<string, any[]>();
 
 for (const r of filtered as any[]) {
-  const playerName = r.name_ja; // 実際の選手名列を使用
-  const key = makeAwardCallupKey(playerName);
+  const team = normalizeAwardMatchText(r.country);
+  if (!team) continue;
 
-  if (!key) continue;
+  if (!awardCallupsByTeam.has(team)) {
+    awardCallupsByTeam.set(team, []);
+  }
+
+  awardCallupsByTeam.get(team)!.push(r);
+}
+
+// 代表ページと同じGA補完処理を適用
+const awardCallups = Array.from(awardCallupsByTeam.entries()).flatMap(
+  ([team, teamRows]) => applyTournamentGA(teamRows, "WC", String(year), team),
+);
+
+const callupByAwardKey = new Map<string, any>();
+
+for (const r of awardCallups) {
+  const key = makeAwardCallupKey(r.name_ja, r.country);
+  if (!r.name_ja) continue;
 
   callupByAwardKey.set(key, r);
 }
+
 const awardRows = awardRowsRaw.map((award) => {
-  const callup = callupByAwardKey.get(makeAwardCallupKey(award.player)) ?? null;
+  const callup =
+    callupByAwardKey.get(makeAwardCallupKey(award.player, award.team)) ?? null;
 
   return {
     ...award,
     callup,
   };
 });
-const hasAwardStats = filtered.some((r: any) => {
-  const appearances = String(r.apps ?? "").trim();
-  return appearances !== "";
-});
+
+// 出場数とGAの表示判定を分離
+const hasAwardApps = awardCallups.some(
+  (r) => String(r.apps ?? "").trim() !== "",
+);
+
+const hasAwardGA = awardCallups.some((r) =>
+  [r.goals, r.assists].some((v) => String(v ?? "").trim() !== ""),
+);
 
 const wcEditionCandidates = [
   "2026",
@@ -370,6 +400,22 @@ const wcEditionPills = wcEditionCandidates
     href: tournamentTopUrl({ tournament: "wc", year: y }),
     isActive: String(y) === year,
   }));
+
+const summaryEntrants = countryToGroup.size;
+const summaryGoals = (() => {
+  if (!goalRank.length) return "—";
+  const value = Number(goalRank[0].goals);
+  const leaders = goalRank.filter((r) => Number(r.goals) === value);
+  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
+})();
+const summaryAssists = (() => {
+  if (!assistRank.length) return "—";
+  const value = Number(assistRank[0].assists);
+  const leaders = assistRank.filter((r) => Number(r.assists) === value);
+  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
+})();
 
 const wcTitle = `FIFAワールドカップ${year}`;
 const portalHeading = `${wcTitle} 大会ポータルページ`;
@@ -1208,17 +1254,46 @@ const pageDesc = isCurrentEdition
         max-width: none;
       }
     }
+
+    /* ===== 大会ポータル上部：AFC・欧州大会準拠 ===== */
+    .page-wc .wc-portal-nav { margin:10px 0 12px; }
+    .page-wc .wc-portal-nav > .quick-title { margin:0 0 6px; font-size:12px; }
+    .page-wc .wc-portal-nav .pills, .page-wc .edition-switch .pills { gap:6px; }
+    .page-wc .wc-portal-nav .pill, .page-wc .edition-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e6e6e6; color:#111; font-size:12px; line-height:1.15; font-weight:400; text-decoration:none; white-space:nowrap; min-width:0; }
+    .page-wc .wc-portal-nav .dot { opacity:1; flex:0 0 7px; }
+    .page-wc .edition-pill::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:#9ca3af; }
+    .page-wc .edition-pill.is-active { background:var(--theme-color); border-color:var(--theme-color); color:#fff; font-weight:700; }
+    .page-wc .edition-pill.is-active::before { background:#fff; }
+    .page-wc .edition-switch { display:flex; align-items:center; gap:8px; margin:8px 0 14px; }
+    .page-wc .edition-switch-head { flex:0 0 102px; margin:0; font-size:12px; font-weight:500; }
+    .page-wc .wc-summary { margin:12px 0 18px; padding:10px 12px; border:1px solid color-mix(in srgb,var(--theme-color) 25%,white); border-left:5px solid var(--theme-color); border-radius:12px; background:color-mix(in srgb,var(--theme-color) 5%,white); }
+    .page-wc .wc-summary h2 { margin:0 0 8px; font-size:18px; }
+    .page-wc .wc-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
+    .page-wc .wc-summary-grid > div { min-width:0; padding:7px 9px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; }
+    .page-wc .wc-summary-grid span { display:block; color:#777; font-size:11px; }
+    .page-wc .wc-summary-grid strong { display:block; font-size:13px; overflow-wrap:anywhere; }
+    .page-wc .filterbar .row { margin-bottom:6px; }
+    .page-wc .filter-line { align-items:center; margin:6px 0; }
+    .page-wc .filter-label { line-height:1.4; }
+    .page-wc .filter-line .pill { font-size:12px; padding:6px 10px; }
+    .page-wc .filter-line .pill.is-active { background:var(--theme-color); color:#fff; border-color:var(--theme-color); }
+    .page-wc .filter-line .pill.is-active .dot { background:#fff; }
+    @media(max-width:700px) {
+      .page-wc .edition-switch { align-items:flex-start; }
+      .page-wc .edition-switch-head { flex-basis:88px; padding-top:6px; }
+      .page-wc .wc-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
 
-  <p class="quick-title" style="margin: 6px 0 6px;">
+  <p class="quick-title" style="margin: 6px 0 6px; font-size:14px; line-height:1.6;">
     {
       wcTitle
-    }の出場国一覧と各国の代表メンバーを掲載。🔥この１ページで大会全体を俯瞰することができます。
+    }の出場国一覧と各国の代表メンバーを掲載。この1ページで大会全体を確認できます。
   </p>
 
-  <p class="quick-title" style="margin: 0 0 10px;">
+  <p class="quick-title" style="margin: 0 0 10px; font-size:14px; line-height:1.6;">
     {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
     出場国・日程・順位・得点ランキングをまとめて確認できます。
     {
@@ -1248,50 +1323,33 @@ const pageDesc = isCurrentEdition
     */
   }
 
-  <div class="toc-box" style="margin: 10px 0 16px;">
-    <p class="quick-title" style="margin-bottom:6px;">
-      ⚽ このページで確認できる内容
-    </p>
-    <div class="pills">
-      <a class="pill" href="#schedule"><span class="dot"></span>日程・結果</a>
-
-      {
-        hasTournamentBracket && (
-          <a class="pill" href="#tournament-bracket">
-            <span class="dot" />
-            決勝トーナメント表
-          </a>
-        )
-      }
-
-      <a class="pill" href="#groups"><span class="dot"></span>グループ勝敗表</a>
-
-      <a class="pill" href="#teams"><span class="dot"></span>出場国一覧</a>
-      <a class="pill" href="#rankings">
-        <span class="dot"></span>得点ランキング
-      </a>
-      <a class="pill" href="#awards"><span class="dot"></span>大会表彰</a>
-    </div>
+  <div class="toc-box wc-portal-nav">
+    <p class="quick-title">🧭 このページで確認できる内容</p>
+    <nav class="pills" aria-label="ページ内ナビゲーション">
+      <a class="pill" href="#summary"><span class="dot" aria-hidden="true" />🏆 大会サマリー</a>
+      <a class="pill" href="#teams"><span class="dot" aria-hidden="true" />⚽ 出場国一覧</a>
+      <a class="pill" href="#schedule"><span class="dot" aria-hidden="true" />🏟 日程・結果</a>
+      <a class="pill" href="#groups"><span class="dot" aria-hidden="true" />📊 グループ勝敗表</a>
+      {hasTournamentBracket && (
+        <a class="pill" href="#tournament-bracket"><span class="dot" aria-hidden="true" />🏆 決勝トーナメント表</a>
+      )}
+      <a class="pill" href="#rankings"><span class="dot" aria-hidden="true" />🥇 得点・アシスト</a>
+      <a class="pill" href="#awards"><span class="dot" aria-hidden="true" />🏅 大会表彰</a>
+    </nav>
   </div>
 
-  {
-    wcEditionPills.length > 1 && (
-      <div class="edition-switch">
-        <p class="edition-switch-head">🔍 大会を切り替える</p>
-        <div class="pills">
-          {wcEditionPills.map((item) =>
-            item.isActive ? (
-              <span class="edition-pill is-active">{item.year}</span>
-            ) : (
-              <a class="edition-pill" href={item.href}>
-                {item.year}
-              </a>
-            ),
-          )}
-        </div>
-      </div>
-    )
-  }
+  {wcEditionPills.length > 1 && (
+    <div class="edition-switch">
+      <span class="edition-switch-head">🔎 大会切替</span>
+      <nav class="pills" aria-label="FIFAワールドカップ開催年">
+        {wcEditionPills.map((item) => item.isActive ? (
+          <span class="edition-pill is-active" aria-current="page">{item.year}</span>
+        ) : (
+          <a class="edition-pill" href={item.href}>{item.year}</a>
+        ))}
+      </nav>
+    </div>
+  )}
 
   {
     /*　WC開催中のみ
@@ -1329,7 +1387,15 @@ const pageDesc = isCurrentEdition
     )
   }
 
-  <div class="nt-divider" aria-hidden="true"></div>
+  <section id="summary" class="wc-summary">
+    <h2>🏆 大会サマリー</h2>
+    <div class="wc-summary-grid">
+      <div><span>出場国</span><strong>{summaryEntrants ? `${summaryEntrants}か国` : "—"}</strong></div>
+
+      <div><span>得点王（最多得点）</span><strong>{summaryGoals}</strong></div>
+      <div><span>最多アシスト</span><strong>{summaryAssists}</strong></div>
+    </div>
+  </section>
 
   {
     /*=========================
@@ -1884,9 +1950,10 @@ const pageDesc = isCurrentEdition
                   <th>選手</th>
                   <th>国</th>
 
-                  {hasAwardStats && (
+                  {hasAwardApps && <th class="num">出場</th>}
+
+                  {hasAwardGA && (
                     <>
-                      <th class="num">出場</th>
                       <th class="num">G</th>
                       <th class="num">A</th>
                     </>
@@ -1926,17 +1993,20 @@ const pageDesc = isCurrentEdition
                         )}
                       </td>
 
-                      {hasAwardStats && (
+                      {hasAwardApps && (
+                        <td class="num">
+                          {String(callup?.apps ?? "").trim()
+                            ? `${callup.apps}${
+                                String(callup.starts ?? "").trim()
+                                  ? `（先発${callup.starts}）`
+                                  : ""
+                              }`
+                            : "－"}
+                        </td>
+                      )}
+
+                      {hasAwardGA && (
                         <>
-                          <td class="num">
-                            {callup
-                              ? `${callup.apps}${
-                                  String(callup.starts ?? "").trim()
-                                    ? `（先発${callup.starts}）`
-                                    : ""
-                                }`
-                              : "－"}
-                          </td>
                           <td class="num">
                             {String(callup?.goals ?? "").trim() || "－"}
                           </td>

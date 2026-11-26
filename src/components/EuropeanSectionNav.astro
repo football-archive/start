@@ -1,0 +1,111 @@
+---
+interface Props {
+  knockoutId: string;
+  hasTournamentBracket?: boolean;
+  hasRankings?: boolean;
+  hasAwards?: boolean;
+}
+
+const {
+  knockoutId,
+  hasTournamentBracket = false,
+  hasRankings = true,
+  hasAwards = false,
+} = Astro.props;
+
+const items = [
+  { id: "summary", label: "🏆 大会サマリー" },
+  { id: "clubs", label: "⚽ 出場クラブ" },
+  { id: "league-phase-schedule", label: "🏟 LP日程・結果" },
+  { id: "league-phase", label: "📊 LP順位表" },
+  { id: knockoutId, label: "🏟 KP日程・結果" },
+  ...(hasTournamentBracket
+    ? [{ id: "tournament-bracket", label: "🏆 トーナメント表" }]
+    : []),
+  ...(hasRankings
+    ? [{ id: "rankings", label: "🥇 得点・アシスト" }]
+    : []),
+  ...(hasAwards
+    ? [{ id: "awards", label: "🏅 大会表彰" }]
+    : []),
+];
+---
+
+<nav class="section-nav" aria-label="ページ内ナビゲーション">
+  <div class="section-label">🧭 このページで確認できる内容</div>
+
+  <div class="section-pills">
+    {
+      items.map((item) => (
+        <a class="section-pill" href={`#${item.id}`}>
+          <span class="section-dot" aria-hidden="true" />
+          {item.label}
+        </a>
+      ))
+    }
+  </div>
+</nav>
+
+<style>
+  .section-nav {
+    margin: 10px 0 14px;
+  }
+
+  .section-label {
+    margin-bottom: 6px;
+    color: #666;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  .section-pills {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .section-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 10px;
+    border: 1px solid
+      color-mix(in srgb, var(--theme-color) 15%, white);
+    border-radius: 999px;
+    background: #fff;
+    color: #111;
+    font-size: 12px;
+    line-height: 1;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .section-dot {
+    width: 7px;
+    height: 7px;
+    flex: 0 0 7px;
+    border-radius: 50%;
+    background: var(--theme-color);
+  }
+
+  .section-pill:hover {
+    border-color: var(--theme-color);
+    background: color-mix(
+      in srgb,
+      var(--theme-color) 8%,
+      white
+    );
+  }
+
+  @media (max-width: 700px) {
+    .section-pills {
+      gap: 5px;
+    }
+
+    .section-pill {
+      padding: 6px 9px;
+      font-size: 11px;
+    }
+  }
+</style>
