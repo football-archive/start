@@ -406,14 +406,20 @@ const summaryGoals = (() => {
   if (!goalRank.length) return "—";
   const value = Number(goalRank[0].goals);
   const leaders = goalRank.filter((r) => Number(r.goals) === value);
-  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  const names = leaders
+    .slice(0, 2)
+    .map((r) => r.player)
+    .join(" / ");
   return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
 })();
 const summaryAssists = (() => {
   if (!assistRank.length) return "—";
   const value = Number(assistRank[0].assists);
   const leaders = assistRank.filter((r) => Number(r.assists) === value);
-  const names = leaders.slice(0, 2).map((r) => r.player).join(" / ");
+  const names = leaders
+    .slice(0, 2)
+    .map((r) => r.player)
+    .join(" / ");
   return `${names}${leaders.length > 2 ? ` ほか${leaders.length - 2}名` : ""}（${value}）`;
 })();
 
@@ -1256,44 +1262,150 @@ const pageDesc = isCurrentEdition
     }
 
     /* ===== 大会ポータル上部：AFC・欧州大会準拠 ===== */
-    .page-wc .wc-portal-nav { margin:10px 0 12px; }
-    .page-wc .wc-portal-nav > .quick-title { margin:0 0 6px; font-size:12px; }
-    .page-wc .wc-portal-nav .pills, .page-wc .edition-switch .pills { gap:6px; }
-    .page-wc .wc-portal-nav .pill, .page-wc .edition-pill { display:inline-flex; align-items:center; gap:6px; padding:6px 10px; border:1px solid #e6e6e6; color:#111; font-size:12px; line-height:1.15; font-weight:400; text-decoration:none; white-space:nowrap; min-width:0; }
-    .page-wc .wc-portal-nav .dot { opacity:1; flex:0 0 7px; }
-    .page-wc .edition-pill::before { content:""; width:7px; height:7px; flex:0 0 7px; border-radius:50%; background:#9ca3af; }
-    .page-wc .edition-pill.is-active { background:var(--theme-color); border-color:var(--theme-color); color:#fff; font-weight:700; }
-    .page-wc .edition-pill.is-active::before { background:#fff; }
-    .page-wc .edition-switch { display:flex; align-items:center; gap:8px; margin:8px 0 14px; }
-    .page-wc .edition-switch-head { flex:0 0 102px; margin:0; font-size:12px; font-weight:500; }
-    .page-wc .wc-summary { margin:12px 0 18px; padding:10px 12px; border:1px solid color-mix(in srgb,var(--theme-color) 25%,white); border-left:5px solid var(--theme-color); border-radius:12px; background:color-mix(in srgb,var(--theme-color) 5%,white); }
-    .page-wc .wc-summary h2 { margin:0 0 8px; font-size:18px; }
-    .page-wc .wc-summary-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:6px; }
-    .page-wc .wc-summary-grid > div { min-width:0; padding:7px 9px; border:1px solid #e6e6e6; border-radius:8px; background:#fff; }
-    .page-wc .wc-summary-grid span { display:block; color:#777; font-size:11px; }
-    .page-wc .wc-summary-grid strong { display:block; font-size:13px; overflow-wrap:anywhere; }
-    .page-wc .filterbar .row { margin-bottom:6px; }
-    .page-wc .filter-line { align-items:center; margin:6px 0; }
-    .page-wc .filter-label { line-height:1.4; }
-    .page-wc .filter-line .pill { font-size:12px; padding:6px 10px; }
-    .page-wc .filter-line .pill.is-active { background:var(--theme-color); color:#fff; border-color:var(--theme-color); }
-    .page-wc .filter-line .pill.is-active .dot { background:#fff; }
-    @media(max-width:700px) {
-      .page-wc .edition-switch { align-items:flex-start; }
-      .page-wc .edition-switch-head { flex-basis:88px; padding-top:6px; }
-      .page-wc .wc-summary-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    .page-wc .wc-portal-nav {
+      margin: 10px 0 12px;
+    }
+    .page-wc .wc-portal-nav > .quick-title {
+      margin: 0 0 6px;
+      font-size: 12px;
+    }
+    .page-wc .wc-portal-nav .pills,
+    .page-wc .edition-switch .pills {
+      gap: 6px;
+    }
+    .page-wc .wc-portal-nav .pill,
+    .page-wc .edition-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border: 1px solid #e6e6e6;
+      color: #111;
+      font-size: 12px;
+      line-height: 1.15;
+      font-weight: 400;
+      text-decoration: none;
+      white-space: nowrap;
+      min-width: 0;
+    }
+    .page-wc .wc-portal-nav .dot {
+      opacity: 1;
+      flex: 0 0 7px;
+    }
+    .page-wc .edition-pill::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      flex: 0 0 7px;
+      border-radius: 50%;
+      background: #9ca3af;
+    }
+    .page-wc .edition-pill.is-active {
+      background: var(--theme-color);
+      border-color: var(--theme-color);
+      color: #fff;
+      font-weight: 700;
+    }
+    .page-wc .edition-pill.is-active::before {
+      background: #fff;
+    }
+    .page-wc .edition-switch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0 14px;
+    }
+    .page-wc .edition-switch-head {
+      flex: 0 0 102px;
+      margin: 0;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .page-wc .wc-summary {
+      margin: 12px 0 18px;
+      padding: 10px 12px;
+      border: 1px solid color-mix(in srgb, var(--theme-color) 25%, white);
+      border-left: 5px solid var(--theme-color);
+      border-radius: 12px;
+      background: color-mix(in srgb, var(--theme-color) 5%, white);
+    }
+    .page-wc .wc-summary h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .page-wc .wc-summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 6px;
+    }
+    .page-wc .wc-summary-grid > div {
+      min-width: 0;
+      padding: 7px 9px;
+      border: 1px solid #e6e6e6;
+      border-radius: 8px;
+      background: #fff;
+    }
+    .page-wc .wc-summary-grid span {
+      display: block;
+      color: #777;
+      font-size: 11px;
+    }
+    .page-wc .wc-summary-grid strong {
+      display: block;
+      font-size: 13px;
+      overflow-wrap: anywhere;
+    }
+    .page-wc .filterbar .row {
+      margin-bottom: 6px;
+    }
+    .page-wc .filter-line {
+      align-items: center;
+      margin: 6px 0;
+    }
+    .page-wc .filter-label {
+      line-height: 1.4;
+    }
+    .page-wc .filter-line .pill {
+      font-size: 12px;
+      padding: 6px 10px;
+    }
+    .page-wc .filter-line .pill.is-active {
+      background: var(--theme-color);
+      color: #fff;
+      border-color: var(--theme-color);
+    }
+    .page-wc .filter-line .pill.is-active .dot {
+      background: #fff;
+    }
+    @media (max-width: 700px) {
+      .page-wc .edition-switch {
+        align-items: flex-start;
+      }
+      .page-wc .edition-switch-head {
+        flex-basis: 88px;
+        padding-top: 6px;
+      }
+      .page-wc .wc-summary-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
     }
   </style>
 
   <h1 style="margin: 6px 0 10px;">{portalHeading}</h1>
 
-  <p class="quick-title" style="margin: 6px 0 6px; font-size:14px; line-height:1.6;">
+  <p
+    class="quick-title"
+    style="margin: 6px 0 6px; font-size:14px; line-height:1.6;"
+  >
     {
       wcTitle
     }の出場国一覧と各国の代表メンバーを掲載。この1ページで大会全体を確認できます。
   </p>
 
-  <p class="quick-title" style="margin: 0 0 10px; font-size:14px; line-height:1.6;">
+  <p
+    class="quick-title"
+    style="margin: 0 0 10px; font-size:14px; line-height:1.6;"
+  >
     {isCurrentEdition ? "2026年大会は史上初の48カ国開催。" : ""}
     出場国・日程・順位・得点ランキングをまとめて確認できます。
     {
@@ -1326,30 +1438,57 @@ const pageDesc = isCurrentEdition
   <div class="toc-box wc-portal-nav">
     <p class="quick-title">🧭 このページで確認できる内容</p>
     <nav class="pills" aria-label="ページ内ナビゲーション">
-      <a class="pill" href="#summary"><span class="dot" aria-hidden="true" />🏆 大会サマリー</a>
-      <a class="pill" href="#teams"><span class="dot" aria-hidden="true" />⚽ 出場国一覧</a>
-      <a class="pill" href="#schedule"><span class="dot" aria-hidden="true" />🏟 日程・結果</a>
-      <a class="pill" href="#groups"><span class="dot" aria-hidden="true" />📊 グループ勝敗表</a>
-      {hasTournamentBracket && (
-        <a class="pill" href="#tournament-bracket"><span class="dot" aria-hidden="true" />🏆 決勝トーナメント表</a>
-      )}
-      <a class="pill" href="#rankings"><span class="dot" aria-hidden="true" />🥇 得点・アシスト</a>
-      <a class="pill" href="#awards"><span class="dot" aria-hidden="true" />🏅 大会表彰</a>
+      <a class="pill" href="#summary"
+        ><span class="dot" aria-hidden="true"></span>🏆 大会サマリー</a
+      >
+      <a class="pill" href="#teams"
+        ><span class="dot" aria-hidden="true"></span>⚽ 出場国一覧</a
+      >
+
+      <a class="pill" href="#groups"
+        ><span class="dot" aria-hidden="true"></span>📊 グループ勝敗表</a
+      >
+      {
+        hasTournamentBracket && (
+          <a class="pill" href="#tournament-bracket">
+            <span class="dot" aria-hidden="true" />
+            🏆 決勝トーナメント表
+          </a>
+        )
+      }
+
+      <a class="pill" href="#schedule"
+        ><span class="dot" aria-hidden="true"></span>🏟 日程・結果</a
+      >
+      <a class="pill" href="#rankings"
+        ><span class="dot" aria-hidden="true"></span>🥇 得点・アシスト</a
+      >
+      <a class="pill" href="#awards"
+        ><span class="dot" aria-hidden="true"></span>🏅 大会表彰</a
+      >
     </nav>
   </div>
 
-  {wcEditionPills.length > 1 && (
-    <div class="edition-switch">
-      <span class="edition-switch-head">🔎 大会切替</span>
-      <nav class="pills" aria-label="FIFAワールドカップ開催年">
-        {wcEditionPills.map((item) => item.isActive ? (
-          <span class="edition-pill is-active" aria-current="page">{item.year}</span>
-        ) : (
-          <a class="edition-pill" href={item.href}>{item.year}</a>
-        ))}
-      </nav>
-    </div>
-  )}
+  {
+    wcEditionPills.length > 1 && (
+      <div class="edition-switch">
+        <span class="edition-switch-head">🔎 大会切替</span>
+        <nav class="pills" aria-label="FIFAワールドカップ開催年">
+          {wcEditionPills.map((item) =>
+            item.isActive ? (
+              <span class="edition-pill is-active" aria-current="page">
+                {item.year}
+              </span>
+            ) : (
+              <a class="edition-pill" href={item.href}>
+                {item.year}
+              </a>
+            ),
+          )}
+        </nav>
+      </div>
+    )
+  }
 
   {
     /*　WC開催中のみ
@@ -1390,7 +1529,11 @@ const pageDesc = isCurrentEdition
   <section id="summary" class="wc-summary">
     <h2>🏆 大会サマリー</h2>
     <div class="wc-summary-grid">
-      <div><span>出場国</span><strong>{summaryEntrants ? `${summaryEntrants}か国` : "—"}</strong></div>
+      <div>
+        <span>出場国</span><strong
+          >{summaryEntrants ? `${summaryEntrants}か国` : "—"}</strong
+        >
+      </div>
 
       <div><span>得点王（最多得点）</span><strong>{summaryGoals}</strong></div>
       <div><span>最多アシスト</span><strong>{summaryAssists}</strong></div>
@@ -1684,19 +1827,6 @@ const pageDesc = isCurrentEdition
 
     {
       /* =========================
-    (3) 日程・試合結果（アンカー用に section wrap）
-   ========================= */
-    }
-    <section id="schedule" style="margin: 18px 0;">
-      <h2>⚽ {wcTitle} 日程・試合結果</h2>
-      <p class="quick-title" style="margin: 6px 0 10px;">
-        {wcTitle} の全試合の日程・結果を掲載しています（結果は随時更新）。
-      </p>
-      <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
-    </section>
-
-    {
-      /* =========================
       (3) グループ枠（A〜L）
      ========================= */
     }
@@ -1833,6 +1963,20 @@ const pageDesc = isCurrentEdition
         </section>
       )
     }
+
+    {
+      /* =========================
+    (3) 日程・試合結果（アンカー用に section wrap）
+   ========================= */
+    }
+    <section id="schedule" style="margin: 18px 0;">
+      <h2>⚽ {wcTitle} 日程・試合結果</h2>
+      <p class="quick-title" style="margin: 6px 0 10px;">
+        {wcTitle} の全試合の日程・結果を掲載しています（結果は随時更新）。
+      </p>
+      <MatchScheduleTable matches={matches} heading={`WC${year} 日程・結果`} />
+    </section>
+
     {
       /* =========================
     (4) ランキング（得点 / アシスト）
@@ -1841,7 +1985,7 @@ const pageDesc = isCurrentEdition
     <section id="rankings" style="margin: 18px 0;">
       <h2>⚽ {wcTitle} 得点・アシストランキング</h2>
       <p class="quick-title" style="margin: 6px 0 10px;">
-        {wcTitle} の得点・アシストを試合結果から随時更新していきます。
+        {wcTitle} の試合結果から随時更新しています。
       </p>
       {
         showGARank ? (
